@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="signomix" default="all" basedir="." 
+         xmlns:if="ant:if"
+         xmlns:unless="ant:unless">
+    
+    <!-- ################################################################### -->
+    <!--                                                                     -->
+    <!-- BUILD CONFIGURATION                                                 -->
+    <!--                                                                     -->
+    <!-- Remember to modify the project name (see line 2 of this file)       -->
+    <!--                                                                     -->
+    <description>Signomix</description>
+    <property name="version" value="1.1.46"/> <!-- service version           -->
+    <property name="cricket-version" value="1.2.51" /> <!-- 1.2.30 -->
+    <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
+    <property name="docker-repository" value="" />
+    <property name="minify" value="true" />
+    <property name="javax.mail-version" value="1.6.2" />
+    
+    <!-- configuration of libraries included in the distribution fat-jar     -->
+    <!-- set value=false to exclude selected library                         -->
+    <property name="module-javamail" value="true"/> <!-- JavaMail reference implementation -->
+    <property name="javamail-jar-location" value="lib/javax.mail-${javax.mail-version}.jar" />
+    <!--                                                                     -->
+    <!-- END OF CONFIGURATION                                                -->
+    <!-- ################################################################### -->
+
+    <!-- do not modify properties below -->
+    <property name="src" location="src/java"/>
+    <property name="src-js" location="src/js"/>
+    <property name="src-other" location="src/other"/>
+    <property name="build" location="build/classes"/>
+    <property name="dist" location="dist"/>
+    <property name="web" location="web"/>
+    <property name="lib" location="lib"/>
+    
+    <path id="project-classpath">
+        <pathelement location="${cricket-jar-location}"/>
+        <pathelement location="${h2-jar-location}"/>
+        <pathelement location="${kafka-jar-location}"/> 
+        <pathelement location="${saaj-jar-location}/"/>
+        <pathelement location="${javamail-jar-location}/"/>
+    </path>
+
+    <target name="init">
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}"/>
+    </target>
+   
+    <target name="get-dependencies" description="upload Cricket MSF library">
+        <mkdir dir="${lib}"/>
+        <get
+            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
+            dest="lib/cricket-${cricket-version}.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
+            dest="lib/cricket-${cricket-version}.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get 
+            src="http://central.maven.org/maven2/com/sun/mail/javax.mail/${javax.mail-version}/javax.mail-${javax.mail-version}.jar"
+            dest="lib/javax.mail-${javax.mail-version}.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+    </target>
+
+    <target name="compile" depends="init" description="compile the source">
+        <echo/>
+        <input message="Please enter release type [standard|mini]:" addproperty="releaseType" defaultvalue="standard"/>
+        <echo message="Compiling release type: ${releaseType}"/>
+        <copy overwrite="true" file="${src}/com/signomix/Invariants.template" tofile="${src}/com/signomix/Invariants.java"/>
+        <replace file="${src}/com/signomix/Invariants.java" token="{{type}}" value="${releaseType}"/>
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac 
+            target="1.8" 
+            source="1.8" 
+            srcdir="${src}" 
+            destdir="${build}"
+            includeantruntime="false" 
+            debug="on"
+            classpathref="project-classpath">
+            <!--<compilerarg value="-Xlint:unchecked"/>-->
+        </javac>
+        <!--<copy overwrite="true" file="${src}/com/signocom/signode/Invariants.original" tofile="${src}/com/signocom/signode/Invariants.java"/>-->
+        <delete file="${src}/com/signocom/signode/Invariants.original" />
+    </target>
+
+    <target name="dist" depends="clean, compile"
+            description="generate the distribution">
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist}"/>
+        <antcall inheritall="true" target="jar"/>
+        <mkdir dir="${dist}/config"/>
+        <mkdir dir="${dist}/files"/>
+        <mkdir dir="${dist}/data"/>
+        <mkdir dir="${dist}/www"/>
+        <mkdir dir="${dist}/www/assets"/>
+        <mkdir dir="${dist}/var"/>
+        <mkdir dir="${dist}/log"/>
+        <echo/>
+        <input message="Please enter environment name [dev|production]:" addproperty="environment.name" defaultvalue="dev"/>
+        <echo message="Building archive for environment: ${environment.name}"/>
+        <copy todir="${dist}/config" file="${src-js}/device-script-template.js"/>
+        <copy todir="${dist}/config" file="${src-js}/payload-decoder-envelope.js"/>
+        <!--<copy tofile="${dist}/data/readme.txt" file="${src-other}/readme-data.txt"/>-->
+        <delete file="${dist}/data/cricket_publickeystore.jks" failonerror="false"></delete>
+        <genkey alias="cricket" 
+                keystore="${dist}/data/cricket_publickeystore.jks" 
+                storepass="cricket15$#17" 
+                keypass="cricket15$#17" 
+                keyalg="RSA" 
+                keysize="2048" 
+                validity="720">
+            <dname>
+                <param name="CN" value="signomix.signocom.com"/>
+                <param name="O" value="SIGNOCOM Sp. z o.o."/>
+            </dname>
+        </genkey>
+        <copy todir="${dist}/www">
+            <fileset dir="www" excludes="**/*.svg,**/*.png,**/*.gif,**/*.jpg,**/*.jpeg,**/*.otf,,**/*.eot,**/*.ttf,**/*.woff,**/*.woff2"/>
+            <filterchain if:true="${minify}">
+                <tokenfilter>
+                    <deletecharacters chars="\r"/>
+                    <trim/>
+                    <ignoreblank/>
+                </tokenfilter>
+                <striplinecomments>
+                    <comment value="&lt;!"/>
+                </striplinecomments>
+            </filterchain>
+        </copy>
+        <copy todir="${dist}/www">
+            <fileset dir="www" includes="**/*.svg,**/*.png,**/*.gif,**/*.jpg,**/*.jpeg,**/*.otf,,**/*.eot,**/*.ttf,**/*.woff,**/*.woff2"/>
+        </copy>
+        <echo message="Building archive for environment ${environment.name}"/>
+        <copy todir="${dist}/config" file="${src-other}/environment/${environment.name}/cricket.json"/>
+        <copy todir="${dist}" file="${src-other}/environment/${environment.name}/signomix.service"/>
+        <copy todir="${dist}" file="${src-other}/environment/${environment.name}/signomix.sh"/>
+        <copy todir="${dist}" file="${src-other}/environment/${environment.name}/run.sh"/>
+        <copy todir="${dist}" file="${src-other}/environment/${environment.name}/readme.txt"/>
+        <replace file="${dist}/signomix.sh" token="{{distribution}}" value="${ant.project.name}-${version}"/>
+        <replace file="${dist}/run.sh" token="{{distribution}}" value="${ant.project.name}-${version}"/>
+        <replace file="${dist}/www/admin/components/app_main.tag" token="cricket-version" value="${cricket-version}"/>
+        <replace file="${dist}/www/admin/components/app_main.tag" token="app-version" value="${version}"/>
+        <!--<antcall target="restore"/>-->
+        <zip basedir="dist" destfile="signomix.zip"/>
+    </target>
+
+    <target name="clean" description="clean up">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+    
+    <target name="jar">
+        <copy todir="${build}" overwrite="true">
+            <fileset dir="${src}" includes="*.json"/>
+            <fileset dir="${src}" includes="*.txt"/>
+        </copy>
+        <!--
+        <jar destfile="${dist}/${ant.project.name}-core-${version}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.cricketmsf.Runner"/>
+            </manifest>
+            <fileset dir="${build}"/>
+            <zipfileset src="${cricket-jar-location}" excludes="**/*.json" includes="**/*"/>
+        </jar>
+        -->
+        <jar destfile="${dist}/${ant.project.name}-${version}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.cricketmsf.Runner"/>
+            </manifest>
+            <zipfileset src="${cricket-jar-location}" excludes="**/*.json" includes="**/*"/>
+            <fileset dir="${build}" />
+            <!-- optional libraries -->
+            <zipfileset if:true="${module-h2}" src="${h2-jar-location}" includes="org/**/*"/>
+            <zipfileset if:true="${module-kafka}" src="${kafka-jar-location}" includes="org/**/*,kafka/**/*"/>
+            <zipfileset if:true="${module-saaj}" src="${saaj-jar-location}" includes="com/**/*,META-INF/services/**/*"/>
+            <zipfileset if:true="${module-javamail}" src="${javamail-jar-location}" includes="com/**/*,javax/**/*"/>
+        </jar>
+    </target>
+    
+    <target name="docker-build" depends="dist" description="create new tagged image">
+        <!-- update Dockerfile -->
+        <copy file="${src-other}/environment/${environment.name}/Dockerfile.template" tofile="Dockerfile" overwrite="true"/>
+        <replace file="Dockerfile" token="{{version}}" value="${version}"/>
+        <exec executable="docker">
+            <arg value="build"/>
+            <arg value="-t"/>
+            <arg value="${docker-repository}/${ant.project.name}:${environment.name}-${version}"/>
+            <arg value="."/>
+        </exec>
+    </target>
+    
+    <target name="docker-push" description="push current image to the repository">
+        <input message="Please enter environment name [dev|production]:" addproperty="environment.name" defaultvalue="dev"/>
+        <echo message="Pushing container for environment: ${environment.name}"/>
+        <exec executable="docker">
+            <arg value="push"/>
+            <arg value="${docker-repository}/${ant.project.name}:${environment.name}-${version}"/>
+        </exec>
+    </target>
+
+    <target name="docker-run" depends="jar" description="create and run the new container">
+        <!-- TODO: remove existing container of the same name -->
+        <exec executable="docker">
+            <arg value="run"/>
+            <arg value="-d"/>
+            <arg value="-p"/>
+            <arg value="127.0.0.1:8080:8080"/>
+            <arg value="-v"/>
+            <arg value="${basedir}/data:/usr/signomix/data"/>
+            <arg value="--name"/>
+            <arg value="${ant.project.name}"/>
+            <arg value="${docker-repository}/${ant.project.name}:${version}"/>
+        </exec>
+    </target>
+    
+    <target name="docker-start" description="start stopperd container">
+        <exec executable="docker">
+            <arg value="start"/>
+            <arg value="${ant.project.name}"/>
+        </exec>
+    </target>
+    
+    <target name="docker-stop" description="stop running container">
+        <exec executable="docker">
+            <arg value="stop"/>
+            <arg value="${ant.project.name}"/>
+        </exec>
+    </target>
+    
+    <target name="run" description="run local distribution">
+        <exec 
+            dir="${dist}"
+            executable="java">
+            <env key="SIGNOMIX_ENVIRONMENT_NAME" value="DEMO"/>
+            <env key="SIGNOMIX_URL" value="http://localhost:8080"/>
+            <arg value="-jar"/>
+            <arg value="${ant.project.name}-${version}.jar"/>
+            <arg value="-r"/>
+            <arg value="-c"/>
+            <arg value="config/cricket.json"/>
+        </exec>
+    </target>
+    
+    <target name="backup-db">
+        <input message="Please enter environment name [dev|demo|demo2|production|ec1-dev|ec1]:" addproperty="environment.name" defaultvalue="dev"/>
+        <copy todir="backup/${environment.name}/db" overwrite="true">
+            <fileset dir="dist/data"/>
+        </copy>
+        <!--
+        <copy todir="backup/${environment.name}/config" overwrite="true">
+            <fileset dir="dist/config"/>
+        </copy>
+        -->
+        <copy todir="backup/${environment.name}/files" overwrite="true">
+            <fileset dir="dist/files"/>
+        </copy>
+        <copy todir="backup/${environment.name}/assets" overwrite="true">
+            <fileset dir="dist/www/assets"/>
+        </copy>
+    </target>
+    
+    <target name="restore-db">
+        <input message="Please enter environment name to restore [dev|demo|demo2|production|ec1-dev|ec1]:" addproperty="environment.name" defaultvalue="dev"/>
+        <copy todir="dist/data" overwrite="true">
+            <fileset dir="backup/${environment.name}/db"/>
+        </copy>
+        <!--
+        <copy todir="dist/config" overwrite="true">
+            <fileset dir="backup/${environment.name}/config"/>
+        </copy>
+        -->
+        <copy todir="dist/files" overwrite="true">
+            <fileset dir="backup/${environment.name}/files"/>
+        </copy>
+        <copy todir="dist/www/assets" overwrite="true">
+            <fileset dir="backup/${environment.name}/assets"/>
+        </copy>
+    </target>
+
+</project>

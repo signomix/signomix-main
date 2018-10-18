@@ -1,0 +1,34 @@
+#
+# Copyright (C) Grzegorz Skorupa 2018.
+# Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+#
+# This is Dockerfile template for Cricket based services
+# 
+# The file is used by Ant build to cereate Dockerfile.
+# {{version}} parameter will be replaced automatically with the actual project version configured in build.xml
+#
+FROM java:8
+#FROM gskorupa/jdk-9-ea-alpine:latest
+COPY dist/signomix-{{version}}.jar /usr/signomix/
+COPY dist/config/cricket.json /usr/signomix/config/
+COPY src/js/device-script-template.js /usr/signomix/config/
+COPY src/js/payload-decoder-envelope.js /usr/signomix/config/
+COPY www /usr/signomix/www
+
+WORKDIR /usr/signomix
+RUN mkdir /usr/signomix/data
+COPY dist/data/cricket_publickeystore.jks /usr/signomix/data
+VOLUME /usr/signomix/data
+VOLUME /usr/signomix/www
+VOLUME /usr/signomix/config
+VOLUME /dbdata
+
+#RUN mkdir /usr/signomix/files
+#VOLUME /usr/signomix/files
+#RUN mkdir /usr/signomix/backup
+#VOLUME /usr/signomix/backup
+# remember to declare appropriate name-version of the jar
+# remember to declare appropriate name of the service to run (-s option parameter)
+#CMD ["java", "-jar", "./cricketms-{version}.jar", "-r", "-c", "./config/cricket.json", "-s", "dockerized"]
+
+CMD ["java", "-Xms50m",  "-Xmx100m", "-jar", "./signomix-{{version}}.jar", "-r", "-c", "config/cricket.json"]

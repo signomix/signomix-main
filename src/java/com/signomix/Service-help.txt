@@ -1,0 +1,14 @@
+
+Usage: java -jar cricketms-1.0.0.jar [options]
+
+Runs the Signode service.
+
+Options:
+--help | -h           Print this usage information and exit
+--run | -r            Run the configured service with embeded http server
+--config | -c PATH    Use external configuration file at PATH
+--service | -s ID     Run selected service 
+--print | -p          Print configuration and exit
+--lift | -l ServiceClass   Run specified class as a service (lift mode)
+
+Without -r option, the runOnce() service method will be executed.

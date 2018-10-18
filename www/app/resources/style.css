@@ -1,0 +1,64 @@
+.module-title{
+    margin-top: 20px;
+}
+.topspacing{
+    margin-top: 20px;
+}
+.clickable:hover{
+    cursor: pointer;
+}
+.separated{
+    margin-left: 10px;
+}
+.card-bg{
+    background-image: url('/images/signomix-90-bg.svg'); 
+    background-size: cover;
+}
+.code-example {
+    background-color: whitesmoke;
+    border: solid;
+    border-width: thin;
+    border-color: lightgrey;
+    padding: 1em;
+}
+
+.panel{
+    background-color: white;
+    padding: 1em 1em 1em 1em;
+}
+
+.text-signo {
+  color: rgb(80,80,80);
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 40px;
+  /* background-color: #E0F2F7; */
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 40px;
+  line-height: 40px; /* Vertically center the text there */
+  / * background-color: #E0F2F7; */
+}
+
+/*
+a {
+  color: rgb(60,60,60) !important;
+}
+*/
+main {
+  padding-top: 60px;
+}
