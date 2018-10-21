@@ -28,11 +28,11 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
     }
 
     @Override
-    public Event getLastCommand(String deviceEUI) throws ThingsDataException {
-        return getLastCommand(deviceEUI, false);
+    public Event getFirstCommand(String deviceEUI) throws ThingsDataException {
+        return getFirstCommand(deviceEUI, false);
     }
     
-    private Event getLastCommand(String deviceEUI, boolean preview) throws ThingsDataException {
+    private Event getFirstCommand(String deviceEUI, boolean preview) throws ThingsDataException {
         Event command = null;
         Event ev;
         try {
@@ -57,7 +57,7 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
 
     @Override
     public Event previewDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException {
-        return getLastCommand(deviceEUI, true);
+        return getFirstCommand(deviceEUI, true);
     }
 
     @Override
@@ -85,11 +85,6 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
     }
 
     @Override
-    public Event getLastLog(String deviceEUI) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void clearAllLogs(String deviceEUI, long checkPoint) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -101,6 +96,11 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
 
     @Override
     public List<Event> getAllLogs(String deviceEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeCommand(long id) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

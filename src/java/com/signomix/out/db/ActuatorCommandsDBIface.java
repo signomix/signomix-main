@@ -17,19 +17,27 @@ public interface ActuatorCommandsDBIface extends KeyValueDBIface {
 
     public void putDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException;
 
-    public Event getLastCommand(String deviceEUI) throws ThingsDataException;
+    /**
+     *
+     * @param deviceEUI
+     * @return
+     * @throws ThingsDataException
+     */
+    public Event getFirstCommand(String deviceEUI) throws ThingsDataException;
 
     public Event previewDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException;
 
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException;
 
     public void removeAllCommands(String deviceEUI) throws ThingsDataException;
+    
+    public void removeCommand(long id) throws ThingsDataException;
 
     public List<Event> getAllCommands(String deviceEUI) throws ThingsDataException;
 
     public void putCommandLog(String deviceEUI, Event commandEvent) throws ThingsDataException;
 
-    public Event getLastLog(String deviceEUI) throws ThingsDataException;
+    //public Event getFirstLog(String deviceEUI) throws ThingsDataException;
 
     public void clearAllLogs(String deviceEUI, long checkPoint) throws ThingsDataException;
 
