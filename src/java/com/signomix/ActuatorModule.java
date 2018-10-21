@@ -212,14 +212,29 @@ public class ActuatorModule {
         return true;
     }
 
-    public String getCommand(String deviceEUI, ActuatorCommandsDBIface actuatorCommandsDB) {
-        String result = "";
+    public Event getCommand(String deviceEUI, ActuatorCommandsDBIface actuatorCommandsDB) {
+        //String result = "";
+        Event result=null;
         if (deviceEUI != null) {
             try {
-                Event commandEvent = (Event) actuatorCommandsDB.getLastCommand(deviceEUI);
-                if (null != commandEvent) {
-                    result = (String) commandEvent.getPayload();
-                }
+                result = (Event) actuatorCommandsDB.getLastCommand(deviceEUI);
+                //if (null != commandEvent) {
+                //    result = (String) commandEvent.getPayload();
+                //}
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else {
+        }
+        return result;
+    }
+    
+    public String archiveCommand(Event command, ActuatorCommandsDBIface actuatorCommandsDB) {
+        String result = "";
+        if (command != null) {
+            try {
+                actuatorCommandsDB.removeCommand(command.getId());
+                actuatorCommandsDB.putCommandLog(command.getOrigin(), command);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

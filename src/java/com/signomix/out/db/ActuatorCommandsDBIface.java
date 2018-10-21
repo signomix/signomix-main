@@ -24,6 +24,8 @@ public interface ActuatorCommandsDBIface extends KeyValueDBIface {
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException;
 
     public void removeAllCommands(String deviceEUI) throws ThingsDataException;
+    
+    public void removeCommand(long id) throws ThingsDataException;
 
     public List<Event> getAllCommands(String deviceEUI) throws ThingsDataException;
 

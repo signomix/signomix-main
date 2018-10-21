@@ -319,12 +319,14 @@ public class DeviceIntegrationModule {
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
             if ( Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
-                String commandPayload = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
+                Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
+                String commandPayload = (String)command.getPayload();
                 try{
                     result.setData(JsonReader.jsonToJava(commandPayload));
                 }catch(Exception e){
                     result.setData(commandPayload);
                 }
+                ActuatorModule.getInstance().archiveCommand(command, actuatorCommandsDB);
             }
         } catch (Exception e) {
             e.printStackTrace();

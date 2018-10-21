@@ -91,10 +91,6 @@ public class SmtpSender implements EmailSenderIface, Adapter {
 	     * Initialize the JavaMail Session.
              */
             Properties props = System.getProperties();
-
-            if (mailhost != null) {
-                //props.put("mail.smtp.host", mailhost);
-            }
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             if (startTls) {
                 props.put("mail.smtp.host", "true");
