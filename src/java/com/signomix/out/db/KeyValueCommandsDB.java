@@ -104,9 +104,4 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public void removeCommand(long id) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }
