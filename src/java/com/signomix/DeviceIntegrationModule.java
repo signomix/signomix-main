@@ -4,8 +4,6 @@
  */
 package com.signomix;
 
-import com.signomix.DataProcessor;
-import com.signomix.ActuatorModule;
 import com.cedarsoftware.util.io.JsonReader;
 import com.signomix.in.http.IntegrationApi;
 import com.signomix.in.http.KpnApi;
@@ -318,15 +316,17 @@ public class DeviceIntegrationModule {
                 Kernel.handle(Event.logWarning(this, e.getMessage()));
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
-            if ( Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
+            if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
                 Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
-                String commandPayload = (String)command.getPayload();
-                try{
-                    result.setData(JsonReader.jsonToJava(commandPayload));
-                }catch(Exception e){
-                    result.setData(commandPayload);
+                if (null != command) {
+                    String commandPayload = (String) command.getPayload();
+                    try {
+                        result.setData(JsonReader.jsonToJava(commandPayload));
+                    } catch (Exception e) {
+                        result.setData(commandPayload);
+                    }
+                    ActuatorModule.getInstance().archiveCommand(command, actuatorCommandsDB);
                 }
-                ActuatorModule.getInstance().archiveCommand(command, actuatorCommandsDB);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -386,12 +386,21 @@ public class DeviceIntegrationModule {
         // save value and timestamp in device's channel witch name is the same as the field name
         boolean isRegistered = false;
         Device device;
-
+        try {
+            device = thingsAdapter.getDevice(data.getDeviceEUI());
+            if (null == device) {
+                handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
+                return result;
+            }
+        } catch (ThingsDataException ex) {
+            handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return result;
+        }
         // autoryzujemy request sprawdzając czy klucz przesłąny w Authorization jest zgodny 
         // z confirmString użytkownika Signomix, o uid == getApplicationId()
         if (authorizationRequired) {
             try {
-                User user = userAdapter.get(data.getApplicationId());
+                /*User user = userAdapter.get(data.getApplicationId());
                 if (user == null) {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "User is not registered"));
                     return result;
@@ -400,22 +409,19 @@ public class DeviceIntegrationModule {
                 if (!(secret.equals(authKey))) {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match user profile"));
                     return result;
+                }*/
+
+                if (!authKey.equals(device.getKey())) {
+                    handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
+                    return result;
                 }
-            } catch (UserException ex) {
+            } catch (Exception ex) { //catch (UserException ex) {
                 handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 return result;
             }
         }
 
         try {
-            //device = thingsAdapter.getDevice(data.getDeviceId() + "@" + data.getApplicationId());
-            device = thingsAdapter.getDevice(data.getDeviceEUI());
-            isRegistered = (null != device);
-            if (!isRegistered) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
-                return result;
-            }
-
             if (!device.getType().startsWith("TTN")) {
                 handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
                 return result;
@@ -676,18 +682,18 @@ public class DeviceIntegrationModule {
         }
         return values;
     }
-    
-    public void writeVirtualData(ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter, Device device, ArrayList<ChannelData> values){
+
+    public void writeVirtualData(ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter, Device device, ArrayList<ChannelData> values) {
         try {
             long now = System.currentTimeMillis();
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "");
-            ArrayList<ChannelData>finalValues = DataProcessor.processValues(values, device, scriptingAdapter, now);
+            ArrayList<ChannelData> finalValues = DataProcessor.processValues(values, device, scriptingAdapter, now);
             thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
+
     public void writeVirtualState(
             VirtualDevice vd,
             Device device,

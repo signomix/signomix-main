@@ -944,11 +944,22 @@
     }
         
     app.texts.mydashboards = {
-        "title": {
+        "pagetitle": {
             "en": "my dashboards",
             "it": "le mie dashboards",
             "fr": "mon tableau de bord",
             "pl": "moje pulpity"
+        },"title": {
+            "en": "NAME",
+            "it": "NOME",
+            "fr": "NOM",
+            "pl": "NAZWA"
+        },
+        "action": {
+            "en": "ACTION",
+            "it": "GESTICI",
+            "fr": "ACTION",
+            "pl": "AKCJA"
         },
         "remove_title": {
             "en": "Removing dashboard",

@@ -108,6 +108,20 @@
             <widget_a1 ref="a20"></widget_a1>             
         </div>
     </div>
+    <div class="row" if={w_line[5] && w_line[5].length>0}>
+        <div class={ getColumnClass(w_line[5][0])} >
+            <widget_a1 ref="a21"></widget_a1>
+        </div>
+        <div class={ getColumnClass(w_line[5][1])}  if={w_line[5].length>1}>
+            <widget_a1 ref="a22"></widget_a1>                
+        </div>
+        <div class={ getColumnClass(w_line[5][2])}  if={w_line[5].length>2}>
+            <widget_a1 ref="a23"></widget_a1>              
+        </div>
+        <div class={ getColumnClass(w_line[5][3])}  if={w_line[5].length>3}>
+            <widget_a1 ref="a24"></widget_a1>             
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12"><span>&nbsp;</span></div>
     </div>
@@ -226,12 +240,12 @@
     //callback function
     var updateWidget = function(d, tPos){
         var row=parseInt(tPos.substring(0,1))
-        var col=parseInt(tPos.substring(2,3))
+        var col=parseInt(tPos.substring(2))
         app.log('UPDATING '+tPos+' '+row+' '+col)
         Object.keys(self.refs).forEach(function(key,index) {
             if(index==col){
-            self.refs[key].rawdata = d
-            self.refs[key].show2()
+                self.refs[key].rawdata = d
+                self.refs[key].show2()
             }
         })
         riot.update()

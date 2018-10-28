@@ -75,7 +75,15 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
                         .append("d13 double,")
                         .append("d14 double,")
                         .append("d15 double,")
-                        .append("d16 double)");
+                        .append("d16 double,")
+                        .append("d17 double,")
+                        .append("d18 double,")
+                        .append("d19 double,")
+                        .append("d20 double,")
+                        .append("d21 double,")
+                        .append("d22 double,")
+                        .append("d23 double,")
+                        .append("d24 double)");
                 indexQuery = "create primary key on devicedata (eui,tstamp)";
                 break;
             default:
@@ -191,8 +199,8 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             newChannels.add((String) key);
         });
         if (oldDevice != null && !device.getChannelsAsString().equals(oldDevice.getChannelsAsString())) {
-            // UWAGA! Wszystkie dotychczasowe dane zostaną utracone!
-            //TODO: wysłać notyfikację do usera?
+            // ATTENTION! All actual data will be lost!
+            //TODO: Send notification to the user?
             removeAllChannels(device.getEUI());
             result = 1;
         }
@@ -226,8 +234,9 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
         if (values==null || values.isEmpty()) {
             return;
         }
+        int limit=24;
         List channelNames = getDeviceChannels(deviceEUI);
-        String query = "insert into devicedata (eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into devicedata (eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         long timestamp = values.get(0).getTimestamp();
         java.sql.Date date = new java.sql.Date(timestamp);
         java.sql.Time time = new java.sql.Time(timestamp);
@@ -239,14 +248,19 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             pst.setDate(3, date);
             pst.setTime(4, time);
             pst.setTimestamp(5, new java.sql.Timestamp(timestamp));
-            for (int i = 1; i < 17; i++) {
+            for (int i = 1; i <= limit; i++) {
                 pst.setNull(i + 5, java.sql.Types.DOUBLE);
             }
             int index = -1;
-            for (int i = 0; i < values.size(); i++) {
-                index = channelNames.indexOf(values.get(i).getName());
+            if(values.size()<=limit){
+                limit=values.size();
+            }else{
+                //TODO: send notification to the user?
+            }
+            for (int i = 1; i <= limit; i++) {
+                index = channelNames.indexOf(values.get(i-1).getName());
                 if (index >= 0) {
-                    pst.setDouble(6 + index, values.get(i).getValue());
+                    pst.setDouble(6 + index, values.get(i-1).getValue());
                 }
             }
             pst.executeUpdate();
@@ -264,7 +278,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
 
     @Override
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException {
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16 from devicedata where eui=? and ?? is not null order by tstamp desc limit 1";
+        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? and ?? is not null order by tstamp desc limit 1";
         List<String> channels = getDeviceChannels(deviceEUI);
         int channelIndex = channels.indexOf(channel);
         if (channelIndex < 0) {
@@ -292,11 +306,10 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     @Override
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16 from devicedata where eui=? order by tstamp desc limit 1";
+        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? order by tstamp desc limit 1";
         List<String> channels = getDeviceChannels(deviceEUI);
         ArrayList<ChannelData> row = new ArrayList<>();
         ArrayList<List> result = new ArrayList<>();
-        String columnName;
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
@@ -304,7 +317,6 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 for (int i = 0; i < channels.size(); i++) {
-                    columnName = "d" + (i + 1);
                     row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i), rs.getTimestamp(5).getTime()));
                 }
                 result.add(row);
@@ -320,11 +332,10 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16 from devicedata where eui=? order by tstamp desc limit ?";
+        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? order by tstamp desc limit ?";
         List<String> channels = getDeviceChannels(deviceEUI);
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
-        String columnName;
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
@@ -334,7 +345,6 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             while (rs.next()) {
                 row = new ArrayList<>();
                 for (int i = 0; i < channels.size(); i++) {
-                    columnName = "d" + (i + 1);
                     row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i), rs.getTimestamp(5).getTime()));
                 }
                 result.add(row);
@@ -350,7 +360,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     @Override
     public List<ChannelData> getValues(String userID, String deviceEUI, String channel, String resultsLimit) throws ThingsDataException {
         int limit = getLimit(resultsLimit);
-        if (channel.indexOf(",") < 0 || limit != 1) {
+        if (!channel.contains(",") || limit != 1) {
             return getChannelValues(userID, deviceEUI, channel, limit);
         } else {
             List<ChannelData> list = new ArrayList<>();
@@ -366,7 +376,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     }
 
     private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit) throws ThingsDataException {
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16 from devicedata where eui=? and ?? is not null order by tstamp desc limit ?";
+        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? and ?? is not null order by tstamp desc limit ?";
         int limit = resultsLimit;
         if (requestLimit > 0 && requestLimit < limit) {
             limit = requestLimit;
@@ -401,7 +411,6 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
         List<List> result = new ArrayList<>();
-        List<ChannelData> row = new ArrayList<>();
         String channelName = "";
         int indexOfChannel = query.indexOf("channel ");
         int limit = 1;
@@ -430,5 +439,24 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             }
         }
         return result;
+    }
+    
+    @Override
+    protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
+        String query = "";
+        switch (versionNumber) {
+            case 2:
+                query = "alter table devicedata add (d17 double, d18 double, d19 double, d20 double, d21 double, d22 double, d23 double, d24 double);";
+                break;
+        }
+        try {
+            PreparedStatement pst;
+            pst = conn.prepareStatement(query);
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
     }
 }

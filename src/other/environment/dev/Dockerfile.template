@@ -9,6 +9,13 @@
 #
 FROM java:8
 #FROM gskorupa/jdk-9-ea-alpine:latest
+
+#VOLUME /usr/signomix/data
+#VOLUME /usr/signomix/www
+#VOLUME /usr/signomix/config
+
+VOLUME /dbdata
+
 COPY dist/signomix-{{version}}.jar /usr/signomix/
 COPY dist/config/cricket.json /usr/signomix/config/
 COPY src/js/device-script-template.js /usr/signomix/config/
@@ -18,10 +25,6 @@ COPY www /usr/signomix/www
 WORKDIR /usr/signomix
 RUN mkdir /usr/signomix/data
 COPY dist/data/cricket_publickeystore.jks /usr/signomix/data
-VOLUME /usr/signomix/data
-VOLUME /usr/signomix/www
-VOLUME /usr/signomix/config
-VOLUME /dbdata
 
 #RUN mkdir /usr/signomix/files
 #VOLUME /usr/signomix/files

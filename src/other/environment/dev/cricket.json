@@ -23,7 +23,7 @@
                 "admin-notification-email": "name@host",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
                 "file.upload.maxsize": "5000000",
-                "backup-folder": "/home/greg/workspace/signode-wip/backup",
+                "backup-folder": "./data/backup",
                 "backup-daily": "true",
                 "serviceurl": "http://localhost:8080",
                 "SRVC_NAME_ENV_VARIABLE": "SIGNOMIX_ENVIRONMENT_NAME",
@@ -270,7 +270,7 @@
                         "name": "data",
                         "file": "data",
                         "test-query": "select * from serviceversion",
-                        "version": "1",
+                        "version": "2",
                         "user": "sa",
                         "password": "",
                         "requestLimit": "200"
@@ -400,7 +400,7 @@
                         "helper-name": "cmsDB",
                         "root-path": "./www/",
                         "file-path": "./files/",
-                        "file-path-published": "/home/greg/temp/test2/",
+                        "file-path-published": "./assets/",
                         "index-file": "index.html"
                     }
                 },

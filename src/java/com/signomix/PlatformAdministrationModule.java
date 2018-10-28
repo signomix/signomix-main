@@ -178,8 +178,11 @@ public class PlatformAdministrationModule {
         // SYSTEM key parameters and limits
         try {
             database.addTable("signomix", 5, true);
+        } catch (KeyValueDBException e) {
+            Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+        }
+        try {
             Invariants platformLimits = new Invariants();
-            //System.out.println("TYPE:" + platformLimits.get("release"));
             database.put("signomix", "platformlimits", platformLimits);
         } catch (KeyValueDBException e) {
             Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
