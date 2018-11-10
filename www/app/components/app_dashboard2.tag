@@ -40,86 +40,110 @@
     </div>
     <div class="row" if={w_line[0] && w_line[0].length>0}>
         <div class={ getColumnClass(w_line[0][0]) } >
-            <widget_a1 ref="a1"></widget_a1>
+            <widget_a1   ref="a1" if={w_line[0][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a1" if={w_line[0][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[0][1])}  if={w_line[0].length>1}>
-            <widget_a1 ref="a2"></widget_a1>                
+            <widget_a1   ref="a2" if={w_line[0][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a2" if={w_line[0][1]['type']=='date'}></widget_date>                
         </div>
         <div class={ getColumnClass(w_line[0][2])}  if={w_line[0].length>2}>
-            <widget_a1 ref="a3"></widget_a1>              
+            <widget_a1   ref="a3" if={w_line[0][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a3" if={w_line[0][2]['type']=='date'}></widget_date>              
         </div>
         <div class={ getColumnClass(w_line[0][3])}  if={w_line[0].length>3}>
-            <widget_a1 ref="a4"></widget_a1>             
+            <widget_a1   ref="a4" if={w_line[0][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a4" if={w_line[0][3]['type']=='date'}></widget_date>        
         </div>
     </div>
     <div class="row" if={w_line[1] && w_line[1].length>0}>
         <div class={ getColumnClass(w_line[1][0])} >
-            <widget_a1 ref="a5"></widget_a1>
+            <widget_a1   ref="a5" if={w_line[1][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a5" if={w_line[1][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[1][1])}  if={w_line[1].length>1}>
-            <widget_a1 ref="a6"></widget_a1>                
+            <widget_a1   ref="a6" if={w_line[1][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a6" if={w_line[1][1]['type']=='date'}></widget_date>                
         </div>
         <div class={ getColumnClass(w_line[1][2])}  if={w_line[1].length>2}>
-            <widget_a1 ref="a7"></widget_a1>              
+            <widget_a1   ref="a7" if={w_line[1][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a7" if={w_line[1][2]['type']=='date'}></widget_date>         
         </div>
         <div class={ getColumnClass(w_line[1][3])}  if={w_line[1].length>3}>
-            <widget_a1 ref="a8"></widget_a1>             
+            <widget_a1   ref="a8" if={w_line[1][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a8" if={w_line[1][3]['type']=='date'}></widget_date>
         </div>
     </div>
     <div class="row" if={w_line[2] && w_line[2].length>0}>
         <div class={ getColumnClass(w_line[2][0])} >
-            <widget_a1 ref="a9"></widget_a1>
+            <widget_a1   ref="a9" if={w_line[2][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a9" if={w_line[2][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[2][1])}  if={w_line[2].length>1}>
-            <widget_a1 ref="a10"></widget_a1>                
+            <widget_a1   ref="a10" if={w_line[2][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a10" if={w_line[2][1]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[2][2])}  if={w_line[2].length>2}>
-            <widget_a1 ref="a11"></widget_a1>              
+            <widget_a1   ref="a11" if={w_line[2][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a11" if={w_line[2][2]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[2][3])}  if={w_line[2].length>3}>
-            <widget_a1 ref="a12"></widget_a1>             
+            <widget_a1   ref="a12" if={w_line[2][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a12" if={w_line[2][3]['type']=='date'}></widget_date>
         </div>
     </div>
     <div class="row" if={w_line[3] && w_line[3].length>0}>
         <div class={ getColumnClass(w_line[3][0])} >
-            <widget_a1 ref="a13"></widget_a1>
+            <widget_a1   ref="a13" if={w_line[3][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a13" if={w_line[3][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[3][1])}  if={w_line[3].length>1}>
-            <widget_a1 ref="a14"></widget_a1>                
+            <widget_a1   ref="a14" if={w_line[3][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a14" if={w_line[3][1]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[3][2])}  if={w_line[3].length>2}>
-            <widget_a1 ref="a15"></widget_a1>              
+            <widget_a1   ref="a15" if={w_line[3][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a15" if={w_line[3][2]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[3][3])}  if={w_line[3].length>3}>
-            <widget_a1 ref="a16"></widget_a1>             
+            <widget_a1   ref="a16" if={w_line[3][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a16" if={w_line[3][3]['type']=='date'}></widget_date>
         </div>
     </div>
     <div class="row" if={w_line[4] && w_line[4].length>0}>
         <div class={ getColumnClass(w_line[4][0])} >
-            <widget_a1 ref="a17"></widget_a1>
+            <widget_a1   ref="a17" if={w_line[4][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a17" if={w_line[4][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[4][1])}  if={w_line[4].length>1}>
-            <widget_a1 ref="a18"></widget_a1>                
+            <widget_a1   ref="a18" if={w_line[4][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a18" if={w_line[4][1]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[4][2])}  if={w_line[4].length>2}>
-            <widget_a1 ref="a19"></widget_a1>              
+            <widget_a1   ref="a19" if={w_line[4][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a19" if={w_line[4][2]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[4][3])}  if={w_line[4].length>3}>
-            <widget_a1 ref="a20"></widget_a1>             
+            <widget_a1   ref="a20" if={w_line[4][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a20" if={w_line[4][3]['type']=='date'}></widget_date>
         </div>
     </div>
     <div class="row" if={w_line[5] && w_line[5].length>0}>
         <div class={ getColumnClass(w_line[5][0])} >
-            <widget_a1 ref="a21"></widget_a1>
+            <widget_a1   ref="a21" if={w_line[5][0]['type']!='date'}></widget_a1>
+            <widget_date ref="a21" if={w_line[5][0]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[5][1])}  if={w_line[5].length>1}>
-            <widget_a1 ref="a22"></widget_a1>                
+            <widget_a1   ref="a22" if={w_line[5][1]['type']!='date'}></widget_a1>
+            <widget_date ref="a22" if={w_line[5][1]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[5][2])}  if={w_line[5].length>2}>
-            <widget_a1 ref="a23"></widget_a1>              
+            <widget_a1   ref="a23" if={w_line[5][2]['type']!='date'}></widget_a1>
+            <widget_date ref="a23" if={w_line[5][2]['type']=='date'}></widget_date>
         </div>
         <div class={ getColumnClass(w_line[5][3])}  if={w_line[5].length>3}>
-            <widget_a1 ref="a24"></widget_a1>             
+            <widget_a1   ref="a24" if={w_line[5][3]['type']!='date'}></widget_a1>
+            <widget_date ref="a24" if={w_line[5][3]['type']=='date'}></widget_date>
         </div>
     </div>
     <div class="row">

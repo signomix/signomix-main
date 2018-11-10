@@ -669,6 +669,9 @@ public class PlatformAdministrationModule {
                 unitName = "kg";
                 break;
             case "DISTANCE":
+            case "LENGTH":
+            case "WIDTH":
+            case "HEIGTH":
                 unitName = "m";
                 break;
         }

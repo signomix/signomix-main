@@ -1,3 +1,9 @@
+.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-32 { font-size: 32px; }
+.material-icons.red { color: #E74C3C; }
+.material-icons.yellow { color: #F39C12; }
+.material-icons.blue { color: #0D83D0; }
+
 .module-title{
     margin-top: 20px;
 }

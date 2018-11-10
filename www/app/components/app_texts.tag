@@ -395,6 +395,12 @@
             "fr": "Map",
             "pl": "Mapa"
         },
+        "type_date": {
+            "en": "Date",
+            "it": "Data",
+            "fr": "Date",
+            "pl": "Data"
+        },
         "type_line": {
             "en": "Line chart",
             "it": "Grafico a linee",

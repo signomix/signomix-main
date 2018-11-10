@@ -33,6 +33,12 @@ public class ScriptResult {
         measures.remove(channelName);
     }
     
+    public void rename(ChannelData v, String newName){
+        measures.remove(v.getName());
+        v.setName(newName);
+        measures.put(newName, v);
+    }
+    
     public void addEvent(String type, String message){
         events.add(new IotEvent(type, message));
     }

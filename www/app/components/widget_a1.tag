@@ -22,7 +22,7 @@
     <div id={opts.ref} if={type == 'text'} class="card card-block topspacing p-1">
         <raw content={ description }></raw>
     </div>
-    <div id={opts.ref} if={type == 'map'} class="card { color } widget topspacing p-0">
+    <div id={opts.ref} if={type == 'map'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
         <div class="card-body p-0 m-0" if={!noData & front}>
             <iframe width="100%" height="100%" src={ mapUrl } style="border: 0px solid black"></iframe>
@@ -34,16 +34,25 @@
         <div class="card-body" if={noData}>{ app.texts.widget_a1.nodata[app.language] }</div>
     </div>
     <div id={opts.ref} if={type == 'symbol'} class="card { color } widget topspacing p-0">
-        <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body text-center" if={ front }>
-            <h5>
-                <i class="material-icons" if={alertLevel==1}>warning</i>
-                <i class="material-icons" if={alertLevel==2}>notifications_active</i>
-                {value} <raw content={ unitName }></raw>
-            </h5>
+        <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
+            <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
+            <i class="material-icons red" style="margin-right: 10px; font-size: smaller" if={alertLevel==2}>error_outline</i>
+             {title}<span class="float-right">&#x2699;</span>
         </div>
-        <div class="card-body" if={ !front }>
-            <h5 class="card-title">{measureDate}</h5>
+        <div class="card-body">
+             <div class="row">
+                 <div class="col-3 text-center">
+                    <i class="material-icons md-48 blue" if={alertLevel==0}>{iconName}</i>
+                    <i class="material-icons md-48 yellow" if={alertLevel==1}>{iconName}</i>
+                    <i class="material-icons md-48 red" if={alertLevel==2}>{iconName}</i>
+                 </div>
+                 <div class="col-9 text-center h5" if={ front }>
+                        {value} <raw content={ unitName }></raw>
+                 </div>
+                 <div class="col-9 text-center h5" if={ !front }>
+                        {measureDate}
+                 </div>
+            </div>
         </div>
     </div> 
     <div id={opts.ref} if={ type == 'button' } class="card text-center topspacing p-0">
@@ -77,7 +86,7 @@
 
     <script>
     var self = this
-    
+    //self.refs = this.refs
     // opts: poniższe przypisanie nie jest używane
     //       wywołujemy update() tego taga żeby zminieć parametry
     self.type = opts.type
@@ -101,6 +110,7 @@
     self.jsonData = {}
     self.gauge = this.refs.gauge00
     self.line = this.refs.line0
+    //self.dateWidget = this.refs.date0
     self.chart = {}
     self.deviceEUI = ''
     self.channelName = ''
@@ -132,6 +142,7 @@
                 self.showGauge()
                 break
             case 'symbol':
+            case 'date':
                 self.showSymbol()
                 break
             case 'line':
@@ -149,22 +160,55 @@
     
     self.showSymbol = function(){
         app.log('SYMBOL')
+        self.iconName = 'data_usage'
+        self.alertLevel=0
         if(self.jsonData.length==0){
             return
         }
-        self.value = parseFloat(self.jsonData[0]['value'])
-        self.measureDate = new Date(self.jsonData[0]['timestamp']).toLocaleString(getSelectedLocale())
-        self.alertLevel=getAlertLevel(self.range, self.value)
-        switch(self.alertLevel){
-            case 2: self.color = 'bg-danger'
+        self.measureType=getMeasureType(self.jsonData[0]['name'])
+        switch(self.measureType){
+            case 1:
+                self.iconName='whatshot'
                 break
-            case 1: self.color = 'bg-warning'
+            case 2:
+                self.iconName='opacity'
                 break
-            case 0: self.color = 'bg-white'
+            case 3:
+                self.iconName='get_app'
                 break
-            defalut:
-                app.log('malformed alert levels definition: '+self.range)
+            case 4:
+                self.iconName='event'
+                break
+            case 5:
+                self.iconName='label_important'
+                break
+            case 6:
+                self.iconName='linear_scale'
+                break
+            case 7:
+                self.iconName='wb_incandescent'
+                break
+            case 8:
+                self.iconName='battery_unknown'
+                break
         }
+        self.value = parseFloat(self.jsonData[0]['value'])
+        //self.measureDate = new Date(self.jsonData[0]['timestamp']).toLocaleString(getSelectedLocale())
+        self.measureDate = getDateFormatted(new Date(self.jsonData[0]['timestamp']))
+        self.alertLevel=getAlertLevel(self.range, self.value)
+        //switch(self.alertLevel){
+        //    case 2: self.color = 'bg-danger'
+        //        break
+        //    case 1: self.color = 'bg-warning'
+        //        break
+        //    case 0: self.color = 'bg-white'
+        //        break
+        //    defalut:
+        //        app.log('malformed alert levels definition: '+self.range)
+        //}
+        
+        
+        //self.refs['date0'].value=self.value
     }
 
     self.showButton = function(){

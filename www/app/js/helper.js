@@ -1,13 +1,10 @@
-/*
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
- */
-/**
- * 
- * @param {String} definition 
- * @param {Number} test is value to check against definition
- * @returns {Number} 2==arert, 1==warning otherwise 0
- */
+// Copyright (C) Grzegorz Skorupa 2018.
+// Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+
+// @param {String} definition 
+// @param {Number} test is value to check against definition
+// @returns {Number} 2==alert, 1==warning, otherwise 0
+//
 function getAlertLevel(definition, test) {
     
     // definition "<-10>40:<0>30"
@@ -129,4 +126,53 @@ function getAlertLevel(definition, test) {
         return 1
     }   
     return 0
+}
+
+function getMeasureType(name){
+    if(name.indexOf('temperature')>-1){
+        return 1;
+    }
+    if(name.indexOf('humidity')>-1){
+        return 2;
+    }
+    if(name.indexOf('pressure')>-1){
+        return 3;
+    }
+    if(name.indexOf('date')>-1 || name.indexOf('time')>-1 ){
+        return 4;
+    }
+    if(name.indexOf('speed')>-1 || name.indexOf('velocity')>-1){
+        return 5;
+    }
+    if(name.indexOf('distance')>-1 || name.indexOf('length')>-1 || name.indexOf('width')>-1 || name.indexOf('height')>-1){
+        return 6;
+    }
+    if(name.indexOf('luminance')>-1 || name.indexOf('lux')>-1){
+        return 7;
+    }
+    if(name.indexOf('battery')>-1){
+        return 8;
+    }
+    return 0;
+}
+
+function getDateFormatted(d){
+    var dt=''+d.getFullYear()
+
+    var tmp=d.getMonth()+1
+    dt=dt.concat('-',(tmp>9 ? ''+tmp : '0'+tmp))
+
+    tmp=d.getDate()
+    dt=dt.concat('-',(tmp>9 ? ''+tmp : '0'+tmp))
+    
+    tmp=d.getHours()
+    dt=dt.concat(' ',(tmp>9 ? ''+tmp : '0'+tmp))
+
+    tmp=d.getMinutes()
+    dt=dt.concat(':',(tmp>9 ? ''+tmp : '0'+tmp))
+
+    tmp=d.getSeconds()
+    dt=dt.concat(':',(tmp>9 ? ''+tmp : '0'+tmp))
+    
+    return dt
 }
