@@ -1,5 +1,5 @@
 <user_form>
-    <div class="panel panel-primary">
+    <div class="panel panel-primary signomix-form">
         <div class="panel-heading module-title" if={ self.mode == 'create' }><h2>{ app.texts.user_form.user_new[app.language] }</h2></div>
         <div class="panel-heading module-title" if={ self.mode == 'update' }><h2>{ app.texts.user_form.user_modify[app.language] }</h2></div>
         <div class="panel-heading module-title" if={ self.mode == 'view' }><h2>{ app.texts.user_form.user_view[app.language] }</h2></div>
@@ -31,6 +31,7 @@
                             <option value='0' selected={''==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="PUSHOVER" selected={'Pushover'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Pushover</option>
                         </select>
                     </div>
                     <div class="col-md-9 my-1">
@@ -50,6 +51,7 @@
                             <option value='0' selected={''==user.infoNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="PUSHOVER" selected={'PUSHOVER'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Pushover</option>
                         </select>
                     </div>
                     <div class="col-md-9 my-1">
@@ -69,6 +71,7 @@
                             <option value='0' selected={''==user.warningNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="PUSHOVER" selected={'PUSHOVER'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Pushover</option>
                         </select>
                     </div>
                     <div class="col-md-9 my-1">
@@ -88,6 +91,7 @@
                             <option value='0' selected={''==user.alertNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="PUSHOVER" selected={'PUSHOVER'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Pushover</option>
                         </select>
                     </div>
                     <div class="col-md-9 my-1">

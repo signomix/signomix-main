@@ -1,5 +1,5 @@
 <app_login> 
-    <div class="panel panel-default form-login">
+    <div class="panel panel-default signomix-form">
         <div class="panel-body">
             <form onsubmit={ submitLoginForm }>
                 <div class="text-center">
@@ -50,8 +50,8 @@
             if (app.debug) {
                 console.log("Login success!")
             }
-            setCookie('signomixToken',app.user.token, 1)
-            setCookie('signomixUser',app.user.name, 1)
+            setCookie('signomixToken',app.user.token, 365)
+            setCookie('signomixUser',app.user.name, 365)
             app.currentPage = 'main'
             getData(app.userAPI+'/'+app.user.name, null, app.user.token, saveUserData, globalEvents, 'user:ok', 'user.error', app.debug)
             getData(app.alertAPI, null, app.user.token, saveResponse, globalEvents, 'data:ok', 'data.error', app.debug)
@@ -116,10 +116,6 @@
         .form-footer{
             margin-top: 20px;
             margin-bottom: 20px;
-        }
-        .form-login{
-            max-width: 660px;
-            margin: 0 auto;
         }
     </style>
 </app_login>

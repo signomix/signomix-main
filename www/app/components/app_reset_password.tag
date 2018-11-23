@@ -1,8 +1,8 @@
 <app_reset_password>
+    <div class="panel panel-default signomix-form">
+        <div class="panel-body">
     <div class="row">
-        <div class="col-md-2">
-        </div>
-        <div class="col-md-8" if={ self.status != 1}>
+        <div class="col-md-12" if={ self.status != 1}>
              <form onsubmit={ submitForm }>
               <p class="module-title h3 text-center mb-4">{app.texts.reset_password.l_title[app.language]}</p>
                 <div class="md-form">
@@ -28,12 +28,12 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-8" if={ self.status == 1}>
+        <div class="col-md-12" if={ self.status == 1}>
             <div class="alert alert-success module-title" role="alert">
                 { app.texts.reset_password.l_success[app.language] } { self.email }
             </div>
         </div>
-        <div class="col-md-2">
+    </div>
         </div>
     </div>
     <script type="text/javascript" charset="UTF-8">

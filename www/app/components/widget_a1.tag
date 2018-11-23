@@ -3,10 +3,10 @@
         <div class="card-header h6 text-left p-1">{title}</div>
         <div class="card-body"><pre>{rawdata}</pre></div>
     </div>
-    <div id={opts.ref} if={type == 'line' || type == 'stepped'} class="card card-block topspacing p-0">
+    <div id={opts.ref} if={type == 'line' || type == 'stepped'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
-        <canvas ref="line0" id="line0" if={ front } }></canvas> 
-        <div class="card-body table-responsive" if={ !front } }>
+        <div class="card-body"  if={ front }><canvas ref="line0" id="line0"></canvas></div>
+        <div class="card-body table-responsive" if={ !front } >
             <table id="devices" class="table table-condensed">
                 <thead>
                     <tr><th scope="col">#</th><th scope="col">{ app.texts.widget_a1.timestamp[app.language] }</th><th scope="col"><span class="float-right">{ app.texts.widget_a1.value[app.language] }</span></th></tr>
@@ -33,7 +33,7 @@
         </div>
         <div class="card-body" if={noData}>{ app.texts.widget_a1.nodata[app.language] }</div>
     </div>
-    <div id={opts.ref} if={type == 'symbol'} class="card { color } widget topspacing p-0">
+    <div id={opts.ref} if={type == 'symbol'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
             <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
             <i class="material-icons red" style="margin-right: 10px; font-size: smaller" if={alertLevel==2}>error_outline</i>
@@ -378,8 +378,8 @@
         return function(e){
             self.tableIndex = 0
             self.front=!self.front
-            if(self.front && self.type=='line'){
-                riot.update()
+            riot.update()
+            if(self.front && (self.type=='line' || self.type=='stepped')){
                 self.showLineGraph()
             }
         }

@@ -173,7 +173,7 @@ public class DeviceIntegrationModule {
             } catch (Exception e) {
                 Kernel.handle(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -315,7 +315,7 @@ public class DeviceIntegrationModule {
             } catch (Exception e) {
                 Kernel.handle(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
             if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
                 Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
                 if (null != command) {
@@ -384,7 +384,6 @@ public class DeviceIntegrationModule {
         }
 
         // save value and timestamp in device's channel witch name is the same as the field name
-        boolean isRegistered = false;
         Device device;
         try {
             device = thingsAdapter.getDevice(data.getDeviceEUI());
@@ -495,11 +494,21 @@ public class DeviceIntegrationModule {
                 }
             }
 
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
+    }
+    
+    ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values){
+        ArrayList<ChannelData> fixedList=new ArrayList<>();
+        for(ChannelData value: values){
+            if(device.getChannels().containsKey(value.getName())){
+                fixedList.add(value);
+            }
+        }
+        return fixedList;
     }
 
     public Object processKpnRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, KpnApi kpnApi) {
@@ -602,7 +611,7 @@ public class DeviceIntegrationModule {
             } catch (Exception e) {
                 Kernel.handle(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -613,9 +622,9 @@ public class DeviceIntegrationModule {
         //TtnData data = (TtnData)dataObject;
         ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null) {
-            byte[] encodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
+            byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
             try {
-                values = scriptingAdapter.decodeData(encodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
+                values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
             } catch (ScriptAdapterException e) {
                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
                 return null;
@@ -688,7 +697,7 @@ public class DeviceIntegrationModule {
             long now = System.currentTimeMillis();
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "");
             ArrayList<ChannelData> finalValues = DataProcessor.processValues(values, device, scriptingAdapter, now);
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), finalValues);
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

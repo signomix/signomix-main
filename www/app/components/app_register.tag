@@ -1,23 +1,24 @@
 <app_register>
-    <div class="container">
-        <div class="row" if={ !self.success }>
-            <div class="col-md-12"><h3 class="module-title">{app.texts.register.l_title[app.language]}</h3></div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 alert alert-light" ><span>{ app.texts.register.l_comment[app.language] }</span></div>
-        </div>
-        <div class="row" if={ self.alert }>
-             <div class="col-md-12 alert alert-warning" ><span><strong>{ app.texts.register.l_warning[app.language] } </strong>{ self.alertText }</span></div>
-        </div>
-        <div class="row" if={ self.success }>
-             <div class="col-md-12 alert alert-success" >
+    <div class="panel panel-default signomix-form">
+        <div class="panel-body">
+            <div class="row" if={ !self.success }>
+                <div class="col-md-12"><h3 class="module-title">{app.texts.register.l_title[app.language]}</h3></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 alert alert-light" ><span>{ app.texts.register.l_comment[app.language] }</span></div>
+            </div>
+            <div class="row" if={ self.alert }>
+                <div class="col-md-12 alert alert-warning" ><span><strong>{ app.texts.register.l_warning[app.language] } </strong>{ self.alertText }</span></div>
+            </div>
+            <div class="row" if={ self.success }>
+                <div class="col-md-12 alert alert-success" >
                 <p><span>{ app.texts.register.l_successText1[app.language] }</span></p>
                 <p><span>{ app.texts.register.l_successText2[app.language] + ' '+self.registeredEmail}</span></p>
                 <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.register.l_OK[app.language] }</button>
+                </div>
             </div>
-        </div>
-        <div class="row" if={ !self.success }>
-            <div class="col-md-12">
+            <div class="row" if={ !self.success }>
+                <div class="col-md-12">
                 <form class="card border-0 p2" onsubmit={ submitRegistrationForm } id="registration-form">
                       <div class="form-group">
                         <form_input 
@@ -29,8 +30,8 @@
                             pattern="[a-zA-Z][a-zA-Z0-9-_@\.]\{1,20}"
                             oninvalid={ app.texts.register.l_nameHint[app.language] }
                             hint={ app.texts.register.l_nameHint[app.language] }/>
-                </div>
-                <div class="form-group">
+                    </div>
+                    <div class="form-group">
                     <form_input 
                         id="email"
                         name="email"
@@ -39,21 +40,21 @@
                         required="true"
                         oninvalid={ app.texts.register.l_emailHint[app.language] }
                         hint={ app.texts.register.l_emailHint[app.language] }/>
-            </div>
-            <div class="form-group">
-                <form_input 
-                    id="password"
-                    name="password"
-                    label={ app.texts.register.l_password[app.language] }
-                    type="password"
-                    required="true"
-                    pattern="(?=^.\{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                    oninvalid={ app.texts.register.l_passwordHint[app.language] }
-                    hint={ app.texts.register.l_passwordHint[app.language] }
-                    />
-        </div>
-        <div class="form-group">
-            <form_input 
+                    </div>
+                    <div class="form-group">
+                        <form_input 
+                        id="password"
+                        name="password"
+                        label={ app.texts.register.l_password[app.language] }
+                        type="password"
+                        required="true"
+                        pattern="(?=^.\{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                        oninvalid={ app.texts.register.l_passwordHint[app.language] }
+                        hint={ app.texts.register.l_passwordHint[app.language] }
+                        />
+                    </div>
+                    <div class="form-group">
+                        <form_input 
                 id="password2"
                 name="password2"
                 label={ app.texts.register.l_retypepassword[app.language] }
@@ -62,20 +63,21 @@
                 pattern="(?=^.\{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
                 oninvalid={ app.texts.register.l_passwordHint[app.language] }
                 />
+                    </div>
+                    <div class="form-check" style="margin-bottom: 20px;">
+                        <input class="form-check-input" type="checkbox" value="" id="accept" name="accept" required>
+                        <label class="form-check-label" for="accept">
+                        { app.texts.register.l_legalText1[app.language] } <a href="#doc,legal">{ app.texts.register.l_legalText2[app.language] }</a>.
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">{ app.texts.register.l_register[app.language] }</button>
+                        <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.register.l_cancel[app.language] }</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="form-check" style="margin-bottom: 20px;">
-        <input class="form-check-input" type="checkbox" value="" id="accept" name="accept" required>
-        <label class="form-check-label" for="accept">
-            { app.texts.register.l_legalText1[app.language] } <a href="#doc,legal">{ app.texts.register.l_legalText2[app.language] }</a>.
-        </label>
-    </div>
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">{ app.texts.register.l_register[app.language] }</button>
-        <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.register.l_cancel[app.language] }</button>
-    </div>
-</form>
-</div>
-</div>
 </div>
 <script>
     self = this

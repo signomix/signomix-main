@@ -47,7 +47,7 @@
                         <div class="row">
                         <div class="form-group col-md-12">
                             <label for="w_type" class="active">{app.texts.dashboard_form.f_widget_type[app.language]}</label>
-                            <select class="form-control" id="w_type" disabled={!allowEdit}>
+                            <select class="form-control" id="w_type" disabled={!allowEdit} onchange={changeType}>
                                 <option value="text" selected={self.editedWidget.type=='text'}>{self.getTypeName('text')}</option>
                                 <option value="symbol" selected={self.editedWidget.type=='symbol'}>{self.getTypeName('symbol')}</option>
                                 <option value="raw" selected={self.editedWidget.type=='raw'}>{self.getTypeName('raw')}</option>
@@ -73,7 +73,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type!='text' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_dev_id"
@@ -86,7 +86,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type!='text' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_channel"
@@ -99,7 +99,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type!='text' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_unit"
@@ -112,7 +112,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type!='text' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_query"
@@ -125,7 +125,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type=='symbol' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_range"
@@ -138,7 +138,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row">
+                        <div class="row" if={ self.editedWidget.type!='text' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_title"
@@ -317,23 +317,23 @@
         globalEvents.on('data:submitted', function(event){
         app.log("I'm happy!")
         });
+        
         init(eventListener, id, editable){
-        self.callbackListener = eventListener
-                self.allowEdit = editable
-                self.method = 'POST'
-                if (id != 'NEW'){
-        readDashboard(id)
+            self.callbackListener = eventListener
+            self.allowEdit = editable
+            self.method = 'POST'
+            if (id != 'NEW'){
+                readDashboard(id)
                 self.method = 'PUT'
                 if (self.allowEdit){
-        self.mode = 'update'
-        } else{
-        self.mode = 'view'
-        }
-        } else{
-        self.editedWidget = self.newWidget()
+                    self.mode = 'update'
+                } else {
+                    self.mode = 'view'
+                }
+            } else{
+                self.editedWidget = self.newWidget()
                 self.mode = 'create'
-
-        }
+            }
         }
 
         self.submitForm = function(e){
@@ -412,20 +412,50 @@
                 riot.update()
             }
         }
+        
+        self.changeType = function(e){
+            e.preventDefault()
+            self.editedWidget.type = e.target.value
+            riot.update()
+        }
         self.saveWidget = function(e){
             e.preventDefault()
             $('#widgetEdit').modal('hide');
             //
             self.editedWidget.name = e.target.elements['w_name'].value
+            try{
                 self.editedWidget.dev_id = e.target.elements['w_dev_id'].value
+            }catch(err){
+                self.editedWidget.dev_id = ''
+            }
+            try{
                 self.editedWidget.channel = e.target.elements['w_channel'].value
+            }catch(err){
+                self.editedWidget.channel = ''
+            }
+            try{
                 self.editedWidget.unitName = e.target.elements['w_unit'].value
+            }catch(err){
+                self.editedWidget.unitName = ''
+            }
+            try{
                 self.editedWidget.query = e.target.elements['w_query'].value
+            }catch(err){
+                self.editedWidget.query = ''
+            }
+            try{
                 self.editedWidget.range = e.target.elements['w_range'].value
-                self.editedWidget.type = e.target.elements['w_type'].value
+            }catch(err){
+                self.editedWidget.range = ''
+            }
+            self.editedWidget.type = e.target.elements['w_type'].value
+            try{    
                 self.editedWidget.title = e.target.elements['w_title'].value
-                self.editedWidget.width = parseInt(e.target.elements['w_width'].value, 10)
-                self.editedWidget.description = e.target.elements['w_description'].value
+            }catch(err){
+                self.editedWidget.title = ''
+            }
+            self.editedWidget.width = parseInt(e.target.elements['w_width'].value, 10)
+            self.editedWidget.description = e.target.elements['w_description'].value
                 
             if(self.editedWidget.width == null || isNaN(self.editedWidget.width) || self.editedWidget.width<1 || self.editedWidget.width >4){
                 self.editedWidget.width = 1
@@ -438,16 +468,16 @@
             }else{
                 console.log("QUERY:"+self.editedWidget.query)
             }
-                //
+            //
             if (self.selectedForEdit > - 1){
                 self.dashboard.widgets[self.selectedForEdit] = self.editedWidget
             } else{
                 self.dashboard.widgets.push(self.editedWidget)
             }
             self.selectedForEdit = - 1
-                self.editedWidget = self.newWidget()
-                e.target.reset()
-                riot.update()
+            self.editedWidget = self.newWidget()
+            e.target.reset()
+            riot.update()
         }
 
         removeWidget(index){

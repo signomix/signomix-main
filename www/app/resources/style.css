@@ -3,7 +3,6 @@
 .material-icons.red { color: #E74C3C; }
 .material-icons.yellow { color: #F39C12; }
 .material-icons.blue { color: #0D83D0; }
-
 .module-title{
     margin-top: 20px;
 }
@@ -34,37 +33,48 @@
 }
 
 .text-signo {
-  color: rgb(80,80,80);
+    color: rgb(80,80,80);
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  /* Margin bottom by footer height */
-  margin-bottom: 40px;
-  /* background-color: #E0F2F7; */
+    /* Margin bottom by footer height */
+    margin-bottom: 40px;
+    background-color: #F8F8F8;
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 40px;
-  line-height: 40px; /* Vertically center the text there */
-  / * background-color: #E0F2F7; */
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 40px;
+    line-height: 40px; /* Vertically center the text there */
 }
 
+.signomix-form{
+    max-width: 600px;
+    margin: 0 auto;
+    border: solid;
+    border-width: thin;
+    border-color: lightgrey;
+}
+
+.card-header:first-child {
+    /*background-color: linear-gradient(to right, #0D83D0 0%, #ffffff 100%);*/
+    background-color: #F0F8FF; /*#0D83D0;*/
+}
 /*
 a {
   color: rgb(60,60,60) !important;
 }
 */
 main {
-  padding-top: 60px;
+    padding-top: 60px;
 }

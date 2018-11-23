@@ -1,8 +1,8 @@
 <app_password_form>
+    <div class="panel panel-default signomix-form">
+        <div class="panel-body">
     <div class="row">
-        <div class="col-md-2">
-        </div>
-        <div class="col-md-8">
+        <div class="col-md-12">
             <!-- Login form -->
             <form onsubmit={ submitForm }>
                 <p class="module-title h3 text-center mb-4">{app.texts.password_form.title[app.language]}</p>
@@ -29,7 +29,7 @@
             </form>
             <!-- Login form -->
         </div>
-        <div class="col-md-2">
+    </div>
         </div>
     </div>
     <script>

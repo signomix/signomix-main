@@ -3,16 +3,16 @@
     app.texts={}
     app.texts.footer= {
         "home": {
-            "en": "HOME",
-            "it": "HOME",
-            "pl": "HOME",
-            "fr": "PAGE D'ACCUEIL"
+            "en": "Home",
+            "it": "Home",
+            "pl": "Home",
+            "fr": "Page d'accueil"
         },
         "legal": {
-            "en": "TERMS & PRIVACY",
-            "it": "TERMINI D'USO & PRIVACY",
-            "fr": "TERMES & CONFIDENTIALITÉ",
-            "pl": "REGULAMIN I PRYWATNOŚĆ"
+            "en": "Terms & privacy",
+            "it": "Termini d'uso & privacy",
+            "fr": "Terms & confidentialité",
+            "pl": "Regulamin i prywatność"
         }
     }
     
@@ -699,10 +699,10 @@
             "pl": "Pozostaw puste jeśli nie wiesz o co chodzi."
         },
         "code": {
-            "en": "Data processor code.",
-            "it": "Data processor code.",
-            "fr": "Code du processeur de données.",
-            "pl": "Kod procesora danych."
+            "en": "Data processor script",
+            "it": "Data processor script",
+            "fr": "Script du processeur de données.",
+            "pl": "Skrypt procesora danych."
         },
         "code_hint": {
             "en": "Leave empty if you not sure what does it mean.",
