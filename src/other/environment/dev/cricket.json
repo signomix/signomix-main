@@ -112,6 +112,17 @@
                         "dump-request": "true"
                     }
                 },
+                "RawIntegrationService": {
+                    "name": "RawIntegrationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.IntegrationApi",
+                    "properties": {
+                        "context": "/api/raw",
+                        "header-name": "HTTP_SENSOR",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
                 "TtnIntegrationService": {
                     "name": "TtnIntegrationService",
                     "interfaceName": "HttpAdapterIface",

@@ -153,10 +153,20 @@ function getMeasureType(name){
     if(name.indexOf('battery')>-1){
         return 8;
     }
+    if(name.indexOf('latitude')>-1){
+        return 9;
+    }
+    if(name.indexOf('longitude')>-1){
+        return 10;
+    }
+    if(name.indexOf('altitude')>-1){
+        return 11;
+    }
     return 0;
 }
 
 function getDateFormatted(d){
+
     var dt=''+d.getFullYear()
 
     var tmp=d.getMonth()+1

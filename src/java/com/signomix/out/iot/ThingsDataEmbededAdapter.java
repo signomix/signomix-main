@@ -164,10 +164,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
      * @throws ThingsDataException
      */
     @Override
-    public List<ChannelData> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
+    public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
+        //TODO: if we query more than 1 channel (channels sepatated with "," then resulting channel data could be unsynchronized
+        //TODO: there should be additional option to synchdonize data lists
         return getDataStorage().getValues(userID, deviceEUI, channel, query);
     }
 

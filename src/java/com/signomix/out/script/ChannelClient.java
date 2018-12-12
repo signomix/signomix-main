@@ -1,12 +1,13 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.script;
 
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
+import java.util.List;
 
 /**
  *
@@ -32,4 +33,26 @@ public class ChannelClient {
         }
     }
 
+    public ChannelData getAverageValue(String channel, int scope) {
+        return getAverageValue(channel, scope, null);
+    }
+
+    public ChannelData getAverageValue(String channel, int scope, Double newValue) {
+        try {
+            List<List> result;
+            if(newValue==null){
+                result =thingsAdapter.getValues(userID, deviceID, channel, "average " + scope + " "+newValue);
+            }else{
+                result =thingsAdapter.getValues(userID, deviceID, channel, "average " + scope + " "+newValue);
+            }
+            if(result!=null){
+                if(result.get(0).size()>0){
+                    return (ChannelData)result.get(0).get(0);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

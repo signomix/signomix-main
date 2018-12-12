@@ -88,6 +88,29 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         }
         return result;
     }
+    
+    @Override
+    public ScriptResult processRawData(String requestBody, String deviceScript, String deviceID, String userID, long dataTimestamp) throws ScriptAdapterException {
+        Invocable invocable;
+        ScriptResult result = new ScriptResult();
+        if (requestBody == null) {
+            return result;
+        }
+        ChannelClient channelReader = new ChannelClient(userID, deviceID, getThingsAdapter());
+        try {
+            System.out.println(deviceScript != null ? merge(scriptTemplate, deviceScript) : decoderEnvelope);
+            engine.eval(deviceScript != null ? merge(scriptTemplate, deviceScript) : scriptTemplate);
+            invocable = (Invocable) engine;
+            result = (ScriptResult) invocable.invokeFunction("processRawData", deviceID, requestBody, channelReader, userID, dataTimestamp);
+        } catch (NoSuchMethodException e) {
+            fireEvent(2, userID + "\t" + deviceID, e.getMessage());
+            throw new ScriptAdapterException(ScriptAdapterException.NO_SUCH_METHOD, "NashornScriptingAdapter.no_such_method " + e.getMessage());
+        } catch (ScriptException e) {
+            fireEvent(2, userID + "\t" + deviceID, e.getMessage());
+            throw new ScriptAdapterException(ScriptAdapterException.SCRIPT_EXCEPTION, "NashornScriptingAdapter.script_exception " + e.getMessage());
+        }
+        return result;
+    }
 
     @Override
     public ArrayList<ChannelData> decodeData(byte[] data, String script, String deviceId, long timestamp, String userID) throws ScriptAdapterException {
@@ -128,7 +151,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
     }
 
     String merge(String template, String deviceScript) {
-        String res = template.replaceFirst("//injectedCode", deviceScript);
+        String res = template.replaceAll("//injectedCode", deviceScript);
         return res;
     }
 

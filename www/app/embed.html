@@ -14,6 +14,10 @@
         <!-- Style -->
         <link rel="stylesheet" href="resources/style.css">        
         <link href="/resources/flag-icon.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+        <!-- Make sure you put this AFTER Leaflet's CSS -->
+        <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+
     </head>
     <body>
         <app_texts></app_texts>
@@ -25,7 +29,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://momentjs.com/downloads/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js" type="text/javascript"></script>
     <!-- Riot scripts we need -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.4/riot+compiler.min.js"></script>
@@ -37,13 +40,14 @@
     <script src="js/data-api.js"></script>
     <script src="js/auth-api.js"></script>
     <script src="js/helper.js"></script>
-    
+   
     <!-- loading tags -->
     <script data-src="/tags/raw.tag" type="riot/tag"></script>
     <script data-src="components/app_dashboard2.tag" type="riot/tag"></script>
     <script data-src="components/widget_a1.tag" type="riot/tag"></script>
     <script data-src="components/app_texts.tag" type="riot/tag"></script>
     <script data-src="components/widget_date.tag" type="riot/tag"></script>
+    <script data-src="components/widget_map.tag" type="riot/tag"></script>
     <script>
         app.dashboardAPI = "$serviceurl"+"/api/dashboard";  
         app.authAPI = "$serviceurl"+"/api/auth";

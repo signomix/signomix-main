@@ -103,6 +103,7 @@ public class Service extends Kernel {
 
     //Integration services
     IntegrationApi integrationService = null;
+    IntegrationApi rawIntegrationService = null;
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
     KpnApi kpnUplinkService = null;
@@ -149,6 +150,7 @@ public class Service extends Kernel {
         emailSender = (EmailSenderIface) getRegistered("emailSender");
 
         integrationService = (IntegrationApi) getRegistered("IntegrationService");
+        rawIntegrationService = (IntegrationApi) getRegistered("RawIntegrationService");
         loraUplinkService = (LoRaApi) getRegistered("LoRaUplinkService");
         ttnIntegrationService = (TtnApi) getRegistered("TtnIntegrationService");
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
@@ -419,6 +421,26 @@ public class Service extends Kernel {
         StandardResult result;
         try {
             result = (StandardResult) DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter, userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        //ActuatorModule.getInstance().getCommand(deviceEUI, actuatorCommandsDB);
+        return result;
+    }
+    
+    @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "OPTIONS")
+    public Object rawDataCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "*")
+    public Object rawDataAdd(Event event) {
+        StandardResult result;
+        try {
+            result = (StandardResult) DeviceIntegrationModule.getInstance().processRawRequest(event, thingsAdapter, userAdapter, scriptingAdapter, rawIntegrationService, actuatorCommandsDB);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

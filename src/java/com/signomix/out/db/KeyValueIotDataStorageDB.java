@@ -140,8 +140,9 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     }
 
     @Override
-    public List<ChannelData> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
+    public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
         //TODO: get several channels - see H2DataStorageBD
+        /*
         String tableName = getTableNameForChannel(deviceEUI, channel);
         int resultSize = 1;
         String[] params = query.split(";");
@@ -177,6 +178,8 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
             e.printStackTrace();
         }
         return result;
+        */
+        throw new ThingsDataException(ThingsDataException.BAD_REQUEST);
     }
 
     @Override

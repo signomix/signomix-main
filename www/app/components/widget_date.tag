@@ -23,12 +23,11 @@
         
         self.show2 = function(){
             self.jsonData = JSON.parse(this.rawdata)
-            if(self.jsonData.length==0){
-                return
+            if(self.jsonData.length>0 && self.jsonData[0].length>0){
+                self.value = parseFloat(self.jsonData[0][0]['value'])
+                self.d=new Date(self.value)
+                self.dt = getDateFormatted(self.d)
             }
-            self.value = parseFloat(self.jsonData[0]['value'])
-            self.d=new Date(self.value)
-            self.dt = getDateFormatted(self.d)
         }
     </script>
     <style>

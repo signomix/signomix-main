@@ -180,5 +180,17 @@ public class Dashboard {
     public void setWidgetsFromJson(String jsonString) {
         widgets = (ArrayList) JsonReader.jsonToJava(jsonString);
     }
+    
+    public Dashboard normalize(){
+        String tmp=getTeam();
+        if(!tmp.startsWith(",")){
+            tmp=","+tmp;
+        }
+        if(!tmp.endsWith(",")){
+            tmp=tmp+",";
+        }
+        setTeam(tmp);
+        return this;
+    }
 
 }

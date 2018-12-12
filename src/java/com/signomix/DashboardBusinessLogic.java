@@ -64,13 +64,13 @@ public class DashboardBusinessLogic {
                     break;
                 case "POST":
                     d = deserialize(userID, request);
-                    dashboardAdapter.addDashboard(userID, d, authAdapter);
+                    dashboardAdapter.addDashboard(userID, d.normalize(), authAdapter);
                     result.setCode(HttpAdapter.SC_CREATED);
                     result.setData(d);
                     break;
                 case "PUT":
                     d = deserialize(userID, request);
-                    dashboardAdapter.modifyDashboard(userID, d, authAdapter);
+                    dashboardAdapter.modifyDashboard(userID, d.normalize(), authAdapter);
                     result.setCode(HttpAdapter.SC_OK);
                     result.setData(d);
                     break;

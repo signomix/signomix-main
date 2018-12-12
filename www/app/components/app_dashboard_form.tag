@@ -36,6 +36,7 @@
     </div>
     <!-- Central Modal: REMOVE -->
     
+    
     <div class="modal fade" id="widgetEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog cascading-modal" role="document">
             <div class="modal-content">
@@ -99,7 +100,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' }>
+                        <div class="row" if={ self.editedWidget.type=='symbol'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_unit"

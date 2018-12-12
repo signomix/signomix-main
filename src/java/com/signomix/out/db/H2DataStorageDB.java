@@ -231,10 +231,10 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
 
     @Override
     public void putData(String userID, String deviceEUI, List<ChannelData> values) throws ThingsDataException {
-        if (values==null || values.isEmpty()) {
+        if (values == null || values.isEmpty()) {
             return;
         }
-        int limit=24;
+        int limit = 24;
         List channelNames = getDeviceChannels(deviceEUI);
         String query = "insert into devicedata (eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         long timestamp = values.get(0).getTimestamp();
@@ -252,15 +252,15 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
                 pst.setNull(i + 5, java.sql.Types.DOUBLE);
             }
             int index = -1;
-            if(values.size()<=limit){
-                limit=values.size();
-            }else{
+            if (values.size() <= limit) {
+                limit = values.size();
+            } else {
                 //TODO: send notification to the user?
             }
             for (int i = 1; i <= limit; i++) {
-                index = channelNames.indexOf(values.get(i-1).getName());
-                if (index >= 0 && index<limit) { // TODO: there must be control of mthe number of measures while defining device, not here
-                    pst.setDouble(6 + index, values.get(i-1).getValue());
+                index = channelNames.indexOf(values.get(i - 1).getName());
+                if (index >= 0 && index < limit) { // TODO: there must be control of mthe number of measures while defining device, not here
+                    pst.setDouble(6 + index, values.get(i - 1).getValue());
                 }
             }
             pst.executeUpdate();
@@ -358,21 +358,60 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     }
 
     @Override
-    public List<ChannelData> getValues(String userID, String deviceEUI, String channel, String resultsLimit) throws ThingsDataException {
+    public List<List> getValues(String userID, String deviceEUI, String channel, String resultsLimit) throws ThingsDataException {
         int limit = getLimit(resultsLimit);
-        if (!channel.contains(",") || limit != 1) {
-            return getChannelValues(userID, deviceEUI, channel, limit);
+        int averageLimit = getAverageLimit(resultsLimit);
+        Double newValue = getNewValue(resultsLimit);
+        List<List> result = new ArrayList<>();
+        if (newValue != null) {
+            limit = limit - 1;
+        }
+        if (!channel.contains(",")) {
+            result.add(getChannelValues(userID, deviceEUI, channel, limit));
         } else {
-            List<ChannelData> list = new ArrayList<>();
             String[] channels = channel.split(",");
-            for (String channel1 : channels) {
-                try {
-                    list.add(getChannelValues(userID, deviceEUI, channel1, 1).get(0));
-                } catch (IndexOutOfBoundsException e) {
+            List<ChannelData>[] temp = new ArrayList[channels.length];
+            for (int i = 0; i < channels.length; i++) {
+                temp[i] = getChannelValues(userID, deviceEUI, channels[i], limit);
+            }
+            List<ChannelData> values;
+            for (int i = 0; i < limit; i++) {
+                values = new ArrayList<>();
+                for (int j = 0; j < channels.length; j++) {
+                    if (temp[j].size() > i) {
+                        values.add(temp[j].get(i));
+                    }
+                }
+                if (values.size() > 0) {
+                    result.add(values);
                 }
             }
-            return list;
         }
+        if ((!channel.contains(",")) && averageLimit > 0) {
+            ChannelData data = new ChannelData("", 0.0, System.currentTimeMillis());
+            Double sum = 0.0;
+            int size = 0;
+            if (result.size() > 0) {
+                size = result.get(0).size();
+                if (size > 0) {
+                    data = (ChannelData) result.get(0).get(0);
+                }
+                for (int i = 0; i < size; i++) {
+                    sum = sum + ((ChannelData) result.get(0).get(i)).getValue();
+                }
+            }
+            if (newValue != null) {
+                sum = sum + newValue;
+                data.setValue(sum / (size + 1));
+            } else {
+                data.setValue(sum / size);
+            }
+            List<ChannelData> resultAvg = new ArrayList<>();
+            resultAvg.add(data);
+            result.clear();
+            result.add(resultAvg);
+        }
+        return result;
     }
 
     private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit) throws ThingsDataException {
@@ -389,7 +428,6 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
         }
         String columnName = "d" + (channelIndex + 1);
         query = query.replaceFirst("\\?\\?", columnName);
-
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
@@ -410,7 +448,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
 
     @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
-        List<List> result = new ArrayList<>();
+        List<List> result;
         String channelName = "";
         int indexOfChannel = query.indexOf("channel ");
         int limit = 1;
@@ -432,7 +470,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     private int getLimit(String query) {
         int result = 1;
         String[] params = query.trim().split(" ");
-        if (params[0].equalsIgnoreCase("last") && params.length == 2) {
+        if ((params[0].equalsIgnoreCase("last") || params[0].equalsIgnoreCase("average")) && params.length > 1) {
             try {
                 result = Integer.parseInt(params[1]);
             } catch (NumberFormatException e) {
@@ -440,7 +478,31 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
         }
         return result;
     }
-    
+
+    private int getAverageLimit(String query) {
+        int result = 0;
+        String[] params = query.trim().split(" ");
+        if (params[0].equalsIgnoreCase("average") && params.length > 1) {
+            try {
+                result = Integer.parseInt(params[1]);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return result;
+    }
+
+    private Double getNewValue(String query) {
+        Double result = null;
+        String[] params = query.trim().split(" ");
+        if (params[0].equalsIgnoreCase("average") && params.length > 2) {
+            try {
+                result = Double.parseDouble(params[2]);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return result;
+    }
+
     @Override
     protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
         String query = "";

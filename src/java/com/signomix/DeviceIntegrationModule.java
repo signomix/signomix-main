@@ -463,7 +463,6 @@ public class DeviceIntegrationModule {
 
             ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
             ArrayList<Event> events = scriptResult.getEvents();
-            //System.out.println(">>>>>> number of events created:"+events.size());
             HashMap<String, String> recipients;
             Event ev;
             for (int i = 0; i < events.size(); i++) {
@@ -500,12 +499,14 @@ public class DeviceIntegrationModule {
         }
         return result;
     }
-    
-    ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values){
-        ArrayList<ChannelData> fixedList=new ArrayList<>();
-        for(ChannelData value: values){
-            if(device.getChannels().containsKey(value.getName())){
-                fixedList.add(value);
+
+    ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values) {
+        ArrayList<ChannelData> fixedList = new ArrayList<>();
+        if (values != null && values.size() > 0) {
+            for (ChannelData value : values) {
+                if (device.getChannels().containsKey(value.getName())) {
+                    fixedList.add(value);
+                }
             }
         }
         return fixedList;
@@ -618,6 +619,88 @@ public class DeviceIntegrationModule {
         return result;
     }
 
+public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi rawApi, ActuatorCommandsDBIface actuatorCommandsDB) {
+        //TODO: Authorization
+        RequestObject request = event.getRequest();
+        boolean dump = false;
+        //TODO: kpnApi
+        if ("true".equalsIgnoreCase(rawApi.getProperty("dump-request"))) {
+            System.out.println(HttpAdapter.dumpRequest(request));
+            dump = true;
+        }
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_CREATED);
+        result.setData("OK");
+        boolean debugMode = "true".equalsIgnoreCase(request.headers.getFirst("X-debug"));
+        try {
+            String authKey = null;
+            String deviceEUI;
+            //TODO: header should be configurable
+            deviceEUI = request.headers.getFirst(rawApi.getProperty("header-name"));
+            
+            if (deviceEUI == null) {
+                //TODO: send warning to the service admin about deserialization error
+                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                result.setData("deserialization problem");
+                return result;
+            }
+
+            // save value and timestamp in device's channel witch name is the same as the field name
+            boolean isRegistered = false;
+            Device device;
+            try {
+                //device = thingsAdapter.getDevice(data.getUserId(), data.getDeviceId());
+                device = thingsAdapter.getDevice(deviceEUI);
+                isRegistered = (null != device);
+                if (!isRegistered) {
+                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " is not registered"));
+                    result.setCode(HttpAdapter.SC_NOT_FOUND);
+                    result.setData("device not found");
+                    return result;
+                }
+                if (!device.getType().equalsIgnoreCase("GENERIC")) {
+                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " type is not valid"));
+                    result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                    result.setData("device type not valid");
+                    return result;
+                }
+
+            } catch (ThingsDataException ex) {
+                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                result.setCode(HttpAdapter.SC_NOT_FOUND);
+                result.setData("device not found");
+                return result;
+            }
+
+            //String secret = device.getKey();
+            String secret = userAdapter.get(device.getUserID()).getConfirmString();
+            String applicationSecret;
+            boolean authorized = true;
+
+            //TODO: authorization
+            if (!authorized) {
+                handle(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
+                result.setCode(HttpAdapter.SC_FORBIDDEN);
+                result.setData("not authorized");
+                return result;
+            }
+            //after successful authorization
+
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "");
+            ArrayList<ChannelData> finalValues = null;
+            try {
+                finalValues = DataProcessor.processRawValues(request.body, device, scriptingAdapter, System.currentTimeMillis());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Kernel.handle(Event.logWarning(this, e.getMessage()));
+            }
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
     private ArrayList<ChannelData> prepareTtnValues(TtnData data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
         //TtnData data = (TtnData)dataObject;
         ArrayList<ChannelData> values = new ArrayList<>();
