@@ -23,8 +23,8 @@
                 </div>
 
                 <div class="text-center">
+                    <button type="submit" class="btn btn-primary">{ app.texts.password_form.save[app.language] }</button>
                     <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.password_form.cancel[app.language] }</button>
-                    <button type="submit" class="btn btn-default">{ app.texts.password_form.save[app.language] }</button>
                 </div>
             </form>
             <!-- Login form -->

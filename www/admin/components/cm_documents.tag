@@ -8,7 +8,7 @@
         <div class="col-md-12">
             <h2>{labels.title[app.language]} 
                 <virtual each={ lang, i in app.languages}>
-                    <button type="button" class="btn btn-sm { lang==selectedLanguage?'btn-primary':'btn-default' }" onclick={ selectLanguage(lang) }>{ lang }</button>
+                    <button type="button" class="btn btn-sm { lang==selectedLanguage?'btn-primary':'btn-secondary' }" onclick={ selectLanguage(lang) }>{ lang }</button>
                 </virtual>
                 <i class="fa fa-refresh" aria-hidden="true" onclick={ refreshDocs() }>&nbsp;</i>
                 <i class="fa fa-plus" aria-hidden="true" onclick={ editDocument('NEW', true) }>&nbsp;</i>
@@ -66,7 +66,7 @@
                             <p class="text-warning"><small>{labels.remove_info[app.language]}</small></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick={ select('') }>{labels.cancel[app.language]}</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick={ select('') }>{labels.cancel[app.language]}</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" onclick={ removeDocument() }>{labels.remove[app.language]}</button>
                         </div>
                     </div>

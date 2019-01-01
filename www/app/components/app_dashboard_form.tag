@@ -180,7 +180,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary" disabled={!allowEdit}>{app.texts.dashboard_form.save[app.language]}</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">{app.texts.dashboard_form.cancel[app.language]}</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.dashboard_form.cancel[app.language]}</button>
                         </div>
                     </form>
                 </div>
@@ -272,7 +272,7 @@
             <div class="row">
                 <div class="form-group col-md-12">
                     <button type="submit" class="btn btn-primary" disabled={ !allowEdit }>{ app.texts.dashboard_form.save[app.language] }</button>
-                    <button type="button" class="btn btn-default" onclick={ close } >{ app.texts.dashboard_form.cancel[app.language] }</button>
+                    <button type="button" class="btn btn-secondary" onclick={ close } >{ app.texts.dashboard_form.cancel[app.language] }</button>
                 </div>
             </div>
         </form>

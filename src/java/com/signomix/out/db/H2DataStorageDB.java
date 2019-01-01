@@ -252,15 +252,18 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
                 pst.setNull(i + 5, java.sql.Types.DOUBLE);
             }
             int index = -1;
-            if (values.size() <= limit) {
-                limit = values.size();
-            } else {
+            //if (values.size() <= limit) {
+            //    limit = values.size();
+            //}
+            if (values.size() > limit) {
                 //TODO: send notification to the user?
             }
             for (int i = 1; i <= limit; i++) {
-                index = channelNames.indexOf(values.get(i - 1).getName());
-                if (index >= 0 && index < limit) { // TODO: there must be control of mthe number of measures while defining device, not here
-                    pst.setDouble(6 + index, values.get(i - 1).getValue());
+                if (i <= values.size()) {
+                    index = channelNames.indexOf(values.get(i - 1).getName());
+                    if (index >= 0 && index < limit) { // TODO: there must be control of mthe number of measures while defining device, not here
+                        pst.setDouble(6 + index, values.get(i - 1).getValue());
+                    }
                 }
             }
             pst.executeUpdate();

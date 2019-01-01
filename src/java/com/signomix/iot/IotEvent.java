@@ -29,6 +29,7 @@ public class IotEvent extends Event {
     public static final String DASHBOARD_SHARED = "DASHBOARD_SHARED";
     public static final String DASHBOARD_REMOVED = "DASHBOARD_REMOVED";
     public static final String DASHBOARD_UNSHARED = "DASHBOARD_UNSHARED";
+    public static final String DEVICE_LOST = "DEVICE_LOST";
     
     public static final String PLATFORM_DEVICE_LIMIT_EXCEEDED = "PLATFORM_DEVICE_LIMIT_EXCEEDED";
     
@@ -110,6 +111,11 @@ public class IotEvent extends Event {
     public void setAlertMessage(String message) {
         setType(ALERT);
         setPayload(message);
+    }
+    
+    public IotEvent addOrigin(String origin){
+        setOrigin(origin);
+        return this;
     }
 
     public IotEvent addPayload(String payload) {

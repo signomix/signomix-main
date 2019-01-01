@@ -17,12 +17,13 @@ import javax.mail.internet.MimeMessage;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.out.OutboundAdapter;
 
 /**
  *
  * @author greg
  */
-public class SmtpNotificator implements NotificationIface, Adapter {
+public class SmtpNotificator extends OutboundAdapter implements NotificationIface, Adapter {
 
     String from = "signode@signocom.com";
     String cc = null;

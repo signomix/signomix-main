@@ -169,6 +169,35 @@ public class DeviceManagementModule {
         }
     }
 
+    public void checkStatus(ThingsDataIface thingsAdapter) {
+        ArrayList<Device> devices = null;
+        try {
+            devices = (ArrayList<Device>) thingsAdapter.getInactiveDevices();
+            ArrayList<String> recipents;
+            String[] team;
+            IotEvent ev;
+            for (Device device : devices) {
+                recipents = new ArrayList<>();
+                team = device.getTeam().split(",");
+                for (String member : team) {
+                    if (!member.isEmpty()) {
+                        recipents.add(member);
+                    }
+                }
+                if (!recipents.contains(device.getUserID())) {
+                    recipents.add(device.getUserID());
+                }
+                for (String recipent : recipents) {
+                    ev= new IotEvent(IotEvent.DEVICE_LOST, "possible device failure").addOrigin(recipent + "\t" + device.getEUI());
+                    Kernel.getInstance().dispatchEvent(ev);
+                }
+
+            }
+        } catch (ThingsDataException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Device buildDevice(RequestObject request, String userID, Device original) {
         // TODO: what if new definition has some channels removed?
         Device device = new Device();
@@ -295,7 +324,6 @@ public class DeviceManagementModule {
             return new ArrayList();
         }
     }*/
-
     private List getValuesOfChannel(String userID, String deviceEUI, String channelID, String query, ThingsDataIface thingsAdapter) {
         try {
             if (channelID != null && !"$".equals(channelID)) {
@@ -329,7 +357,7 @@ public class DeviceManagementModule {
         }
 
     }
-/*
+    /*
     public void writeVirtualState(
             VirtualDevice vd,
             Device device,
@@ -387,5 +415,5 @@ public class DeviceManagementModule {
         //thingsAdapter.putVirtualData(userID, device, scriptingAdapter, values);
         //TODO: use DataProcessor
     }
-*/
+     */
 }

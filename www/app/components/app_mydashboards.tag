@@ -41,8 +41,8 @@
                         <p>{app.texts.mydashboards.remove_question[app.language]}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.mydashboards.cancel[app.language]}</button>
                         <button type="button" class="btn btn-primary" onclick={ removeDashboard() } data-dismiss="modal">{app.texts.mydashboards.remove[app.language]}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.mydashboards.cancel[app.language]}</button>
                     </div>
                 </div>
             </div>

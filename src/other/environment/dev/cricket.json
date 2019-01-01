@@ -269,11 +269,12 @@
                         "test-query": "select * from serviceversion",
                         "version": "3",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "time-offset": "3600"
                     }
                 },
                 "iotDataDB": {
-                    "name": "iotDB",
+                    "name": "iotDataDB",
                     "interfaceName": "IotDataStorageIface",
                     "classFullName": "com.signomix.out.db.H2DataStorageDB",
                     "properties": {
@@ -309,7 +310,7 @@
                         "path": "./data",
                         "envVariable": "SCHEDULER_DB_PATH",
                         "file": "scheduler.xml",
-                        "init":"Data1,SYSTEM,EVENT,CLEAR_DATA,*1m,_|_;EV2,EC1COUNTER,EVENT,COMMAND,17:40:00 GMT|*24h,{\"value\":\"0\"};EV3,EC1,EVENT,BACKUP,21:40:00 GMT|*24h,_"
+                        "init":"Data2,SYSTEM,EVENT,CHECK_DEVICES,*1m,_|_;Data1,SYSTEM,EVENT,CLEAR_DATA,*1m,_|_;EV2,EC1COUNTER,EVENT,COMMAND,17:40:00 GMT|*24h,{\"value\":\"0\"};EV3,EC1,EVENT,BACKUP,21:40:00 GMT|*24h,_"
                     }
                 },
                 "FileReader": {

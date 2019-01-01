@@ -52,7 +52,7 @@ public class IotEventHandler {
                 case IotEvent.INFO:
                 case IotEvent.WARNING:
                 case IotEvent.ALERT:
-                    System.out.println(">>>>> event origin: "+event.getOrigin());
+                case IotEvent.DEVICE_LOST:
                     String[] origin = event.getOrigin().split("\t");
                     if (origin.length < 2) {
                         // TODO: log error

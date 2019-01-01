@@ -14,7 +14,7 @@
                 <div class="col-md-12 alert alert-success" >
                 <p><span>{ app.texts.register.l_successText1[app.language] }</span></p>
                 <p><span>{ app.texts.register.l_successText2[app.language] + ' '+self.registeredEmail}</span></p>
-                <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.register.l_OK[app.language] }</button>
+                <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.register.l_OK[app.language] }</button>
                 </div>
             </div>
             <div class="row" if={ !self.success }>
@@ -72,7 +72,7 @@
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">{ app.texts.register.l_register[app.language] }</button>
-                        <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.register.l_cancel[app.language] }</button>
+                        <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.register.l_cancel[app.language] }</button>
                     </div>
                 </form>
             </div>

@@ -66,7 +66,7 @@
                     <p>{ description }</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">{ app.texts.widget_a1.cancel[app.language] }</button>
+                    <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal">{ app.texts.widget_a1.cancel[app.language] }</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" onclick={ sendReset() }>{ app.texts.widget_a1.save[app.language] }</button>
                 </div>
             </div>

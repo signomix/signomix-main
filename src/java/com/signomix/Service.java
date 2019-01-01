@@ -183,20 +183,6 @@ public class Service extends Kernel {
                         "+1s",
                         "Signomix service has been started.")
         );
-
-        //tasks
-        /*
-        Event ev1 = new Event(this.getName(), "CATEGORYX", "mytype", "*15s", "HELLO!");
-        ev1.setName("EV1");
-        if(!scheduler.isScheduled(ev1.getName())){
-            handle(ev1);
-        }
-        Event ev2 = new Event(this.getName(), Event.CATEGORY_GENERIC, "STATUS", "*5s", "HELLO!");
-        ev2.setName("EV2");
-        if(!scheduler.isScheduled(ev2.getName())){
-            handle(ev2);
-        }
-         */
     }
 
     @Override

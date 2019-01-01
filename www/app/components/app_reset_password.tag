@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-default">{ app.texts.reset_password.l_save[app.language] }</button>
+                    <button type="submit" class="btn btn-primary">{ app.texts.reset_password.l_save[app.language] }</button>
                 </div>
                 <div class="md-form">
                     <p class="form-footer">{ app.texts.reset_password.l_description[app.language] }</p>

@@ -10,8 +10,8 @@
     <!-- Remember to modify the project name (see line 2 of this file)       -->
     <!--                                                                     -->
     <description>Signomix</description>
-    <property name="version" value="1.1.46"/> <!-- service version           -->
-    <property name="cricket-version" value="1.2.52" /> <!-- 1.2.30 -->
+    <property name="version" value="1.1.47"/> <!-- service version           -->
+    <property name="cricket-version" value="1.2.54" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="minify" value="true" />
@@ -49,12 +49,6 @@
    
     <target name="get-dependencies" description="upload Cricket MSF library">
         <mkdir dir="${lib}"/>
-        <get
-            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
-            dest="lib/cricket-${cricket-version}.jar" 
-            usetimestamp="true" 
-            ignoreerrors="true"
-        />
         <get
             src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
             dest="lib/cricket-${cricket-version}.jar" 

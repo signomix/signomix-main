@@ -4,6 +4,8 @@
 */
 package org.cricketmsf.microsite.user;
 
+import com.signomix.iot.IotEvent;
+
 /**
  *
  * @author greg
@@ -201,16 +203,17 @@ public class User {
     public String[] getChannelConfig(String eventTypeName) {
         String channel = "";
         switch (eventTypeName.toUpperCase()) {
-            case "GENERAL":
+            case IotEvent.GENERAL:
+            case IotEvent.DEVICE_LOST:
                 channel = getGeneralNotificationChannel();
                 break;
-            case "INFO":
+            case IotEvent.INFO:
                 channel = getInfoNotificationChannel();
                 break;
-            case "WARNING":
+            case IotEvent.WARNING:
                 channel = getWarningNotificationChannel();
                 break;
-            case "ALERT":
+            case IotEvent.ALERT:
                 channel = getAlertNotificationChannel();
                 break;
         }

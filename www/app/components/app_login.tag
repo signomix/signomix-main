@@ -32,7 +32,7 @@
                     <p class="form-footer">{ app.texts.login.l_noaccountyet[app.language] } <a href='#register'>{ app.texts.login.l_signup[app.language] }</a></p>
                 </div>
                 <button type="submit" class="btn btn-primary">{ app.texts.login.l_save[app.language] }</button>
-                <button type="button" class="btn btn-default" onclick={ close }>{ app.texts.login.l_cancel[app.language] }</button>
+                <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.login.l_cancel[app.language] }</button>
             </form>
         </div>
     </div>

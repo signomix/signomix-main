@@ -261,4 +261,9 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         getDataStorage().putData(userID, device.getEUI(), finalValues);
     }
     */
+
+    @Override
+    public List<Device> getInactiveDevices() throws ThingsDataException {
+        return getIotDB().getInactiveDevices();
+    }
 }

@@ -15,8 +15,8 @@
                         <p class="text-danger">{app.texts.account.unregister_info[app.language]}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.account.cancel[app.language]}</button>
                         <button type="button" class="btn btn-primary" onclick={ unregister() } data-dismiss="modal">{app.texts.account.unregister[app.language]}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.account.cancel[app.language]}</button>
                     </div>
                 </div>
             </div>
@@ -58,8 +58,8 @@
         <div class="row" if={ !passwordChange && !edited }>
             <div class="col-md-6">
                 <div class="alert alert-light border-dark">
-                    <button type="button" class="btn btn-default" onclick={ editAccount() }>{ app.texts.account.modify[app.language] }</button>
-                    <button type="button" class="btn btn-default" onclick={ changePassword() }>{ app.texts.account.changepass[app.language] }</button>
+                    <button type="button" class="btn btn btn-outline-primary" onclick={ editAccount() } style="margin:2px;">{ app.texts.account.modify[app.language] }</button>
+                    <button type="button" class="btn btn-outline-primary" onclick={ changePassword() } style="margin:2px;">{ app.texts.account.changepass[app.language] }</button>
                 </div>
             </div>
             <div class="col-md-6">
@@ -67,7 +67,7 @@
                     <div class="d-flex">
                         <div>{getTariffName()}</div>
                         <div class="ml-auto">
-                            <button type="button" class="btn btn-default ml-auto" 
+                            <button type="button" class="btn btn-secondary ml-auto" 
                                     data-toggle="modal" data-target="#upgradeDialog">{ app.texts.account.changetariff[app.language] }</button>
                         </div>
                     </div>

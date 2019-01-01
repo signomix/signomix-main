@@ -52,8 +52,8 @@
                         <p class="text-danger">{app.texts.mydevices.remove_info[app.language]}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.mydevices.cancel[app.language]}</button>
                         <button type="button" class="btn btn-primary" onclick={ removeDevice() } data-dismiss="modal">{app.texts.mydevices.remove[app.language]}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.mydevices.cancel[app.language]}</button>
                     </div>
                 </div>
             </div>

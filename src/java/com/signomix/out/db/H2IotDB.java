@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.db;
 
 import com.signomix.out.gui.Dashboard;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
 
 /**
  *
@@ -27,9 +28,17 @@ import org.cricketmsf.Event;
  */
 public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface, Adapter {
 
+    private int timeOffset = 0;
+
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
+        try {
+            timeOffset = Integer.parseInt(properties.getOrDefault("time-offset", "0"));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        Kernel.getInstance().getLogger().print("\ttime-offset: " + timeOffset);
     }
 
     @Override
@@ -140,7 +149,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public Device getDevice(String userID, String deviceEUI) throws ThingsDataException {
-        
+
         String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where eui=? and userid = ?";
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -161,7 +170,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public Device getDevice(String deviceEUI) throws ThingsDataException {
         String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where upper(eui) = ?";
-        if(deviceEUI==null || deviceEUI.isEmpty()){
+        if (deviceEUI == null || deviceEUI.isEmpty()) {
             return null;
         }
         try (Connection conn = getConnection()) {
@@ -181,8 +190,8 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public void putDevice(Device device) throws ThingsDataException {
-        if(getDevice(device.getUserID(), device.getEUI())!=null){
-            throw new ThingsDataException(ThingsDataException.CONFLICT, "device "+device.getEUI()+" is already defined");
+        if (getDevice(device.getUserID(), device.getEUI()) != null) {
+            throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + " is already defined");
         }
         String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = getConnection()) {
@@ -374,8 +383,8 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public List getAlerts(String userID, boolean descending) throws ThingsDataException {
         String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id";
-        if(descending) {
-            query=query.concat(" desc");
+        if (descending) {
+            query = query.concat(" desc");
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -505,7 +514,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(10, device.getPattern());
             pstmt.setString(11, device.getCommandScript());
             pstmt.setString(12, device.getProducer());
-            
+
             int updated = pstmt.executeUpdate();
             conn.close();
             if (updated < 1) {
@@ -533,14 +542,17 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         d.setKey(rs.getString(9));
         d.setDescription(rs.getString(10));
         d.setLastSeen(rs.getLong(11));
-        d.setTransmissionInterval(rs.getLong(12));
-        d.setLastFrame(rs.getLong(13));
-        d.setTemplate(rs.getString(14));
-        d.setPattern(rs.getString(15));
-        d.setDownlink(rs.getString(16));
-        d.setCommandScript(rs.getString(17));
-        d.setApplicationID(rs.getString(18));
-        d.setApplicationEUI(rs.getString(19));
+        try {
+            d.setTransmissionInterval(rs.getLong(12));
+            d.setLastFrame(rs.getLong(13));
+            d.setTemplate(rs.getString(14));
+            d.setPattern(rs.getString(15));
+            d.setDownlink(rs.getString(16));
+            d.setCommandScript(rs.getString(17));
+            d.setApplicationID(rs.getString(18));
+            d.setApplicationEUI(rs.getString(19));
+        } catch (Exception e) {
+        }
         return d;
     }
 
@@ -659,10 +671,10 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException {
         boolean publicUser = "public".equalsIgnoreCase(userID);
         String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where id=? and (userid=? or team like ? ";
-        if(publicUser){
-            query=query.concat("or shared=true)");
-        }else{
-            query=query.concat(")");
+        if (publicUser) {
+            query = query.concat("or shared=true)");
+        } else {
+            query = query.concat(")");
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -738,7 +750,8 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
-/*
+
+    /*
     @Override
     public void updateStructure(Connection conn, String from, String to) throws KeyValueDBException {
         int fromVersion = 1;
@@ -759,7 +772,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         }
         super.updateStructure(conn, from, to);
     }
-*/
+     */
     @Override
     protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
         String query = "";
@@ -851,6 +864,24 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             }
             return counter;
         } catch (SQLException | NumberFormatException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Device> getInactiveDevices() throws ThingsDataException {
+        String query
+                = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval from devices "
+                + "where interval > 0 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-" + timeOffset + ") > interval/1000;";
+        try (Connection conn = getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            ResultSet rs = pstmt.executeQuery();
+            ArrayList<Device> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(buildDevice(rs));
+            }
+            return list;
+        } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }

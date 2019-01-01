@@ -124,7 +124,7 @@
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary" disabled={ !allowEdit }>{ app.texts.user_form.save[app.language] }</button>
-                    <button type="button" onclick={ close } class="btn btn-default">{ app.texts.user_form.cancel[app.language] }</button>
+                    <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.user_form.cancel[app.language] }</button>
                 </div>                
             </form>
         </div>

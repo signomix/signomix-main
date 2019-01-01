@@ -47,4 +47,6 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public Dashboard getDashboard(String dashboardID) throws ThingsDataException;
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException;
     public boolean isDashboardRegistered(String dashboardID) throws ThingsDataException;
+    
+    public List<Device> getInactiveDevices() throws ThingsDataException;
 }

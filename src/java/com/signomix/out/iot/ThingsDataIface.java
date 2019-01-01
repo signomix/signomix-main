@@ -47,5 +47,7 @@ public interface ThingsDataIface {
     public void removeUserAlerts(String userId) throws ThingsDataException;
     public void removeUserAlerts(String userId, long checkPoint) throws ThingsDataException;
     public void removeOutdatedAlerts(long checkPoint) throws ThingsDataException;
+    
+    public List<Device> getInactiveDevices() throws ThingsDataException;
 
 }

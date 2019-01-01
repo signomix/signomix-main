@@ -70,9 +70,9 @@
                     <label for="file">{ labels.selectFile[app.language]}</label><br />
                     <input class="form-control-file" type="file" name="file" id="file">
                 </div>
-                <button type="button" onclick={ close } class="btn btn-default pull-right">{ labels.cancel[app.language] }</button>
+                <button type="button" onclick={ close } class="btn btn-secondary pull-right">{ labels.cancel[app.language] }</button>
                 <span>&nbsp;</span>
-                <button type="submit" class="btn btn-default" disabled={ !allowEdit }>{ labels.save[app.language] }</button>
+                <button type="submit" class="btn btn-secondary" disabled={ !allowEdit }>{ labels.save[app.language] }</button>
             </form>
         </div>
 </div>

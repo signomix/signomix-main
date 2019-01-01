@@ -105,6 +105,9 @@ public class SystemEventHandler {
             case "BACKUP":
                 PlatformAdministrationModule.getInstance().backupDatabases(database, userDB, authDB, cmsDatabase, thingsDB, iotDataDB, actuatorCommandsDB);
                 break;
+            case "CHECK_DEVICES":
+                DeviceManagementModule.getInstance().checkStatus(thingsAdapter);
+                break;
             default:
                 kernel.handleEvent(Event.logWarning("Don't know how to handle type " + event.getType(), event.getPayload().toString()));
         }

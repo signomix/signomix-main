@@ -360,7 +360,6 @@ public class DeviceIntegrationModule {
         }
 
         String jsonString = request.body;
-        //System.out.println("BODY:"+jsonString);
         jsonString
                 = "{\"@type\":\"com.signomix.iot.TtnData\","
                 + jsonString.substring(jsonString.indexOf("{") + 1);
@@ -425,9 +424,6 @@ public class DeviceIntegrationModule {
                 handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
                 return result;
             }
-            //
-            //device.setLastSeen(System.currentTimeMillis());
-            //thingsAdapter.modifyDevice(device.getUserID(), device);
             if (device.isCheckFrames()) {
                 if (device.getLastFrame() == data.getFrameCounter()) {
                     //drop request
@@ -702,7 +698,6 @@ public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, User
     }
     
     private ArrayList<ChannelData> prepareTtnValues(TtnData data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
-        //TtnData data = (TtnData)dataObject;
         ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null) {
             byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
@@ -713,11 +708,11 @@ public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, User
                 return null;
             }
         } else {
-            for (int i = 0; i < data.getPayloadFieldNames().length; i++) {
+            for (String payloadFieldName : data.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
                 mval.setDeviceEUI(data.getDeviceEUI());
-                mval.setName(data.getPayloadFieldNames()[i]);
-                mval.setValue(data.getDoubleValue(data.getPayloadFieldNames()[i]));
+                mval.setName(payloadFieldName.toLowerCase());
+                mval.setValue(data.getDoubleValue(payloadFieldName));
                 if (data.getTimeField() != null) {
                     mval.setTimestamp(data.getTimeField().toEpochMilli());
                 } else {

@@ -27,8 +27,8 @@
             </div>
             <div class="row">
                 <div class="input-field col-md-12">
-                    <button type="button" onclick={ close } class="btn btn-default">{ app.texts.device_form.cancel[app.language] }</button>
-                    <button type="submit" onclick={ goNext } class="btn btn-default">{ app.texts.device_form.next[app.language] }</button>
+                    <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.device_form.cancel[app.language] }</button>
+                    <button type="submit" onclick={ goNext } class="btn btn-primary">{ app.texts.device_form.next[app.language] }</button>
                 </div>
             </div>
         </form>
@@ -223,8 +223,8 @@
             </div>
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <button type="button" class="btn btn-default" onclick={ close } >{ app.texts.device_form.cancel[app.language] }</button>
-                    <button type="submit" class="btn btn-default" disabled={ !allowEdit }>{ app.texts.device_form.save[app.language] }</button>
+                    <button type="submit" class="btn btn-primary" disabled={ !allowEdit }>{ app.texts.device_form.save[app.language] }</button>
+                    <button type="button" class="btn btn-secondary" onclick={ close } >{ app.texts.device_form.cancel[app.language] }</button>
                 </div>
             </div>
         </form>
