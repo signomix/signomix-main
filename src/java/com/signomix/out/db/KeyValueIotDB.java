@@ -25,7 +25,7 @@ import org.cricketmsf.out.db.KeyValueDBException;
 public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
-    public List<Device> getUserDevices(String userID) throws ThingsDataException {
+    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         try {
             Map map = getAll("devices");
             ArrayList list = new ArrayList();
@@ -33,7 +33,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
             Device d;
             while (itr.hasNext()) {
                 d = (Device) itr.next();
-                if (d.getUserID().equals(userID)) {
+                if (d.getUserID().equals(userID) || d.getTeam().contains(","+userID+",")) {
                     list.add(d);
                 }
             }
@@ -44,9 +44,9 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public Device getDevice(String userID, String deviceEUI) throws ThingsDataException {
+    public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException {
         Device device = getDevice(deviceEUI);
-        if (device != null && !device.getUserID().equals(userID)) {
+        if (device != null && !(device.getUserID().equals(userID) || device.getTeam().contains(","+userID+","))) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return device;
@@ -199,7 +199,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeAllDevices(String userID) throws ThingsDataException {
-        List devices = getUserDevices(userID);
+        List devices = getUserDevices(userID,false);
         Device d;
         for (int i = 0; i < devices.size(); i++) {
             d = (Device) devices.get(i);

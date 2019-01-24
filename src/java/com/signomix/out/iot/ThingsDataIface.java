@@ -34,9 +34,9 @@ public interface ThingsDataIface {
     public void putDevice(String userID, Device device) throws ThingsDataException;
     public void modifyDevice(String userID, Device device) throws ThingsDataException;
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink) throws ThingsDataException;
-    public Device getDevice(String userId, String deviceEUI) throws ThingsDataException;
+    public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
-    public List<Device> getUserDevices(String userID) throws ThingsDataException;
+    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException;
     public int getUserDevicesCount(String userID) throws ThingsDataException;
     public void removeDevice(String deviceEUI) throws ThingsDataException;
     public void removeAllDevices(String userId) throws ThingsDataException;

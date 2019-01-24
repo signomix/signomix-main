@@ -10,8 +10,8 @@
     <!-- Remember to modify the project name (see line 2 of this file)       -->
     <!--                                                                     -->
     <description>Signomix</description>
-    <property name="version" value="1.1.47"/> <!-- service version           -->
-    <property name="cricket-version" value="1.2.54" /> 
+    <property name="version" value="1.1.48"/> <!-- service version           -->
+    <property name="cricket-version" value="1.2.55" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="minify" value="true" />

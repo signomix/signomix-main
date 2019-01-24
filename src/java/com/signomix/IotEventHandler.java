@@ -155,7 +155,7 @@ public class IotEventHandler {
                         System.out.println("value="+params[2]);//params[2] - value
                         System.out.println("timestamp="+params[3]);//params[3= - timestamp
                          */
-                        Device device = thingsAdapter.getDevice(userID, params[0]);
+                        Device device = thingsAdapter.getDevice(userID, params[0], false);
                         if (device != null) {
                             if (device.getType().equals(Device.VIRTUAL)) {
                                 long value = 0;

@@ -131,11 +131,19 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     }
 
     @Override
-    public List<Device> getUserDevices(String userID) throws ThingsDataException {
-        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where userid = ?";
+    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
+        String query;
+        if(withShared){
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where userid = ? or team like ?";
+        }else{
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where userid = ?";            
+        }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, userID);
+            if(withShared){
+                pstmt.setString(2, "%,"+userID+"%,");
+            }
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
             while (rs.next()) {
@@ -148,13 +156,21 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     }
 
     @Override
-    public Device getDevice(String userID, String deviceEUI) throws ThingsDataException {
+    public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException {
 
-        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where eui=? and userid = ?";
+        String query;
+        if(withShared){
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where eui=? and (userid = ? or team like ?)";
+        }else{
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui from devices where eui=? and userid = ?";
+        }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, deviceEUI);
             pstmt.setString(2, userID);
+            if(withShared){
+                pstmt.setString(3, "%,"+userID+",%");
+            }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Device device = buildDevice(rs);
@@ -190,7 +206,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public void putDevice(Device device) throws ThingsDataException {
-        if (getDevice(device.getUserID(), device.getEUI()) != null) {
+        if (getDevice(device.getUserID(), device.getEUI(), false) != null) {
             throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + " is already defined");
         }
         String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";

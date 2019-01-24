@@ -299,7 +299,7 @@ public class DeviceManagementModule {
 
     private Device getDevice(String userID, String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.getDevice(userID, deviceEUI);
+            return thingsAdapter.getDevice(userID, deviceEUI, true);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
@@ -349,7 +349,7 @@ public class DeviceManagementModule {
 
     private List getUserDevices(String userID, ThingsDataIface thingsAdapter) {
         try {
-            return (ArrayList) thingsAdapter.getUserDevices(userID);
+            return (ArrayList) thingsAdapter.getUserDevices(userID,true);
         } catch (Exception ex) {
             ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));

@@ -1,8 +1,12 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.iot;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -26,14 +30,37 @@ public class ChannelData {
         this.value = value;
         this.timestamp = timestamp;
     }
+
     public ChannelData(String name, Double value, long timestamp) {
         this.name = name;
         this.value = value;
         this.timestamp = timestamp;
     }
+    
+    public ChannelData(String name, Long value, long timestamp) {
+        this.name = name;
+        this.value = value.doubleValue();
+        this.timestamp = timestamp;
+    }
 
     public String toString() {
-        return getName() + ":" + getValue() + ":" + getTimestamp()+":"+getDeviceEUI();
+        return getDeviceEUI()+ ":" + getName()+ ":" + getTimestamp() + ":" + getValue();
+    }
+
+    public String toCsv(String delimeter, boolean convertTimestamp) {
+
+        if (convertTimestamp) {
+            String dateFormatted;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dateFormatted = dateFormat.format(new Date(getTimestamp()));
+            return getDeviceEUI() + delimeter + getName() + delimeter + dateFormatted + delimeter + getValue();
+        }
+        return getDeviceEUI() + delimeter + getName() + delimeter + getTimestamp() + delimeter + getValue();
+    }
+
+    public static String getCsvHeaderLine(boolean convertTimestamp) {
+        return "EUI,name,"+(convertTimestamp?"date (UTC)":"timestamp")+",value\r\n";
     }
 
     /**

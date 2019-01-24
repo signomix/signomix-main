@@ -313,7 +313,7 @@ public class DeviceIntegrationModule {
             try {
                 finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
             } catch (Exception e) {
-                Kernel.handle(Event.logWarning(this, e.getMessage()));
+                Kernel.handle(Event.logWarning(this.getClass().getSimpleName()+".processIotRequest()", e.getMessage()));
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
             if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {

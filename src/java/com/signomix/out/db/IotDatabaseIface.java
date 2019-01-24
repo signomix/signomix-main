@@ -18,9 +18,9 @@ import org.cricketmsf.out.db.KeyValueDBIface;
  */
 public interface IotDatabaseIface extends KeyValueDBIface {
     
-    public List<Device> getUserDevices(String userID) throws ThingsDataException;
+    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException;
     public int getUserDevicesCount(String userID) throws ThingsDataException;
-    public Device getDevice(String userID, String deviceEUI) throws ThingsDataException;
+    public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException;
     public List<DeviceTemplate> getDeviceTemplates() throws ThingsDataException;

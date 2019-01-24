@@ -56,7 +56,7 @@ public class ActuatorModule {
         String userID = request.headers.getFirst("X-user-id");
         Device device;
         try {
-            device = thingsAdapter.getDevice(userID, request.pathExt);
+            device = thingsAdapter.getDevice(userID, request.pathExt, false);
         } catch (ThingsDataException ex) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());

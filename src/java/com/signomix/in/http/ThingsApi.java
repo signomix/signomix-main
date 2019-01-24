@@ -1,38 +1,115 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.in.http;
 
+import com.signomix.out.iot.ChannelData;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import org.cricketmsf.Adapter;
 import java.util.HashMap;
+import java.util.List;
+import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
+import static org.cricketmsf.in.http.HttpAdapter.CSV;
+import static org.cricketmsf.in.http.HttpAdapter.JSON;
+import static org.cricketmsf.in.http.HttpAdapter.TEXT;
+import static org.cricketmsf.in.http.HttpAdapter.XML;
 import org.cricketmsf.in.http.HttpAdapterIface;
+import org.cricketmsf.in.http.JsonFormatter;
+import org.cricketmsf.in.http.Result;
+import org.cricketmsf.in.http.TxtFormatter;
+import org.cricketmsf.in.http.XmlFormatter;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter {
-    
+
     /**
-     * This method is executed while adapter is instantiated during the service start.
-     * It's used to configure the adapter according to the configuration.
-     * 
-     * @param properties    map of properties readed from the configuration file
-     * @param adapterName   name of the adapter set in the configuration file (can be different
-     *  from the interface and class name.
+     * This method is executed while adapter is instantiated during the service
+     * start. It's used to configure the adapter according to the configuration.
+     *
+     * @param properties map of properties readed from the configuration file
+     * @param adapterName name of the adapter set in the configuration file (can
+     * be different from the interface and class name.
      */
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.getServiceHooks(adapterName);
         setContext(properties.get("context"));
         Kernel.getInstance().getLogger().print("\tcontext=" + getContext());
-        setExtendedResponse(properties.getOrDefault("extended-response","false"));
+        setExtendedResponse(properties.getOrDefault("extended-response", "false"));
         Kernel.getInstance().getLogger().print("\textended-response=" + isExtendedResponse());
         setDateFormat(properties.get("date-format"));
         Kernel.getInstance().getLogger().print("\tdate-format: " + getDateFormat());
+    }
+
+    public byte[] formatResponse(String type, Result result) {
+        byte[] r = {};
+        String formattedResponse = "";
+        switch (type) {
+            case JSON:
+                formattedResponse = JsonFormatter.getInstance().format(true, isExtendedResponse() ? result : result.getData());
+                break;
+            case XML:
+                //TODO: extended response is not possible because of "java.util.List is an interface, and JAXB can't handle interfaces"
+                formattedResponse = XmlFormatter.getInstance().format(true, result.getData());
+                break;
+            case CSV:
+                // formats only Result.getData() object.
+                // TODO: concat all list items
+                try {
+                    formattedResponse = format(result,true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case TEXT:
+                // formats only Result.getData() object
+                formattedResponse = TxtFormatter.getInstance().format(result);
+                break;
+            default:
+                formattedResponse = JsonFormatter.getInstance().format(true, result);
+                break;
+        }
+
+        try {
+            r = formattedResponse.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere("HttpAdapter", e.getMessage()));
+        }
+        return r;
+    }
+
+    private String format(Result source, boolean withHeader) {
+        StringBuilder sb = new StringBuilder();
+        if(withHeader){
+            sb.append(ChannelData.getCsvHeaderLine(true));
+        }
+        if (((List) source.getData()).isEmpty()) {
+            return "";
+        } else if (((List) source.getData()).get(0) instanceof List) {
+            int size = ((List) source.getData()).size();
+            ArrayList<ChannelData> list;
+            for (int i = 0; i < size; i++) {
+                list = (ArrayList) ((List) source.getData()).get(i);
+                for (ChannelData record : list) {
+                    sb.append(record.toCsv(",",true)).append("\r\n");
+                }
+            }
+        } else if (((List) source.getData()).get(0) instanceof ChannelData) {
+            ArrayList<ChannelData> list = (ArrayList) source.getData();
+            for (ChannelData record : list) {
+                sb.append(record.toCsv(",",true)).append("\r\n");
+            }
+        } else {
+            System.out.println(">>>>>>> " + ((List) source.getData()).get(0).getClass().getName());
+        }
+        return sb.toString();
     }
 
 }

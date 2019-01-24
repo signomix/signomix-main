@@ -28,8 +28,8 @@
                         <td><img height="16px" style="margin-right: 10px;" src={ getStatus(device.lastSeen, device.transmissionInterval) }></td>
                         <td class="text-right">
                             <i class="material-icons clickable" onclick={ editDevice(device.EUI, false) }>open_in_browser</i>
-                            <i class="material-icons clickable" onclick={ editDevice(device.EUI, true) }>mode_edit</i>
-                            <i class="material-icons clickable" onclick={ selectForRemove(device.EUI) } data-toggle="modal" data-target="#myModal">delete</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ editDevice(device.EUI, true) }>mode_edit</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ selectForRemove(device.EUI) } data-toggle="modal" data-target="#myModal">delete</i>
                         </td>
                     </tr>
                 </tbody>
