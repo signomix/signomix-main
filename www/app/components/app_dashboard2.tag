@@ -38,143 +38,28 @@
             </h2>
         </div>
     </div>
-    <div class="row" if={w_line[0] && w_line[0].length>0}>
-        <div class={ getColumnClass(w_line[0][0]) } >
-            <widget_a1   ref="a1" if={w_line[0][0]['type']!='date' && w_line[0][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a1" if={w_line[0][0]['type']=='date'}></widget_date>
-            <widget_map ref="a1" if={w_line[0][0]['type']=='map'}></widget_map>
+
+    <virtual each={name, i in rowArr }>
+        <div class="row" if={w_line[i] && w_line[i].length>0}>
+            <virtual each={colname, j in colArr }>
+                <div class={ getColumnClass(w_line[i][j]) } if={w_line[i].length>j}>
+                    <widget_a1 ref={ getRefName(i,j) } if={w_line[i][j]['type']=='symbol' || w_line[i][j]['type']=='button' || w_line[i][j]['type']=='line' || w_line[i][j]['type']=='stepped'}></widget_a1>
+                    <widget_date ref={ getRefName(i,j) } if={w_line[i][j]['type']=='date'}></widget_date>
+                    <widget_map ref={ getRefName(i,j) } if={w_line[i][j]['type']=='map'}></widget_map>
+                    <widget_raw ref={ getRefName(i,j) } if={w_line[i][j]['type']=='raw' || w_line[i][j]['type']=='text'}></widget_raw>
+                    <widget_led ref={ getRefName(i,j) } if={w_line[i][j]['type']=='led'}></widget_led>
+                </div>
+            </virtual>
         </div>
-        <div class={ getColumnClass(w_line[0][1])}  if={w_line[0].length>1}>
-            <widget_a1   ref="a2" if={w_line[0][1]['type']!='date' && w_line[0][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a2" if={w_line[0][1]['type']=='date'}></widget_date>
-            <widget_map ref="a2" if={w_line[0][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[0][2])}  if={w_line[0].length>2}>
-            <widget_a1   ref="a3" if={w_line[0][2]['type']!='date' && w_line[0][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a3" if={w_line[0][2]['type']=='date'}></widget_date>
-            <widget_map ref="a3" if={w_line[0][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[0][3])}  if={w_line[0].length>3}>
-            <widget_a1   ref="a4" if={w_line[0][3]['type']!='date' && w_line[0][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a4" if={w_line[0][3]['type']=='date'}></widget_date>
-            <widget_map ref="a4" if={w_line[0][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
-    <div class="row" if={w_line[1] && w_line[1].length>0}>
-        <div class={ getColumnClass(w_line[1][0])} >
-            <widget_a1   ref="a5" if={w_line[1][0]['type']!='date' && w_line[1][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a5" if={w_line[1][0]['type']=='date'}></widget_date>
-            <widget_map ref="a5" if={w_line[1][0]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[1][1])}  if={w_line[1].length>1}>
-            <widget_a1   ref="a6" if={w_line[1][1]['type']!='date' && w_line[1][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a6" if={w_line[1][1]['type']=='date'}></widget_date>
-            <widget_map ref="a6" if={w_line[1][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[1][2])}  if={w_line[1].length>2}>
-            <widget_a1   ref="a7" if={w_line[1][2]['type']!='date' && w_line[1][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a7" if={w_line[1][2]['type']=='date'}></widget_date>
-            <widget_map ref="a7" if={w_line[1][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[1][3])}  if={w_line[1].length>3}>
-            <widget_a1   ref="a8" if={w_line[1][3]['type']!='date' && w_line[1][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a8" if={w_line[1][3]['type']=='date'}></widget_date>
-            <widget_map ref="a8" if={w_line[1][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
-    <div class="row" if={w_line[2] && w_line[2].length>0}>
-        <div class={ getColumnClass(w_line[2][0])} >
-            <widget_a1   ref="a9" if={w_line[2][0]['type']!='date' && w_line[2][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a9" if={w_line[2][0]['type']=='date'}></widget_date>
-            <widget_map ref="a9" if={w_line[2][0]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[2][1])}  if={w_line[2].length>1}>
-            <widget_a1   ref="a10" if={w_line[2][1]['type']!='date' && w_line[2][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a10" if={w_line[2][1]['type']=='date'}></widget_date>
-            <widget_map ref="a10" if={w_line[2][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[2][2])}  if={w_line[2].length>2}>
-            <widget_a1   ref="a11" if={w_line[2][2]['type']!='date' && w_line[2][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a11" if={w_line[2][2]['type']=='date'}></widget_date>
-            <widget_map ref="a11" if={w_line[2][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[2][3])}  if={w_line[2].length>3}>
-            <widget_a1   ref="a12" if={w_line[2][3]['type']!='date' && w_line[2][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a12" if={w_line[2][3]['type']=='date'}></widget_date>
-            <widget_map ref="a12" if={w_line[2][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
-    <div class="row" if={w_line[3] && w_line[3].length>0}>
-        <div class={ getColumnClass(w_line[3][0])} >
-            <widget_a1   ref="a13" if={w_line[3][0]['type']!='date' && w_line[3][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a13" if={w_line[3][0]['type']=='date'}></widget_date>
-            <widget_map ref="a13" if={w_line[3][0]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[3][1])}  if={w_line[3].length>1}>
-            <widget_a1   ref="a14" if={w_line[3][1]['type']!='date' && w_line[3][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a14" if={w_line[3][1]['type']=='date'}></widget_date>
-            <widget_map ref="a14" if={w_line[3][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[3][2])}  if={w_line[3].length>2}>
-            <widget_a1   ref="a15" if={w_line[3][2]['type']!='date' && w_line[3][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a15" if={w_line[3][2]['type']=='date'}></widget_date>
-            <widget_map ref="a15" if={w_line[3][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[3][3])}  if={w_line[3].length>3}>
-            <widget_a1   ref="a16" if={w_line[3][3]['type']!='date' && w_line[3][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a16" if={w_line[3][3]['type']=='date'}></widget_date>
-            <widget_map ref="a16" if={w_line[3][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
-    <div class="row" if={w_line[4] && w_line[4].length>0}>
-        <div class={ getColumnClass(w_line[4][0])} >
-            <widget_a1   ref="a17" if={w_line[4][0]['type']!='date' && w_line[4][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a17" if={w_line[4][0]['type']=='date'}></widget_date>
-            <widget_map ref="a17" if={w_line[4][0]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[4][1])}  if={w_line[4].length>1}>
-            <widget_a1   ref="a18" if={w_line[4][1]['type']!='date' && w_line[4][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a18" if={w_line[4][1]['type']=='date'}></widget_date>
-            <widget_map ref="a18" if={w_line[4][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[4][2])}  if={w_line[4].length>2}>
-            <widget_a1   ref="a19" if={w_line[4][2]['type']!='date' && w_line[4][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a19" if={w_line[4][2]['type']=='date'}></widget_date>
-            <widget_map ref="a19" if={w_line[4][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[4][3])}  if={w_line[4].length>3}>
-            <widget_a1   ref="a20" if={w_line[4][3]['type']!='date' && w_line[4][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a20" if={w_line[4][3]['type']=='date'}></widget_date>
-            <widget_map ref="a20" if={w_line[4][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
-    <div class="row" if={w_line[5] && w_line[5].length>0}>
-        <div class={ getColumnClass(w_line[5][0])} >
-            <widget_a1   ref="a21" if={w_line[5][0]['type']!='date' && w_line[5][0]['type']!='map'}></widget_a1>
-            <widget_date ref="a21" if={w_line[5][0]['type']=='date'}></widget_date>
-            <widget_map ref="a21" if={w_line[5][0]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[5][1])}  if={w_line[5].length>1}>
-            <widget_a1   ref="a22" if={w_line[5][1]['type']!='date' && w_line[5][1]['type']!='map'}></widget_a1>
-            <widget_date ref="a22" if={w_line[5][1]['type']=='date'}></widget_date>
-            <widget_map ref="a22" if={w_line[5][1]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[5][2])}  if={w_line[5].length>2}>
-            <widget_a1   ref="a23" if={w_line[5][2]['type']!='date' && w_line[5][2]['type']!='map'}></widget_a1>
-            <widget_date ref="a23" if={w_line[5][2]['type']=='date'}></widget_date>
-            <widget_map ref="a23" if={w_line[5][2]['type']=='map'}></widget_map>
-        </div>
-        <div class={ getColumnClass(w_line[5][3])}  if={w_line[5].length>3}>
-            <widget_a1   ref="a24" if={w_line[5][3]['type']!='date' && w_line[5][3]['type']!='map'}></widget_a1>
-            <widget_date ref="a24" if={w_line[5][3]['type']=='date'}></widget_date>
-            <widget_map ref="a24" if={w_line[5][3]['type']=='map'}></widget_map>
-        </div>
-    </div>
+    </virtual>
+
     <div class="row">
         <div class="col-md-12"><span>&nbsp;</span></div>
     </div>
     <script charset="UTF-8">
     var self = this
+    self.rowArr = [0,1,2,3,4,5,6]
+    self.colArr = [0,1,2,3]
     self.dashboardConfig = {
         title:'reading dashboard ...',
         widgets:[]
@@ -366,6 +251,11 @@
             default:
                 return 'col-md-3'
         }
+    }
+    
+    getRefName(i,j){
+       res=(i*4 +j+1)
+       return 'a'+res
     }
     
     </script>

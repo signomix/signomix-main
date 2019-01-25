@@ -401,6 +401,12 @@
             "fr": "Date",
             "pl": "Data"
         },
+        "type_led": {
+            "en": "LED",
+            "it": "LED",
+            "fr": "LED",
+            "pl": "LED"
+        },
         "type_line": {
             "en": "Line chart",
             "it": "Grafico a linee",
