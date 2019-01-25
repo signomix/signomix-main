@@ -1,8 +1,4 @@
 <widget_a1>
-    <div id={opts.ref} if={type == 'raw'} class="card card-block topspacing p-0">
-        <div class="card-header h6 text-left p-1">{title}</div>
-        <div class="card-body"><pre>{rawdata}</pre></div>
-    </div>
     <div id={opts.ref} if={type == 'line' || type == 'stepped'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
         <div class="card-body"  if={ front }><canvas ref="line0" id="line0"></canvas></div>
@@ -18,9 +14,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-    <div id={opts.ref} if={type == 'text'} class="card card-block topspacing p-1">
-        <raw content={ description }></raw>
     </div>
     <div id={opts.ref} if={type == 'symbol'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
@@ -123,9 +116,6 @@
         self.tableIndex = 0
         getWidth()
         switch(self.type){
-            case 'gauge':
-                self.showGauge()
-                break
             case 'symbol':
                 self.showSymbol()
                 break

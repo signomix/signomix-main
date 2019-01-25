@@ -57,6 +57,7 @@
                                 <option value="button" selected={self.editedWidget.type=='button'}>{self.getTypeName('button')}</option>
                                 <option value="map" selected={self.editedWidget.type=='map'}>{self.getTypeName('map')}</option>
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
+                                <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>
                             </select>
                         </div>
                         </div>
@@ -126,7 +127,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='symbol' }>
+                        <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_range"
@@ -303,7 +304,7 @@
                 'dev_id': '',
                 'channel':'',
                 'unitName':'',
-                'type':'',
+                'type':'text',
                 'query':'last',
                 'range':'',
                 'title':'',
@@ -312,11 +313,11 @@
             }
         }
         self.selectedForRemove = - 1
-                self.selectedForEdit = - 1
-                self.editedWidget = {}
+        self.selectedForEdit = - 1
+        self.editedWidget = {}
 
         globalEvents.on('data:submitted', function(event){
-        app.log("I'm happy!")
+            app.log("Submitted!")
         });
         
         init(eventListener, id, editable){
@@ -335,6 +336,7 @@
                 self.editedWidget = self.newWidget()
                 self.mode = 'create'
             }
+            riot.update()
         }
 
         self.submitForm = function(e){
@@ -405,7 +407,7 @@
                     self.editedWidget = self.dashboard.widgets[index]
                 } else{
                     self.editedWidget = {'name':'', 'dev_id':'', 'channel':'',
-                    'unitName':'', 'type':'', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':''}
+                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':''}
                 }
                 console.log(index)
                 console.log(self.editedWidget)
@@ -544,6 +546,9 @@
                     break
                 case 'date':
                     return app.texts.dashboard_form.type_date[app.language]
+                    break
+                case 'led':
+                    return app.texts.dashboard_form.type_led[app.language]
                     break
                 default:
                     return name
