@@ -267,3 +267,63 @@ function deleteData(url, token, callback, eventBus, successEventName, errorEvent
     oReq.send(null);
     return false;
 }
+
+function deleteConditional(params, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+    var urlEncodedData = "";
+    var urlEncodedDataPairs = [];
+    var name;
+    var oReq = new XMLHttpRequest();
+    var defaultErrorEventName = "err:";
+    for (name in params) {
+        urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
+    }
+    urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+    oReq.onerror = function (oEvent) {
+        app.log("onerror " + this.status + " " + oEvent.toString())
+        if (appEventBus == null) {
+            eventBus.trigger("auth"+this.status);
+        } else {
+            appEventBus.trigger("auth"+this.status);
+        }
+    }
+    oReq.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            app.requests--;
+            if (this.status == 200) {
+                app.log(JSON.parse(this.responseText));
+                if (callback != null) {
+                    callback(this.responseText);
+                } else {
+                    eventBus.trigger(successEventName);
+                }
+            } else {
+                /*if (errorEventName == null) {
+                    eventBus.trigger(defaultErrorEventName + this.status);
+                } else {
+                    eventBus.trigger(errorEventName);
+                }*/
+                var tmpErrName
+                if (errorEventName == null) {
+                    tmpErrName=defaultErrorEventName + this.status
+                } else {
+                    tmpErrName=errorEventName
+                }
+                if (appEventBus == null) {
+                    eventBus.trigger(tmpErrName);
+                } else {
+                    appEventBus.trigger(tmpErrName);
+                }
+
+            }
+        }
+    }
+    app.requests++;
+    oReq.open("DELETE", url, true);
+    oReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    if (token != null) {
+        oReq.withCredentials = true;
+        oReq.setRequestHeader("Authentication", token);
+    }
+    oReq.send(urlEncodedData);
+    return false;
+}

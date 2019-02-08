@@ -443,7 +443,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             int updated = pstmt.executeUpdate();
             conn.close();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();

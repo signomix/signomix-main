@@ -18,35 +18,64 @@
     
     app.texts.alerts = {
         "title": {
-            "en": "my alerts",
+            "en": "my notifications",
             "it": "I miei allarmi",
-            "fr": "mes alertes",
+            "fr": "mes notifications",
             "pl": "moje powiadomienia"
-        },"type": {
+        },
+        "type": {
             "en": "TYPE",
             "it": "TIPO",
             "fr": "TYPE",
             "pl": "TYP"
-        },"message": {
+        },
+        "message": {
             "en": "MESSAGE",
             "it": "MESSAGGIO",
             "fr": "MESSAGE",
             "pl": "WIADOMOŚĆ"
-        },"eui": {
+        },
+        "eui": {
             "en": "EUI",
             "it": "EUI",
             "fr": "EUI",
             "pl": "EUI"
-        },"date": {
+        },
+        "date": {
             "en": "DATE",
             "it": "DATA",
             "fr": "DATE",
             "pl": "DATA"
-        },"action": {
+        },
+        "action": {
             "en": "ACTION",
             "it": "GESTISCI",
             "fr": "ACTION",
             "pl": "AKCJA"
+        },
+        "cancel": {
+            "en": "Cancel",
+            "it": "Annulla",
+            "fr": "Supprimer",
+            "pl": "Porzuć"
+        },
+        "remove_question": {
+            "en": "Do you want to remove all notifications?",
+            "it": "Vuoi cancellare tutte le notifiche?",
+            "fr": "Voulez-vous supprimer toutes les notifications??",
+            "pl": "Czy chcesz usunąć wszystkie powiadomienia?"
+        },
+        "remove_title": {
+            "en": "Confirm remove",
+            "it": "Conferma eliminazione",
+            "fr": "Confirmer la suppresion",
+            "pl": "Zatwierdź"
+        },
+        "remove": {
+            "en": "Remove",
+            "it": "Elimina",
+            "fr": "Supprimer",
+            "pl": "Usuń"
         }
     }
     app.texts.account = {
@@ -492,16 +521,16 @@
             "pl": "Podaj symbol jednostki jeśli ma się wyświetlać na kontrolce"
         },
         "f_widget_query": {
-            "en": "Data selector",
-            "it": "Selezione dei dati",
-            "fr": "Selection des donnees",
-            "pl": "Wybór danych"
+            "en": "Number of requested values",
+            "it": "Numero di valori richiesti",
+            "fr": "Nombre de valeurs demandées",
+            "pl": "Ilość pobieranych wartości"
         },
         "f_widget_query_hint": {
-            "en": "Data selector for multivalent controls, like charts (e.g., last 10)",
-            "it": "Selettore di dati per controlli polivalenti, come nei grafici (per esempio, last 10)",
-            "fr": "Sélecteur de données pour les contrôles multivalents comme des graphiques (par exemple, 10 derniers)",
-            "pl": "Selektor danych dla kontrolek wielowartościowych, jak wykresy (np. last 10)"
+            "en": "Widgets of type JSON, chart and map can display more than one value",
+            "it": "I widget di tipo JSON, grafico e mappa possono visualizzare più di un valore",
+            "fr": "Les widgets de type JSON, chart et map peuvent afficher plusieurs valeurs.",
+            "pl": "Kontrolki typu JSON, wykres i mapa mogą prezentować więcej niż jedną wartość"
         },
         "f_widget_range": {
             "en": "Alert ranges",
@@ -540,16 +569,10 @@
             "pl": "Podaj jeśli ma być inny niż nazwa kontrolki"
         },
         "f_widget_width": {
-            "en": "Widget width",
-             "it": "Larghezza del widget",
-            "fr": "Larger du widget",
-            "pl": "Szerokość kontrolki"
-        },
-        "f_widget_width_hint": {
-            "en": "The number of columns on the dashboard occupied by the widget (1-4)",
-            "it": "Il numero delle colonne occupate dal widget sulla dashboard (1-4)",
-            "fr": "Le nombre de colonnes sur le tableau de bord occupé par le widget (1-4)",
-            "pl": "Liczba kolumn pulpitu zajmowanych przez kontrolkę (1-4)"
+            "en": "Widget width (number of columns)",
+             "it": "Larghezza del widget (numero di colonne)",
+            "fr": "Larger du widget (nombre de colonnes)",
+            "pl": "Szerokość kontrolki (liczba kolumn)"
         }
     }    
     

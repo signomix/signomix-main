@@ -54,7 +54,7 @@
                                 <option value="raw" selected={self.editedWidget.type=='raw'}>{self.getTypeName('raw')}</option>
                                 <option value="line" selected={self.editedWidget.type=='line'}>{self.getTypeName('line')}</option>
                                 <option value="stepped" selected={self.editedWidget.type=='stepped'}>{self.getTypeName('stepped')}</option>
-                                <option value="button" selected={self.editedWidget.type=='button'}>{self.getTypeName('button')}</option>
+                                <option value="button" selected={self.editedWidget.type=='button'} disabled="true">{self.getTypeName('button')}</option>
                                 <option value="map" selected={self.editedWidget.type=='map'}>{self.getTypeName('map')}</option>
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
                                 <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>
@@ -121,7 +121,7 @@
                                 name="w_query"
                                 label={ app.texts.dashboard_form.f_widget_query[app.language] }
                                 type="text"
-                                content={ self.editedWidget.query }
+                                content={ self.editedWidget.queryvalue }
                                 readonly={ !allowEdit }
                                 hint={ app.texts.dashboard_form.f_widget_query_hint[app.language] }
                             ></form_input>
@@ -155,15 +155,13 @@
                         </div>
                         <div class="row">
                         <div class="form-group col-md-12">
-                            <form_input 
-                                id="w_width"
-                                name="w_width"
-                                label={ app.texts.dashboard_form.f_widget_width[app.language] }
-                                type="text"
-                                content={ self.editedWidget.width }
-                                readonly={ !allowEdit }
-                                hint={ app.texts.dashboard_form.f_widget_width_hint[app.language] }
-                            ></form_input>
+                            <label for="w_width" class="active">{app.texts.dashboard_form.f_widget_width[app.language]}</label>
+                            <select class="form-control" id="w_width" disabled={!allowEdit}>
+                                <option value="1" selected={self.editedWidget.width==1}>1</option>
+                                <option value="2" selected={self.editedWidget.width==2}>2</option>
+                                <option value="3" selected={self.editedWidget.width==3}>3</option>
+                                <option value="4" selected={self.editedWidget.width==4}>4</option>
+                            </select>
                         </div>
                         </div>
                         <div class="row">
@@ -309,7 +307,8 @@
                 'range':'',
                 'title':'',
                 'width':1,
-                'description':''
+                'description':'',
+                'queryvalue':'1'
             }
         }
         self.selectedForRemove = - 1
@@ -405,12 +404,17 @@
                 self.selectedForEdit = index
                 if (index > - 1){
                     self.editedWidget = self.dashboard.widgets[index]
+                    if(self.editedWidget.query!='' && self.editedWidget.query.indexOf(' ')>0){
+                        self.editedWidget.queryvalue = self.editedWidget.query.substring(self.editedWidget.query.indexOf(' ')+1)
+                    }else{
+                        self.editedWidget.queryvalue = '1'
+                    }
                 } else{
                     self.editedWidget = {'name':'', 'dev_id':'', 'channel':'',
-                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':''}
+                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':'', 'queryvalue':'1'}
                 }
-                console.log(index)
-                console.log(self.editedWidget)
+                app.log(index)
+                app.log(self.editedWidget)
                 self.selectedForRemove = - 1
                 riot.update()
             }
@@ -442,9 +446,9 @@
                 self.editedWidget.unitName = ''
             }
             try{
-                self.editedWidget.query = e.target.elements['w_query'].value
+                self.editedWidget.query = 'last ' + e.target.elements['w_query'].value
             }catch(err){
-                self.editedWidget.query = ''
+                self.editedWidget.query = 'last'
             }
             try{
                 self.editedWidget.range = e.target.elements['w_range'].value
@@ -465,12 +469,8 @@
             }else{
                 console.log("WIDTH:"+self.editedWidget.width)
             }
-            if(self.editedWidget.query == null || self.editedWidget.query == ''){
-                console.log("MALFORMED QUERY:"+self.editedWidget.query)
-                self.editedWidget.query = 'last'
-            }else{
-                console.log("QUERY:"+self.editedWidget.query)
-            }
+            self.editedWidget.query = ('last '+e.target.elements['w_query'].value).trim()
+            delete self.editedWidget.queryvalue
             //
             if (self.selectedForEdit > - 1){
                 self.dashboard.widgets[self.selectedForEdit] = self.editedWidget

@@ -66,12 +66,18 @@ public class AlertModule {
         return result;
     }
 
-    public void removeAll(String userId, ThingsDataIface thingsAdapter) {
+    public Object removeAll(String userId, ThingsDataIface thingsAdapter) {
+        StandardResult result = new StandardResult();
         try {
+            System.out.println(">>>>> USERID:"+userId);
             thingsAdapter.removeUserAlerts(userId);
+            result.setData("OK");
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            result.setMessage(ex.getMessage());
         }
+        return result;
     }
 
     public void putAlert(Event event, ThingsDataIface thingsAdapter) {

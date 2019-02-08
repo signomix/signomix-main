@@ -54,8 +54,13 @@ route(function(id){
             riot.mount('raw')
             riot.update()
             break;
+        case "fr":
+            app.language = 'fr'
+            riot.mount('raw')
+            riot.update()
+            break;
         default:
-            console.log('DEFAULT ROUTE')
+            app.log('DEFAULT ROUTE')
             break;
     }
     riot.update();

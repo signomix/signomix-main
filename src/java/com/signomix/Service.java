@@ -345,7 +345,12 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "AlertService", requestMethod = "DELETE")
     public Object alertDelete(Event event) {
-        return AlertModule.getInstance().removeAlert(event, thingsAdapter);
+        String alertId = event.getRequest().pathExt;
+        if(alertId!=null && !alertId.isEmpty()){
+            return AlertModule.getInstance().removeAlert(event, thingsAdapter);
+        }else{
+            return AlertModule.getInstance().removeAll(event.getRequestParameter("user"), thingsAdapter);
+        }
     }
 
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")

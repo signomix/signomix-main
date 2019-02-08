@@ -10,8 +10,8 @@
                 <virtual each={ lang, i in app.languages}>
                     <button type="button" class="btn btn-sm { lang==selectedLanguage?'btn-primary':'btn-secondary' }" onclick={ selectLanguage(lang) }>{ lang }</button>
                 </virtual>
-                <i class="fa fa-refresh" aria-hidden="true" onclick={ refreshDocs() }>&nbsp;</i>
-                <i class="fa fa-plus" aria-hidden="true" onclick={ editDocument('NEW', true) }>&nbsp;</i>
+                <i class="material-icons clickable" onclick={ refreshDocs() }>refresh</i>
+                <i class="material-icons clickable" onclick={ editDocument('NEW', true) }>add</i>
             </h2>
             <form class="form-inline">
                 <div class="form-group">
@@ -31,7 +31,7 @@
                         <th>{labels.t_title[app.language]}</th>
                         <th>{labels.t_status[app.language]}</th>
                         <th class="text-right">
-                            <i class="fa fa-plus" aria-hidden="true" onclick={ editDocument('NEW', true) }></i>
+                            <i class="material-icons clickable" onclick={ editDocument('NEW', true) }>add</i>
                         </th>
                     </tr>
                 </thead>
@@ -41,11 +41,11 @@
                         <td>{ decodeURIComponent(doc.title) }</td>
                         <td>{ doc.status }</td>
                         <td class="text-right">                              
-                            <i class="fa fa-eye separated" aria-hidden="true" onclick={ editDocument(doc.uid, false) }>&nbsp;</i>
-                            <i class="fa fa-pencil-square-o separated" aria-hidden="true" onclick={ editDocument(doc.uid, true) }>&nbsp;</i>
-                            <i class="fa fa-play separated" aria-hidden="true" if={ doc.status=='wip'} onclick={ setPublished(doc.uid, true) }>&nbsp;</i>
-                            <i class="fa fa-stop separated" aria-hidden="true" if={ doc.status=='published'} onclick={ setPublished(doc.uid, false) }>&nbsp;</i>
-                            <i class="fa fa-trash-o separated" onclick={ select(doc.uid) } aria-hidden="true" data-toggle="modal" data-target="#removeDialog">&nbsp;</i>
+                            <i class="material-icons clickable" onclick={ editDocument(doc.uid, false) }>open_in_browser</i>
+                            <i class="material-icons clickable" if={ doc.rights=='rw'} onclick={ editDocument(doc.uid, true) }>mode_edit</i>
+                            <i class="material-icons clickable" if={ doc.status=='wip' && doc.rights=='rw'} onclick={ setPublished(doc.uid, true) }>visibility</i>
+                            <i class="material-icons clickable" if={ doc.status=='published' && doc.rights=='rw'} onclick={ setPublished(doc.uid, false) }>visibility_off</i>
+                            <i class="material-icons clickable" if={ doc.rights=='rw'} onclick={ select(doc.uid) } data-toggle="modal" data-target="#removeDialog">delete</i>
                         </td>
                     </tr>
                 </tbody>

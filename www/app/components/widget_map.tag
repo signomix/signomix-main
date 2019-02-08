@@ -1,7 +1,7 @@
 <widget_map>
-    <div id={opts.ref} class="card widget topspacing p-0">
-        <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body p-0 m-0" style={heightStr} id={opts.ref+'_m'}>
+    <div id={ref} class="card widget topspacing p-0">
+        <div class="card-header h6 text-left p-1">{title}<span class="float-right">&#x2699;</span></div>
+        <div class="card-body p-0 m-0" style={heightStr} id={ref+'_m'}>
 no data received
         </div>
     </div>
@@ -11,6 +11,7 @@ no data received
     // opts: poniższe przypisanie nie jest używane
     //       wywołujemy update() tego taga żeby zminieć parametry
     self.title = opts.title
+    self.ref = opts.ref
     // opts
     
     self.value = '-'
@@ -28,21 +29,22 @@ no data received
     self.mapUrl = ''
     self.mapExternalUrl = ''
     self.noData = false
-    self.width=100
-    self.heightStr='height:100px;'
+    
+    self.heightStr='width:100%;height:100px;'
     var map;
     var marker;
     
     
     this.on('mount',function(){
         app.log('MOUNTING MAP WIDGET')
+        getWidth()
     })
     
     self.show2 = function(){
         app.log('SHOW2: widget_map')
-        self.jsonData = JSON.parse(this.rawdata)
+        self.jsonData = JSON.parse(self.rawdata)
         app.log(self.jsonData)
-        getWidth()
+        //getWidth()
         self.showMap()
     }
     
@@ -79,7 +81,7 @@ no data received
         
         var zoom = 15;
         try{
-            map = L.map(opts.ref+'_m')
+            map = L.map(self.ref+'_m')
         }catch(err){
             console.log(err)
         }
@@ -136,26 +138,14 @@ no data received
         app.log("widget_a1 listener on event: "+eventName)
     })
     
-    switchCard(){
-        return function(e){
-            self.front=!self.front
-            riot.update()
-        }
-    }
-    
-    $(window).on('resize', resize)
+    //$(window).on('resize', resize)
     
     function getWidth(){
-        self.width=$('#'+opts.ref).width()
-        self.heightStr='height:'+self.width+'px;'
-    }
-    
-    function wait(ms){
-        var start = new Date().getTime();
-        var end = start;
-        while(end < start + ms) {
-            end = new Date().getTime();
-        }
+        self.width=$('#'+self.ref).width()
+        self.heightStr='width:100%;height:'+self.width+'px;'
+        //console.log('self.ref:'+self.ref)
+        //console.log('self.WIDTH:'+self.width)
+        //console.log('newWIDTH:'+document.getElementById(self.ref).getBoundingClientRect().width)
     }
     
     function resize(){
