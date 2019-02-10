@@ -1,206 +1,184 @@
-/*
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
- */
-// get data from the service
-function getData(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+/* Copyright 2017 Grzegorz Skorupa <g.skorupa at gmail.com>.
+ * Licensed under the Apache License, Version 2.0 */
 
+var app = {
+    "user": {
+        "name": "",
+        "token": "",
+        "status": "logged-out",
+        "alerts": [],
+        "role": ""
+    },
+    "config": {
+        "brand": "Cricket",
+        "copyright": "Cricket 2018"
+    },
+    "navigation": [
+        {"name":"Home", "link":"#"},
+        {"name":"Language", "id":"lang","options":[
+            {"name": "English", "link": "#en"},
+            {"name": "French", "link": "#fr"},
+            {"name": "Polish", "link": "#pl"}
+        ]}
+    ],
+    "offline": false,
+    "authAPI": "http://localhost:8080/api/auth",
+    "csAPI": "http://localhost:8080/api/cs",
+    "cmAPI": "http://localhost:8080/api/cm",
+    "userAPI": "http://localhost:8080/api/user",
+    "currentPage": "",
+    "language": "en",
+    "languages": ["en", "pl", "fr"],
+    "debug": false,
+    "requests": 0,
+    "log": function (message) {
+        if (app.debug) {
+            console.log(message)
+        }
+    }
+}
+
+var globalEvents = riot.observable();
+
+function decodeDocument(doc){
+  var result = doc  
+  if (result.title) {
+    try {
+      result.title = decodeURIComponent(result.title)
+    } catch (e) {
+      result.title = unescape(result.title)
+    }
+  }
+  if (result.summary) {
+    try {
+      result.summary = decodeURIComponent(result.summary)
+    } catch (e) {
+      result.summary = unescape(result.summary)
+    }
+  }
+  if (result.content) {
+    try {
+      result.content = decodeURIComponent(result.content)
+    } catch (e) {
+      result.content = unescape(result.content)
+    }
+  }
+  return result
+}
+// ucs-2 string to base64 encoded ascii
+function utoa(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+// base64 encoded ascii to ucs-2 string
+function atou(str) {
+  return decodeURIComponent(escape(window.atob(str)));
+}
+
+function getDataCallEventName(success, defaultName, status){
+    var errorPrefix = 'err:';
+    var successName = 'dataLoaded';
+    var startName = 'sending';
+    if(success===(undefined||null)){
+        return startName;
+    }
+    if(success===true){
+        return successName;
+    }else{
+        if(defaultName!==(undefined||null)){
+            return defaultName;
+        }else{
+            return errorPrefix+status;
+        }
+    }
+}
+
+function getData(url, query, token, callback, eventListener, errName) {
     var oReq = new XMLHttpRequest();
-    var defaultErrorEventName = "dataerror:";
     oReq.onerror = function (oEvent) {
-        if (debug) {
-            console.log("onerror " + this.status + " " + oEvent.toString())
-        }
-        ;
-    };
-    oReq.onload = function (oEvent) {/*getdataCallback(elementId, statusId);*/
-        if (debug) {
-            console.log("onload " + this.status + " " + oEvent.toString())
-        }
-        ;
-        if (this.status != 200) {
-            var fullErrName
-            if (errorEventName == null) {
-                fullErrName = defaultErrorEventName + this.status;
-            } else {
-                fullErrName = errorEventName;
-            }
-            if (appEventBus == null) {
-                eventBus.trigger(fullErrName);
-            } else {
-                appEventBus.trigger(fullErrName);
-            }
-        }
-        ;
-    };
+//        app.log("onerror " + this.status + " " + oEvent.toString())
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(false,errName,this.status));
+    }
+    oReq.onloadend = function(oEvent){
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(true));
+    }
+    oReq.onabort = function(oEvent){
+        app.requests--;
+    }
+    oReq.timeout = function(oEvent){
+        app.requests--;
+    }
     oReq.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(JSON.parse(this.responseText));
-            if (callback != null) {
-                callback(this.responseText, successEventName);
-            } else {
-                eventBus.trigger(successEventName);
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                app.log(JSON.parse(this.responseText));
+                callback(this.responseText);
+            }else if (this.status == 401 || this.status == 403) {
+//                app.log('getData.onreadystatechange: '+this.readyState+' '+this.status);
+                eventListener.trigger(getDataCallEventName(false,null,this.status));
+            } else{
+//                app.log('getData.onreadystatechange: '+this.readyState+' '+this.status)
             }
-        } else if (this.readyState == 4 && this.status == 0) {
-            //eventBus.trigger(errorEventName);
-            if (errorEventName == null) {
-                eventBus.trigger(defaultErrorEventName + this.status);
-            } else {
-                eventBus.trigger(errorEventName);
-            }
+        } else {
+            eventListener.trigger(getDataCallEventName(false,errName,this.status));
         }
     };
-
     oReq.open("get", url, true);
     if (token != null) {
         oReq.withCredentials = true;
         oReq.setRequestHeader("Authentication", token);
     }
+    app.requests++;
+    eventListener.trigger(getDataCallEventName(null));
     oReq.send(query);
     return false;
 }
 
-function sendFormData(formData, method, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
-    if (debug) {
-        console.log("sendFormData ...")
-    }
-    ;
-    var oReq = new XMLHttpRequest();
-    var defaultErrorEventName = "dataerror:";
-    oReq.onerror = function (oEvent) {
-        if (debug) {
-            console.log("onerror " + this.status + " " + oEvent.toString())
-        }
-        ;
-    };
-    oReq.onload = function (oEvent) {/*getdataCallback(elementId, statusId);*/
-        if (debug) {
-            console.log("onload " + this.status + " " + oEvent.toString())
-        }
-        ;
-        if (this.status != 200) {
-            var fullErrName
-            if (errorEventName == null) {
-                fullErrName = defaultErrorEventName + this.status;
-            } else {
-                fullErrName = errorEventName;
-            }
-            if (appEventBus == null) {
-                eventBus.trigger(fullErrName);
-            } else {
-                appEventBus.trigger(fullErrName);
-            }
-        }
-        ;
-    };
-
-    oReq.onreadystatechange = function () {
-        if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
-            console.log(JSON.parse(this.responseText));
-            if (callback != null) {
-                callback(this.responseText);
-            } else {
-                eventBus.trigger(successEventName);
-            }
-        } else if (this.readyState == 4 && this.status == 0) {
-            //eventBus.trigger(errorEventName);
-            if (errorEventName == null) {
-                eventBus.trigger(defaultErrorEventName + this.status);
-            } else {
-                eventBus.trigger(errorEventName);
-            }
-        }
-    };
-    // method declared in the form is ignored
-    oReq.open(method, url);
-    if (token != null) {
-        oReq.withCredentials = true;
-        oReq.setRequestHeader("Authentication", token);
-    }
-    //oReq.send(new FormData(oFormElement));
-    oReq.send(formData);
-    return false;
-}
-
-function sendData(data, method, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
-    if (debug) {
-        console.log("sendData ...")
-    }
-    ;
+function sendData(data, method, url, token, callback, eventListener, errName) {
+//    app.log("sendData ...")
     var urlEncodedData = "";
     var urlEncodedDataPairs = [];
     var name;
     var oReq = new XMLHttpRequest();
-    var defaultErrorEventName = "dataerror:";
-
-    // Turn the data object into an array of URL-encoded key/value pairs.
     for (name in data) {
         urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
     }
-
-    // Combine the pairs into a single string and replace all %-encoded spaces to 
-    // the '+' character; matches the behaviour of browser form submissions.
     urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
-
     oReq.onerror = function (oEvent) {
-        if (debug) {
-            console.log("onerror " + this.status + " " + oEvent.toString())
-        }
-        callback(oEvent.toString());
-    };
-    oReq.onload = function (oEvent) {/*getdataCallback(elementId, statusId);*/
-        if (debug) {
-            console.log("onload " + this.status + " " + oEvent.toString())
-        }
-        ;
-
-        if (this.status < 200 || this.status > 201) {
-            if (eventBus == null && appEventBus == null) {
-                if (callback != null) {
-                    callback('error:' + this.status)
-                }
-            } else {
-                var fullErrName
-                if (errorEventName == null) {
-                    fullErrName = defaultErrorEventName + this.status;
-                } else {
-                    fullErrName = errorEventName;
-                }
-                if (appEventBus == null) {
-                    eventBus.trigger(fullErrName);
-                } else {
-                    appEventBus.trigger(fullErrName);
-                }
-            }
-        }
-        ;
-    };
-
+//        app.log("onerror " + this.status + " " + oEvent.toString())
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(false,errName,this.status));
+    }
+    oReq.onloadend = function(oEvent){
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(true));
+    }
+    oReq.onabort = function(oEvent){
+        app.requests--;
+    }
+    oReq.timeout = function(oEvent){
+        app.requests--;
+    }
     oReq.onreadystatechange = function () {
-        if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
-            console.log(JSON.parse(this.responseText));
-            if (callback != null) {
+        if (this.readyState == 4) {
+            if (this.status > 199 && this.status < 203) {
+                app.log(JSON.parse(this.responseText));
                 callback(this.responseText);
-            } else {
-                eventBus.trigger(successEventName);
-            }
-        } else if (this.readyState == 4 && this.status == 0) {
-            if(debug){ console.log("onreadystatechange") }
-            if (callback != null) {
-                callback('error:' + this.status + ' status:'+this.readyState)
-            } else {
-                if (errorEventName == null) {
-                    eventBus.trigger(defaultErrorEventName + this.status);
-                } else {
-                    eventBus.trigger(errorEventName);
-                }
+            }else if (this.status == 401 || this.status == 403) {
+//                app.log('sendData.onreadystatechange: '+this.readyState+' '+this.status);
+                eventListener.trigger(getDataCallEventName(false,null,this.status));
+            } else{
+//                app.log('sendData.onreadystatechange: '+this.readyState+' '+this.status)
             }
         } else {
-        //console.log('XXXXXXXX '+this.status);
+//                app.log('sendData.onreadystatechange: '+this.readyState+' '+this.status)
+                //eventListener.trigger(getDataCallEventName(false,errName,this.status));
         }
-    };
+    }
 
-    // method declared in the form is ignored
+    app.requests++;
+    eventListener.trigger(getDataCallEventName(null));
     oReq.open(method, url);
     oReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     if (token != null) {
@@ -211,54 +189,88 @@ function sendData(data, method, url, token, callback, eventBus, successEventName
     return false;
 }
 
-function deleteData(url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
-
+function sendFormData(formData, method, url, token, callback, eventListener, errName) {
+//    app.log("sendFormData ...");
     var oReq = new XMLHttpRequest();
-    var defaultErrorEventName = "dataerror:";
     oReq.onerror = function (oEvent) {
-        if (debug) {
-            console.log("onerror " + this.status + " " + oEvent.toString())
-        }
-        ;
-    };
-    oReq.onload = function (oEvent) {/*getdataCallback(elementId, statusId);*/
-        if (debug) {
-            console.log("onload " + this.status + " " + oEvent.toString())
-        }
-        ;
-        if (this.status != 200) {
-            var fullErrName
-            if (errorEventName == null) {
-                fullErrName = defaultErrorEventName + this.status;
-            } else {
-                fullErrName = errorEventName;
-            }
-            if (appEventBus == null) {
-                eventBus.trigger(fullErrName);
-            } else {
-                appEventBus.trigger(fullErrName);
-            }
-        }
-        ;
-    };
+        app.log("sendFormData.onerror " + this.status + " " + oEvent.toString())
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(false,errName,this.status));
+    }
+    oReq.onloadend = function(oEvent){
+        app.log('sendFormData.onloadend: '+oEvent)
+        //app.log(oEvent)
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(true), oEvent);
+    }
+    oReq.onabort = function(oEvent){
+        app.log('sendFormData.onAbort: '+oEvent)
+        app.requests--;
+    }
+    oReq.timeout = function(oEvent){
+        app.log('sendFormData.timeout: '+oEvent)
+        app.requests--;
+    }   
     oReq.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(JSON.parse(this.responseText));
+        if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
+            app.log(JSON.parse(this.responseText));
             if (callback != null) {
                 callback(this.responseText);
             } else {
-                eventBus.trigger(successEventName);
+                eventListener.trigger(getDataCallEventName(true));
             }
-        } else if (this.readyState == 4 && this.status == 0) {
-            //eventBus.trigger(errorEventName);
-            if (errorEventName == null) {
-                eventBus.trigger(defaultErrorEventName + this.status);
-            } else {
-                eventBus.trigger(errorEventName);
-            }
+        }else if (this.readyState == 4 && (this.status == 401 || this.status == 403)) {
+//            app.log('sendFormData.onreadystatechange: '+this.readyState+' '+this.status);
+            eventListener.trigger(getDataCallEventName(false,null,this.status));
+        } else{
+//            app.log('sendFormData.onreadystatechange: '+this.readyState+' '+this.status)
         }
     };
+    app.requests++;
+    eventListener.trigger(getDataCallEventName(null));
+    oReq.open(method, url);
+    if (token != null) {
+        oReq.withCredentials = true;
+        oReq.setRequestHeader("Authentication", token);
+    }
+    oReq.send(formData);
+    return false;
+}
 
+function deleteData(url, token, callback, eventListener, successEventName, errorEventName, debug, appEventBus) {
+    var oReq = new XMLHttpRequest();
+    oReq.onerror = function (oEvent) {
+//        app.log("onerror " + this.status + " " + oEvent.toString())
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(false,errName,this.status));
+    }
+    oReq.onloadend = function(oEvent){
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(true));
+    }
+    oReq.onabort = function(oEvent){
+        app.requests--;
+    }
+    oReq.timeout = function(oEvent){
+        app.requests--;
+    }
+    oReq.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            app.log(JSON.parse(this.responseText));
+            if (callback != null) {
+                callback(this.responseText);
+            } else {
+                eventListener.trigger(getDataCallEventName(true));
+            }
+        }else if (this.status == 401 || this.status == 403) {
+//            app.log('deleteData.onreadystatechange: '+this.readyState+' '+this.status);
+            eventListener.trigger(getDataCallEventName(false,null,this.status));
+        } else{
+//            app.log('deleteData.onreadystatechange: '+this.readyState+' '+this.status)
+        }
+    };
+    app.requests++;
+    eventListener.trigger(getDataCallEventName(null));
     oReq.open("DELETE", url, true);
     if (token != null) {
         oReq.withCredentials = true;
@@ -268,13 +280,13 @@ function deleteData(url, token, callback, eventBus, successEventName, errorEvent
     return false;
 }
 
-function deleteConditional(params, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+function deleteConditional(data, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
     var urlEncodedData = "";
     var urlEncodedDataPairs = [];
     var name;
     var oReq = new XMLHttpRequest();
     var defaultErrorEventName = "err:";
-    for (name in params) {
+    for (name in data) {
         urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
     }
     urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
@@ -325,5 +337,73 @@ function deleteConditional(params, url, token, callback, eventBus, successEventN
         oReq.setRequestHeader("Authentication", token);
     }
     oReq.send(urlEncodedData);
+    return false;
+}
+
+function afterLogin(newKey, name) {
+    var key = newKey.trim();
+    if (key == "") {
+        app.log('Login failed');
+    } else {
+        app.offline = false;
+        app.user.token = key;
+        app.user.name = name;
+        app.user.status = "logged-in";
+    }
+}
+
+function afterLoginError(){
+    app.user.status = "logged-out";
+}
+
+function loginSubmit(oFormElement, eventListener, successEventName, errName) {
+    var login;
+    var password;
+    var oField = "";
+    var sEncoded;
+    for (var nItem = 0; nItem < oFormElement.elements.length; nItem++) {
+        oField = oFormElement.elements[nItem];
+        if (!oField.hasAttribute("name")) {
+            continue;
+        }
+        if (oField.name === "login") {
+            login = oField.value;
+        } else if (oField.name === "password") {
+            password = oField.value;
+        }
+    }
+    var oReq = new XMLHttpRequest();
+    oReq.onerror = function (oEvent) {
+//        app.log("onerror " + this.status + " " + oEvent.toString())
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(false,errName,this.status));
+    }
+    oReq.onloadend = function(oEvent){
+        app.requests--;
+        eventListener.trigger(getDataCallEventName(true));
+    }
+    oReq.onabort = function(oEvent){
+        app.requests--;
+    }
+    oReq.timeout = function(oEvent){
+        app.requests--;
+    }
+    oReq.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            afterLogin(oReq.responseText, login);
+            eventListener.trigger(successEventName);
+        } else if (this.readyState == 4 && this.status > 400) {
+            afterLoginError();
+            eventListener.trigger(getDataCallEventName(false,errName,this.status));
+        }
+    };
+    sEncoded = utoa(login + ":" + password);
+    app.requests++;
+    eventListener.trigger(getDataCallEventName(null));
+    oReq.open("post", app.authAPI);
+    oReq.withCredentials = true;
+    oReq.setRequestHeader("Authentication", "Basic " + sEncoded);
+    oReq.setRequestHeader("Accept", "text/plain");
+    oReq.send("action=login");
     return false;
 }

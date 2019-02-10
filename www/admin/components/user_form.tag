@@ -1,5 +1,5 @@
 <user_form>
-    <div class="panel panel-primary signomix-form">
+    <div class="panel panel-primary">
         <div class="panel-heading module-title" if={ self.mode == 'create' }><h2>{ app.texts.user_form.user_new[app.language] }</h2></div>
         <div class="panel-heading module-title" if={ self.mode == 'update' }><h2>{ app.texts.user_form.user_modify[app.language] }</h2></div>
         <div class="panel-heading module-title" if={ self.mode == 'view' }><h2>{ app.texts.user_form.user_view[app.language] }</h2></div>
@@ -11,7 +11,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email">{ app.texts.user_form.email[app.language] }</label>
-                    <input class="form-control" id="email" name="email" type="text" value={ user.email } readonly={ !allowEdit } required>
+                    <input class="form-control" id="email" name="email" type="email" value={ user.email } readonly={ !allowEdit } required>
                 </div>
                 <div class="form-group" if={ adminMode }>
                      <label for="type">{ app.texts.user_form.type[app.language] }</label>
@@ -111,21 +111,20 @@
                     <label for="confirmString">{ app.texts.user_form.confirmString[app.language] }</label>
                     <input class="form-control" id="confirmString" name="confirmString" type="text" value={ user.confirmString } readonly={ true }>
                 </div>
-                <div class="form-group">
-                    <label for="confirmed">{ app.texts.user_form.confirmed[app.language] }</label>
-                    <input class="form-control" id="confirmed" name="confirmed" type="text" value={ user.confirmed } readonly={ !allowEdit || !adminMode } required>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="confirmed" disabled={ !allowEdit || !adminMode } checked={ user.confirmed }>
+                    <label class="form-check-label" for="confirmed">{ app.texts.user_form.confirmed[app.language] }</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="unregisterRequested" disabled={ true } checked={ user.unregisterRequested }>
+                    <label class="form-check-label" for="unregisterRequested">{ app.texts.user_form.unregisterRequested[app.language] }</label>
                 </div>
                 <div class="form-group">
-                    <label for="unregisterRequested">{ app.texts.user_form.unregisterRequested[app.language] }</label>
-                    <input class="form-control" id="unregisterRequested" name="unregisterRequested" type="text" value={ user.unregisterRequested } readonly={ true } required>
+                    <label>{ app.texts.user_form.number[app.language] } {user.number}</label>
                 </div>
-                <div class="form-group" if={ adminMode }>
-                    <label>{ app.texts.user_form.number[app.language] } {user.number}</label><br>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" disabled={ !allowEdit }>{ app.texts.user_form.save[app.language] }</button>
-                    <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.user_form.cancel[app.language] }</button>
-                </div>                
+                <button type="submit" class="btn btn-primary  pull-right" disabled={ !allowEdit }>{ app.texts.user_form.save[app.language] }</button>
+                <span>&nbsp;</span>
+                <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.user_form.cancel[app.language] }</button>
             </form>
         </div>
     </div>
@@ -138,7 +137,6 @@
         self.adminMode = false
         self.method = 'POST'
         self.mode = 'view'
-
         self.user = {
             'uid': '',
             'email': '',
@@ -155,7 +153,7 @@
         }
 
         globalEvents.on('data:submitted', function(event){
-            if (app.debug) { console.log("I'm happy!") }
+            //
         });
 
         init(eventListener, uid, editable, isAdmin){
@@ -178,7 +176,6 @@
                 self.mode = 'create'
             }
         }
-
 
         userTypeAsString(type){
             switch (type){
@@ -206,6 +203,48 @@
                     return 'FREE'
             }
         }
+        
+        userTypeAsNumber(type){
+            switch (type.toUpperCase()){
+                case 'READONLY':
+                case '6':
+                    return '6'
+                    break
+                case 'PRIMARY':
+                case '5':
+                    return '5'
+                    break
+                case 'FREE':
+                case '4':
+                    return '4'
+                    break
+                case 'DEMO':
+                case '3':
+                    return '3'
+                    break
+                case 'APPLICATION':
+                case '2':
+                    return '2'
+                case 'OWNER':
+                case '1':
+                    return '1'
+                    break
+                case 'USER':
+                case '0':
+                    return '0'
+                    break
+                default:
+                    return '4'
+            }
+        }
+
+        getConfirmedState(){
+            if(self.user.confirmed){
+                return 'checked'
+            }else{
+                return ''
+            }
+        }
 
         self.submitForm = function(e){
             app.log('SUBMITFORM')
@@ -214,10 +253,9 @@
             if (e.target.elements['uid'].value) {
                 formData.uid = e.target.elements['uid'].value
             }
-
             formData.email = e.target.elements['email'].value
             if (self.adminMode){
-                formData.type = e.target.elements['type'].value
+                formData.type = self.userTypeAsNumber(e.target.elements['type'].value)
                 if (e.target.elements['role'].value != '') {
                     formData.role = e.target.elements['role'].value
                 }
@@ -236,71 +274,31 @@
             }
             
             if (e.target.elements['confirmString'].value != '') {formData.confirmString = e.target.elements['confirmString'].value}
-            if (e.target.elements['confirmed'].value != '') {formData.confirmed = e.target.elements['confirmed'].value}
+            if (e.target.elements['confirmed'].checked) {formData.confirmed = 'true'}else{formData.confirmed = 'false'}
             if (self.mode == 'create') {
                 formData.password = generatePassword()
             }
-            if (e.target.elements['unregisterRequested'].value != '') {
-                formData.unregisterRequested = e.target.elements['unregisterRequested'].value
-            }
-            if (self.adminMode && e.target.elements['type'].value != '') {
-                switch(e.target.elements['type'].value){
-                    case 'USER':
-                        formData.type = 0
-                        break
-                    case 'OWNER':
-                        formData.type = 1
-                        break
-                    case 'APPLICATION':
-                        formData.type = 2
-                        break
-                    case 'DEMO':
-                        formData.type = 3
-                        break
-                    case 'FREE':
-                        formData.type = 4
-                        break
-                    case 'PRIMARY':
-                        formData.type = 5
-                        break
-                    case 'READONLY':
-                        formData.type = 6
-                        break
-                    default:
-                        formData.type = 4
-                        break
-                }
-            }
+            if (e.target.elements['unregisterRequested'].checked) {formData.unregisterRequested = e.target.elements['unregisterRequested'].value}
 
             app.log(JSON.stringify(formData))
             urlPath = ''
             if (self.method == 'PUT'){
-                urlPath = '/' + formData.uid
+                urlPath = formData.uid
             }
-            sendData(
-                formData,
-                self.method,
-                app.userAPI + urlPath,
-                app.user.token,
-                self.close,
-                null, //self.listener, 
-                'submit:OK',
-                'submit:ERROR',
-                app.debug,
-                globalEvents
-            )
-            //self.callbackListener.trigger('submitted')
+            sendData(formData,self.method,app.userAPI + urlPath,app.user.token,self.close,globalEvents)
         }
 
         self.close = function(object){
         var text = '' + object
-        console.log('CALBACK: ' + object)
+        app.log('CALLBACK: ' + object)
         if (text.startsWith('"') || text.startsWith('{')){
         self.callbackListener.trigger('submitted')
         } else if (text.startsWith('error:202')){
         self.callbackListener.trigger('submitted')
         } else if (text.startsWith('[object MouseEvent')){
         self.callbackListener.trigger('cancelled')
+            } else if (text.startsWith('error:409')){
+                alert('This login is already registered!')
         } else{
         alert(text)
         }
@@ -311,24 +309,17 @@
         self.user = JSON.parse(text);
         riot.update();
         }
+        self.listener.on('*', function(event){
+          riot.update()
+        })
 
         var readUser = function (uid) {
-        getData(app.userAPI + '/' + uid,
-        null,
-        app.user.token,
-        update,
-        self.listener, //globalEvents
-        'OK',
-        null, // in case of error send response code
-        app.debug,
-        globalEvents
-        );
+            getData(app.userAPI+uid,null,app.user.token,update,self.listener)
         }
 
         var generatePassword = function(){
         return window.btoa((new Date().getMilliseconds() + ''))
         }
 
-        
     </script>
 </user_form>

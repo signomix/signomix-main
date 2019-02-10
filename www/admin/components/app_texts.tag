@@ -1,8 +1,156 @@
 <app_texts>
     <script>
-        app.texts={}
-    
-        app.texts.user_form = {
+    app.texts={}
+    app.texts.app_header = {
+            "name": {
+                "en": "Cricket \u00B5Site",
+                "fr": "Cricket \u00B5Site",
+                "pl": "Cricket \u00B5Site"
+            },
+            "users": {
+                "en": "Users",
+                "fr": "Users",
+                "pl": "Użytkownicy"
+            },
+            "content": {
+                "en": "Content",
+                "fr": "Content",
+                "pl": "Treści"
+            },
+            "documents": {
+                "en": "documents",
+                "fr": "documents",
+                "pl": "dokumenty"
+            },
+            "tags": {
+                "en": "tags",
+                "fr": "tags",
+                "pl": "znaczniki"
+            },
+            "login": {
+                "en": "Sign In",
+                "fr": "Sign In",
+                "pl": "Zaloguj się"
+            },
+            "logout": {
+                "en": "Sign Out",
+                "fr": "Sign Out",
+                "pl": "Wyloguj się"
+            }
+        }
+    app.texts.app_login = {
+            "l_title": {
+                "en": "Cricket Microsite",
+                "fr": "Cricket Microsite",
+                "pl": "Cricket Microsite"
+            },
+            "l_name": {
+                "en": "Login",
+                "fr": "Login",
+                "pl": "Login"
+            },
+            "l_password": {
+                "en": "Pasword",
+                "fr": "Pasword",
+                "pl": "Hasło"
+            },
+            "l_save": {
+                "en": "Sign In",
+                "fr": "Sign In",
+                "pl": "Zaloguj się"
+            },
+            "l_error": {
+                "en": "Wrong login or password",
+                "en": "Wrong login or password",
+                "pl": "Niepoprawny login lub hasło"
+            }
+        }
+    app.texts.app_password_form = {
+            "title": {
+                "en": "Password modification",
+                "fr": "Modification du mot de passe",
+                "pl": "Zmiana hasła"
+            },
+            "password": {
+                "en": "Password",
+                "fr": "Mot de passe",
+                "pl": "Hasło"
+            },
+            "password2": {
+                "en": "Retype password",
+                "fr": "Resaisir le mot de passe",
+                "pl": "Powtórzhasło"
+            },
+            "save": {
+                "en": "Save",
+                "fr": "Enregistrer",
+                "pl": "Zapisz"
+            },
+            "cancel": {
+                "en": "Cancel",
+                "fr": "Annuler",
+                "pl": "Porzuć"
+            }
+        }
+        
+    app.texts.app_users = {
+        "title": {
+        "en": "users",
+        "fr": "users",
+        "pl": "użytkownicy"
+        },
+        "t_no": {
+        "en": "NO.",
+        "fr": "NO.",
+        "pl": "NR"
+        },
+        "t_uid": {
+        "en": "LOGIN",
+        "fr": "LOGIN",
+        "pl": "LOGIN"
+        },
+        "t_type": {
+        "en": "TYPE",
+        "fr": "TYPE",
+        "pl": "TYP"
+        },
+        "t_role": {
+        "en": "ROLE",
+        "fr": "ROLE",
+        "pl": "ROLA"
+        },
+        "t_status": {
+        "en": "STATUS",
+        "fr": "STATUS",
+        "pl": "STATUS"
+        },
+        "remove": {
+        "en": "Remove",
+        "fr": "Remove",
+        "pl": "Usuń"
+        },
+        "cancel": {
+        "en": "Cancel",
+        "fr": "Cancel",
+        "pl": "Porzuć"
+        },
+        "remove_question": {
+        "en": "Do you want to remove selected user?",
+        "fr": "Do you want to remove selected user?",
+        "pl": "Czy chcesz usunąć wybranego użytkownika?"
+        },
+        "remove_info": {
+        "en": "Are you sure?",
+        "fr": "Are you sure?",
+        "pl": "Na pewno?"
+        },
+        "remove_title": {
+        "en": "Removing user",
+        "fr": "Removing user",
+        "pl": "Usuwanie użytkownika"
+        }
+        }
+    app.texts.user_form = {
             "user_view": {
                 "en": "User preview",
                 "it": "Anteprima Utente",
@@ -112,139 +260,191 @@
                 "pl": "Wybierz ..."
             }
         }
-        
-        app.texts.app_users = {
-            "title": {
-                "en": "Users",
-                "it": "Users",
-                "fr": "Users",
-                "pl": "Użytkownicy"
-            },
-            "t_no": {
-                "en": "NO",
-                "it": "NO",
-                "fr": "NO",
-                "pl": "NR"
-            },
-            "t_uid": {
-                "en": "UID",
-                "it": "UID",
-                "fr": "UID",
-                "pl": "UID"
+    
+    app.texts.cm_document_form = {
+        "document_view": {
+            "en": "Document Preview",
+            "fr": "Document Preview",
+            "pl": "Podgląd Dokumentu"
+        },
+        "document_new": {
+            "en": "New Document",
+            "fr": "New Document",
+            "pl": "Nowy Dokument"
+        },
+        "document_modify": {
+            "en": "Modify Dokument",
+            "fr": "Modify Dokument",
+            "pl": "Edycja Dokumentu"
+        },
+        "name": {
+            "en": "* Name",
+            "fr": "* Name",
+            "pl": "* Nazwa"
+        },
+        "uid": {
+            "en": "UID",
+            "fr": "UID",
+            "pl": "UID"
+        },
+        "path": {
+            "en": "Path",
+            "fr": "Path",
+            "pl": "Ścieżka"
+        },
+        "title": {
+            "en": "Title",
+            "fr": "Title",
+            "pl": "Tytuł"
+        },
+        "author": {
+            "en": "Author",
+            "fr": "Author",
+            "pl": "Autor"
+        },
+        "summary": {
+            "en": "Summary",
+            "fr": "Summary",
+            "pl": "Streszczenie"
+        },
+        "content": {
+            "en": "Content",
+            "fr": "Content",
+            "pl": "Treść"
+        },
+        "doctags": {
+            "en": "Tags",
+            "fr": "Tags",
+            "pl": "Znaczniki"
+        },
+        "language": {
+            "en": "Language",
+            "fr": "Language",
+            "pl": "Język"
+        },
+        "type": {
+            "en": "* Type",
+            "fr": "* Type",
+            "pl": "* Typ"
+        },
+        "mimeType": {
+            "en": "Mime type",
+            "fr": "Mime type",
+            "pl": "Mime type"
+        },
+        "commentable": {
+            "en": "Can be commented?",
+            "fr": "Can be commented?",
+            "pl": "Można komentować?"
+        },
+        "selectFile": {
+            "en": "Select a File to Upload",
+            "fr": "Select a File to Upload",
+            "pl": "Wybierz plik do przesłania"
+        },
+        "save": {
+            "en": "Save",
+            "fr": "Save",
+            "pl": "Zapisz"
+        },
+        "cancel": {
+            "en": "Cancel",
+            "fr": "Cancel",
+            "pl": "Porzuć"
+        }
+    }
+    app.texts.cm_documents = {
+            "t_name": {
+                "en": "NAME",
+                "fr": "NAME",
+                "pl": "NAZWA"
             },
             "t_type": {
                 "en": "TYPE",
-                "it": "TYPE",
                 "fr": "TYPE",
                 "pl": "TYP"
             },
-            "t_role": {
-                "en": "ROLES",
-                "it": "ROLES",
-                "fr": "ROLES",
-                "pl": "ROLE"
+            "t_title": {
+                "en": "TITLE",
+                "fr": "TITLE",
+                 "pl": "TYTUŁ"
             },
             "t_status": {
                 "en": "STATUS",
-                "it": "STATUS",
                 "fr": "STATUS",
                 "pl": "STATUS"
             },
-            "remove_title": {
-                "en": "Removing user account",
-                "it": "Removing user account",
-                "fr": "Removing user account",
-                "pl": "Usuwanie konta użytkownika"
+            "path_status": {
+                "en": "Path / Status",
+                "fr": "Path / Status",
+                "pl": "Ścieżka / Status"
             },
-            "remove_question": {
-                "en": "Please confirm",
-                "it": "Please confirm",
-                "fr": "Please confirm",
-                "pl": "Proszę potwierdzić"
-            },
-            "remove_info": {
-                "en": "All user data will be removed as well.",
-                "it": "All user data will be removed as well.",
-                "fr": "All user data will be removed as well.",
-                "pl": "Wszystkie dane związane z kontem użytkownika zostaną również usunięte."
+                "title": {
+                "en": "documents",
+                "fr": "documents",
+                "pl": "dokumenty"
             },
             "remove": {
                 "en": "Remove",
-                "it": "Remove",
                 "fr": "Remove",
                 "pl": "Usuń"
             },
             "cancel": {
                 "en": "Cancel",
-                "it": "Cancel",
                 "fr": "Cancel",
                 "pl": "Porzuć"
+            },
+            "remove_question": {
+                "en": "Do you want to remove selected document?",
+                "fr": "Do you want to remove selected document?",
+                "pl": "Czy chcesz usunąć wybrany dokument?"
+            },
+            "remove_info": {
+                "en": "All language versions will be removed.",
+                "fr": "All language versions will be removed.",
+                "pl": "Zostaną usunięte wszystkie wersje językowe."
+            },
+            "remove_title": {
+                "en": "Removing document",
+                "fr": "Removing document",
+                "pl": "Usuwanie dokumentu"
+            },
+            "doctag": {
+                "en": "tag",
+                "fr": "tag",
+                "pl": "tag"
             }
         }
-        
-    app.texts.cm_tags = {
+        app.texts.cm_tags = {
             "l_status": {
                 "en": "Status",
-                "it": "Status",
                 "fr": "Status",
                 "pl": "Status"
             },
             "t_type": {
                 "en": "TYPE",
-                "it": "TYPE",
                 "fr": "TYPE",
                 "pl": "TYP"
             },
-            "t_name": {
-                "en": "NAME",
-                "it": "NAME",
-                "fr": "NAME",
-                "pl": "NAZWA"
-            },
             "t_uid": {
                 "en": "UID",
-                "it": "UID",
                 "fr": "UID",
                 "pl": "UID"
             },
+            "t_name": {
+                "en": "NAME",
+                "fr": "NAME",
+                "pl": "NAZWA"
+            },
             "t_title": {
                 "en": "TITLE",
-                "it": "TITLE",
                 "fr": "TITLE",
-                "pl": "TYTUŁ"
-            }
-        }
-    
-    app.texts.app_password_form = {
+                 "pl": "TYTUŁ"
+                },
             "title": {
-                "en": "Setting a new password",
-                "it": "Setting a new password",
-                "fr": "Setting a new password",
-                "pl": "Ustawienie nowego hasła"
-            },
-            "password": {
-                "en": "Password",
-                "it": "Password",
-                "fr": "Password",
-                "pl": "Hasło"
-            },
-            "password2": {
-                "en": "Retype password",
-                "it": "Retype password",
-                "fr": "Retype password",
-                "pl": "Powtórz hasło"
-            },
-            "save": {
-                "en": "Save",
-                "it": "Save",
-                "fr": "Save",
-                "pl": "Zapisz"
-            },
-            "cancel": {
-                "en": "Cancel",
-                "it": "Cancel",
-                "fr": "Cancel",
-                "pl": "Porzuć"
+                "en": "tags",
+                "fr": "tags",
+                "pl": "tagi"
             }
         }
     riot.update()

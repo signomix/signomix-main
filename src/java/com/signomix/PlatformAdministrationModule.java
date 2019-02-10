@@ -601,10 +601,10 @@ public class PlatformAdministrationModule {
         //System.out.println("CLEARDATA:" + dataCategory + "," + userType);
         clearExpiredTokens(database);
         if(demoMode){
-            //clearAllUsersData(userType, dataCategory, userAdapter, thingsAdapter, dashboardAdapter, actuatorAdapter);
+            clearAllUsersData(userType, dataCategory, userAdapter, thingsAdapter, dashboardAdapter, actuatorAdapter);
         }
         clearNotConfirmed(userAdapter);
-        //clearOldData(demoMode, userAdapter, thingsAdapter, actuatorAdapter);
+        clearOldData(demoMode, userAdapter, thingsAdapter, actuatorAdapter);
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "Clearing data done."));
     }
 
@@ -814,7 +814,7 @@ public class PlatformAdministrationModule {
     private void clearOldData(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
         // data retention
         // how long data is kept in signomix depends on user userType
-        int ONE_DAY = 24 * 3600 * 1000;
+        long ONE_DAY = 24 * 3600 * 1000;
         try {
             long freeRetention = ONE_DAY * (int) getPlatformConfig().get("freeDataRetention");
             long standardRetention = ONE_DAY * (int) getPlatformConfig().get("standardDataRetention");
@@ -823,10 +823,11 @@ public class PlatformAdministrationModule {
             List<Device> devices;
             Iterator it = users.keySet().iterator();
             String uid;
-            long tooOldPoint = System.currentTimeMillis() - 2 * ONE_DAY;
-            long tooOldPointFree = System.currentTimeMillis() - freeRetention;
-            long tooOldPointStandard = System.currentTimeMillis() - standardRetention;
-            long tooOldPointPrimary = System.currentTimeMillis() - primaryRetention;
+            long now = System.currentTimeMillis();
+            long tooOldPoint = now - 2 * ONE_DAY;
+            long tooOldPointFree = now - freeRetention;
+            long tooOldPointStandard = now - standardRetention;
+            long tooOldPointPrimary = now - primaryRetention;
             while (it.hasNext()) {
                 uid = (String) it.next();
                 if (!demoMode) {

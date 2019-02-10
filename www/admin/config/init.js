@@ -16,4 +16,16 @@
 var setLocalConfig = function(){
     app.config.brand = "SIGNOMIX"
     app.config.copyright = "2018 Grzegorz Skorupa"
+    app.user.dashboardID = ''
+    app.user.dashboards = []
+    app.languages = ["en", "pl", "fr", "it"]
+    app.localUid = 0
+    app.dconf = {"widgets":[]} // configurations of user's widgets on the dashboard page
+    app.widgets = [ // widgets on the dashboard page - hardcoded structure
+        [{}, {}, {}, {}],
+        [{}, {}, {}, {}],
+        [{}, {}, {}, {}]
+    ]
+    
+    document.title = 'SIGNOMIX'
 }

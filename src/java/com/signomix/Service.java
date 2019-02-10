@@ -278,6 +278,7 @@ public class Service extends Kernel {
             rd.put("user", event.getRequest().headers.getFirst("X-user-id"));
             rd.put("environmentName", getName());
             rd.put("distroType", (String) invariants.get("release"));
+            rd.put("javaversion", System.getProperty("java.version"));
             List<String> roles = event.getRequest().headers.get("X-user-role");
             if (roles != null) {
                 StringBuilder sb = new StringBuilder("[");
@@ -743,70 +744,6 @@ public class Service extends Kernel {
                 scriptingAdapter,
                 emailSender
         );
-        /*if (event.getTimePoint() != null) {
-            scheduler.handleEvent(event);
-            return;
-        }
-        switch (event.getType()) {
-            case "SHUTDOWN":
-                shutdown();
-                break;
-            case "EMAIL_ADMIN":
-                emailSender.send(
-                        (String) getProperties().getOrDefault("admin-notification-email", ""),
-                        "Signomix - started", "" + event.getPayload()
-                );
-                break;
-            case "CLEAR_DATA":
-                try {
-                    String payload = (String) event.getPayload();
-                    String[] params = payload.split("|");
-                    String dataCategory = "";
-                    String userType = "";
-                    if (params != null && params.length > 0) {
-                        dataCategory = params[0];
-                        if (params.length > 1) {
-                            userType = params[1];
-                        }
-                    }
-                    boolean demoMode = getName().toUpperCase().indexOf("DEMO") >= 0;
-                    PlatformAdministrationModule.getInstance().clearData(
-                            demoMode, dataCategory, userType, userAdapter, thingsAdapter, authAdapter, authDB, dashboardAdapter,
-                            actuatorAdapter
-                    );
-                } catch (ClassCastException | IndexOutOfBoundsException ex) {
-                    handleEvent(Event.logWarning(this, "Problem with clearing data parameters- " + ex.getMessage()));
-                }
-            case "CONTENT":
-                try {
-                    database.clear("webcache_pl");
-                } catch (KeyValueDBException ex) {
-                    dispatchEvent(Event.logWarning(this, "Problem while clearing web cache - " + ex.getMessage()));
-                }
-                try {
-                    database.clear("webcache_en");
-                } catch (KeyValueDBException ex) {
-                    dispatchEvent(Event.logWarning(this, "Problem while clearing web cache - " + ex.getMessage()));
-                }
-                try {
-                    database.clear("webcache_fr");
-                } catch (KeyValueDBException ex) {
-                    dispatchEvent(Event.logWarning(this, "Problem while clearing web cache - " + ex.getMessage()));
-                }
-                break;
-            case "STATUS":
-                System.out.println(printStatus());
-                break;
-            case "COMMAND":
-                ActuatorModule.getInstance().processCommand(event, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
-                break;
-            case "BACKUP":
-                PlatformAdministrationModule.getInstance().backupDatabases(database, userDB, authDB, cmsDatabase, thingsDB, iotDataDB, actuatorCommandsDB);
-                break;
-            default:
-                handleEvent(Event.logWarning("Don't know how to handle type " + event.getType(), event.getPayload().toString()));
-        }
-         */
     }
 
     /**

@@ -6,41 +6,55 @@
     </div>
     <div class="row" if={ !selected }>
         <div class="col-md-12">
-            <h2>{labels.title[app.language]} 
+            <h2>{app.texts.cm_documents.title[app.language]} 
                 <virtual each={ lang, i in app.languages}>
                     <button type="button" class="btn btn-sm { lang==selectedLanguage?'btn-primary':'btn-secondary' }" onclick={ selectLanguage(lang) }>{ lang }</button>
                 </virtual>
                 <i class="material-icons clickable" onclick={ refreshDocs() }>refresh</i>
                 <i class="material-icons clickable" onclick={ editDocument('NEW', true) }>add</i>
             </h2>
+        </div>
+    </div>
+    <div class="row" if={ !selected }>
+        <div class="col-md-12">
             <form class="form-inline">
-                <div class="form-group">
-                    <label for="pathDropdown">{ labels.path_status[app.language] } </label>
-                    <select id="pathsDropdown" onchange={ selectPath } class="form-control">
+                <label class="mr-2" for="pathsDropdown">{ app.texts.cm_documents.path_status[app.language] }</label>
+                <select class="select mr-2" id="pathsDropdown" onchange={ selectPath }>
                         <option each={ tmpPath, index in paths }>{ tmpPath }</option>
                     </select>
-                    <select id="statusesDropdown" onchange={ selectStatus } class="form-control">
+                <select class="select" id="statusesDropdown" onchange={ selectStatus }>
                         <option each={ tmpStatus, index in statuses }>{ tmpStatus }</option>
                     </select>
-                </div>
+                <label for="doctag" style="margin-left:10px;margin-right: 5px;">{ app.texts.cm_documents.doctag[app.language] }</label>
+                <input class="form-control" id="doctag" name="doctag" type="text" value={ doctag }>
             </form>
-            <table id="doclist" class="table table-condensed">
+                </div>
+    </div>
+    <div class="row" if={ !selected }>
+        <div class="col-md-12">
+            <table id="doclist" class="table table-condensed topspacing-sm">
                 <thead>
-                    <tr>
-                        <th>{labels.t_name[app.language]}</th>
-                        <th>{labels.t_title[app.language]}</th>
-                        <th>{labels.t_status[app.language]}</th>
-                        <th class="text-right">
+                    <tr class="d-flex">
+                        <th class="col-1">{app.texts.cm_documents.t_type[app.language]}</th>
+                        <th class="col-3">{app.texts.cm_documents.t_name[app.language]}</th>
+                        <th class="col-5">{app.texts.cm_documents.t_title[app.language]}</th>
+                        <!--<th>{app.texts.cm_documents.t_status[app.language]}</th>-->
+                        <th class="col-3 text-right">
                             <i class="material-icons clickable" onclick={ editDocument('NEW', true) }>add</i>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr each={doc in documents}>
-                        <td>{ doc.name }</td>
-                        <td>{ decodeURIComponent(doc.title) }</td>
-                        <td>{ doc.status }</td>
-                        <td class="text-right">                              
+                    <tr class="d-flex" each={doc in documents}>
+                        <td class="col-1">
+                            <i class="material-icons clickable" if={ doc.type == 'FILE'}>attachment</i>
+                            <i class="material-icons clickable" if={ doc.type == 'CODE'}>receipt</i>
+                            <i class="material-icons clickable" if={ doc.type == 'ARTICLE'}>subject</i>
+                        </td>
+                        <td class="col-3">{ doc.name }</td>
+                        <td class="col-5">{ decodeURIComponent(doc.title) }</td>
+                        <!--<td>{ doc.status }</td>-->
+                        <td class="col-3 text-right">
                             <i class="material-icons clickable" onclick={ editDocument(doc.uid, false) }>open_in_browser</i>
                             <i class="material-icons clickable" if={ doc.rights=='rw'} onclick={ editDocument(doc.uid, true) }>mode_edit</i>
                             <i class="material-icons clickable" if={ doc.status=='wip' && doc.rights=='rw'} onclick={ setPublished(doc.uid, true) }>visibility</i>
@@ -59,15 +73,15 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{labels.remove_title[app.language]}</h4>
+                            <h4 class="modal-title">{app.texts.cm_documents.remove_title[app.language]}</h4>
                         </div>
                         <div class="modal-body">
-                            <p>{labels.remove_question[app.language]}</p>
-                            <p class="text-warning"><small>{labels.remove_info[app.language]}</small></p>
+                            <p>{app.texts.cm_documents.remove_question[app.language]}</p>
+                            <p class="text-warning"><small>{app.texts.cm_documents.remove_info[app.language]}</small></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick={ select('') }>{labels.cancel[app.language]}</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick={ removeDocument() }>{labels.remove[app.language]}</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick={ removeDocument() }>{app.texts.cm_documents.remove[app.language]}</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick={ select('') }>{app.texts.cm_documents.cancel[app.language]}</button>
                         </div>
                     </div>
                 </div>
@@ -84,78 +98,60 @@
         self.documents = []
         self.selected = ''
         self.selectedLanguage = 'EN'
+        self.doctag = ''
         self.removing = ''
 
         //globalEvents.on('pageselected:documents', function (eventName) {
         this.on('mount', function(){
             self.selected = ''
             self.selectedLanguage = app.language
-            console.log('PAGE DOCUMENTS')
-            console.log(self.statuses)
-            console.log(self.paths)
+            app.log('PAGE DOCUMENTS')
+            app.log(self.statuses)
+            app.log(self.paths)
             readPaths()
         });
         
+        this.on('unmount',function(){
+            Object.keys(self.refs).forEach(function(key) {
+                self.refs[key].unmount()
+            });
+            self.refs=[]
+        })
+        
         self.listener.on('*', function (eventName) {
             app.log('LISTENER: ' + eventName)
+            if(!eventName) return;
             if(eventName.startsWith('submitted:')){
                 self.selected = ''
                 var currentPath=eventName.substring(10)
-                console.log('CURRENT PATH: '+currentPath)
+                app.log('CURRENT PATH: '+currentPath)
                 if(currentPath.length>0){
                     self.path = currentPath
                 }else{
                     self.path = '/'
                 }
-                riot.update()
                 readPaths()
             }else if(eventName.startsWith('cancelled')){
                 self.selected = ''
             }else{
                 app.log('DOCUMENTS: ' + eventName)
             }
-            /*switch (eventName){
-                case 'submitted':
-                self.selected = ''
-                readPaths()
-                //readMyDevices()  //this line results in logout,login error
-                break
-                case 'cancelled':
-                self.selected = ''
-                break
-                default:
-                app.log('DOCUMENTS: ' + eventName)
-            }
-            */
             riot.update()
         });
         
         var readPaths = function () {
             app.log('reading paths ...')
-            getData(app.cmAPI + '?pathsonly=true', // url
-                        null, // query
-                        app.user.token, // token
-                        updatePaths, // callback
-                        self.listener, // event listener
-                        'OK', // success event name
-                        null, // error event name
-                        app.debug, // debug switch
-                        globalEvents         // application event listener
-            );
+            getData(app.cmAPI+'?pathsonly=true',null,app.user.token,updatePaths,self.listener)
         }
 
         var readContentList = function () {
             app.log('reading docs ...')
-            getData(app.cmAPI + '?path=' + self.path + '&language=' + self.selectedLanguage + '&status=' + self.status, // url
-                        null, // query
-                        app.user.token, // token
-                        updateList, // callback
-                        self.listener, // event listener
-                        'OK', // success event name
-                        null, // error event name
-                        app.debug, // debug switch
-                        globalEvents         // application event listener
-            );
+            self.doctag=document.getElementById("doctag").value.trim()
+            var query = app.cmAPI+'?path='+self.path+'&language='+self.selectedLanguage+'&status='+self.status
+            if(self.doctag.length>0){
+                query=query+'&tag='+self.doctag
+        }
+            getData(query,null,app.user.token,updateList,self.listener)
         }
 
         var updatePaths = function (text) {
@@ -165,7 +161,7 @@
             if (self.paths.length > 0){
                 //self.path = self.paths[0]
                 var index = self.paths.indexOf(self.path)
-                console.log('PATH INDEX:'+index)
+                app.log('PATH INDEX:'+index)
                 document.getElementById("pathsDropdown").selectedIndex = index
             } else{
                 //self.path = '/'
@@ -201,19 +197,7 @@
                     'language': self.selectedLanguage,
                     'status': isPublished?'published':'wip'
                 }
-                sendData(
-                formData,
-                'PUT',
-                app.cmAPI + docId,
-                app.user.token,
-                self.afterPublish, //TODO
-                null,
-                'submit:OK',
-                'submit:ERROR',
-                app.debug,
-                null
-                )
-                app.log('SET PUBLISHED ' + isPublished)
+                sendData(formData,'PUT',app.cmAPI+docId,app.user.token,self.afterPublish,globalEvents)
                 riot.update()
             }
         }
@@ -227,7 +211,7 @@
 
         self.afterPublish = function(object){
             var text = '' + object
-            console.log('CALBACK: ' + object)
+            app.log('CALBACK: ' + object)
             if (text.startsWith('{')){
                 readContentList()
             } else if (text.startsWith('error')){
@@ -264,30 +248,21 @@
                 e.preventDefault()
                 self.removing = uid
                 riot.update()
-                console.log('DEL SELECTED ' + uid)
+                app.log('DEL SELECTED ' + uid)
             }
         }
         
         removeDocument(){
             return function(e){
                 e.preventDefault()
-                console.log('REMOVING ' + self.removing + ' ...')
-                deleteData(
-                    app.cmAPI + self.removing,
-                    app.user.token,
-                    self.closeRemove,
-                    null, //self.listener, 
-                    'submit:OK',
-                    'submit:ERROR',
-                    app.debug,
-                    null //globalEvents
-                )
+                app.log('REMOVING ' + self.removing + ' ...')
+                deleteData(app.cmAPI + self.removing,app.user.token,self.closeRemove,globalEvents)
             }
         }
         
         self.closeRemove = function(object){
             var text = '' + object
-            console.log('CALBACK: ' + object)
+            app.log('CALBACK: ' + object)
             if (text.startsWith('{')){
             //
             } else if (text.startsWith('error:')){
@@ -298,47 +273,6 @@
             readContentList()
         }
 
-        self.labels = {
-        "t_name": {
-        "en": "NAME",
-                "pl": "NAZWA"
-        },
-                "t_title": {
-                "en": "TITLE",
-                        "pl": "TYTUŁ"
-                },
-                "t_status": {
-                "en": "STATUS",
-                        "pl": "STATUS"
-                },
-                "path_status": {
-                "en": "Path / Status",
-                        "pl": "Ścieżka / Status"
-                },
-                "title": {
-                "en": "documents",
-                        "pl": "dokumenty"
-                },
-                "remove": {
-                "en": "Remove",
-                        "pl": "Usuń"
-                },
-                "cancel": {
-                "en": "Cancel",
-                        "pl": "Porzuć"
-                },
-                "remove_question": {
-                "en": "Do you want to remove selected document?",
-                        "pl": "Czy chcesz usunąć wybrany dokument?"
-                },
-                "remove_info": {
-                "en": "All language versions will be removed.",
-                        "pl": "Zostaną usunięte wszystkie wersje językowe."
-                },
-                "remove_title": {
-                "en": "Removing document",
-                        "pl": "Usuwanie dokumentu"
-                }
-        }
+        
     </script>
 </cm_documents>
