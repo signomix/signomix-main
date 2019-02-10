@@ -36,10 +36,10 @@
             "pl": "WIADOMOŚĆ"
         },
         "eui": {
-            "en": "EUI",
-            "it": "EUI",
-            "fr": "EUI",
-            "pl": "EUI"
+            "en": "FROM",
+            "it": "DA",
+            "fr": "DE",
+            "pl": "ŹRÓDŁO"
         },
         "date": {
             "en": "DATE",

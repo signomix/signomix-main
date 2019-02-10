@@ -4,6 +4,7 @@
 */
 package com.signomix;
 
+import com.signomix.iot.IotEvent;
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
@@ -69,7 +70,6 @@ public class AlertModule {
     public Object removeAll(String userId, ThingsDataIface thingsAdapter) {
         StandardResult result = new StandardResult();
         try {
-            System.out.println(">>>>> USERID:"+userId);
             thingsAdapter.removeUserAlerts(userId);
             result.setData("OK");
         } catch (ThingsDataException ex) {
@@ -87,4 +87,5 @@ public class AlertModule {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
         }
     }
+    
 }

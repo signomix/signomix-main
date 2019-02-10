@@ -79,9 +79,11 @@ public class DeviceManagementModule {
                             result.setData(ex.getMessage());
                         } catch (PlatformException ex) {
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
-                            Kernel.handle(
-                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED, null, userID)
-                            );
+                            if (ex.getCode() == PlatformException.TOO_MANY_USER_DEVICES) {
+                                Kernel.handle(
+                                        new IotEvent(IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED, "unable to add device (limit reached)").addOrigin(userID + "\tSIGNOMIX")
+                                );
+                            }
                             result.setCode(PlatformAdministrationModule.ERR_PAYMENT_REQUIRED);
                             result.setData(ex.getMessage());
                         }
@@ -188,7 +190,7 @@ public class DeviceManagementModule {
                     recipents.add(device.getUserID());
                 }
                 for (String recipent : recipents) {
-                    ev= new IotEvent(IotEvent.DEVICE_LOST, "possible device failure").addOrigin(recipent + "\t" + device.getEUI());
+                    ev = new IotEvent(IotEvent.DEVICE_LOST, "possible device failure").addOrigin(recipent + "\t" + device.getEUI());
                     Kernel.getInstance().dispatchEvent(ev);
                 }
 
@@ -349,7 +351,7 @@ public class DeviceManagementModule {
 
     private List getUserDevices(String userID, ThingsDataIface thingsAdapter) {
         try {
-            return (ArrayList) thingsAdapter.getUserDevices(userID,true);
+            return (ArrayList) thingsAdapter.getUserDevices(userID, true);
         } catch (Exception ex) {
             ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));

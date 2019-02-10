@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix;
 
 import com.signomix.iot.IotEvent;
@@ -29,12 +29,12 @@ import org.cricketmsf.microsite.user.User;
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class IotEventHandler {
-    
+
     public static void handleEvent(
-            Kernel kernel, 
-            Event event, 
-            SchedulerIface scheduler, 
-            UserAdapterIface userAdapter, 
+            Kernel kernel,
+            Event event,
+            SchedulerIface scheduler,
+            UserAdapterIface userAdapter,
             ThingsDataIface thingsAdapter,
             NotificationIface smtpNotification,
             NotificationIface smsNotification,
@@ -43,7 +43,8 @@ public class IotEventHandler {
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             VirtualStackIface virtualStackAdapter,
-            ScriptingAdapterIface scriptingAdapter){
+            ScriptingAdapterIface scriptingAdapter) {
+        String[] origin;
         if (event.getTimePoint() != null) {
             scheduler.handleEvent(event);
         } else {
@@ -53,10 +54,11 @@ public class IotEventHandler {
                 case IotEvent.WARNING:
                 case IotEvent.ALERT:
                 case IotEvent.DEVICE_LOST:
-                    String[] origin = event.getOrigin().split("\t");
+                case IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED:
+                    origin = event.getOrigin().split("\t");
                     if (origin.length < 2) {
                         // TODO: log error
-                        System.out.println(">>>>> event origin not properly set: "+event.getOrigin());
+                        System.out.println(">>>>> event origin not properly set: " + event.getOrigin());
                         break;
                     }
                     //save alert
@@ -207,14 +209,6 @@ public class IotEventHandler {
                         ex.printStackTrace();
                     }
                     break;
-                case IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED:
-                    try {
-                        String userID = (String) event.getPayload();
-                        //do nothing
-                    } catch (Exception e) {
-                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName(), e.getMessage()));
-                    }
-                    break;
                 default:
                     Kernel.handle(
                             Event.logWarning("Don't know how to handle category/type " + event.getCategory() + "/" + event.getType(),
@@ -223,5 +217,5 @@ public class IotEventHandler {
             }
         }
     }
-    
+
 }

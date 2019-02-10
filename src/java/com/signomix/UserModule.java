@@ -255,4 +255,37 @@ public class UserModule extends UserBusinessLogic {
         }
         return result;
     }
+    
+    public Object refillAccount(String userName, Double amount){
+        return null;
+    }
+    
+    /**
+     * Increases reads counter by number
+     * @param userName
+     * @param number
+     * @return 
+     */
+    public Object addReadings(String userName, long number){
+        return null;
+    }
+    
+    /**
+     * Increases writes counter by number
+     * @param userName
+     * @param number
+     * @return 
+     */
+    public Object addWritings(String userName, long number){
+        return null;
+    }
+    
+    /**
+     * Sets reads and writes counters to zero
+     * @param userName
+     * @return 
+     */
+    public Object resetCounters(String userName){
+        return null;
+    }
 }
