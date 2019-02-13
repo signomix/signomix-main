@@ -56,10 +56,9 @@ public class DeviceIntegrationModule {
     public Object processLoRaRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, LoRaApi loraApi) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = false;
-        if ("true".equalsIgnoreCase(loraApi.getProperty("dump-request"))) {
+        boolean dump = "true".equalsIgnoreCase(loraApi.getProperty("dump-request"));
+        if (dump) {
             System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
         }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
@@ -89,7 +88,7 @@ public class DeviceIntegrationModule {
                 data = (LoRaData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -186,10 +185,9 @@ public class DeviceIntegrationModule {
     public Object processIotRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi iotApi, ActuatorCommandsDBIface actuatorCommandsDB) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = false;
-        if ("true".equalsIgnoreCase(iotApi.getProperty("dump-request"))) {
+        boolean dump = "true".equalsIgnoreCase(iotApi.getProperty("dump-request"));
+        if (dump) {
             System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
         }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
@@ -225,13 +223,14 @@ public class DeviceIntegrationModule {
                 data = (IotData2) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
-                e.printStackTrace();
+                Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "deserialization problem from "+request.clientIp+" "+jsonString));
+                //e.printStackTrace();
+                data = null;
             }
             if (data == null) {
                 //TODO: send warning to the service admin about deserialization error
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                result.setData("deserialization problem");
+                result.setData("deserialization problem, the data format is not compatible with Signomix integration API");
                 return result;
             }
 
@@ -340,14 +339,10 @@ public class DeviceIntegrationModule {
     public Object processTtnRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, TtnApi ttnApi) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = false;
-        boolean authorizationRequired = true;
-        if ("true".equalsIgnoreCase(ttnApi.getProperty("dump-request"))) {
+        boolean dump = "true".equalsIgnoreCase(ttnApi.getProperty("dump-request"));
+        boolean authorizationRequired = !("false".equalsIgnoreCase(ttnApi.getProperty("authorization-required")));
+        if (dump) {
             System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
-        }
-        if ("false".equalsIgnoreCase(ttnApi.getProperty("authorization-required"))) {
-            authorizationRequired = false;
         }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
@@ -373,7 +368,7 @@ public class DeviceIntegrationModule {
             data = (TtnData) JsonReader.jsonToJava(jsonString);
             data.normalize();
         } catch (Exception e) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
             e.printStackTrace();
         }
         if (data == null) {
@@ -511,10 +506,9 @@ public class DeviceIntegrationModule {
     public Object processKpnRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, KpnApi kpnApi) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = false;
-        if ("true".equalsIgnoreCase(kpnApi.getProperty("dump-request"))) {
+        boolean dump = "true".equalsIgnoreCase(kpnApi.getProperty("dump-request"));
+        if (dump) {
             System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
         }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
@@ -537,7 +531,7 @@ public class DeviceIntegrationModule {
                 data = (KPNData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -618,11 +612,10 @@ public class DeviceIntegrationModule {
 public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi rawApi, ActuatorCommandsDBIface actuatorCommandsDB) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = false;
+        boolean dump = "true".equalsIgnoreCase(rawApi.getProperty("dump-request"));
         //TODO: kpnApi
-        if ("true".equalsIgnoreCase(rawApi.getProperty("dump-request"))) {
+        if (dump) {
             System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
         }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
