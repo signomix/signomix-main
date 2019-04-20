@@ -36,12 +36,15 @@ import org.cricketmsf.out.file.FileReaderAdapterIface;
 import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
+import com.signomix.out.iot.Alert;
 import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.List;
 import org.cricketmsf.annotation.EventHook;
+import org.cricketmsf.event.EventMaster;
+import org.cricketmsf.exception.EventException;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
 import org.cricketmsf.microsite.out.queue.QueueException;
@@ -158,6 +161,15 @@ public class Service extends Kernel {
 
     @Override
     public void runInitTasks() {
+        try {
+            EventMaster.registerEventCategories(new Event().getCategories(), Event.class.getName());
+            EventMaster.registerEventCategories(new UserEvent().getCategories(), UserEvent.class.getName());
+            EventMaster.registerEventCategories(new IotEvent().getCategories(), IotEvent.class.getName());
+            EventMaster.registerEventCategories(new Alert().getCategories(), Alert.class.getName());
+        } catch (EventException ex) {
+            ex.printStackTrace();
+            shutdown();
+        }
         //read the OS variable to get the service URL
         String urlEnvName = (String) getProperties().get("SRVC_URL_ENV_VARIABLE");
         if (null != urlEnvName) {

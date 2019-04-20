@@ -334,23 +334,46 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
 
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
+        return getValues(userID, deviceEUI, limit, false);
+    }
+
+    @Override
+    public List<List> getValues(String userID, String deviceEUI, int limit, boolean timeseriesMode) throws ThingsDataException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? order by tstamp desc limit ?";
         List<String> channels = getDeviceChannels(deviceEUI);
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
+        ArrayList row2;
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
             pst.setInt(2, limit);
             ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                row = new ArrayList<>();
+            if (timeseriesMode) {
+                row2 = new ArrayList();
+                row2.add("timestamp");
                 for (int i = 0; i < channels.size(); i++) {
-                    row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i), rs.getTimestamp(5).getTime()));
+                    row2.add(channels.get(i));
                 }
-                result.add(row);
+                result.add(row2);
+            }
+            while (rs.next()) {
+                if (timeseriesMode) {
+                    row2 = new ArrayList();
+                    row2.add(rs.getTimestamp(5).getTime());
+                    for (int i = 0; i < channels.size(); i++) {
+                        row2.add(rs.getDouble(6 + i));
+                    }
+                    result.add(row2);
+                } else {
+                    row = new ArrayList<>();
+                    for (int i = 0; i < channels.size(); i++) {
+                        row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i), rs.getTimestamp(5).getTime()));
+                    }
+                    result.add(row);
+                }
             }
             pst.close();
             conn.close();
@@ -455,15 +478,17 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
         String channelName = "";
         int indexOfChannel = query.indexOf("channel ");
         int limit = 1;
+        boolean compactFormat = false;
         if (indexOfChannel >= 0) {
             channelName = query.substring(indexOfChannel + 8, query.indexOf(" ", indexOfChannel + 8));
         }
         if (query.contains("last")) {
             limit = getLimit(query.substring(query.indexOf("last")));
         }
+        compactFormat = query.endsWith("timeseries");
         result = new ArrayList();
         if (channelName.isEmpty()) {
-            return getValues(userID, deviceEUI, limit);
+            return getValues(userID, deviceEUI, limit, compactFormat);
         } else {
             result.add(getValues(userID, deviceEUI, channelName, "last " + limit));
         }

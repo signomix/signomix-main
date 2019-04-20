@@ -41,7 +41,7 @@ public class DashboardBusinessLogic {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
-        request.headers.keySet().forEach(key -> Kernel.handle(Event.logFine(this,key + ":" + request.headers.getFirst(key))));
+        //request.headers.keySet().forEach(key -> Kernel.handle(Event.logFine(this,key + ":" + request.headers.getFirst(key))));
         String dashboardId = request.pathExt; //
         //System.out.println("PATHEXT=" + dashboardId);
 

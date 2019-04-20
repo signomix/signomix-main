@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import static org.cricketmsf.Kernel.handle;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
@@ -88,7 +89,7 @@ public class DeviceIntegrationModule {
                 data = (LoRaData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -197,35 +198,36 @@ public class DeviceIntegrationModule {
 
             if (authKey == null || authKey.isEmpty()) {
                 handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+                result.setCode(HttpAdapter.SC_UNAUTHORIZED);
                 return result;
             }
 
-            String jsonString = request.body;
-            if (jsonString == null) {
-                jsonString = (String) request.parameters.getOrDefault("data", "");
-            }
-            if (jsonString.isEmpty()) {
-                //TODO: send warning to the service admin about deserialization error
-                result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                result.setData("deserialization problem");
-                return result;
-            }
-            //System.out.println("BODY:"+jsonString);
-            jsonString
-                    = "{\"@type\":\"com.signomix.iot.IotData2\","
-                    + jsonString.substring(jsonString.indexOf("{") + 1);
-            if (dump) {
-                System.out.println("JSON:" + jsonString);
+            String dataString = request.body;
+            String jsonString;
+            if (dataString == null) {
+                dataString = (String) request.parameters.getOrDefault("data", "");
             }
             IotData2 data = null;
-            try {
-
-                data = (IotData2) JsonReader.jsonToJava(jsonString);
-                data.normalize();
-            } catch (Exception e) {
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "deserialization problem from "+request.clientIp+" "+jsonString));
-                //e.printStackTrace();
-                data = null;
+            if (dataString.isEmpty()) {
+                data = parseIotData(request.parameters);
+            } else {
+                //System.out.println("BODY:"+jsonString);
+                jsonString
+                        = "{\"@type\":\"com.signomix.iot.IotData2\","
+                        + dataString.substring(dataString.indexOf("{") + 1);
+                if (dump) {
+                    System.out.println("data:" + dataString);
+                }
+                try {
+                    data = (IotData2) JsonReader.jsonToJava(jsonString);
+                    data.normalize();
+                } catch (Exception e) {
+                    data = parseIotData(dataString);
+                    if (null == data) {
+                        Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "deserialization problem from " + request.clientIp + " " + jsonString));
+                        //e.printStackTrace();
+                    }
+                }
             }
             if (data == null) {
                 //TODO: send warning to the service admin about deserialization error
@@ -312,7 +314,7 @@ public class DeviceIntegrationModule {
             try {
                 finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
             } catch (Exception e) {
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName()+".processIotRequest()", e.getMessage()));
+                Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".processIotRequest()", e.getMessage()));
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
             if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
@@ -368,7 +370,7 @@ public class DeviceIntegrationModule {
             data = (TtnData) JsonReader.jsonToJava(jsonString);
             data.normalize();
         } catch (Exception e) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
             e.printStackTrace();
         }
         if (data == null) {
@@ -531,7 +533,7 @@ public class DeviceIntegrationModule {
                 data = (KPNData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format "+jsonString));
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -609,7 +611,7 @@ public class DeviceIntegrationModule {
         return result;
     }
 
-public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi rawApi, ActuatorCommandsDBIface actuatorCommandsDB) {
+    public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi rawApi, ActuatorCommandsDBIface actuatorCommandsDB) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
         boolean dump = "true".equalsIgnoreCase(rawApi.getProperty("dump-request"));
@@ -626,7 +628,7 @@ public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, User
             String deviceEUI;
             //TODO: header should be configurable
             deviceEUI = request.headers.getFirst(rawApi.getProperty("header-name"));
-            
+
             if (deviceEUI == null) {
                 //TODO: send warning to the service admin about deserialization error
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
@@ -689,7 +691,7 @@ public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, User
         }
         return result;
     }
-    
+
     private ArrayList<ChannelData> prepareTtnValues(TtnData data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null) {
@@ -832,4 +834,62 @@ public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, User
         //TODO: use DataProcessor
     }
 
+    private IotData2 parseIotData(String dataStr) {
+        IotData2 data = new IotData2();
+        data.dev_eui = null;
+        data.timestamp = "" + System.currentTimeMillis();
+        data.payload_fields = new ArrayList<>();
+        String[] params = dataStr.split("&");
+        String[] pair;
+        HashMap<String, String> map;
+        for (int i = 0; i < params.length; i++) {
+            pair = params[i].split("=");
+            if (pair.length < 2) {
+                continue;
+            }
+            if ("eui".equalsIgnoreCase(pair[0])) {
+                data.dev_eui = pair[1];
+            } else if ("timestamp".equalsIgnoreCase(pair[0])) {
+                data.timestamp = pair[1];
+            } else {
+                map = new HashMap<>();
+                map.put("name", pair[0]);
+                map.put("value", pair[1]);
+                data.payload_fields.add(map);
+            }
+        }
+        if (null == data.dev_eui || data.payload_fields.isEmpty()) {
+            return null;
+        }
+        data.normalize();
+        return data;
+    }
+
+    private IotData2 parseIotData(Map<String, Object> parameters) {
+        IotData2 data = new IotData2();
+        data.dev_eui = null;
+        data.timestamp = "" + System.currentTimeMillis();
+        data.payload_fields = new ArrayList<>();
+        HashMap<String, String> map;
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            String key = entry.getKey();
+            String value = (String)entry.getValue();
+            if ("eui".equalsIgnoreCase(key)) {
+                data.dev_eui = value;
+            } else if ("timestamp".equalsIgnoreCase(key)) {
+                data.timestamp = value;
+            } else {
+                map = new HashMap<>();
+                map.put("name", key);
+                map.put("value", value);
+                data.payload_fields.add(map);
+            }
+            
+        }
+        if (null == data.dev_eui || data.payload_fields.isEmpty()) {
+            return null;
+        }
+        data.normalize();
+        return data;
+    }
 }

@@ -237,7 +237,6 @@ function deleteData(url, token, callback, eventBus, successEventName, errorEvent
     }
     app.requests++;
     oReq.open("DELETE", url, true);
-    //oReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     if (token != null) {
         oReq.withCredentials = true;
         oReq.setRequestHeader("Authentication", token);

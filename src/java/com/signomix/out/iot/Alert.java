@@ -48,5 +48,11 @@ public class Alert extends Event {
     public String getDeviceEUI() {
         return deviceEUI;
     }
+    
+    @Override
+    public String[] getCategories(){
+        String[] categories = {};
+        return categories;
+    }
 
 }

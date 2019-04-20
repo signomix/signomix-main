@@ -511,11 +511,10 @@
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
                     "properties": {
-                        "from": "name@host",
-                        "mailhost": "",
-                        "user": "name@host",
-                        "password": "mypassword",
-                        "starttls": "false",
+                        "from": "test@signocom.com",
+                        "mailhost": "85.128.192.150",
+                        "user": "test@signocom.com",
+                        "password": "Ypsylon#2017#",
                         "debug-session": "false"
                     }
                 },

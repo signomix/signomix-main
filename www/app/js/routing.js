@@ -108,6 +108,10 @@ route(function (id) {
                 app.currentPage = 'documents'
                 app.docPath = id.substring(3).replace(/,/g, "/");
                 globalEvents.trigger('pageselected:doc');
+            } else if (id.startsWith('blog')) {
+                app.currentPage = 'blog'
+                app.docPath = id.substring(4).replace(/,/g, "/");
+                globalEvents.trigger('pageselected:blog');
             } else if (id.startsWith('help')) {
                 app.currentPage = 'help'
                 app.docPath = '/' + id.replace(/,/g, "/");

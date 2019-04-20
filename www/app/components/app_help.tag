@@ -1,7 +1,7 @@
 <app_help>
     <div class="row text-right">
         <div class="col-md-12 topspacing">
-            <a href="#help,toc">Index</a>
+            <a href="#!help,toc">Index</a>
         </div>
     </div>
     <div class="row">
@@ -11,7 +11,7 @@
     </div>
     <div class="row text-right">
         <div class="col-md-12">
-            <a href="#help,toc">Index</a>
+            <a href="#!help,toc">Index</a>
         </div>
     </div>
     <script charset="UTF-8">

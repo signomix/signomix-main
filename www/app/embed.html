@@ -63,8 +63,8 @@
         app.csAPI = "$serviceurl"+"/api/cs";
         app.recoveryAPI = "$serviceurl"+"/api/recover";
         app.actuatorAPI = "$serviceurl"+"/api/actuator";
-        <!-- authomatic login with token (request 'tid' parameter -->
-        <!-- see: Service.wwwGet() -->
+        //authomatic login with token (request 'tid' parameter
+        //see: Service.wwwGet()
         app.user={}
         app.user.token = "$token";
         app.user.name = "$user";
@@ -93,6 +93,7 @@
         <!-- THIS IS EMBEDED PAGE -->
 
         riot.mount('*');
+        route.base('#!');
         route.start(true);
     </script>
 </body>

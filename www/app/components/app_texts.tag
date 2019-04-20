@@ -538,6 +538,12 @@
             "fr": "Bornes d'alerte",
             "pl": "Zakresy ostrzeżeń"
         },
+        "f_widget_format": {
+            "en": "Data format",
+            "it": "Formato dei dati",
+            "fr": "Format de données",
+            "pl": "Format danych"
+        },
         "f_widget_range_hint": {
             "en": "Scopes of warnings in the format of the form {alertCondition}[:{warningConditon}] (eg. <-10>40:<0>30 )",
             "it": "Scopi degli avvisi secondo il seguente formato {alertCondition}[:{warningCondition}] (per es. <-10>40:<0>30 )",

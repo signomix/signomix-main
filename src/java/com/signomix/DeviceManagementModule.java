@@ -118,6 +118,10 @@ public class DeviceManagementModule {
                                 // zmiana: 
                                 if (query != null) {
                                     result.setData(getValues(tmpUserID, params[0], query, thingsAdapter));
+                                    if(query.endsWith("csv.timeseries")){
+                                        //result.setHeader("Content-type", "text/csv");
+                                        result.setFileExtension(".csv");
+                                    }
                                 } else {
                                     Device device = getDevice(userID, params[0], thingsAdapter);
                                     if (device != null) {

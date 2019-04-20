@@ -67,7 +67,7 @@
                     <div class="form-check" style="margin-bottom: 20px;">
                         <input class="form-check-input" type="checkbox" value="" id="accept" name="accept" required>
                         <label class="form-check-label" for="accept">
-                        { app.texts.register.l_legalText1[app.language] } <a href="#doc,legal">{ app.texts.register.l_legalText2[app.language] }</a>.
+                        { app.texts.register.l_legalText1[app.language] } <a href="#!doc,legal">{ app.texts.register.l_legalText2[app.language] }</a>.
                         </label>
                     </div>
                     <div class="form-group">

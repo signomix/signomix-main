@@ -6,7 +6,6 @@ package com.signomix.in.http;
 
 import com.signomix.out.iot.ChannelData;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import org.cricketmsf.Adapter;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +48,8 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
     }
 
     public byte[] formatResponse(String type, Result result) {
+
+        System.out.println("TYPE:" + type);
         byte[] r = {};
         String formattedResponse = "";
         switch (type) {
@@ -63,7 +64,7 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
                 // formats only Result.getData() object.
                 // TODO: concat all list items
                 try {
-                    formattedResponse = format(result,true);
+                    formattedResponse = format(result);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -85,31 +86,49 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
         return r;
     }
 
-    private String format(Result source, boolean withHeader) {
+    private String format(Result source) {
+
         StringBuilder sb = new StringBuilder();
-        if(withHeader){
+        if (false) {
             sb.append(ChannelData.getCsvHeaderLine(true));
         }
         if (((List) source.getData()).isEmpty()) {
             return "";
         } else if (((List) source.getData()).get(0) instanceof List) {
-            int size = ((List) source.getData()).size();
-            ArrayList<ChannelData> list;
-            for (int i = 0; i < size; i++) {
-                list = (ArrayList) ((List) source.getData()).get(i);
-                for (ChannelData record : list) {
-                    sb.append(record.toCsv(",",true)).append("\r\n");
+            List<List> devices = (List) source.getData();
+            for (List row : devices) {
+                if (row.get(0) instanceof ChannelData) {
+                    for (Object record : row) {
+                        sb.append(((ChannelData) record).toCsv(",", true)).append("\r\n");
+                    }
+                } else {
+                    for (Object column : row) {
+                        sb.append("\"").append(column.toString()).append("\",");
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    sb.append("\r\n");
                 }
             }
-        } else if (((List) source.getData()).get(0) instanceof ChannelData) {
+        } /*
+        else if (((List) source.getData()).get(0) instanceof ChannelData) {
             ArrayList<ChannelData> list = (ArrayList) source.getData();
             for (ChannelData record : list) {
                 sb.append(record.toCsv(",",true)).append("\r\n");
             }
-        } else {
+        } 
+         */ else {
             System.out.println(">>>>>>> " + ((List) source.getData()).get(0).getClass().getName());
         }
         return sb.toString();
+    }
+
+    @Override
+    public String setResponseType(String acceptedResponseType, String fileExt) {
+        if (".csv".equalsIgnoreCase(fileExt)) {
+            return "text/csv";
+        } else {
+            return super.setResponseType(acceptedResponseType, fileExt);
+        }
     }
 
 }

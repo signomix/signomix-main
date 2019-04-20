@@ -12,6 +12,7 @@
             </div>
         </div>
         <div  class="container-fluid topspacing white" if={ app.currentPage=='documents'}><app_documentation/></div>
+        <div  class="container-fluid topspacing white" if={ app.currentPage=='blog'}><app_articles/></div>
         <div  class="container-fluid topspacing white" if={ app.currentPage=='help'}><app_help/></div>
         <div  class="container-fluid topspacing" if={ app.currentPage=='main'}><app_main></app_main></div>
         <div  class="container-fluid topspacing white" if={ app.currentPage=='login'}><app_login></app_login></div>

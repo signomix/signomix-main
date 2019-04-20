@@ -127,6 +127,15 @@
                             ></form_input>
                         </div>
                         </div>
+                        <div class="row" if={ self.editedWidget.type=='raw'}>
+                        <div class="form-group col-md-12">
+                            <label for="w_format" class="active">{app.texts.dashboard_form.f_widget_format[app.language]}</label>
+                            <select class="form-control" id="w_format" disabled={!allowEdit}>
+                                <option value="standard" selected={self.editedWidget.format=='standard'}>standard</option>
+                                <option value="timeseries" selected={self.editedWidget.format=='timeseries'}>time series</option>
+                            </select>
+                        </div>
+                        </div>
                         <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led'}>
                         <div class="form-group col-md-12">
                             <form_input 
@@ -308,7 +317,8 @@
                 'title':'',
                 'width':1,
                 'description':'',
-                'queryvalue':'1'
+                'queryvalue':'1',
+                'format': 'standard'
             }
         }
         self.selectedForRemove = - 1
@@ -411,7 +421,7 @@
                     }
                 } else{
                     self.editedWidget = {'name':'', 'dev_id':'', 'channel':'',
-                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':'', 'queryvalue':'1'}
+                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':'', 'queryvalue':'1', 'format':'standard'}
                 }
                 app.log(index)
                 app.log(self.editedWidget)
@@ -446,7 +456,7 @@
                 self.editedWidget.unitName = ''
             }
             try{
-                self.editedWidget.query = 'last ' + e.target.elements['w_query'].value
+                self.editedWidget.query = ('last '+e.target.elements['w_query'].value).trim()
             }catch(err){
                 self.editedWidget.query = 'last'
             }
@@ -454,6 +464,11 @@
                 self.editedWidget.range = e.target.elements['w_range'].value
             }catch(err){
                 self.editedWidget.range = ''
+            }
+            try{
+                self.editedWidget.format = e.target.elements['w_format'].value
+            }catch(err){
+                self.editedWidget.format = 'standard'
             }
             self.editedWidget.type = e.target.elements['w_type'].value
             try{    
@@ -469,7 +484,7 @@
             }else{
                 console.log("WIDTH:"+self.editedWidget.width)
             }
-            self.editedWidget.query = ('last '+e.target.elements['w_query'].value).trim()
+            
             delete self.editedWidget.queryvalue
             //
             if (self.selectedForEdit > - 1){

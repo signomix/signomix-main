@@ -31,4 +31,5 @@ public interface IotDataStorageIface extends KeyValueDBIface {
     public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException;
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException;
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException;
+    public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException;
 }

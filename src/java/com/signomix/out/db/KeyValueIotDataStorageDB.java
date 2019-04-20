@@ -6,7 +6,6 @@ package com.signomix.out.db;
 
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.Device;
-import com.signomix.out.iot.MeasurePseudoComparator;
 import com.signomix.out.iot.ThingsDataException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -255,6 +254,11 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
 
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

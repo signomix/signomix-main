@@ -5,8 +5,6 @@
 package com.signomix;
 
 import com.signomix.out.notification.EmailSenderIface;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import org.cricketmsf.microsite.user.*;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -51,9 +49,7 @@ public class CustomerModule {
             EmailSenderIface emailSender) {
 
         RequestObject request = event.getRequest();
-        //String userID = request.headers.getFirst("X-issuer-id");
         StandardResult result = new StandardResult();
-        //System.out.println("RESETPASS: "+resetPassEmail+" "+userID);
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             return result;
@@ -65,7 +61,6 @@ public class CustomerModule {
                 return result;
             }
             String email = user.getEmail();
-            //System.out.println(resetPassEmail+"=="+email);
             if (!resetPassEmail.equalsIgnoreCase(email)) {
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
                 return result;
@@ -73,10 +68,9 @@ public class CustomerModule {
 
             // create link
             Token token = authAdapter.createPermanentToken(userID, userID, false, null);
-            String tokenID = URLEncoder.encode(token.getToken(), "UTF-8");
-            Kernel.handle(new UserEvent(UserEvent.USER_RESET_PASSWORD, tokenID + ":" + email));
+            Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_RESET_PASSWORD, token.getToken() + ":" + email));
 
-        } catch (NullPointerException | UserException | AuthException | UnsupportedEncodingException e) {
+        } catch (NullPointerException | UserException | AuthException e) {
             //e.printStackTrace();
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
         }
@@ -109,12 +103,10 @@ public class CustomerModule {
 
             // create link
             Token token = authAdapter.createPermanentToken(publicUserID, userID, true, null);
-            String tokenID = URLEncoder.encode(token.getToken(), "UTF-8");
-            link=link+tokenID;
-            Kernel.handle(new UserEvent(UserEvent.USER_NEW_PERMALINK, link));
-            result.setData(link+tokenID);
-        } catch (NullPointerException | UserException | AuthException | UnsupportedEncodingException e) {
-            //e.printStackTrace();
+            link=link.concat(token.getToken());
+            Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_NEW_PERMALINK, link));
+            result.setData(link);
+        } catch (NullPointerException | UserException | AuthException e) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
         }
         return result;

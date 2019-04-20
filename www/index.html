@@ -6,6 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>SIGNOMIX</title>
+    <link rel="icon" href="resources/signomix-icon.png">
     <!-- Bootstrap core CSS  -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <!-- Custom styles for this template -->
@@ -17,10 +18,12 @@
       <nav class="my-2 my-md-0 mr-md-3">
         <a class="p-2 text-dark" href="#features">Features</a>
         <a class="p-2 text-dark" href="/app/#doc,toc">Documentation</a>
+        <a class="p-2 text-dark" href="/blog">Blog</a>
         <a class="p-2 text-dark" href="#contact">Contact</a>
-        <a class="p-2 text-dark" href="/app/#login">Sign in</a>
+        <!--<a class="p-2 text-dark" href="/app/#login">Sign in</a>-->
       </nav>
-      <a class="btn btn-outline-primary" href="/app/#register">Sign up</a>
+      <!--<a class="btn btn-outline-primary" href="/app/#register">Sign up</a>-->
+      <a class="btn btn-outline-primary" href="/app/#login">Sign in</a>
     </div>
     <app_messagebox></app_messagebox>
     <div class="container">
@@ -30,7 +33,7 @@ Save time and view sensor data using a ready-to-use platform. Connect your devic
 Without coding and complex configuration. 
       </p>
 <div class="shadow p-3 mb-5 bg-white rounded">
-     <img src="/resources/demo-dashboard1.png" class="img-fluid">
+     <img src="/resources/demo-dashboard.jpg" class="img-fluid">
 </div>
      <p>
 SIGNOMIX combines a simple, easy-to-use user interface with advanced IoT device management and data collection capabilities. The default web interface allows secure access to user's data on the platform from a desktop computer or from a mobile. 
@@ -165,8 +168,10 @@ With provided REST API developers can build dedicated solutions using data store
     <script data-src="/tags/cs_article.tag" type="riot/tag"></script>
     <script data-src="/components/app_messagebox.tag" type="riot/tag"></script>
     <script data-src="/components/app_case.tag" type="riot/tag"></script>
+    <script data-src="components/app_404.tag" type="riot/tag"></script>
+    <script data-src="components/app_articles.tag" type="riot/tag"></script>
     <script>
-        app.csAPI = "http://localhost:8080/api/cs";
+        app.csAPI = "$serviceurl"+"/api/cs";
         app.language = "en";
         app.caseSelected = 1
         riot.mount('*');

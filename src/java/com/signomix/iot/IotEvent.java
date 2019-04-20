@@ -5,6 +5,7 @@
 package com.signomix.iot;
 
 import org.cricketmsf.Event;
+import static org.cricketmsf.microsite.user.UserEvent.CATEGORY_USER;
 
 /**
  *
@@ -126,6 +127,12 @@ public class IotEvent extends Event {
     public IotEvent addType(String type) {
         setType(type);
         return this;
+    }
+    
+    @Override
+    public String[] getCategories(){
+        String[] categories = {CATEGORY_IOT};
+        return categories;
     }
 
 }

@@ -28,8 +28,8 @@
                     <div class="alert alert-danger" role="alert">{ app.texts.login.l_error[app.language] }</div>
                 </div>
                 <div class="form-group">
-                    <p class="form-footer"><a href='#resetpass'>{ app.texts.login.l_resetpass[app.language] }</a></p>
-                    <p class="form-footer">{ app.texts.login.l_noaccountyet[app.language] } <a href='#register'>{ app.texts.login.l_signup[app.language] }</a></p>
+                    <p class="form-footer"><a href='#!resetpass'>{ app.texts.login.l_resetpass[app.language] }</a></p>
+                    <p class="form-footer">{ app.texts.login.l_noaccountyet[app.language] } <a href='#!register'>{ app.texts.login.l_signup[app.language] }</a></p>
                 </div>
                 <button type="submit" class="btn btn-primary">{ app.texts.login.l_save[app.language] }</button>
                 <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.login.l_cancel[app.language] }</button>

@@ -24,3 +24,11 @@ html {
 
 .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
 
+.folder h1 {
+  font-size: xx-large;
+  font-weight: bold;
+}
+.list h1 {
+  font-size: x-large;
+  font-weight: bold;
+}

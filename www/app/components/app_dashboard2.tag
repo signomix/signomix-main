@@ -159,10 +159,10 @@
         //console.log(self.refs.a1)
         app.log('SHARED TOKEN='+self.dashboardConfig.sharedToken)
         if(self.dashboardConfig.sharedToken){
-            self.sharedLink = location.origin+'/app/?tid='+escape(self.dashboardConfig.sharedToken)+location.hash
+            self.sharedLink = location.origin+'/app/?tid='+self.dashboardConfig.sharedToken+location.hash
             self.sharedEmbeded = 
                     '<IFRAME \nsrc="'
-                    +location.origin+'/app/embed.html?tid='+escape(self.dashboardConfig.sharedToken)+'/'+location.hash
+                    +location.origin+'/app/embed.html?tid='+self.dashboardConfig.sharedToken+'/'+location.hash
                     +'" \nwidth="300" \nheight="300">\n</IFRAME>'
         }else{
             self.sharedLink = ''
@@ -194,6 +194,12 @@
         }else{
             query = 'last'
         }
+        if(config.format){
+            if(config.format == 'timeseries'){
+                query = query + ' timeseries'
+            }
+        }
+        //query = '"'+query+'"'
         if(config.dev_id){
                 getData(
                 app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query, //url

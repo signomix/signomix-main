@@ -77,7 +77,7 @@
         <div class="row" if={ passwordChangeSuccess }>
              <div class="col-md-12">
                 <div class="alert alert-success module-title" role="alert">
-                    { app.texts.account.passChangeSuccess[app.language] }<a href="/app/#logout">{ app.texts.account.signout[app.language] }</a>
+                    { app.texts.account.passChangeSuccess[app.language] }<a href="/app/#!logout">{ app.texts.account.signout[app.language] }</a>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
         if(text.startsWith('{')){
         var newUser = JSON.parse(object)
         if(newUser.unregisterRequested){
-            document.location = '#unregister'
+            document.location = '#!unregister'
         }
         }else if(text.startsWith('error:')){
         //it should'n happen

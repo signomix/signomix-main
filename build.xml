@@ -10,8 +10,8 @@
     <!-- Remember to modify the project name (see line 2 of this file)       -->
     <!--                                                                     -->
     <description>Signomix</description>
-    <property name="version" value="1.1.49"/> <!-- service version           -->
-    <property name="cricket-version" value="1.2.56" /> 
+    <property name="version" value="1.1.51"/> <!-- service version           -->
+    <property name="cricket-version" value="1.3.0-alpha.5" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="minify" value="true" />
@@ -19,7 +19,7 @@
     
     <!-- configuration of libraries included in the distribution fat-jar     -->
     <!-- set value=false to exclude selected library                         -->
-    <property name="module-javamail" value="true"/> <!-- JavaMail reference implementation -->
+    <property name="module-javamail" value="false"/> <!-- JavaMail reference implementation -->
     <property name="javamail-jar-location" value="lib/javax.mail-${javax.mail-version}.jar" />
     <!--                                                                     -->
     <!-- END OF CONFIGURATION                                                -->
@@ -36,10 +36,10 @@
     
     <path id="project-classpath">
         <pathelement location="${cricket-jar-location}"/>
-        <pathelement location="${h2-jar-location}"/>
+        <!--<pathelement location="${h2-jar-location}"/>
         <pathelement location="${kafka-jar-location}"/> 
         <pathelement location="${saaj-jar-location}/"/>
-        <pathelement location="${javamail-jar-location}/"/>
+        <pathelement location="${javamail-jar-location}/"/>-->
     </path>
 
     <target name="init">
@@ -55,12 +55,12 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
-        <get 
+        <!--<get 
             src="http://central.maven.org/maven2/com/sun/mail/javax.mail/${javax.mail-version}/javax.mail-${javax.mail-version}.jar"
             dest="lib/javax.mail-${javax.mail-version}.jar" 
             usetimestamp="true" 
             ignoreerrors="true"
-        />
+        />-->
     </target>
 
     <target name="compile" depends="init" description="compile the source">

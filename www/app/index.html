@@ -77,7 +77,7 @@
     <script data-src="components/widget_raw.tag" type="riot/tag"></script>
     <script data-src="components/widget_led.tag" type="riot/tag"></script>
     <script> 
-        <!-- dynamic configuration. Look at cricket.json - service propertises -->
+        // dynamic configuration. Look at cricket.json - service propertises
         app.authAPI = "$serviceurl"+"/api/auth";
         app.alertAPI = "$serviceurl"+"/api/alert",
         app.userAPI = "$serviceurl"+"/api/user";
@@ -87,8 +87,8 @@
         app.recoveryAPI = "$serviceurl"+"/api/recover";
         app.actuatorAPI = "$serviceurl"+"/api/actuator";
         
-        <!-- authomatic login with token (request 'tid' parameter -->
-        <!-- see: Service.wwwGet() -->
+        // authomatic login with token (request 'tid' parameter
+        // see: Service.wwwGet()
         app.user={}
         app.user.token = "$token";
         app.user.name = "$user";
@@ -118,6 +118,7 @@
         }
         app.embeded = false
         riot.mount('*');
+        route.base('#!');
         route.start(true);
     </script>
 </body>

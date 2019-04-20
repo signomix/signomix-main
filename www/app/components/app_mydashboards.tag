@@ -16,7 +16,7 @@
                     <th class="text-right">{app.texts.mydashboards.action[app.language]}</th>
                 </tr>
                 <tr each={ dashboard in definitions }>
-                    <td><a href="#dashboard,{dashboard.id}">{ dashboard.title }</a></td>
+                    <td><a href="#!dashboard,{dashboard.id}">{ dashboard.title }</a></td>
                     <td class="text-right">
                         <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, false)} if={dashboard.userID==app.user.name} >open_in_browser</i>
                         <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, true)} if={dashboard.userID==app.user.name} >mode_edit</i>
