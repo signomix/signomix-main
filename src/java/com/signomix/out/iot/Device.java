@@ -45,6 +45,7 @@ public class Device {
     private String pattern;
     private String downlink;
     private String commandScript;
+    private String groups;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     public Device() {
@@ -142,7 +143,7 @@ public class Device {
         return type;
     }
 
-    /**
+    /**buildDevice
      * @param type the type to set
      */
     public void setType(String type) {
@@ -317,7 +318,13 @@ public class Device {
     public void setEncoder(String encoder) {
         if (encoder != null) {
             this.encoder = encoder.replaceAll("\\+", "%2B");
-        } else {
+        } else { this.team = team;
+        if (!this.team.startsWith(",")) {
+            this.team = "," + this.team;
+        }
+        if (!this.team.endsWith(",")) {
+            this.team = this.team + ",";
+        }
             this.encoder = "";
         }
     }
@@ -445,5 +452,29 @@ public class Device {
      */
     public void setApplicationID(String applicationID) {
         this.applicationID = applicationID;
+    }
+
+    /**
+     * @return the groups
+     */
+    public String getGroups() {
+        return groups;
+    }
+
+    /**
+     * @param groupEUI the groups to set
+     */
+    public void setGroups(String groups) {
+        this.groups = groups;
+        if(null==groups){
+            this.groups=",";
+            return;
+        }
+        if (!this.groups.startsWith(",")) {
+            this.groups = "," + this.groups;
+        }
+        if (!this.groups.endsWith(",")) {
+            this.groups = this.groups + ",";
+        }
     }
 }

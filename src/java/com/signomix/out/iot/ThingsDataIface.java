@@ -25,12 +25,13 @@ public interface ThingsDataIface {
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException;
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException;
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException;
-    public List getChannels(String deviceEUI) throws ThingsDataException;
+    //public List getChannels(String deviceEUI) throws ThingsDataException;
     public void removeAllChannels(String deviceEUI) throws ThingsDataException;
     public void clearAllChannels(String deviceEUI, long checkPoint) throws ThingsDataException;
     
     
     public boolean isAuthorized(String userIF, String deviceEUI) throws ThingsDataException;
+    public boolean isGroupAuthorized(String userIF, String groupEUI) throws ThingsDataException;
     public void putDevice(String userID, Device device) throws ThingsDataException;
     public void modifyDevice(String userID, Device device) throws ThingsDataException;
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink) throws ThingsDataException;
@@ -49,5 +50,12 @@ public interface ThingsDataIface {
     public void removeOutdatedAlerts(long checkPoint) throws ThingsDataException;
     
     public List<Device> getInactiveDevices() throws ThingsDataException;
+    
+    public List <DeviceGroup> getUserGroups(String userID) throws ThingsDataException;
+    public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException;
+    public void putGroup(String userID, DeviceGroup group) throws ThingsDataException;
+    public void modifyGroup(String userID, DeviceGroup group) throws ThingsDataException;
+    public void removeGroup(String userID, String groupEUI) throws ThingsDataException;
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException;
 
 }

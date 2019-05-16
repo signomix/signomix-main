@@ -436,6 +436,12 @@
             "fr": "LED",
             "pl": "LED"
         },
+        "type_report": {
+            "en": "Group report",
+            "it": "Rapporto di gruppo",
+            "fr": "Rapport de groupe",
+            "pl": "Raport grupowy"
+        },
         "type_line": {
             "en": "Line chart",
             "it": "Grafico a linee",
@@ -495,6 +501,18 @@
             "it": "EUI del dispositivo alla quale hai i diritti d'accesso",
             "fr": "EUI de l'appareil auquel vous avez des droits d'accès",
             "pl": "EUI urządzenia, do którego masz uprawnienia"
+        },
+        "f_widget_group": {
+            "en": "Group EUI",
+            "it": "EUI del gruppo",
+            "fr": "EUI de groupe",
+            "pl": "EUI grupy"
+        },
+        "f_widget_group_hint": {
+            "en": "the device group EUI",
+            "it": "il gruppo di dispositivi EUI",
+            "fr": "le groupe d'appareils EUI",
+            "pl": "EUI grupy urządzeń"
         },
         "f_widget_channel": {
             "en": "Measure name",
@@ -620,10 +638,10 @@
             "pl": "EUI"
         },
         "eui_hint": {
-            "en": "The unique identifier of this device provided by the manufacturer",
-            "it": "L'identificativo univoco di questo dispositivo fornito dal produttore",
+            "en": "The unique identifier of this device provided by the manufacturer. Laissez vide si vous voulez en générer un nouveau.",
+            "it": "L'identificativo univoco di questo dispositivo fornito dal produttore. Lascia vuoto se vuoi generarne uno nuovo.",
             "fr": "L'identifiant unique de cet appareil fourni par le fabricant",
-            "pl": "Unikalny identyfikator tego urządzenia podany przez producenta"
+            "pl": "Unikalny identyfikator tego urządzenia podany przez producenta. Pozostaw puste jeśli cncesz wygenerować nowe."
         },
         "appeui": {
             "en": "Application EUI",
@@ -714,6 +732,18 @@
             "it": "Nomi delle misure separati da virgole",
             "fr": "Noms de mesure séparés par des virgules",
             "pl": "Nazwy pomiarów oddzielone przecinkami"
+        },
+        "groups": {
+            "en": "Group",
+            "it": "Group",
+            "fr": "Group",
+            "pl": "Grupa"
+        },
+        "groups_hint": {
+            "en": "Group EUIs separated by commas",
+            "it": "Group EUIs separated by commas",
+            "fr": "Group EUIs separated by commas",
+            "pl": "EUI grup oddzielone przecinkami"
         },
         "description": {
             "en": "Description",
@@ -810,6 +840,12 @@
             "it": "La definizione dei canali dati è stata cambiata. Lo storico dei dati sarà cancellato automaticamente. Puoi scaricarlo prima, utilizzando le API Signomix",
             "fr": "La définition des canaux de données a été modifiée. Les données historiques sont effacées automatiquement. Vous pouvez d'abord les télécharger en utilisant Signomix API.",
             "pl": "Definicja kanałów danych została zmieniona. Historyczne dane zostaną automatycznie usunięte. Możesz je wcześniej pobrać korzystając z Signomix API."
+        },
+        "err400": {
+            "en": "Device with the same EUI is already registered.",
+            "it": "Il dispositivo con la stessa EUI è già registrato.",
+            "fr": "Un appareil avec le même EUI est déjà enregistré.",
+            "pl": "Urządzenie z tym samym EUI jest już zarejestrowane."
         },
         "err401": {
             "en": "Session timeout. Please log in.",
@@ -1384,6 +1420,28 @@
             "pl": "Znacznik czasu"
         }
     }
+    
+    app.texts.widget_report = {
+        "EUI": {
+            "en": "DEVICE EUI",
+            "it": "EUI DEL DISPOSITIVO",
+            "fr": "EUI DE L'APPAREIL",
+            "pl": "EUI URZĄDZENIA"
+        },
+        "DATE": {
+            "en": "DATE",
+            "it": "DATE",
+            "fr": "DATA",
+            "pl": "DATA"
+        },
+        "NO_DATA": {
+            "en": "No data found",
+            "it": "Nessun dato trovato.",
+            "fr": "Aucune donnée disponible.",
+            "pl": "Nie znaleziono danych"
+        }
+    }
+    
     
     app.texts.user_form = {
             "user_view": {

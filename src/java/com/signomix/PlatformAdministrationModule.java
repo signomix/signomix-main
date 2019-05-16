@@ -14,6 +14,7 @@ import com.signomix.out.gui.Widget;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Channel;
 import com.signomix.out.iot.Device;
+import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
 import org.cricketmsf.Event;
@@ -321,6 +322,7 @@ public class PlatformAdministrationModule {
                 thingsDB.addTable("devices", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 thingsDB.addTable("dashboards", 3 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 thingsDB.addTable("alerts", 100 * (int) platformConfig.get("maxUsers"), true);
+                thingsDB.addTable("groups", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 iotDataDB.addTable("devicedata", 1000 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 iotDataDB.addTable("devicechannels", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 //thingsDB.addTable("widgets", 1000, true);
@@ -435,9 +437,17 @@ public class PlatformAdministrationModule {
                 //thingsDB.put("dashboards", dashboard.getId(), dashboard);
                 thingsDB.addDashboard(dashboard);
                 //thingsDB.put("widgets", widget.getId(), widget);
+                
+                DeviceGroup dg=new DeviceGroup();
+                dg.setChannels("temperature,humidity");
+                dg.setEUI("test");
+                dg.setName("Test group");
+                dg.setTeam("tester1");
+                dg.setUserID("admin");
+                thingsDB.putGroup(dg);
             } catch (ClassCastException | KeyValueDBException | ThingsDataException e) {
-                //e.printStackTrace();
-                Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+                e.printStackTrace();
+                Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -513,7 +523,7 @@ public class PlatformAdministrationModule {
         dashboard.setTitle(deviceId);
         dashboard.setUserID(device.getUserID());
         dashboard.setShared(false);
-        dashboard.setTeam("");
+        dashboard.setTeam(device.getTeam());
         try {
             dashboardAdapter.addDashboard(device.getUserID(), dashboard, authAdapter);
         } catch (DashboardException ex) {

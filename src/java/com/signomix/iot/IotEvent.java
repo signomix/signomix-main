@@ -32,6 +32,9 @@ public class IotEvent extends Event {
     public static final String DASHBOARD_UNSHARED = "DASHBOARD_UNSHARED";
     public static final String DEVICE_LOST = "DEVICE_LOST";
     
+    public static final String GROUP_CREATED = "GROUP_CREATED";
+    public static final String GROUP_REMOVED = "GROUP_REMOVED";
+    
     public static final String PLATFORM_DEVICE_LIMIT_EXCEEDED = "PLATFORM_DEVICE_LIMIT_EXCEEDED";
     
 

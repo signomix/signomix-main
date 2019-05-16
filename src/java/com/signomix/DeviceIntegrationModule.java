@@ -76,7 +76,7 @@ public class DeviceIntegrationModule {
                 return result;
             }
             String jsonString = request.body;
-            //System.out.println("BODY:"+jsonString);
+
             jsonString
                     = "{\"@type\":\"com.signomix.iot.LoRaData\","
                     + jsonString.substring(jsonString.indexOf("{") + 1);
@@ -131,8 +131,7 @@ public class DeviceIntegrationModule {
             String applicationSecret;
             boolean authorized = false;
 
-            //System.out.println("CLIENT KEY:"+authKey);
-            //System.out.println("DEVICE KEY:"+secret);
+
             if (secret != null && !secret.isEmpty()) {
                 authorized = authKey.equals(secret);
             }
@@ -205,16 +204,17 @@ public class DeviceIntegrationModule {
             String dataString = request.body;
             String jsonString;
             if (dataString == null) {
-                dataString = (String) request.parameters.getOrDefault("data", "");
+
+                dataString = ((String) request.parameters.getOrDefault("data", "")).trim();
             }
             IotData2 data = null;
             if (dataString.isEmpty()) {
                 data = parseIotData(request.parameters);
             } else {
-                //System.out.println("BODY:"+jsonString);
                 jsonString
                         = "{\"@type\":\"com.signomix.iot.IotData2\","
                         + dataString.substring(dataString.indexOf("{") + 1);
+
                 if (dump) {
                     System.out.println("data:" + dataString);
                 }
@@ -271,8 +271,6 @@ public class DeviceIntegrationModule {
                 return result;
             }
 
-            //System.out.println("CLIENT KEY:"+authKey);
-            //System.out.println("DEVICE KEY:"+secret);
             //TODO: jeśli w danych przyszła informacja nt. gateway'a, to weryfikujemy secret key gatewaya, a nie device
             String secret;
             if (gateway == null) {
@@ -283,8 +281,6 @@ public class DeviceIntegrationModule {
             String applicationSecret;
             boolean authorized = false;
 
-            //System.out.println("CLIENT KEY:"+authKey);
-            //System.out.println("DEVICE KEY:"+secret);
             if (secret != null && !secret.isEmpty()) {
                 authorized = authKey.equals(secret);
             }
@@ -314,6 +310,7 @@ public class DeviceIntegrationModule {
             try {
                 finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
             } catch (Exception e) {
+                e.printStackTrace();
                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".processIotRequest()", e.getMessage()));
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
@@ -395,6 +392,7 @@ public class DeviceIntegrationModule {
         // z confirmString użytkownika Signomix, o uid == getApplicationId()
         if (authorizationRequired) {
             try {
+
                 /*User user = userAdapter.get(data.getApplicationId());
                 if (user == null) {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "User is not registered"));
@@ -405,7 +403,6 @@ public class DeviceIntegrationModule {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match user profile"));
                     return result;
                 }*/
-
                 if (!authKey.equals(device.getKey())) {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
                     return result;
@@ -520,7 +517,6 @@ public class DeviceIntegrationModule {
             String authKey = null;
 
             String jsonString = request.body;
-            //System.out.println("BODY:"+jsonString);
             jsonString
                     = "{\"@type\":\"com.signomix.iot.kpn.KPNData\","
                     + jsonString.substring(jsonString.indexOf("{") + 1);
@@ -635,6 +631,7 @@ public class DeviceIntegrationModule {
                 result.setData("deserialization problem");
                 return result;
             }
+            deviceEUI = deviceEUI.toUpperCase();
 
             // save value and timestamp in device's channel witch name is the same as the field name
             boolean isRegistered = false;
@@ -721,6 +718,7 @@ public class DeviceIntegrationModule {
 
     private ArrayList<ChannelData> prepareIotValues(IotData2 data) {
         ArrayList<ChannelData> values = new ArrayList<>();
+
         for (int i = 0; i < data.payload_fields.size(); i++) {
             ChannelData mval = new ChannelData();
             mval.setDeviceEUI(data.getDeviceEUI());
@@ -737,6 +735,7 @@ public class DeviceIntegrationModule {
             }
             values.add(mval);
         }
+
         return values;
     }
 
@@ -837,7 +836,7 @@ public class DeviceIntegrationModule {
     private IotData2 parseIotData(String dataStr) {
         IotData2 data = new IotData2();
         data.dev_eui = null;
-        data.timestamp = "" + System.currentTimeMillis();
+        data.timestamp = null;
         data.payload_fields = new ArrayList<>();
         String[] params = dataStr.split("&");
         String[] pair;
@@ -861,6 +860,9 @@ public class DeviceIntegrationModule {
         if (null == data.dev_eui || data.payload_fields.isEmpty()) {
             return null;
         }
+        if (null == data.timestamp) {
+            data.timestamp = "" + System.currentTimeMillis();
+        }
         data.normalize();
         return data;
     }
@@ -873,7 +875,7 @@ public class DeviceIntegrationModule {
         HashMap<String, String> map;
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             String key = entry.getKey();
-            String value = (String)entry.getValue();
+            String value = (String) entry.getValue();
             if ("eui".equalsIgnoreCase(key)) {
                 data.dev_eui = value;
             } else if ("timestamp".equalsIgnoreCase(key)) {
@@ -884,7 +886,7 @@ public class DeviceIntegrationModule {
                 map.put("value", value);
                 data.payload_fields.add(map);
             }
-            
+
         }
         if (null == data.dev_eui || data.payload_fields.isEmpty()) {
             return null;

@@ -13,6 +13,7 @@ import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
 import com.signomix.out.iot.Device;
+import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import java.util.Base64;
@@ -38,7 +39,7 @@ public class DeviceManagementModule {
     /**
      *
      */
-    public Object processEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         //TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -118,7 +119,7 @@ public class DeviceManagementModule {
                                 // zmiana: 
                                 if (query != null) {
                                     result.setData(getValues(tmpUserID, params[0], query, thingsAdapter));
-                                    if(query.endsWith("csv.timeseries")){
+                                    if (query.endsWith("csv.timeseries")) {
                                         //result.setHeader("Content-type", "text/csv");
                                         result.setFileExtension(".csv");
                                     }
@@ -147,11 +148,109 @@ public class DeviceManagementModule {
                         }
                         break;
                     case "DELETE": // remove device and its channels
-                        Device dev = getDevice(userID, pathExt, thingsAdapter);
+                        String eui = pathExt;
+                        if (null != eui) {
+                            eui = eui.toUpperCase();
+                        }
+                        Device dev = getDevice(userID, eui, thingsAdapter);
                         if (dev.getUserID().equals(userID)) {
                             removeDevice(pathExt, thingsAdapter);
                             Kernel.getInstance().dispatchEvent(
                                     new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.DEVICE_REMOVED, null, dev.getEUI())
+                            );
+                        } else {
+                            result.setCode(HttpAdapter.SC_UNAUTHORIZED);
+                        }
+                        break;
+                    default:
+                        result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+        //TODO: exception handling - send 400 or 403
+        RequestObject request = event.getRequest();
+        StandardResult result = new StandardResult();
+        String userID = request.headers.getFirst("X-user-id");
+        String issuerID = request.headers.getFirst("X-issuer-id");
+        String pathExt = request.pathExt;
+        if (userID == null || userID.isEmpty()) {
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            result.setData("user not recognized");
+            return result;
+        }
+        try {
+            if (pathExt.isEmpty()) {  // user id is from request header
+                switch (request.method) {
+                    case "GET":  // get list of groups
+                        result.setData(getUserGroups(userID, thingsAdapter));
+                        break;
+                    case "POST": // add new group
+                        User user = users.get(userID);
+                        DeviceGroup group = buildGroup(request, userID, null);
+                        try {
+                            thingsAdapter.putGroup(userID, group);
+                            result.setCode(HttpAdapter.SC_CREATED);
+                            result.setData(group.getEUI());
+                            Kernel.getInstance().dispatchEvent(
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.GROUP_CREATED, null, group.getEUI())
+                            );
+                        } catch (NullPointerException ex) {
+                            Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
+                            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                            result.setData("wrong parameters");
+                        } catch (ThingsDataException ex) {
+                            Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
+                            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                            result.setData(ex.getMessage());
+                        }
+                        break;
+                    default:
+                        result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
+                }
+            } else {
+                switch (request.method) {
+                    case "GET":
+                        String[] params = pathExt.split("/");
+                        switch (params.length) {
+                            case 2:
+                                String groupID = params[0];
+                                String channels = params[1];
+                                String[] channelNames = channels.split(",");
+                                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                                break;
+                            case 1:
+                                result.setData(getGroup(userID, pathExt, thingsAdapter));
+                                break;
+                            default:
+                                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                                break;
+                        }
+                        break;
+                    case "PUT": // update device definition
+                        DeviceGroup group = buildGroup(request, userID, getGroup(userID, pathExt, thingsAdapter));
+                        try {
+                            thingsAdapter.modifyGroup(userID, group);
+                        } catch (ThingsDataException ex) {
+                            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                        }
+                        break;
+                    case "DELETE": // remove device and its channels
+                        String eui = pathExt;
+                        if (null != eui) {
+                            eui = eui.toUpperCase();
+                        }
+                        DeviceGroup gr = getGroup(userID, eui, thingsAdapter);
+                        if (gr.getUserID().equals(userID)) {
+                            removeGroup(pathExt, thingsAdapter);
+                            Kernel.getInstance().dispatchEvent(
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.GROUP_REMOVED, null, gr.getEUI())
                             );
                         } else {
                             result.setCode(HttpAdapter.SC_UNAUTHORIZED);
@@ -204,16 +303,28 @@ public class DeviceManagementModule {
         }
     }
 
+    private String createEui(String prefix) {
+        String eui = Long.toHexString(Kernel.getEventId());
+        StringBuilder tmp = new StringBuilder(prefix).append(eui.substring(0, 2));
+        for (int i = 2; i < eui.length() - 1; i = i + 2) {
+            tmp.append("-" + eui.substring(i, i + 2));
+        }
+        return tmp.toString();
+    }
+
     private Device buildDevice(RequestObject request, String userID, Device original) {
         // TODO: what if new definition has some channels removed?
         Device device = new Device();
-        request.parameters.keySet().forEach(key -> {
+        /*request.parameters.keySet().forEach(key -> {
+            System.out.println(key);
         });
+         */
         String eui = (String) request.parameters.getOrDefault("eui", "");
         if (eui == null || eui.isEmpty()) {
-            return null;
+            eui = createEui("S-");
         }
-        device.setEUI((String) request.parameters.getOrDefault("eui", ""));
+        eui = eui.toUpperCase();
+        device.setEUI(eui);
         if (original != null) {
             device.setEUI(original.getEUI());
         }
@@ -276,6 +387,10 @@ public class DeviceManagementModule {
             }
             device.setEncoder(newEncoder);
         }
+        String newGroup = (String) request.parameters.getOrDefault("groups", "");
+        if (newGroup != null && !newGroup.isEmpty()) {
+            device.setGroups(newGroup);
+        }
         if (original != null) {
             original.getChannels().forEach((k, v) -> {
                 if (!device.getChannels().containsKey(k)) {
@@ -303,9 +418,52 @@ public class DeviceManagementModule {
         return device;
     }
 
+    private DeviceGroup buildGroup(RequestObject request, String userID, DeviceGroup original) {
+        DeviceGroup group = new DeviceGroup();
+        String eui = (String) request.parameters.getOrDefault("eui", "");
+        if (eui == null || eui.isEmpty()) {
+            eui = createEui("");
+        }
+        eui = eui.toUpperCase();
+        group.setEUI(eui);
+        if (original != null) {
+            group.setEUI(original.getEUI());
+        }
+        group.setUserID(userID);
+
+        String newName = (String) request.parameters.getOrDefault("name", "");
+        if (newName != null && !newName.isEmpty()) {
+            group.setName(newName);
+        } else {
+            group.setName(group.getEUI());
+        }
+        String newTeam = (String) request.parameters.getOrDefault("team", "");
+        if (newTeam != null && !newTeam.isEmpty()) {
+            group.setTeam(newTeam);
+        }
+        String newChannels = (String) request.parameters.getOrDefault("channels", "");
+        if (newChannels != null && !newChannels.isEmpty()) {
+            group.setChannels(newChannels);
+        }
+        String newDescription = (String) request.parameters.getOrDefault("description", "");
+        if (newDescription != null && !newDescription.isEmpty()) {
+            group.setDescription(newDescription);
+        }
+        return group;
+    }
+
     private Device getDevice(String userID, String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
             return thingsAdapter.getDevice(userID, deviceEUI, true);
+        } catch (ThingsDataException ex) {
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+        }
+        return null;
+    }
+
+    private DeviceGroup getGroup(String userID, String groupEUI, ThingsDataIface thingsAdapter) {
+        try {
+            return thingsAdapter.getGroup(userID, groupEUI);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
@@ -317,6 +475,16 @@ public class DeviceManagementModule {
             String userID = thingsAdapter.getDevice(deviceEUI).getUserID();
             thingsAdapter.removeDevice(deviceEUI);
             Kernel.handle(new IotEvent(IotEvent.DEVICE_REMOVED, deviceEUI + "\t" + userID));
+        } catch (ThingsDataException ex) {
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+        }
+    }
+
+    private void removeGroup(String groupEUI, ThingsDataIface thingsAdapter) {
+        try {
+            String userID = thingsAdapter.getDevice(groupEUI).getUserID();
+            thingsAdapter.removeGroup(userID, groupEUI);
+            Kernel.handle(new IotEvent(IotEvent.GROUP_REMOVED, groupEUI + "\t" + userID));
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
@@ -334,11 +502,13 @@ public class DeviceManagementModule {
         try {
             if (channelID != null && !"$".equals(channelID)) {
                 //Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "channelID parameter is not supported"));
-                return (ArrayList) thingsAdapter.getValues(userID, deviceEUI, channelID, query);
+                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, channelID, query);
+                return result;
             } else {
                 return (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query);
             }
         } catch (ThingsDataException ex) {
+            ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return new ArrayList();
         }
@@ -347,6 +517,15 @@ public class DeviceManagementModule {
     private List getValues(String userID, String deviceEUI, String query, ThingsDataIface thingsAdapter) {
         try {
             return thingsAdapter.getValues(userID, deviceEUI, query);
+        } catch (ThingsDataException ex) {
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return new ArrayList();
+        }
+    }
+
+    private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter) {
+        try {
+            return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return new ArrayList();
@@ -363,6 +542,18 @@ public class DeviceManagementModule {
         }
 
     }
+
+    private List getUserGroups(String userID, ThingsDataIface thingsAdapter) {
+        try {
+            return (ArrayList) thingsAdapter.getUserGroups(userID);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return new ArrayList();
+        }
+
+    }
+
     /*
     public void writeVirtualState(
             VirtualDevice vd,

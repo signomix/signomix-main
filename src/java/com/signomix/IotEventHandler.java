@@ -121,6 +121,7 @@ public class IotEventHandler {
                     Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), event.getPayload() + " device registered"));
                     PlatformAdministrationModule.getInstance().buildDefaultDashboard((String) event.getPayload(), thingsAdapter, dashboardAdapter, authAdapter);
                     break;
+
                 case IotEvent.DEVICE_REMOVED:
                     Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), event.getPayload() + " device unregistered"));
                     try {
@@ -188,7 +189,7 @@ public class IotEventHandler {
                                     //System.out.println("WRITE_INTERVAL is not empty");
                                 } else {
                                     // data channels != (incoming || exiting) are stored immediately
-                                    System.out.println(">>>> writing data to virtual device");
+                                    //System.out.println(">>>> writing data to virtual device");
                                     ArrayList<ChannelData> values = new ArrayList<>();
                                     ChannelData data = new ChannelData();
                                     data.setDeviceEUI(device.getEUI());

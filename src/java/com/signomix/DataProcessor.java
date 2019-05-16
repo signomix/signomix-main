@@ -27,6 +27,7 @@ public class DataProcessor {
         try {
             scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), dataTimestamp);
         } catch (ScriptAdapterException e) {
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
         if (scriptResult == null) {
@@ -62,7 +63,6 @@ public class DataProcessor {
                     Event newEvent = events.get(i).clone();
                     newEvent.setOrigin(itr.next() + "\t" + device.getEUI());
                     Kernel.handle(newEvent);
-                    //System.out.println("IOT EVENT: " + newEvent.toString());
                 }
             }
         }
@@ -109,7 +109,6 @@ public class DataProcessor {
                     Event newEvent = events.get(i).clone();
                     newEvent.setOrigin(itr.next() + "\t" + device.getEUI());
                     Kernel.handle(newEvent);
-                    //System.out.println("IOT EVENT: " + newEvent.toString());
                 }
             }
         }

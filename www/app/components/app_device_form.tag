@@ -16,7 +16,7 @@
                         <option value="SGMTH02">SGMTH02: Signocom's Weather Station</option>
                         <option value="SGMTH03">SGMTH03: Signocom's environment sensor prototype</option>
                         <option value="EMULATOR">EMULATOR: IoT Emulator</option>
-                        <option value="UNDEFINED">UNDEFINED: NO TEMPLATE</option>
+                        <option value="UNDEFINED">DEFAULT</option>
                     </select>
                 </div>
                 <div class="card text-center z-depth-2 col-md-6" style="margin-bottom: 10px">
@@ -37,7 +37,7 @@
                 <div class="form-group col-md-6">
                     <label for="type">{ app.texts.device_form.type[app.language] }</label>
                     <select class="form-control" id="type" name="type" value={ device.type } onchange={ changeType } disabled={ !(allowEdit && !device.EUI) } required>
-                            <option value="GENERIC">GENERIC</option>
+                            <option value="GENERIC">DEFAULT</option>
                         <option value="TTN">TTN</option>
                         <option value="LORA">LORA</option>
                         <option value="KPN">KPN</option>
@@ -58,7 +58,7 @@
             </div>
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <form_input id="eui" name="eui" label={ app.texts.device_form.eui[app.language] } type="text" required="true" content={ device.EUI } readonly={ !(allowEdit && !device.EUI) } hint={ app.texts.device_form.eui_hint[app.language] }></form_input>
+                    <form_input id="eui" name="eui" label={ app.texts.device_form.eui[app.language] } type="text" content={ device.EUI } readonly={ !(allowEdit && !device.EUI) } hint={ app.texts.device_form.eui_hint[app.language] }></form_input>
                 </div>
             </div>
             <div class="form-row" if={ device.type=='TTN' }>
@@ -104,6 +104,11 @@
             <div class="form-row">
                 <div class="form-group col-md-12">
                     <form_input id="interval" name="interval" label={ app.texts.device_form.interval[app.language] } type="text" content={ device.transmissionInterval/60000 } readonly={ !allowEdit } hint={ app.texts.device_form.interval_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <form_input id="groups" name="groups" label={ app.texts.device_form.groups[app.language] } type="text" content={ device.groups } readonly={ !allowEdit } hint={ app.texts.device_form.groups_hint[app.language] }></form_input>
                 </div>
             </div>
             <div class="form-row" if={ self.mode !='create' }>
@@ -162,6 +167,7 @@
             'code': '',
             'encoder': '',
             'description': '',
+            'groups': '',
             'lastSeen': -1,
             'transmissionInterval': 0,
             'pattern': '',
@@ -178,6 +184,11 @@
             if (eventName == 'err:402') {
                 self.communicationError = true
                 self.errorMessage = app.texts.device_form.err402[app.language]
+                self.update()
+            }
+            if (eventName == 'err:400') {
+                self.communicationError = true
+                self.errorMessage = app.texts.device_form.err400[app.language]
                 self.update()
             }
             if (eventName == 'err:401') {
@@ -290,6 +301,7 @@
             'code': '',
             'encoder': '',
             'pattern': '',
+            'groups': '',
             'transmissionInterval': '',
             'commandscript': '',
             'description': '{"en":"Arduino based weather sensor. Uses TTN infrastructure","fr":"Arduino based weather sensor. Uses TTN infrastructure","pl":"Czujnik pogodowy na bazie Arduino. Wykorzystuje infrastrukturę TTN"}'
@@ -302,6 +314,7 @@
             'code': '',
             'encoder': '',
             'pattern': '',
+            'groups': '',
             'transmissionInterval': '',
             'commandscript': '',
             'description': '{"en":"Weather Station by Signocom. Uses TTN infrastructure","fr":"Weather Station by Signocom. Uses TTN infrastructure","pl":"Weather Station produkcji Signocom. Wykorzystuje infrastrukturę TTN"}'
@@ -314,6 +327,7 @@
             'code': '',
             'encoder': '',
             'pattern': '',
+            'groups': '',
             'transmissionInterval': '',
             'commandscript': '',
             'description': '{"en":"IoT device sending data to Signomix using REST API","fr":"IoT device sending data to Signomix using REST API","pl":"Urządzenie IoT przesyłające dane do Signomix poprzez REST API"}'
@@ -326,6 +340,7 @@
             'code': '',
             'encoder': '',
             'pattern': '',
+            'groups': '',
             'transmissionInterval': '',
             'commandscript': '',
             'description': '{"en":"Signomix built-in IoT device emulator. User REST API.","fr":"Signomix built-in IoT device emulator. Uses REST API.","pl":"Wbudowany w Signomix emulator urządzenia IoT. Korzysta z REST API"}'
@@ -338,6 +353,7 @@
             'code': '',
             'encoder': '',
             'pattern': '',
+            'groups': '',
             'transmissionInterval': '',
             'commandscript': '',
             'description': '{"en":"Device line not specified and. You must define required parameters yourself.","fr":"Device line not specified. You must define required parameters yourself.","pl":"Linia produktów nie jest wybrana. Musisz zdefiniować wymagane parametry."}'
@@ -401,6 +417,7 @@
                 description: '',
                 code: '',
                 pattern: '',
+                groups: '',
                 commandscript: '',
                 template: ''
             }
@@ -414,6 +431,7 @@
             formData.type = e.target.elements['type'].value
             formData.team = e.target.elements['team'].value
             formData.channels = e.target.elements['channels'].value
+            formData.groups = e.target.elements['groups'].value
             formData.description = e.target.elements['description'].value
             //formData.code = escape(trimSpaces(e.target.elements['code'].value))
             //formData.encoder = escape(trimSpaces(e.target.elements['encoder'].value))

@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.iot;
 
 import com.signomix.iot.IotEvent;
@@ -137,7 +137,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         return getIotDB().getUserDevices(userID, withShared);
     }
-    
+
     @Override
     public int getUserDevicesCount(String userID) throws ThingsDataException {
         return getIotDB().getUserDevicesCount(userID);
@@ -177,7 +177,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, query);
     }
-    
+
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, limit);
@@ -187,6 +187,11 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         return getIotDB().isAuthorized(userID, deviceEUI);
     }
+    
+    @Override
+    public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
+        return getIotDB().isGroupAuthorized(userID, groupEUI);
+    }
 
     @Override
     public void saveAlert(Event event) throws ThingsDataException {
@@ -195,7 +200,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public List getAlerts(String userId) throws ThingsDataException {
-        return getIotDB().getAlerts(userId,true);
+        return getIotDB().getAlerts(userId, true);
     }
 
     @Override
@@ -239,10 +244,10 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         getIotDB().removeOutdatedAlerts(checkPoint);
     }
 
-    @Override
-    public List getChannels(String deviceEUI) throws ThingsDataException {
-        return getDataStorage().getDeviceChannels(deviceEUI);
-    }
+    //@Override
+    //public List getChannels(String deviceEUI) throws ThingsDataException {
+    //    return getDataStorage().getDeviceChannels(deviceEUI);
+    //}
 
     @Override
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException {
@@ -260,10 +265,57 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         }
         getDataStorage().putData(userID, device.getEUI(), finalValues);
     }
-    */
-
+     */
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
         return getIotDB().getInactiveDevices();
+    }
+
+    @Override
+    public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {
+        return getIotDB().getUserGroups(userID);
+    }
+
+    @Override
+    public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException {
+        return getIotDB().getGroup(userId, groupEUI);
+    }
+
+    @Override
+    public void putGroup(String userID, DeviceGroup group) throws ThingsDataException {
+        if (userID.equals(group.getUserID()) || group.userIsTeamMember(userID)) {
+            getIotDB().putGroup(group);
+        } else {
+            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "user IDs not match");
+        }
+    }
+
+    @Override
+    public void modifyGroup(String userID, DeviceGroup group) throws ThingsDataException {
+        DeviceGroup previous = getGroup(userID, group.getEUI());
+        if (previous == null) {
+            throw new ThingsDataException(ThingsDataException.NOT_FOUND, "group not found");
+        }
+        //TODO: what to do when list of channels has been changed?
+        getIotDB().updateGroup(group);
+    }
+
+    @Override
+    public void removeGroup(String groupEUI, String userID) throws ThingsDataException {
+        DeviceGroup group = getIotDB().getGroup(userID, groupEUI);
+        if (userID.equals(group.getUserID()) || group.userIsTeamMember(userID)) {
+            getIotDB().removeGroup(groupEUI);
+        } else {
+            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "user IDs not match");
+        }
+    }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        System.out.println(userID+" "+groupEUI);
+        if (!isGroupAuthorized(userID, groupEUI)) {
+            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
+        }
+        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames);
     }
 }

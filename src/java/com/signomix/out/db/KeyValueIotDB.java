@@ -8,6 +8,7 @@ import com.signomix.out.gui.Dashboard;
 import com.signomix.out.iot.Alert;
 import com.signomix.out.iot.AlertOwnerComparator;
 import com.signomix.out.iot.Device;
+import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
             if (containsKey("devices", device.getEUI())) {
                 throw new ThingsDataException(ThingsDataException.CONFLICT, "device "+device.getEUI()+"is already defined");
             }
-            device.setEUI(device.getEUI().toUpperCase());
+            device.setEUI(device.getEUI());
             put("devices", device.getEUI(), device);
         } catch (KeyValueDBException ex) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
@@ -343,6 +344,46 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<String> getGroupDevices(String userID, String groupID) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void putGroup(DeviceGroup group) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateGroup(DeviceGroup group) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeGroup(String groupEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<String> getGroupChannels(String groupEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

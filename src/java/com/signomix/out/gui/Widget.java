@@ -22,6 +22,7 @@ public class Widget {
     private String description;
     private String unitName;
     private int width;
+    private String group;
     
     public Widget(){
         width=1;
@@ -183,6 +184,20 @@ public class Widget {
     
     public static Widget parse(String source){
         return (Widget) JsonReader.jsonToJava(source);
+    }
+
+    /**
+     * @return the group
+     */
+    public String getGroup() {
+        return group;
+    }
+
+    /**
+     * @param group the group to set
+     */
+    public void setGroup(String group) {
+        this.group = group;
     }
 
 }

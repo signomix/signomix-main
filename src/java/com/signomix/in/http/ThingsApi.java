@@ -48,8 +48,6 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
     }
 
     public byte[] formatResponse(String type, Result result) {
-
-        System.out.println("TYPE:" + type);
         byte[] r = {};
         String formattedResponse = "";
         switch (type) {
@@ -117,7 +115,6 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
             }
         } 
          */ else {
-            System.out.println(">>>>>>> " + ((List) source.getData()).get(0).getClass().getName());
         }
         return sb.toString();
     }

@@ -68,7 +68,6 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
 
     @Override
     public void put(String tableName, String key, Object o) throws KeyValueDBException {
-        //System.out.println("PUT USER "+key);
         if (tableName.equals("users")) {
             try {
                 putUser(tableName, key, (User) o);

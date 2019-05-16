@@ -55,8 +55,12 @@ public class ActuatorModule {
         boolean debugMode = "true".equalsIgnoreCase(request.headers.getFirst("X-debug"));
         String userID = request.headers.getFirst("X-user-id");
         Device device;
+        String eui = request.pathExt;
+        if (null != eui) {
+            eui = eui.toUpperCase();
+        }
         try {
-            device = thingsAdapter.getDevice(userID, request.pathExt, false);
+            device = thingsAdapter.getDevice(userID, eui, false);
         } catch (ThingsDataException ex) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());
@@ -214,7 +218,7 @@ public class ActuatorModule {
 
     public Event getCommand(String deviceEUI, ActuatorCommandsDBIface actuatorCommandsDB) {
         //String result = "";
-        Event result=null;
+        Event result = null;
         if (deviceEUI != null) {
             try {
                 result = (Event) actuatorCommandsDB.getFirstCommand(deviceEUI);
@@ -228,7 +232,7 @@ public class ActuatorModule {
         }
         return result;
     }
-    
+
     public String archiveCommand(Event command, ActuatorCommandsDBIface actuatorCommandsDB) {
         String result = "";
         if (command != null) {

@@ -159,6 +159,10 @@ public class Service extends Kernel {
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
     }
 
+    public IotDatabaseIface getThingsAdapter(){
+        return thingsDB;
+    }
+    
     @Override
     public void runInitTasks() {
         try {
@@ -195,6 +199,7 @@ public class Service extends Kernel {
                         "+1s",
                         "Signomix service has been started.")
         );
+        setInitialized(true);
     }
 
     @Override
@@ -383,17 +388,29 @@ public class Service extends Kernel {
         return null;
     }
 
-    @HttpAdapterHook(adapterName = "ThingsService", requestMethod = "OPTIONS")
-    public Object thingsCors(Event requestEvent) {
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "OPTIONS")
+    public Object deviceServiceCors(Event requestEvent) {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_OK);
         return result;
     }
 
-    @HttpAdapterHook(adapterName = "ThingsService", requestMethod = "*")
-    public Object thingsServiceHandle(Event event) {
-        //System.out.println("QUERY BEFORE LOGIC=["+event.getRequestParameter("query")+"]");
-        return new DeviceManagementModule().processEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "*")
+    public Object deviceServiceHandle(Event event) {
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "OPTIONS")
+    public Object groupServiceCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "*")
+    public Object groupServiceHandle(Event event) {
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "TtnIntegrationService", requestMethod = "OPTIONS")
@@ -422,6 +439,26 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "*")
     public Object iotDataAdd(Event event) {
+        StandardResult result;
+        try {
+            result = (StandardResult) DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter, userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        //ActuatorModule.getInstance().getCommand(deviceEUI, actuatorCommandsDB);
+        return result;
+    }
+    
+    @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "OPTIONS")
+    public Object iotSimpleDataCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "*")
+    public Object iotSimpleDataAdd(Event event) {
         StandardResult result;
         try {
             result = (StandardResult) DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter, userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);

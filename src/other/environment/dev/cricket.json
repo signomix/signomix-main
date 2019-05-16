@@ -20,7 +20,7 @@
                 "user-confirm": "true",
                 "initial-admin-email": "name@host",
                 "initial-admin-secret": "test123",
-                "admin-notification-email": "name@host",
+                "admin-notification-email": "",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
                 "file.upload.maxsize": "5000000",
                 "backup-folder": "./data/backup",
@@ -93,12 +93,21 @@
                         "silent-mode": "false"
                     }
                 },
-                "ThingsService": {
-                    "name": "ThingsService",
+                "DeviceService": {
+                    "name": "DeviceService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ThingsApi",
                     "properties": {
-                        "context": "/api/iot",
+                        "context": "/api/iot/device",
+                        "silent-mode": "false"
+                    }
+                },
+                "GroupService": {
+                    "name": "GroupService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ThingsApi",
+                    "properties": {
+                        "context": "/api/iot/group",
                         "silent-mode": "false"
                     }
                 },
@@ -108,6 +117,16 @@
                     "classFullName": "com.signomix.in.http.IntegrationApi",
                     "properties": {
                         "context": "/api/integration",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                "SimpleIntegrationService": {
+                    "name": "IntegrationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.IntegrationApi",
+                    "properties": {
+                        "context": "/api/i4t",
                         "silent-mode": "false",
                         "dump-request": "true"
                     }
@@ -267,7 +286,7 @@
                         "name": "iot",
                         "file": "iot",
                         "test-query": "select * from serviceversion",
-                        "version": "3",
+                        "version": "4",
                         "user": "sa",
                         "password": "",
                         "time-offset": "3600"

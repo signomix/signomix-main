@@ -8,18 +8,24 @@ import com.signomix.iot.IotEvent;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.ThingsDataIface;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.out.OutboundAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 
 /**
@@ -88,7 +94,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         }
         return result;
     }
-    
+
     @Override
     public ScriptResult processRawData(String requestBody, String deviceScript, String deviceID, String userID, long dataTimestamp) throws ScriptAdapterException {
         Invocable invocable;
@@ -98,7 +104,6 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         }
         ChannelClient channelReader = new ChannelClient(userID, deviceID, getThingsAdapter());
         try {
-            System.out.println(deviceScript != null ? merge(scriptTemplate, deviceScript) : decoderEnvelope);
             engine.eval(deviceScript != null ? merge(scriptTemplate, deviceScript) : scriptTemplate);
             invocable = (Invocable) engine;
             result = (ScriptResult) invocable.invokeFunction("processRawData", deviceID, requestBody, channelReader, userID, dataTimestamp);
@@ -117,7 +122,6 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         Invocable invocable;
         ArrayList<ChannelData> list = new ArrayList<>();
         try {
-            System.out.println(script != null ? merge(decoderEnvelope, script) : decoderEnvelope);
             engine.eval(script != null ? merge(decoderEnvelope, script) : decoderEnvelope);
             invocable = (Invocable) engine;
             list = (ArrayList) invocable.invokeFunction("decodeData", deviceId, data, timestamp);
@@ -136,7 +140,6 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         Invocable invocable;
         ArrayList<ChannelData> list = new ArrayList<>();
         try {
-            System.out.println(script != null ? merge(decoderEnvelope, script) : decoderEnvelope);
             engine.eval(script != null ? merge(decoderEnvelope, script) : decoderEnvelope);
             invocable = (Invocable) engine;
             list = (ArrayList) invocable.invokeFunction("decodeHexData", deviceId, hexadecimalPayload, timestamp);
@@ -151,6 +154,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
     }
 
     String merge(String template, String deviceScript) {
+        Kernel.getInstance().dispatchEvent(Event.logSevere(this, "device script template not available"));
         String res = template.replaceAll("//injectedCode", deviceScript);
         return res;
     }
@@ -163,27 +167,38 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
      */
     public String readScript(String path) {
         File file = new File(path);
-        byte[] result = new byte[(int) file.length()];
+        byte[] bytes = new byte[(int) file.length()];
+        String result;
         InputStream input = null;
         try {
             int totalBytesRead = 0;
             input = new BufferedInputStream(new FileInputStream(file));
-            while (totalBytesRead < result.length) {
-                int bytesRemaining = result.length - totalBytesRead;
-                int bytesRead = input.read(result, totalBytesRead, bytesRemaining);
+            while (totalBytesRead < bytes.length) {
+                int bytesRemaining = bytes.length - totalBytesRead;
+                int bytesRead = input.read(bytes, totalBytesRead, bytesRemaining);
                 if (bytesRead > 0) {
                     totalBytesRead = totalBytesRead + bytesRead;
                 }
             }
+            result = new String(bytes);
             /*
-         the above style is a little bit tricky: it places bytes into the 'result' array; 
-         'result' is an output parameter;
+         the above style is a little bit tricky: it places bytes into the 'bytes' array; 
+         'bytes' is an output parameter;
          the while loop usually has a single iteration only.
              */
 
         } catch (Exception e) {
-            Kernel.getInstance().getLogger().print("ERROR: " + e.getClass().getName() + " " + e.getMessage());
-            return null;
+            Kernel.getInstance().getLogger().print("WARNING: " + e.getClass().getName() + " " + e.getMessage());
+            if(path.lastIndexOf("/")>-1){
+                path= path.substring(path.lastIndexOf("/")+1);
+            }
+            InputStream resource = getClass().getClassLoader().getResourceAsStream(path);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resource, "UTF-8"))) {
+                result = br.lines().collect(Collectors.joining(System.lineSeparator()));
+            } catch (IOException ex) {
+                Kernel.getInstance().getLogger().print("ERROR: " + e.getClass().getName() + " " + e.getMessage());
+                return null;
+            }
         } finally {
             if (input != null) {
                 try {
@@ -192,7 +207,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
                 }
             }
         }
-        return new String(result);
+        return result;
     }
 
     private void fireEvent(int source, String origin, String message) {

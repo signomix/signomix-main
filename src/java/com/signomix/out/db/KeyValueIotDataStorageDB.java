@@ -261,4 +261,10 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

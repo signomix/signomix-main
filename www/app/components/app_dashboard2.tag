@@ -48,6 +48,7 @@
                     <widget_map ref={ getRefName(i,j) } if={w_line[i][j]['type']=='map'}></widget_map>
                     <widget_raw ref={ getRefName(i,j) } if={w_line[i][j]['type']=='raw' || w_line[i][j]['type']=='text'}></widget_raw>
                     <widget_led ref={ getRefName(i,j) } if={w_line[i][j]['type']=='led'}></widget_led>
+                    <widget_report ref={ getRefName(i,j) } if={w_line[i][j]['type']=='report'}></widget_report>
                 </div>
             </virtual>
         </div>
@@ -112,7 +113,7 @@
         app.log('REFRESHING DATA')
         Object.keys(self.refs).forEach(function(key,index) {
             app.log(key)
-            if(self.dashboardConfig.widgets.length>index && self.dashboardConfig.widgets[index]['dev_id']){
+            if(self.dashboardConfig.widgets.length>index && (self.dashboardConfig.widgets[index]['dev_id']||self.dashboardConfig.widgets[index]['type']=='report')){
                 readDashboardData(self.dashboardConfig.widgets[index], updateWidget, 0, index);
             }
         })
@@ -199,19 +200,25 @@
                 query = query + ' timeseries'
             }
         }
-        //query = '"'+query+'"'
-        if(config.dev_id){
-                getData(
-                app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query, //url
-                null,                                      //query
+
+        var location=''
+        if(config.type=='report'){
+            location=app.groupAPI + "/" + config.group + "/"+channelName+(app.shared!=''?'?tid='+app.shared:'')
+        }else if(config.dev_id){
+            location=app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query
+        }
+        if(location.length>0) {
+            getData(
+                location, 
+                null,  
                 (app.shared==''?app.user.token:null),                            //session token
-                callback,                    //callback
-                null,                           //event listener
-                row+':'+column,                            //success event name
-                null,                                      //error event name
-                app.debug,                                 //debug switch
-                globalEvents                               //application's event listener
-                )
+                callback,
+                null, 
+                row+':'+column,  //success event name
+                null,            //error event name
+                app.debug,       //debug switch
+                globalEvents    //application's event listener
+            )
         }
     }
         

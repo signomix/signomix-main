@@ -10,8 +10,8 @@
     <!-- Remember to modify the project name (see line 2 of this file)       -->
     <!--                                                                     -->
     <description>Signomix</description>
-    <property name="version" value="1.1.51"/> <!-- service version           -->
-    <property name="cricket-version" value="1.3.0-alpha.5" /> 
+    <property name="version" value="1.1.54"/> <!-- service version           -->
+    <property name="cricket-version" value="1.3.0-alpha.7" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="minify" value="true" />
@@ -29,7 +29,10 @@
     <property name="src" location="src/java"/>
     <property name="src-js" location="src/js"/>
     <property name="src-other" location="src/other"/>
+    <property name="tests" location="src/test"/>
+    <property name="reports" location="reports"/>
     <property name="build" location="build/classes"/>
+    <property name="build.test" location="build/test"/>
     <property name="dist" location="dist"/>
     <property name="web" location="web"/>
     <property name="lib" location="lib"/>
@@ -45,6 +48,8 @@
     <target name="init">
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${build}"/>
+        <mkdir dir="${build.test}"/>
+        <mkdir dir="${reports}"/>
     </target>
    
     <target name="get-dependencies" description="upload Cricket MSF library">
@@ -61,6 +66,36 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />-->
+        <get
+            src="http://search.maven.org/remotecontent?filepath=junit/junit/4.12/junit-4.12.jar"
+            dest="lib/junit-4.12.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+            dest="lib/hamcrest-core-1.3.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar"
+            dest="lib/httpclient-4.5.5.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar"
+            dest="lib/httpcore-4.4.9.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="http://central.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
+            dest="lib/commons-logging-1.2.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
     </target>
 
     <target name="compile" depends="init" description="compile the source">
@@ -80,10 +115,31 @@
             classpathref="project-classpath">
             <!--<compilerarg value="-Xlint:unchecked"/>-->
         </javac>
-        <!--<copy overwrite="true" file="${src}/com/signocom/signode/Invariants.original" tofile="${src}/com/signocom/signode/Invariants.java"/>-->
-        <delete file="${src}/com/signocom/signode/Invariants.original" />
+        <copy overwrite="true" file="${src}/com/signocom/signode/Invariants.original" todir="${build}" failonerror="false"/>
+        <delete file="${src}/com/signocom/signode/Invariants.original" failonerror="false"/>
+        <copy todir="${build}" file="${src-js}/device-script-template.js"/>
+        <copy todir="${build}" file="${src-js}/payload-decoder-envelope.js"/>
     </target>
-
+    <target name="compile.tests" depends="init" description="compile test cases">
+        <javac 
+            target="1.8" 
+            source="1.8" 
+            srcdir="${tests}" 
+            destdir="${build.test}"
+            includeantruntime="false" 
+            debug="on"
+            classpathref="project-classpath">
+            <classpath>
+                <pathelement path="${build}"/>
+                <pathelement path="${build.test}"/>
+                <pathelement location="${lib}/junit-4.12.jar"/>
+                <pathelement location="${lib}/httpclient-4.5.5.jar"/>
+                <pathelement location="${lib}/httpcore-4.4.9.jar"/>
+                <pathelement path="${java.class.path}"/>
+            </classpath>
+            <!--<compilerarg value="-Xlint:unchecked"/>-->
+        </javac>
+    </target>
     <target name="dist" depends="clean, compile"
             description="generate the distribution">
         <!-- Create the distribution directory -->
@@ -241,7 +297,32 @@
             <arg value="config/cricket.json"/>
         </exec>
     </target>
-    
+    <target name="test" depends="compile.tests">
+        <delete dir="${reports}"/>
+        <mkdir dir="${reports}/work/log"/>
+        <junit fork="yes" printsummary="yes" showoutput="yes" dir="${reports}">
+            <classpath>
+                <pathelement path="${build}"/>
+                <pathelement path="${build.test}"/>
+                <pathelement location="${cricket-jar-location}"/>
+                <pathelement location="${lib}/junit-4.12.jar"/>
+                <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
+                <pathelement location="${lib}/httpclient-4.5.5.jar"/>
+                <pathelement location="${lib}/httpcore-4.4.9.jar"/>
+                <pathelement location="${lib}/commons-logging-1.2.jar"/>
+                <pathelement path="${java.class.path}"/>
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml"/>
+            <test name="com.signomix.test.group.GroupTests" haltonfailure="no" todir="${reports}"/>
+        </junit>
+        <junitreport todir="${reports}">
+            <fileset dir="${reports}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${reports}/html"/>
+        </junitreport>
+    </target>
     <target name="backup-db">
         <input message="Please enter environment name [dev|demo|demo2|production|ec1-dev|ec1]:" addproperty="environment.name" defaultvalue="dev"/>
         <copy todir="backup/${environment.name}/db" overwrite="true">

@@ -4,6 +4,7 @@
  */
 package com.signomix.out.db;
 
+import com.signomix.Service;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
@@ -12,8 +13,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import static java.util.Collections.list;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -384,10 +388,14 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
     }
 
     @Override
-    public List<List> getValues(String userID, String deviceEUI, String channel, String resultsLimit) throws ThingsDataException {
-        int limit = getLimit(resultsLimit);
-        int averageLimit = getAverageLimit(resultsLimit);
-        Double newValue = getNewValue(resultsLimit);
+    public List<List> getValues(String userID, String deviceEUI, String channel, String dataQuery) throws ThingsDataException {
+        if (dataQuery.startsWith("group ")) {
+            String groupEUI = dataQuery.substring(6).trim();
+            return getValuesOfGroup(userID, groupEUI, channel.split(","));
+        }
+        int limit = getLimit(dataQuery);
+        int averageLimit = getAverageLimit(dataQuery);
+        Double newValue = getNewValue(dataQuery);
         List<List> result = new ArrayList<>();
         if (newValue != null) {
             limit = limit - 1;
@@ -467,6 +475,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             conn.close();
             return result;
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
 
@@ -548,5 +557,52 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             e.printStackTrace();
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
+    }
+
+    /**
+     * Get last registered measuresfrom groupDevices dedicated to the specified
+     * group
+     *
+     * @param userID
+     * @param groupEUI
+     * @param channelNames
+     * @return
+     * @throws ThingsDataException
+     */
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        List<String> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID, groupEUI);
+        List<String> groupChannels = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupChannels(groupEUI);
+        List<List> tmp, tmpValues;
+        List<List> result = new ArrayList();
+        List<ChannelData> row;
+        ChannelData cd;
+        ArrayList<String> requestChannels = new ArrayList<>();
+        for (int n = 0; n < channelNames.length; n++) {
+            requestChannels.add(channelNames[n]);
+        }
+        int idx;
+        for (int i = 0; i < groupDevices.size(); i++) {
+            tmpValues = getLastValues(userID, groupDevices.get(i));
+            if (tmpValues.isEmpty()) {
+                continue;
+            }
+            row = new ArrayList(requestChannels.size());
+            for (int n = 0; n < requestChannels.size(); n++) {
+                row.add(null);
+            }
+            tmp = tmpValues.get(0);
+            for (int j = 0; j < tmp.size(); j++) {
+                cd = (ChannelData) tmp.get(j);
+                if (groupChannels.indexOf(cd.getName())>-1) {
+                    idx = requestChannels.indexOf(cd.getName());
+                    if (idx > -1) {
+                        row.set(idx, cd);
+                    }
+                }
+            }
+            result.add(row);
+        }
+        return result;
     }
 }

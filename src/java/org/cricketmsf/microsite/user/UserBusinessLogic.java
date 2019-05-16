@@ -34,7 +34,6 @@ public class UserBusinessLogic {
         //String requesterRole = request.headers.getFirst("X-user-role");
         boolean admin = false;
         for (int i = 0; i < requesterRoles.size(); i++) {
-            System.out.println("ROLE:"+requesterRoles.get(i));
             if ("admin".equals(requesterRoles.get(i))) {
                 admin = true;
                 break;
@@ -47,7 +46,6 @@ public class UserBusinessLogic {
         RequestObject request = event.getRequest();
         String uid = request.pathExt;
         String requesterID = request.headers.getFirst("X-user-id");
-        System.out.println("REQUESTER:"+requesterID);
         boolean admin = isAdmin(request);
 
         StandardResult result = new StandardResult();

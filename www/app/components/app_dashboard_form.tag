@@ -58,6 +58,7 @@
                                 <option value="map" selected={self.editedWidget.type=='map'}>{self.getTypeName('map')}</option>
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
                                 <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>
+                                <option value="report" selected={self.editedWidget.type=='report'}>{self.getTypeName('report')}</option>
                             </select>
                         </div>
                         </div>
@@ -75,7 +76,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' }>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_dev_id"
@@ -85,6 +86,19 @@
                                 content={ self.editedWidget.dev_id }
                                 readonly={ !allowEdit }
                                 hint={ app.texts.dashboard_form.f_widget_deviceid_hint[app.language] }
+                            ></form_input>
+                        </div>
+                        </div>
+                        <div class="row" if={ self.editedWidget.type=='report' }>
+                        <div class="form-group col-md-12">
+                            <form_input 
+                                id="w_group"
+                                name="w_group"
+                                label={ app.texts.dashboard_form.f_widget_group[app.language] }
+                                type="text"
+                                content={ self.editedWidget.group }
+                                readonly={ !allowEdit }
+                                hint={ app.texts.dashboard_form.f_widget_group_hint[app.language] }
                             ></form_input>
                         </div>
                         </div>
@@ -114,7 +128,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' }>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_query"
@@ -289,22 +303,22 @@
     <!-- DASHBOARD form -->
     <script>
         this.visible = true
-                self = this
+        self = this
                 self.listener = riot.observable()
                 self.callbackListener
                 self.allowEdit = false
                 self.method = 'POST'
                 self.mode = 'view'
                 self.channelsEncoded = ''
-                self.dashboard = {
-                'id': '',
-                        'name': '',
+        self.dashboard = {
+            'id': '',
+            'name': '',
                         'title': '',
                         'userID': '',
                         'team': '',
                         'shared': false,
                         'widgets':[]
-                }
+        }
         self.newWidget = function(){
             return {
                 'name':'',
@@ -318,7 +332,8 @@
                 'width':1,
                 'description':'',
                 'queryvalue':'1',
-                'format': 'standard'
+                'format': 'standard',
+                'group': ''
             }
         }
         self.selectedForRemove = - 1
@@ -421,7 +436,9 @@
                     }
                 } else{
                     self.editedWidget = {'name':'', 'dev_id':'', 'channel':'',
-                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 'title':'', 'width':1, 'description':'', 'queryvalue':'1', 'format':'standard'}
+                    'unitName':'', 'type':'text', 'query':'last', 'range':'', 
+                    'title':'', 'width':1, 'description':'', 'queryvalue':'1',
+                    'format':'standard', 'group':''}
                 }
                 app.log(index)
                 app.log(self.editedWidget)
@@ -444,6 +461,11 @@
                 self.editedWidget.dev_id = e.target.elements['w_dev_id'].value
             }catch(err){
                 self.editedWidget.dev_id = ''
+            }
+            try{
+                self.editedWidget.group = e.target.elements['w_group'].value
+            }catch(err){
+                self.editedWidget.group = ''
             }
             try{
                 self.editedWidget.channel = e.target.elements['w_channel'].value
@@ -564,6 +586,9 @@
                     break
                 case 'led':
                     return app.texts.dashboard_form.type_led[app.language]
+                    break
+                case 'report':
+                    return app.texts.dashboard_form.type_report[app.language]
                     break
                 default:
                     return name
