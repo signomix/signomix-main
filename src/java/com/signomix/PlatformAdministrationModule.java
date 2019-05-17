@@ -368,7 +368,7 @@ public class PlatformAdministrationModule {
 
                 Dashboard dashboard = new Dashboard();
                 dashboard.setName("emulator");
-                dashboard.setId("tester1~emulator");
+                dashboard.setId("IOT-EMULATOR");
                 dashboard.setTitle("Data from iot-emulator");
                 dashboard.setUserID("tester1");
                 dashboard.setShared(false);
@@ -499,7 +499,7 @@ public class PlatformAdministrationModule {
             return;
         }
 
-        Dashboard dashboard = new Dashboard(device.getUserID(), deviceId);
+        Dashboard dashboard = new Dashboard(deviceId);
         Widget widget;
         Channel chnl;
         HashMap channels = device.getChannels();
@@ -519,7 +519,7 @@ public class PlatformAdministrationModule {
             dashboard.addWidget(widget);
         }
         dashboard.setName(deviceId);
-        dashboard.setId(device.getUserID() + "~" + deviceId);
+        dashboard.setId(deviceId);
         dashboard.setTitle(deviceId);
         dashboard.setUserID(device.getUserID());
         dashboard.setShared(false);
@@ -867,5 +867,14 @@ public class PlatformAdministrationModule {
         } catch (ClassCastException | UserException | ThingsDataException ex) {
             ex.printStackTrace();
         }
+    }
+    
+    public String createEui(String prefix) {
+        String eui = Long.toHexString(Kernel.getEventId());
+        StringBuilder tmp = new StringBuilder(prefix).append(eui.substring(0, 2));
+        for (int i = 2; i < eui.length() - 1; i = i + 2) {
+            tmp.append("-").append(eui.substring(i, i + 2));
+        }
+        return tmp.toString();
     }
 }

@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.gui;
 
 import com.cedarsoftware.util.io.JsonReader;
@@ -24,12 +24,13 @@ public class Dashboard {
     private String sharedToken;
 
     public Dashboard() {
+        id = null;
         shared = false;
         widgets = new ArrayList<>();
     }
 
-    public Dashboard(String userID, String name) {
-        id = userID + "~" + name;
+    public Dashboard(String newID) {
+        id = newID;
         shared = false;
         widgets = new ArrayList<>();
     }
@@ -37,7 +38,7 @@ public class Dashboard {
     public void addWidget(Widget widget) {
         widgets.add(widget);
     }
-    
+
     public void setWidget(int index, Object widget) {
         widgets.add(index, widget);
     }
@@ -121,12 +122,12 @@ public class Dashboard {
      * @param team the team to set
      */
     public void setTeam(String team) {
-        String tmp=team;
-        if(!tmp.startsWith(",")){
-            tmp=","+tmp;
+        String tmp = team;
+        if (!tmp.startsWith(",")) {
+            tmp = "," + tmp;
         }
-        if(!tmp.endsWith(",")){
-            tmp=tmp+",";
+        if (!tmp.endsWith(",")) {
+            tmp = tmp + ",";
         }
         this.team = tmp;
     }
@@ -180,14 +181,14 @@ public class Dashboard {
     public void setWidgetsFromJson(String jsonString) {
         widgets = (ArrayList) JsonReader.jsonToJava(jsonString);
     }
-    
-    public Dashboard normalize(){
-        String tmp=getTeam();
-        if(!tmp.startsWith(",")){
-            tmp=","+tmp;
+
+    public Dashboard normalize() {
+        String tmp = getTeam();
+        if (!tmp.startsWith(",")) {
+            tmp = "," + tmp;
         }
-        if(!tmp.endsWith(",")){
-            tmp=tmp+",";
+        if (!tmp.endsWith(",")) {
+            tmp = tmp + ",";
         }
         setTeam(tmp);
         /*
@@ -200,7 +201,7 @@ public class Dashboard {
                 ((Widget)widgets.get(i)).setTitle(((Widget)widgets.get(i)).getChannel());
             }
         }
-*/
+         */
         return this;
     }
 

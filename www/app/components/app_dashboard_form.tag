@@ -369,8 +369,8 @@
                 //if(e.target.elements['id']){
             dashboardPath = (self.method == 'PUT') ? '/' + self.dashboard['id'] : ''
                 //}
-            var formData = {name:'', title:'', userID:'', shared:false, team:'', widgets:[]}
-            //formData.id = e.target.elements['id'].value
+            var formData = {id:'', name:'', title:'', userID:'', shared:false, team:'', widgets:[]}
+            formData.id = self.dashboard.id
             formData.name = e.target.elements['name'].value
             formData.title = e.target.elements['title'].value
             formData.userID = app.user.name

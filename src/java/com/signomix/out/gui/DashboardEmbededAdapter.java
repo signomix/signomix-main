@@ -69,7 +69,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
                 dashboard.setSharedToken(createSharedToken(userID, dashboard.getId(), authAdapter));
                 Kernel.handle(new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
             }
-            //getDatabase().put("dashboards", dashboard.getId(), dashboard);
             getIotDB().addDashboard(dashboard);
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
@@ -83,17 +82,10 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         }
         Dashboard original;
         try {
-            //original = (Dashboard) getDatabase().get("dashboards", dashboard.getId());
             original = getIotDB().getDashboard(dashboard.getId());
-            //if (!getDatabase().containsKey("dashboards", dashboard.getId())) {
             if (original == null) {
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
             }
-            //TODO: przepisać parametry z original
-            //if(dashboard.isShared()==null){
-            //    dashboard.setShared(original.isShared());
-            //}
-            
             if (original.isShared() && !dashboard.isShared()) {
                 Kernel.getInstance().handle((Event)new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));
             } else if (dashboard.isShared() && !original.isShared()) {
@@ -102,7 +94,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             } else if(dashboard.isShared() && original.isShared()){
                 dashboard.setSharedToken(original.getSharedToken());
             }
-            //getDatabase().put("dashboards", dashboard.getId(), dashboard);
             getIotDB().updateDashboard(dashboard);
         } catch (ThingsDataException |ClassCastException | NullPointerException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
@@ -135,23 +126,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     public List<Dashboard> getUserDashboards(String userID) throws DashboardException {
         try {
             return getIotDB().getUserDashboards(userID, true);
-            /*
-            try {
-            Map map = getUserDashboardsMap(userID);
-            ArrayList list = new ArrayList();
-            Iterator itr = map.values().iterator();
-            Dashboard d;
-            while (itr.hasNext()) {
-            d = (Dashboard) itr.next();
-            //if (d.getUserID().equals(userID)) {
-            list.add(d);
-            //}
-            }
-            return list;
-            } catch (NullPointerException | DashboardException ex) {
-            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
-            }
-            */
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -161,23 +135,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     public boolean isAuthorized(String userID, String dashboardID) throws DashboardException {
         try {
             return getIotDB().isAuthorized(userID, dashboardID);
-            /*
-            //System.out.println("isAuthorized: " + userID);
-            try {
-            Dashboard dashboard = (Dashboard) getDatabase().get("dashboards", dashboardID);
-            if (dashboard != null) {
-            if (dashboard.getUserID().equals(userID) || dashboard.isShared()) {
-            return true;
-            } else {
-            return dashboard.isTeamMember(userID);
-            }
-            } else {
-            return false;
-            }
-            } catch (KeyValueDBException ex) {
-            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
-            }
-            */
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -187,14 +144,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     public void removeUserDashboards(String userID) throws DashboardException {
         try {
             getIotDB().removeUserDashboards(userID);
-            /*
-            List dashboards = getUserDashboards(userID);
-            Dashboard d;
-            for (int i = 0; i < dashboards.size(); i++) {
-            d = (Dashboard) dashboards.get(i);
-            removeDashboard(userID, d.getId());
-            }
-            */
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -209,22 +158,6 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             map.put(list.get(i).getId(),list.get(i));
         }
         return map;
-        /*
-        try {
-            Map<String, Dashboard> map = getDatabase().getAll("dashboards");
-            HashMap result = new HashMap();
-            map.entrySet().stream().filter(
-                    (entry) -> (userID.equals(entry.getValue().getUserID()) || entry.getValue().isTeamMember(userID))
-            ).forEachOrdered(
-                    (entry) -> {
-                        result.put(entry.getKey(), entry.getValue());
-                    }
-            );
-            return result;
-        } catch (NullPointerException | KeyValueDBException ex) {
-            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
-        }
-        */
     }
 
     private String createSharedToken(String userID, String dashboardID, AuthAdapterIface authAdapter) throws DashboardException {

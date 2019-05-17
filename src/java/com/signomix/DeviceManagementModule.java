@@ -304,12 +304,7 @@ public class DeviceManagementModule {
     }
 
     private String createEui(String prefix) {
-        String eui = Long.toHexString(Kernel.getEventId());
-        StringBuilder tmp = new StringBuilder(prefix).append(eui.substring(0, 2));
-        for (int i = 2; i < eui.length() - 1; i = i + 2) {
-            tmp.append("-" + eui.substring(i, i + 2));
-        }
-        return tmp.toString();
+        return PlatformAdministrationModule.getInstance().createEui(prefix);
     }
 
     private Device buildDevice(RequestObject request, String userID, Device original) {

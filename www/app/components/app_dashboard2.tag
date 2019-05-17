@@ -149,6 +149,14 @@
         rebuild()
         self.dashboardConfig = JSON.parse(data)
         app.log('NEW config IS: '+self.dashboardConfig)
+        if(self.dashboardConfig == null){
+            self.dashboardConfig = {
+            title:'the selected dashboard is unavailable',
+            shared:false,
+            sharedToken:'',
+            widgets:[]
+        }
+        }
         app.log(self.dashboardConfig)
         rebuild()
         riot.update()

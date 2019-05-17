@@ -1434,6 +1434,18 @@
             "fr": "DATA",
             "pl": "DATA"
         },
+        "DETAILS": {
+            "en": "details",
+            "it": "dettagli",
+            "fr": "détails",
+            "pl": "szczegóły"
+        },
+        "MORE": {
+            "en": "show ...",
+            "it": "mostrare ...",
+            "fr": "montre ...",
+            "pl": "pokaż ..."
+        },
         "NO_DATA": {
             "en": "No data found",
             "it": "Nessun dato trovato.",

@@ -113,7 +113,9 @@ public class DashboardBusinessLogic {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
             e.printStackTrace();
         }
-        dashboard.setId(userID + "~" + dashboard.getName());
+        if(null==dashboard.getId() || dashboard.getId().isEmpty()){
+            dashboard.setId(PlatformAdministrationModule.getInstance().createEui("S-"));
+        }
         //System.out.println("DASHBOARD:" + dashboard.getId());
         return dashboard;
     }
