@@ -23,6 +23,10 @@ public class Device {
     public static String VIRTUAL = "VIRTUAL";
     public static String LORA = "LORA";
     public static String KPN = "KPN";
+    public static int UNKNOWN = 0;
+    public static int OK = 1;
+    public static int FAILURE = 2;
+    
 
     private String template;
 
@@ -46,6 +50,7 @@ public class Device {
     private String downlink;
     private String commandScript;
     private String groups;
+    private int alertStatus;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     public Device() {
@@ -63,6 +68,7 @@ public class Device {
         transmissionInterval = 600000; //10 minutes
         lastFrame = -1;
         checkFrames = true;
+        alertStatus = UNKNOWN;
     }
 
     public void print() {
@@ -476,5 +482,19 @@ public class Device {
         if (!this.groups.endsWith(",")) {
             this.groups = this.groups + ",";
         }
+    }
+
+    /**
+     * @return the alertStatus
+     */
+    public int getAlertStatus() {
+        return alertStatus;
+    }
+
+    /**
+     * @param alertStatus the alertStatus to set
+     */
+    public void setAlertStatus(int alertStatus) {
+        this.alertStatus = alertStatus;
     }
 }

@@ -63,6 +63,7 @@ public class IotEventHandler {
                     }
                     //save alert
                     AlertModule.getInstance().putAlert(event, thingsAdapter);
+                    
                     //send message
                     User user;
                     String payload;
@@ -74,6 +75,10 @@ public class IotEventHandler {
                             break;
                         }
                         String nodeName = origin[1];
+                        if(IotEvent.DEVICE_LOST.equals(event.getType())){
+                            // this event can appear several times: for device owner + all team members
+                            thingsAdapter.updateAlertStatus(nodeName, Device.FAILURE);
+                        }
                         String[] channelConfig = user.getChannelConfig(event.getType());
                         if (!(channelConfig != null && channelConfig.length == 2)) {
                             break; // OK its normal behaviour
@@ -103,6 +108,8 @@ public class IotEventHandler {
                         }
                     } catch (UserException ex) {
                         Kernel.handle(Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
+                    } catch (ThingsDataException ex){
+                        Kernel.handle(Event.logSevere(IotEventHandler.class.getSimpleName(), "updateAlertStatus() "+ex.getMessage()));
                     }
                     break;
                 case IotEvent.CHANNEL_REMOVE:
@@ -127,7 +134,7 @@ public class IotEventHandler {
                     try {
                         params = ((String) event.getPayload()).split("\t");
                         if (params.length == 2) {
-                            dashboardAdapter.removeDashboard(params[1], params[1] + "~" + params[0]);
+                            dashboardAdapter.removeDashboard(params[1], params[0] );
                         }
                     } catch (Exception e) {
                         Kernel.handle(Event.logWarning("Problem renoving dashboards", e.getMessage()));

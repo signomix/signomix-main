@@ -46,11 +46,7 @@ public class ActuatorModule {
             ScriptingAdapterIface scriptingAdapter
     ) {
         RequestObject request = event.getRequest();
-        boolean dump = false;
-        if ("true".equalsIgnoreCase(actuatorApi.getProperty("dump-request"))) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-            dump = true;
-        }
+
         StandardResult result = new StandardResult();
         boolean debugMode = "true".equalsIgnoreCase(request.headers.getFirst("X-debug"));
         String userID = request.headers.getFirst("X-user-id");

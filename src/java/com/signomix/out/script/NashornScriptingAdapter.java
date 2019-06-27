@@ -154,7 +154,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
     }
 
     String merge(String template, String deviceScript) {
-        Kernel.getInstance().dispatchEvent(Event.logSevere(this, "device script template not available"));
+        //Kernel.getInstance().dispatchEvent(Event.logSevere(this, "device script template not available"));
         String res = template.replaceAll("//injectedCode", deviceScript);
         return res;
     }

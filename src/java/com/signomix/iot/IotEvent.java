@@ -92,6 +92,10 @@ public class IotEvent extends Event {
                 setType(VIRTUAL_DATA);
                 setPayload(payload);
                 break;
+            case "DEVICE_LOST":
+                setType(DEVICE_LOST);
+                setPayload(payload);
+                break;
             default:
                 setGeneralMessage(payload);
         }

@@ -55,12 +55,7 @@ public class DeviceIntegrationModule {
     }
 
     public Object processLoRaRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, LoRaApi loraApi) {
-        //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = "true".equalsIgnoreCase(loraApi.getProperty("dump-request"));
-        if (dump) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-        }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("OK");
@@ -80,9 +75,6 @@ public class DeviceIntegrationModule {
             jsonString
                     = "{\"@type\":\"com.signomix.iot.LoRaData\","
                     + jsonString.substring(jsonString.indexOf("{") + 1);
-            if (dump) {
-                System.out.println("JSON:" + jsonString);
-            }
             LoRaData data = null;
             try {
 
@@ -185,10 +177,7 @@ public class DeviceIntegrationModule {
     public Object processIotRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi iotApi, ActuatorCommandsDBIface actuatorCommandsDB) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = "true".equalsIgnoreCase(iotApi.getProperty("dump-request"));
-        if (dump) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-        }
+
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("");
@@ -215,9 +204,6 @@ public class DeviceIntegrationModule {
                         = "{\"@type\":\"com.signomix.iot.IotData2\","
                         + dataString.substring(dataString.indexOf("{") + 1);
 
-                if (dump) {
-                    System.out.println("data:" + dataString);
-                }
                 try {
                     data = (IotData2) JsonReader.jsonToJava(jsonString);
                     data.normalize();
@@ -338,11 +324,7 @@ public class DeviceIntegrationModule {
     public Object processTtnRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, TtnApi ttnApi) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = "true".equalsIgnoreCase(ttnApi.getProperty("dump-request"));
         boolean authorizationRequired = !("false".equalsIgnoreCase(ttnApi.getProperty("authorization-required")));
-        if (dump) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-        }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("OK");
@@ -357,10 +339,6 @@ public class DeviceIntegrationModule {
         jsonString
                 = "{\"@type\":\"com.signomix.iot.TtnData\","
                 + jsonString.substring(jsonString.indexOf("{") + 1);
-
-        if (dump) {
-            System.out.println("JSON:" + jsonString);
-        }
         TtnData data = null;
         try {
 
@@ -388,21 +366,8 @@ public class DeviceIntegrationModule {
             handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return result;
         }
-        // autoryzujemy request sprawdzając czy klucz przesłąny w Authorization jest zgodny 
-        // z confirmString użytkownika Signomix, o uid == getApplicationId()
         if (authorizationRequired) {
             try {
-
-                /*User user = userAdapter.get(data.getApplicationId());
-                if (user == null) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "User is not registered"));
-                    return result;
-                }
-                String secret = user.getConfirmString();
-                if (!(secret.equals(authKey))) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match user profile"));
-                    return result;
-                }*/
                 if (!authKey.equals(device.getKey())) {
                     handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
                     return result;
@@ -505,10 +470,6 @@ public class DeviceIntegrationModule {
     public Object processKpnRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, KpnApi kpnApi) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = "true".equalsIgnoreCase(kpnApi.getProperty("dump-request"));
-        if (dump) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-        }
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("OK");
@@ -520,9 +481,6 @@ public class DeviceIntegrationModule {
             jsonString
                     = "{\"@type\":\"com.signomix.iot.kpn.KPNData\","
                     + jsonString.substring(jsonString.indexOf("{") + 1);
-            if (dump) {
-                System.out.println("JSON:" + jsonString);
-            }
             KPNData data = null;
             try {
 
@@ -610,11 +568,8 @@ public class DeviceIntegrationModule {
     public Object processRawRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi rawApi, ActuatorCommandsDBIface actuatorCommandsDB) {
         //TODO: Authorization
         RequestObject request = event.getRequest();
-        boolean dump = "true".equalsIgnoreCase(rawApi.getProperty("dump-request"));
         //TODO: kpnApi
-        if (dump) {
-            System.out.println(HttpAdapter.dumpRequest(request));
-        }
+
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("OK");

@@ -4,7 +4,6 @@
 */
 package com.signomix.out.iot;
 
-import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.List;
 import org.cricketmsf.Event;
 
@@ -35,6 +34,7 @@ public interface ThingsDataIface {
     public void putDevice(String userID, Device device) throws ThingsDataException;
     public void modifyDevice(String userID, Device device) throws ThingsDataException;
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink) throws ThingsDataException;
+    public void updateAlertStatus(String id, int status) throws ThingsDataException;
     public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException;

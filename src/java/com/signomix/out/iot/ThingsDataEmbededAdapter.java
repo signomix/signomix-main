@@ -120,6 +120,17 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setLastSeen(lastSeen);
         dev.setLastFrame(frameCounter);
         dev.setDownlink(downlink);
+        dev.setAlertStatus(Device.OK);
+        getIotDB().updateDevice(dev); //TODO
+    }
+    
+    @Override
+    public void updateAlertStatus(String EUI, int newAlertStatus) throws ThingsDataException {
+        Device dev = getDevice(EUI);
+        if (dev == null) {
+            throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
+        }
+        dev.setAlertStatus(newAlertStatus);
         getIotDB().updateDevice(dev);
     }
 

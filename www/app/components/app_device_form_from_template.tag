@@ -7,7 +7,31 @@
         </div>
     </div>
     <div class="row">
-        <form class="col-md-12" onsubmit={ self.submitForm }>
+        <form class="col-md-12" if={ !self.templateSelected }>
+            <div class="row">
+                <div class="input-field col-md-6">
+                    <label for="template">{ app.texts.device_form.template[app.language] }</label>
+                    <select class="form-control" id="template" name="template" value={ selectedTemplate } onchange={ changeTemplate } disabled={ !(allowEdit && !device.EUI) }>
+                        <option value="UNDEFINED">{ app.texts.device_form.template_undefined[app.language] }</option>
+                        <option value="SGMTH01">SGMTH01: temperature and humidity sensor (Arduino)</option>
+                        <option value="SGMAQ01">SGMAQ01: Air Quality Sensor #1 by "Otwarta Sieć Rzeczy" assoc.</option>
+                        <option value="EMULATOR">{ app.texts.device_form.template_http[app.language] }</option>
+                    </select>
+                </div>
+                <div class="card text-center z-depth-2 col-md-6" style="margin-bottom: 10px">
+                    <div class="card-body">
+                        <p class="mb-0" style="margin: 10px">{ self.templateDescription }</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col-md-12">
+                    <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.device_form.cancel[app.language] }</button>
+                    <button type="submit" onclick={ goNext } class="btn btn-primary">{ app.texts.device_form.next[app.language] }</button>
+                </div>
+            </div>
+        </form>
+        <form class="col-md-12" onsubmit={ self.submitForm } if={ self.templateSelected }>
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="type">{ app.texts.device_form.type[app.language] }</label>
@@ -118,7 +142,7 @@
         self.now = Date.now()
         self.listener = riot.observable()
         self.callbackListener
-        self.templateSelected = true
+        self.templateSelected = false
         self.selectedTemplate = 'UNDEFINED'
         self.allowEdit = false
         self.method = 'POST'
@@ -130,10 +154,10 @@
         self.template = {
             'EUI': 'UNDEFINED',
             'type':'GENERIC',
-            'description': '{"en": "",'+
-                    '"it": "",'+
-                    '"fr": "",'+
-                    '"pl": ""}'
+            'description': '{"en": "A new type of device. You will configure the necessary parameters yourself.",'+
+                    '"it": "Un nuovo tipo di dispositivo. Sarai tu stesso a configurare i parametri necessari.",'+
+                    '"fr": "Un nouveau type d\'appareil. Vous configurerez vous-même les paramètres nécessaires.",'+
+                    '"pl": "Nowy typ urządzenia. Skonfigurujesz niezbędne parametry samodzielnie."}'
         }
         self.device = {
             'EUI': '',
@@ -155,6 +179,10 @@
             'template': ''
         }
         self.accepted = 0
+        self.getTemplateDescription = function(text) {
+            var obj = JSON.parse(text)
+            return obj[app.language]
+        }
 
         self.listener.on('*', function(eventName) {
             if (eventName == 'err:402') {
@@ -214,6 +242,96 @@
             riot.update()
         }
 
+        self.changeTemplate = function(e) {
+            //console.log('TEMPLATE SELECTED: '+e.target.value)
+            switch (e.target.value) {
+                case 'SGMTH01':
+                    self.templateDescription = self.getTemplateDescription(self.sgmth01.description)
+                    break
+                case 'SGMAQ01':
+                    self.templateDescription = self.getTemplateDescription(self.sgmaq01.description)
+                    break
+                case 'EMULATOR':
+                    self.templateDescription = self.getTemplateDescription(self.emulator.description)
+                    break
+                case 'UNDEFINED':
+                    self.templateDescription = self.getTemplateDescription(self.undefined.description)
+                    break
+            }
+            self.selectedTemplate = e.target.value
+            riot.update()
+        }
+
+        self.goNext = function(e) {
+            switch (self.selectedTemplate) {
+                case 'SGMTH01':
+                    self.template = self.sgmth01
+                    break
+                case 'SGMAQ01':
+                    self.template = self.sgmaq01
+                    break
+                case 'EMULATOR':
+                    self.template = self.emulator
+                    break
+                case 'UNDEFINED':
+                    self.template = self.undefined
+                    break
+            }
+            self.templateSelected = true
+            self.device.type = self.template.type
+            self.device.applicationID = self.template.applicationID
+            self.device.channels = self.template.channels
+            self.device.code = self.template.code
+            self.device.encoder = self.template.encoder
+            self.device.description = self.templateDescription
+            self.device.pattern = self.template.pattern
+            self.device.commandscript = self.template.commandscript
+            self.device.template = self.template.EUI
+            riot.update()
+        }
+
+        //TODO: get template definition dynamicly using API
+        self.sgmth01 = {
+            'EUI': 'SGMTH01',
+            'type': 'TTN',
+            'applicationID': 'signomixweather00',
+            'channels': 'temperature,humidity,battery',
+            'code': '',
+            'encoder': '',
+            'pattern': '',
+            'groups': '',
+            'transmissionInterval': '',
+            'commandscript': '',
+            'description': '{"en":"Arduino based weather sensor. Uses TTN infrastructure",'+
+                    '"fr":"Arduino based weather sensor. Uses TTN infrastructure",'+
+                    '"pl":"Czujnik pogodowy na bazie Arduino. Wykorzystuje infrastrukturę TTN"}'
+        }
+        self.sgmaq01 = {
+            'EUI': 'SGMAQ01',
+            'type': 'TTN',
+            'applicationID': 'osr_air',
+            'channels': 'temperature,humidity,pm25,pm100,lat,lon,pm25avg,pm100avg',
+            'code': '// The code for pasting below can be found at otwartasiecrzeczy.org',
+            'encoder': '',
+            'pattern': '',
+            'groups': '',
+            'transmissionInterval': '10',
+            'commandscript': '',
+            'description': '{"en":"Air Quality Sensor Station by Otwarta Sieć Rzeczy Assoc. Uses TTN infrastructure","it":"Air Quality Sensor Station by Otwarta Sieć Rzeczy Assoc. Uses TTN infrastructure","fr":"Air Quality Sensor Station by Otwarta Sieć Rzeczy Assoc. Uses TTN infrastructure","pl":"Czujnik Jakości Powietrza opracowany przez stowarzyszenie Otwarta Sieć Rzeczy. Wykorzystuje infrastrukturę TTN"}'
+        }
+        self.emulator = {
+            'EUI': 'EMULATOR',
+            'type': 'GENERIC',
+            'applicationID': '',
+            'channels': 'temperature,humidity,battery',
+            'code': '',
+            'encoder': '',
+            'pattern': '',
+            'groups': '',
+            'transmissionInterval': '',
+            'commandscript': '',
+            'description': '{"en":"An IoT device that uses the Signomix REST API.","fr":"Dispositif IoT qui utilise l`REST API Signomix.","pl":"Urządzenie IoT korzystające z REST API Signomiksa.","it":"Un dispositivo IoT che utilizza l`REST API di Signomix."}'
+        }
         self.undefined = {
             'EUI': 'UNDEFINED',
             'type': 'GENERIC',
@@ -229,6 +347,7 @@
         }
 
         self.template = self.undefined
+        self.templateDescription = self.getTemplateDescription(self.undefined.description)
         self.selectedTemplate = 'UNDEFINED'
 
         getStatus(lastSeen, interval) {

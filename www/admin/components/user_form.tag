@@ -28,7 +28,7 @@
                     <div class="col-md-3 my-1">
                         <label class="mr-sm-2" for="genNotCh">GENERAL</label>
                         <select class="custom-select mr-sm-2" id="genNotCh" disabled={ !allowEdit }>
-                            <option value='0' selected={''==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                            <option value='SIGNOMIX' selected={''==user.generalNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel }>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'Pushover'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Pushover</option>
@@ -48,7 +48,7 @@
                     <div class="col-md-3 my-1">
                         <label class="mr-sm-2" for="infoNotCh">INFO</label>
                         <select class="custom-select mr-sm-2" id="infoNotCh" disabled={ !allowEdit }>
-                            <option value='0' selected={''==user.infoNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                            <option value='SIGNOMIX' selected={''==user.infoNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Pushover</option>
@@ -68,7 +68,7 @@
                     <div class="col-md-3 my-1">
                         <label class="mr-sm-2" for="warningNotCh">WARNING</label>
                         <select class="custom-select mr-sm-2" id="warningNotCh" disabled={ !allowEdit }>
-                            <option value='0' selected={''==user.warningNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                            <option value='SIGNOMIX' selected={''==user.warningNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Pushover</option>
@@ -88,7 +88,7 @@
                     <div class="col-md-3 my-1">
                         <label class="mr-sm-2" for="alertNotCh">ALERT</label>
                         <select class="custom-select mr-sm-2" id="alertNotCh" disabled={ !allowEdit }>
-                            <option value='0' selected={''==user.alertNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                            <option value='SIGNOMIX' selected={''==user.alertNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Pushover</option>
@@ -260,17 +260,25 @@
                     formData.role = e.target.elements['role'].value
                 }
             }
-            if (e.target.elements['genNotCh'].value!='0' && e.target.elements['generalNotificationChannel'].value != '') {
+            if (e.target.elements['genNotCh'].value!='SIGNOMIX' && e.target.elements['generalNotificationChannel'].value != '') {
                 formData.generalNotifications = e.target.elements['genNotCh'].value+":"+e.target.elements['generalNotificationChannel'].value
+            }else if(e.target.elements['genNotCh'].value=='SIGNOMIX'){
+                formData.generalNotifications = 'SIGNOMIX:'
             }
-            if (e.target.elements['infoNotCh'].value!='0' && e.target.elements['infoNotificationChannel'].value != '') {
+            if (e.target.elements['infoNotCh'].value!='SIGNOMIX' && e.target.elements['infoNotificationChannel'].value != '') {
                 formData.infoNotifications = e.target.elements['infoNotCh'].value+":"+e.target.elements['infoNotificationChannel'].value
+            }else if(e.target.elements['infoNotCh'].value=='SIGNOMIX'){
+                formData.infoNotifications = 'SIGNOMIX:'
             }
-            if (e.target.elements['warningNotCh'].value!='0' && e.target.elements['warningNotificationChannel'].value != '') {
+            if (e.target.elements['warningNotCh'].value!='SIGNOMIX' && e.target.elements['warningNotificationChannel'].value != '') {
                 formData.warningNotifications = e.target.elements['warningNotCh'].value+":"+e.target.elements['warningNotificationChannel'].value
+            }else if(e.target.elements['warningNotCh'].value=='SIGNOMIX'){
+                formData.warningNotifications = 'SIGNOMIX:'
             }
-            if (e.target.elements['alertNotCh'].value!='0' && e.target.elements['alertNotificationChannel'].value != '') {
+            if (e.target.elements['alertNotCh'].value!='SIGNOMIX' && e.target.elements['alertNotificationChannel'].value != '') {
                 formData.alertNotifications = e.target.elements['alertNotCh'].value+":"+e.target.elements['alertNotificationChannel'].value
+            }else if(e.target.elements['alertNotCh'].value=='SIGNOMIX'){
+                formData.alertNotifications = 'SIGNOMIX:'
             }
             
             if (e.target.elements['confirmString'].value != '') {formData.confirmString = e.target.elements['confirmString'].value}
@@ -285,7 +293,7 @@
             if (self.method == 'PUT'){
                 urlPath = formData.uid
             }
-            sendData(formData,self.method,app.userAPI + urlPath,app.user.token,self.close,globalEvents)
+            sendData(formData,self.method,app.userAPI + '/'+urlPath,app.user.token,self.close,globalEvents)
         }
 
         self.close = function(object){
@@ -314,7 +322,7 @@
         })
 
         var readUser = function (uid) {
-            getData(app.userAPI+uid,null,app.user.token,update,self.listener)
+            getData(app.userAPI+'/'+uid,null,app.user.token,update,self.listener)
         }
 
         var generatePassword = function(){

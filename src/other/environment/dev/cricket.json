@@ -13,6 +13,7 @@
                 "keystore": "./data/cricket_publickeystore.jks",
                 "keystore-password": "cricket15$#17",
                 "threads": 0,
+                "shutdown-delay":"2",
                 "filter": "org.cricketmsf.microsite.auth.SecurityFilter",
                 "cors": "Access-Control-Allow-Origin:*|Access-Control-Allow-Credentials:true|Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT|Access-Control-Allow-Headers: Authentication, Authorization, Origin, X-Requested-With, Content-Type, Accept, Accept-Language, Content-Language|Access-Control-Max-Age: 1728000",
                 "time-zone": "GMT",
@@ -22,6 +23,7 @@
                 "initial-admin-secret": "test123",
                 "admin-notification-email": "",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
+                "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
                 "backup-folder": "./data/backup",
                 "backup-daily": "true",
@@ -286,10 +288,10 @@
                         "name": "iot",
                         "file": "iot",
                         "test-query": "select * from serviceversion",
-                        "version": "4",
+                        "version": "7",
                         "user": "sa",
                         "password": "",
-                        "time-offset": "3600"
+                        "time-offset": "7200"
                     }
                 },
                 "iotDataDB": {

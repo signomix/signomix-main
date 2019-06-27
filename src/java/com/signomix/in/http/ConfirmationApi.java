@@ -27,6 +27,7 @@ public class ConfirmationApi extends HttpAdapter implements HttpAdapterIface, Ad
      */
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
+        super.loadProperties(properties, adapterName);
         super.getServiceHooks(adapterName);
         setContext(properties.get("context"));
         Kernel.getInstance().getLogger().print("\tcontext=" + getContext());

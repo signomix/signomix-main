@@ -619,6 +619,18 @@
             "fr": "Device definition",
             "pl": "Definicja urządzenia"
         },
+        "template_undefined": {
+            "en": "User defined",
+            "it": "Definito dall'utente",
+            "fr": "Défini par l'utilisateur",
+            "pl": "Definiowane przez użytkownika"
+        },
+        "template_http": {
+            "en": "HTTP device example",
+            "it": "Esempio di dispositivo HTTP",
+            "fr": "Exemple d'appareil HTTP",
+            "pl": "Przykład urządzenia połączonego przez HTTP"
+        },
         "template": {
             "en": "Device line",
             "it": "Linea del dispositivo",
@@ -638,10 +650,10 @@
             "pl": "EUI"
         },
         "eui_hint": {
-            "en": "The unique identifier of this device provided by the manufacturer. Laissez vide si vous voulez en générer un nouveau.",
-            "it": "L'identificativo univoco di questo dispositivo fornito dal produttore. Lascia vuoto se vuoi generarne uno nuovo.",
-            "fr": "L'identifiant unique de cet appareil fourni par le fabricant",
-            "pl": "Unikalny identyfikator tego urządzenia podany przez producenta. Pozostaw puste jeśli cncesz wygenerować nowe."
+            "en": "The unique identifier of this device provided by the manufacturer. If you leave this field blank, it will be generated automatically.",
+            "it": "L'identificativo univoco di questo dispositivo fornito dal produttore. Se lasci il campo vuoto, sarà generata automaticamente.",
+            "fr": "L'identifiant unique de cet appareil fourni par le fabricant.Si vous laissez ce champ vide, il sera généré automatiquement.",
+            "pl": "Unikalny identyfikator tego urządzenia podany przez producenta. Jeśli pozostawisz to pole puste, zostanie wygenerowany automatycznie."
         },
         "appeui": {
             "en": "Application EUI",
@@ -794,10 +806,10 @@
             "pl": "Status"
         },
         "generic_desc": {
-            "en": "Generic IoT node, sending a data directly to Signomix using REST API",
-            "it": "Nodo IoT generico, invia dati direttamente a Signomix utilizzando REST API",
-            "fr": "Generic IoT node, sending a data directly to Signomix using REST API",
-            "pl": "Bazowe urządzenie IoT, wysyłające dane bezpośrednio do Signomixa z użyciem REST API"
+            "en": "Generic IoT node with Internet connection,  sending a data directly to Signomix using REST API",
+            "it": "Nodo IoT generico con connessione Internet, invia dati direttamente a Signomix utilizzando REST API",
+            "fr": "Generic IoT node with Internet connection, sending a data directly to Signomix using REST API",
+            "pl": "Bazowe urządzenie IoT połączone z Internetem, wysyłające dane bezpośrednio do Signomiksa z użyciem REST API"
         },
         "ttn_desc": {
             "en": "IoT node registered in the The Things Network infrastructure",
@@ -818,10 +830,10 @@
             "pl": "Urządzenie IoT zarejestrowane w infrastrukturze KPN"
         },
         "gateway_desc": {
-            "en": "Signocom's Home Gateway",
-            "it": "Signocom's Home Gateway",
-            "fr": "Signocom's Home Gateway",
-            "pl": "Gome Gateway produkcji Signocom"
+            "en": "Home Gateway",
+            "it": "Home Gateway",
+            "fr": "Home Gateway",
+            "pl": "Home Gateway"
         },
         "virtual_desc": {
             "en": "Virtual device - a component of the Signomix platform",
@@ -1559,10 +1571,10 @@
                 "pl": "Konfiguracja"
             },
             "select": {
-                "en": "Select ...",
-                "it": "Seleziona ...",
-                "fr": "Choisir ...",
-                "pl": "Wybierz ..."
+                "en": "SIGNOMIX",
+                "it": "SIGNOMIX",
+                "fr": "SIGNOMIX",
+                "pl": "SIGNOMIX"
             }
         }
     
