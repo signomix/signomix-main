@@ -829,7 +829,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         }
     }
 
-    @Override
+    /*@Override
     public Dashboard getDashboard(String dashboardID) throws ThingsDataException {
         String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where id=?";
         try (Connection conn = getConnection()) {
@@ -845,7 +845,8 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
-
+    */
+    
     @Override
     protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
         String query = "";

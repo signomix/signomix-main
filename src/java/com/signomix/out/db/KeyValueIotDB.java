@@ -318,7 +318,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         }
     }
 
-    @Override
+    /*@Override
     public Dashboard getDashboard(String dashboardID) throws ThingsDataException {
         try {
             return (Dashboard) get("dashboards", dashboardID);
@@ -326,6 +326,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
         }
     }
+    */
 
     @Override
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException {

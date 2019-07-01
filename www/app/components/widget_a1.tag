@@ -1,20 +1,4 @@
 <widget_a1>
-    <div id={opts.ref} if={type == 'line' || type == 'stepped'} class="card widget topspacing p-0">
-        <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body"  if={ front }><canvas ref="line0" id="line0"></canvas></div>
-        <div class="card-body table-responsive" if={ !front } >
-            <table id="devices" class="table table-condensed">
-                <thead>
-                    <tr><th scope="col">#</th><th scope="col">{ app.texts.widget_a1.timestamp[app.language] }</th><th scope="col"><span class="float-right">{ app.texts.widget_a1.value[app.language] }</span></th></tr>
-                </thead>
-                <tbody>
-                    <tr each={jsonData[0]}  class='small'>
-                        <td>{ getNextIndex() }</td><td>{formatDate(new Date(timestamp), true)}</td><td><span class="float-right">{value}<raw content={ unitName }></raw></span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
     <div id={opts.ref} if={type == 'symbol'} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
             <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
@@ -119,10 +103,6 @@
             case 'symbol':
                 self.showSymbol()
                 break
-            case 'line':
-            case 'stepped':
-                self.showLineGraph(self.type)
-                break
             case 'button':
                 self.showButton()
                 break
@@ -184,99 +164,7 @@
         self.value = parseFloat(self.jsonData[0][0]['value'])
         app.log('BUTTON name: '+self.channelName)
     }
-    
-    self.showLineGraph = function(chartType){
-        app.log('GRAPH '+chartType)
-        if(!self.front){ return }
-        self.line = this.refs.line0
-        var ctxL = self.line.getContext('2d');
-        var minWidth=400
-        var largeSize=self.width>minWidth
-        var chartData = {
-                labels: [],
-                datasets: [{
-                    backgroundColor: 'blue',
-                    borderColor: 'blue',
-                    steppedLine: (chartType=='stepped'?'before':false),
-                    data: [],
-                    fill: false,
-                }
-                ]
-            }
-        if(largeSize){
-            chartData.datasets=
-            [{
-                    label: self.channelName,
-                    backgroundColor: 'blue',
-                    borderColor: 'blue',
-                    steppedLine: (chartType=='stepped'?'before':false),
-                    data: [],
-                    fill: false,
-                }
-            ]
-        }
-        var firstDate = ''
-        var lastDate = ''
-        if(self.toLocaleTimeStringSupportsLocales()){
-            for(i=0;i<self.jsonData[0].length;i++){
-                chartData.datasets[0].data.push(self.jsonData[0][i]['value'])
-                if(largeSize){
-                chartData.labels.push(new Date(self.jsonData[0][i]['timestamp']).toLocaleTimeString(app.language))
-                }else{
-                chartData.labels.push('')
-                }
-            }
-            if(self.jsonData[0].length>0){
-                firstDate = new Date(self.jsonData[0][0]['timestamp']).toLocaleDateString(app.language)
-                lastDate = new Date(self.jsonData[0][self.jsonData[0].length-1]['timestamp']).toLocaleDateString(app.language)
-            }
-        }else{
-            for(i=0;i<self.jsonData[0].length;i++){
-                chartData.datasets[0].data.push(self.jsonData[0][i]['value'])
-                if(largeSize){
-                chartData.labels.push(self.formatDate(new Date(self.jsonData[0][i]['timestamp']),false))
-                }else{
-                chartData.labels.push('')
-                }
-            }
-            if(self.jsonData[0].length>0){
-                firstDate = new Date(self.jsonData[0][0]['timestamp']).toISOString().substring(0,10)
-                lastDate = new Date(self.jsonData[0][self.jsonData.length-1]['timestamp']).toISOString().substring(0,10)
-            }
-        }    
-        var options = {
-                responsive: true,
-                legend:null,
-                title:{
-                    display:true,
-                    text: self.title + ' ' + firstDate + ' - '+lastDate
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        id: 'first-axis',
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: self.channelName
-                        }
-                    }]
-                }
-            }
-        self.chart = new Chart(ctxL, {
-            type: 'line',
-            data: chartData,
-            options: options
-        })
-
-    }
-    
+        
     this.on('update', function(e){
     })
     
@@ -298,15 +186,6 @@
                 self.showLineGraph()
             }
         }
-    }
-    
-    self.splitRange = function(text,separator){
-        var afterSplit = text.split(separator)
-        var result = []
-        for(i=0;i<afterSplit.length;i++){
-            result.push(Number(afterSplit[i]))
-        }
-        return result
     }
     
     self.formatDate = function(myDate, full){

@@ -82,7 +82,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         }
         Dashboard original;
         try {
-            original = getIotDB().getDashboard(dashboard.getId());
+            original = getIotDB().getDashboard(userID, dashboard.getId());
             if (original == null) {
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
             }

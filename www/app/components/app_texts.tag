@@ -1381,6 +1381,15 @@
             "pl": "Nieprawidłowy login lub adres e-mail"
         }
     }
+    
+    app.texts.widget_chart = {
+        "timestamp": {
+            "en": "timestamp",
+            "it": "timestamp",
+            "fr": "torodatage",
+            "pl": "znacznik czasu"
+        }
+    }
         
     app.texts.widget_a1 = {
         "save": {
@@ -1424,12 +1433,6 @@
             "it": "Valore",
             "fr": "Valeur",
             "pl": "Wartość"
-        },
-        "timestamp": {
-            "en": "Timestamp",
-            "it": "Data e ora",
-            "fr": "Horodatage",
-            "pl": "Znacznik czasu"
         }
     }
     
