@@ -1,6 +1,31 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- start Google Analytics -->
+        <script type="text/javascript">
+            var gtsrc = "https://www.googletagmanager.com/gtag/js?id=$gaTrackingID";
+            if (gtsrc.indexOf('$')==-1) {
+                var d = document,
+                h = d.getElementsByTagName('head')[0],
+                s = d.createElement('script');
+                s.type = 'text/javascript';
+                s.async = true;
+                s.src = gtsrc;
+                h.appendChild(s);
+            }
+        </script>
+        <script>
+            //console.log('gtsrc:'+gtsrc);
+            if(gtsrc.indexOf('$')==-1){
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+                gtag('config', '$gaTrackingID', {'anonymize_ip': true});
+            }
+        </script>
+    <!-- end Google Analytics -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -34,6 +59,12 @@
     <script data-src="/components/app_header.tag" type="riot/tag"></script>
     <script data-src="/components/app_footer.tag" type="riot/tag"></script>
     <script>
+        <!-- start Google Analytics ID config-->
+        app.GA_TRACKING_ID = "$gaTrackingID";
+        if(app.GA_TRACKING_ID.startsWith('$')){
+            app.GA_TRACKING_ID=''
+        }
+        <!-- end Google Analytics ID config -->
         app.csAPI = "$serviceurl"+"/api/cs";;
         app.language = "en";
         app.languages=['en','pl','fr','it'];
