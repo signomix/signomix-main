@@ -472,6 +472,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             conn.close();
             return result;
         } catch (SQLException e) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = "+query));
             e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }

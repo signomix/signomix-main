@@ -59,6 +59,7 @@
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
                                 <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>
                                 <option value="report" selected={self.editedWidget.type=='report'}>{self.getTypeName('report')}</option>
+                                <option value="multimap" selected={self.editedWidget.type=='multimap'}>{self.getTypeName('multimap')}</option>
                             </select>
                         </div>
                         </div>
@@ -76,7 +77,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' }>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_dev_id"
@@ -89,7 +90,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='report' }>
+                        <div class="row" if={ self.editedWidget.type=='report' || self.editedWidget.type=='multimap' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_group"
@@ -128,7 +129,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report'}>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_query"
@@ -150,7 +151,7 @@
                             </select>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led'}>
+                        <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led' || self.editedWidget.type=='multimap'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_range"
@@ -159,7 +160,7 @@
                                 type="text"
                                 content={ self.editedWidget.range }
                                 readonly={ !allowEdit }
-                                hint={ app.texts.dashboard_form.f_widget_range_hint[app.language] }
+                                hint={ self.editedWidget.type=='multimap'?app.texts.dashboard_form.f_widget_range_hint_mm[app.language]:app.texts.dashboard_form.f_widget_range_hint[app.language] }
                             ></form_input>
                         </div>
                         </div>
@@ -452,23 +453,24 @@
             self.editedWidget.type = e.target.value
             riot.update()
         }
+        
         self.saveWidget = function(e){
             e.preventDefault()
             $('#widgetEdit').modal('hide');
             //
             self.editedWidget.name = e.target.elements['w_name'].value
             try{
-                self.editedWidget.dev_id = e.target.elements['w_dev_id'].value
+                self.editedWidget.dev_id = e.target.elements['w_dev_id'].value.replace(/\s+/g,'')
             }catch(err){
                 self.editedWidget.dev_id = ''
             }
             try{
-                self.editedWidget.group = e.target.elements['w_group'].value
+                self.editedWidget.group = e.target.elements['w_group'].value.replace(/\s+/g,'')
             }catch(err){
                 self.editedWidget.group = ''
             }
             try{
-                self.editedWidget.channel = e.target.elements['w_channel'].value
+                self.editedWidget.channel = e.target.elements['w_channel'].value.replace(/\s+/g,'')
             }catch(err){
                 self.editedWidget.channel = ''
             }
@@ -504,7 +506,7 @@
             if(self.editedWidget.width == null || isNaN(self.editedWidget.width) || self.editedWidget.width<1 || self.editedWidget.width >4){
                 self.editedWidget.width = 1
             }else{
-                console.log("WIDTH:"+self.editedWidget.width)
+                app.log("WIDTH:"+self.editedWidget.width)
             }
             
             delete self.editedWidget.queryvalue
@@ -580,6 +582,9 @@
                     break
                 case 'map':
                     return app.texts.dashboard_form.type_map[app.language]
+                    break
+                case 'multimap':
+                    return app.texts.dashboard_form.type_multimap[app.language]
                     break
                 case 'date':
                     return app.texts.dashboard_form.type_date[app.language]

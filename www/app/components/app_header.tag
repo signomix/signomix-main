@@ -28,7 +28,7 @@
                         <a class="nav-link text-signo" href="#!doc,toc" onclick={ goto('#!doc,toc') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.documentation[app.language] }</a>
                     </li>
                     <li class="nav-item" if={!app.user.guest && app.user.status != 'logged-in' }>
-                        <a class="nav-link text-signo" href="#login" onclick={ goto('#!login') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.login[app.language] }</a>
+                        <a class="nav-link text-signo" href="#!login" onclick={ goto('#!login') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.login[app.language] }</a>
                     </li>
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest}>
                         <a class="nav-link text-signo" href="#!logout"onclick={ goto('#!logout') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.logout[app.language] }</a>

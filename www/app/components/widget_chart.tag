@@ -41,6 +41,7 @@
         self.rawdata = "[]"
         self.jsonData = []
         self.line = this.refs.line0
+        self.ctxL = {}
         self.chart = {}
         //self.deviceEUI = ''
         self.width = 100
@@ -55,15 +56,16 @@
             }
             getWidth()
             self.multiLine = self.jsonData[0].length > 1 && self.jsonData[0][1]['name'] != self.jsonData[0][0]['name']
-            self.showMultiLineGraph(self.type)
+            self.showMultiLineGraph(self.type,false)
         }
         
-        self.showMultiLineGraph = function(chartType){
+        self.showMultiLineGraph = function(chartType,afterSwitch){
             if (!self.front || self.jsonData[0].length == 0 ){ 
+                app.log('return because '+self.front+' '+self.jsonData[0].length)
                 return 
             }
             self.line = this.refs.line0
-            var ctxL = self.line.getContext('2d')
+            self.ctxL = self.line.getContext('2d')
             var minWidth = 400
             var largeSize = self.width > minWidth
             var numberOfLines = self.multiLine?self.jsonData[0].length:1
@@ -80,7 +82,7 @@
                     label: self.jsonData[0][i].name,
                     backgroundColor: colors[i],
                     borderColor: colors[i],
-                    steppedLine: (chartType == 'stepped'?'before':false),
+                    steppedLine: (chartType == 'stepped'?true:false),
                     data: [],
                     fill: false,
                     yAxisID: axesNames[i]
@@ -166,11 +168,25 @@
                 )
             }
             
-            self.chart = new Chart(ctxL, {
-                type: 'line',
-                data: chartData,
-                options: options
-            })
+            try{
+                if(self.chart && !afterSwitch){
+                    self.chart.data = chartData
+                    self.chart.options = options
+                    self.chart.update({duration:0})
+                }else{
+                    self.chart = new Chart(self.ctxL, {
+                        type: 'line',
+                        data: chartData,
+                        options: options
+                    })
+                }
+            }catch(err){
+                self.chart = new Chart(self.ctxL, {
+                    type: 'line',
+                    data: chartData,
+                    options: options
+                })
+            }
     
         }
 
@@ -178,7 +194,7 @@
             return function(e){
                 self.front = !self.front
                 riot.update()
-                self.showMultiLineGraph()
+                self.showMultiLineGraph(self.type,true)
             }
         }
 

@@ -62,7 +62,7 @@
             app.log('MY DASHBOARDS: ' + eventName)
             switch (eventName){
                 case 'submitted':
-                    //console.log('after submit device')
+                    //app.log('after submit device')
                     self.selected = ''
                     readDefinitions()  //this line results in logout,login error
                     break
@@ -103,7 +103,7 @@
         
         removeDashboard(){
             return function(e){
-                console.log('REMOVING ... '+self.selectedForRemove)
+                app.log('REMOVING ... '+self.selectedForRemove)
                 deleteData( 
                     app.dashboardAPI+'/'+self.selectedForRemove, 
                     app.user.token, 

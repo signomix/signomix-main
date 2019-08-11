@@ -287,6 +287,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         return getIotDB().getUserGroups(userID);
     }
 
+    
+    @Override
+    public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
+        return getIotDB().getGroup(groupEUI);
+    }
+    
     @Override
     public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException {
         return getIotDB().getGroup(userId, groupEUI);
@@ -312,7 +318,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public void removeGroup(String groupEUI, String userID) throws ThingsDataException {
+    public void removeGroup(String userID, String groupEUI) throws ThingsDataException {
         DeviceGroup group = getIotDB().getGroup(userID, groupEUI);
         if (userID.equals(group.getUserID()) || group.userIsTeamMember(userID)) {
             getIotDB().removeGroup(groupEUI);

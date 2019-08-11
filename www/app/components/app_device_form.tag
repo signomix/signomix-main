@@ -201,7 +201,7 @@
                 self.device.type = e.target.value
                 riot.update()
             } else {
-                console.log('UNKNOWN TARGET OF: ' + e)
+                app.log('UNKNOWN TARGET OF: ' + e)
             }
         }
 
@@ -338,7 +338,7 @@
             var channel = {}
             for (var key in self.device.channels) {
                 if (self.device.channels.hasOwnProperty(key)) {
-                    //console.log(key + " -> " + self.device.channels[key]);
+                    //app.log(key + " -> " + self.device.channels[key]);
                     channel = self.device.channels[key]
                     if (i > 0) {
                         result = result + ','
@@ -363,7 +363,6 @@
             } else {
                 self.device.encoder = ''
             }
-            //self.channelsEncoded = encodeChannels()
             self.device.channels = encodeChannels()
             self.templateSelected = true
             riot.update();

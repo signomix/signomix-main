@@ -388,4 +388,9 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

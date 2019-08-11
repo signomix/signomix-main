@@ -17,7 +17,8 @@ var app = {
     "authAPI": "http://localhost:8080/api/auth",
     "alertAPI": "http://localhost:8080/api/alert",
     "userAPI": "http://localhost:8080/api/user",
-    "iotAPI": "http://localhost:8080/api/iot",
+    "iotAPI": "http://localhost:8080/api/iot/device",
+    "groupAPI": "http://localhost:8080/api/iot/group",
     "csAPI": "http://localhost:8080/api/cs",
     "dashboardAPI": "http://localhost:8080/api/dashboard",
     "recoveryAPI": "http://localhost:8080/api/recover",
@@ -81,6 +82,5 @@ function trimSpaces(text){
             return this.toString().replace(/^\s+|\s+$/g, '');
         };
     }
-    console.log('trim');
     return text.trim();
 }

@@ -14,7 +14,12 @@ function getAlertLevel(definition, test) {
     if (!definition || !test) {
         return 0
     }
-    var r = definition.split(':')
+    var r
+    if(definition.indexOf('@'>0)){
+        r = definition.substring(0,definition.indexOf('@')).split(':')
+    }else{
+        r = definition.split(':')
+    }
     if (r.length == 0) {
         return 0
     }

@@ -77,6 +77,8 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public List<Device> getInactiveDevices() throws ThingsDataException;
 
     public List<String> getGroupDevices(String userID, String groupID) throws ThingsDataException;
+    
+    public DeviceGroup getGroup(String groupEUI) throws ThingsDataException;
 
     public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException;
 

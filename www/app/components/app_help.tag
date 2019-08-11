@@ -26,18 +26,18 @@
         })
         this.on('mount',function(){
             app.log('ABOUT MOUNT')
-            console.log('Load documents')
+            app.log('Load documents')
             self.loadDocuments()
         })
         
         globalEvents.on('pageselected:help',function(event){
-                console.log("Load documents again?")
+                app.log("Load documents again?")
                 riot.update()
                 self.loadDocuments()
         });
  
         self.loadDocuments = function(){
-            console.log(self.refs)
+            app.log(self.refs)
             Object.keys(self.refs).forEach(function(key) {
                 self.refs[key].updateContent()
             });

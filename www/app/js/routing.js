@@ -3,7 +3,7 @@
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
 route(function (id) {
-    console.log('PAGE ID=' + id)
+    app.log('PAGE ID=' + id)
     switch (id) {
         case "dashboard":
             app.currentPage = "dashboard";

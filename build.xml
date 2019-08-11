@@ -14,12 +14,14 @@
     <property name="cricket-version" value="1.3.0-alpha.11" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
-    <property name="minify" value="true" />
     <property name="javax.mail-version" value="1.6.2" />
     <property name="JDK-location" value=""/>
     <!--
     <property name="JDK-location" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
     -->
+    <property name="minify" value="false" />
+    <!-- Doclet -->
+    <property name="livingdocumentation-lib" value="lib/LivingDocumentation.jar"/>
     
     <!-- configuration of libraries included in the distribution fat-jar     -->
     <!-- set value=false to exclude selected library                         -->
@@ -43,6 +45,7 @@
     
     <path id="project-classpath">
         <pathelement location="${cricket-jar-location}"/>
+        <pathelement location="${livingdocumentation-lib}"/>
         <!--<pathelement location="${h2-jar-location}"/>
         <pathelement location="${kafka-jar-location}"/> 
         <pathelement location="${saaj-jar-location}/"/>
@@ -60,7 +63,13 @@
         <mkdir dir="${lib}"/>
         <get
             src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
-            dest="lib/cricket-${cricket-version}.jar" 
+            dest="lib" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}-javadoc.jar"
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
@@ -72,31 +81,31 @@
         />-->
         <get
             src="http://search.maven.org/remotecontent?filepath=junit/junit/4.12/junit-4.12.jar"
-            dest="lib/junit-4.12.jar" 
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
         <get
             src="http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
-            dest="lib/hamcrest-core-1.3.jar" 
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
         <get
             src="http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.5/httpclient-4.5.5.jar"
-            dest="lib/httpclient-4.5.5.jar" 
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
         <get
             src="http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.9/httpcore-4.4.9.jar"
-            dest="lib/httpcore-4.4.9.jar" 
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
         <get
             src="http://central.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
-            dest="lib/commons-logging-1.2.jar" 
+            dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
@@ -197,6 +206,9 @@
                 </tokenfilter>
                 <striplinecomments>
                     <comment value="&lt;!"/>
+                </striplinecomments>
+                <striplinecomments>
+                    <comment value="app.log("/>
                 </striplinecomments>
             </filterchain>
         </copy>

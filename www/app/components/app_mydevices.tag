@@ -4,13 +4,26 @@
             <app_device_form ref="dev_edit"></app_device_form>
         </div>
     </div>
-    <div class="row" if={ !selected }>
+    <div class="row" if={ selectedGroup }>
+         <div class="col-md-12">
+            <app_group_form ref="gr_edit"></app_group_form>
+        </div>
+    </div>
+    <div class="row" if={ !selected && !selectedGroup}>
         <div class="col-md-12">
             <h2 class="module-title">{app.texts.mydevices.devices[app.language]}
                 <i class="material-icons clickable" onclick={ refresh() }>refresh</i>
-                <i class="material-icons clickable" onclick={ editDevice('NEW', true) }>add</i>
+                <i class="material-icons clickable" onclick={ create() }>add</i>
             </h2>
-            <table id="devices" class="table table-condensed">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link { active: activeTab=='devices' }" onclick="{ selectDevices() }">{app.texts.mydevices.tab_devices[app.language]}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link { active: activeTab=='groups' }" onclick="{ selectGroups() }">{app.texts.mydevices.tab_groups[app.language]}</a>
+                </li>
+            </ul>
+            <table id="devices" class="table table-condensed" if="{activeTab=='devices'}">
                 <thead>
                     <tr>
                         <th>{app.texts.mydevices.header_eui[app.language]}</th>
@@ -30,6 +43,26 @@
                             <i class="material-icons clickable" onclick={ editDevice(device.EUI, false) }>open_in_browser</i>
                             <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ editDevice(device.EUI, true) }>mode_edit</i>
                             <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ selectForRemove(device.EUI) } data-toggle="modal" data-target="#myModal">delete</i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table id="devices" class="table table-condensed" if="{activeTab=='groups'}">
+                <thead>
+                    <tr>
+                        <th>{app.texts.mydevices.header_eui[app.language]}</th>
+                        <th>{app.texts.mydevices.header_name[app.language]}</th>
+                        <th class="text-right">{app.texts.mydevices.header_action[app.language]}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr each={group in myGroups}>
+                        <td>{group.EUI}</td>
+                        <td>{group.name}</td>
+                        <td class="text-right">
+                            <i class="material-icons clickable" onclick={ editGroup(group.EUI, false) }>open_in_browser</i>
+                            <i class="material-icons clickable" if={group.userID == app.user.name} onclick={ editGroup(group.EUI, true) }>mode_edit</i>
+                            <i class="material-icons clickable" if={group.userID == app.user.name} onclick={ selectGroupForRemove(group.EUI) } data-toggle="modal" data-target="#myGroupModal">delete</i>
                         </td>
                     </tr>
                 </tbody>
@@ -58,33 +91,61 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="myGroupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">{app.texts.mydevices.remove_g_title[app.language]}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label={app.texts.mydevices.cancel[app.language]}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><b>{ selectedGroupForRemove }</b></p>
+                        <p>{app.texts.mydevices.remove_g_question[app.language]}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick={ removeGroup() } data-dismiss="modal">{app.texts.mydevices.remove[app.language]}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{app.texts.mydevices.cancel[app.language]}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script charset="UTF-8">
         var self = this
         self.devListener = riot.observable()
-        //self.userListener = riot.observable()
         self.info = {}
         self.myDevices = []
+        self.myGroups = []
         self.selected = ''
+        self.selectedGroup= ''
         self.selectedForRemove = ''
-        self.edited = false
+        self.selectedGroupForRemove = ''
+        //self.edited = false
         self.now = Date.now()
+        self.activeTab = 'devices'
         
         this.on('mount',function(){
             self.selected = ''
-            self.edited = false
-            //readMyAccountData()
+            //self.edited = false
             readMyDevices()
         })
 
         self.devListener.on('*', function (eventName) {
             switch (eventName){
                 case 'submitted':
-                    //console.log('after submit device')
-                    self.selected = ''
-                    readMyDevices()  //this line results in logout,login error
+                    //app.log('after submit device')
+                    if(self.activeTab == 'groups'){
+                        self.selectedGroup = ''
+                        readMyGroups()
+                    }else{
+                        self.selected = ''
+                        readMyDevices()  //this line results in logout,login error
+                    }
                     break
                 case 'cancelled':
                     self.selected = ''
+                    self.selectedGroup = ''
                     break
                 default:
                     app.log('ACCOUNT: error ' + eventName)
@@ -92,11 +153,42 @@
             riot.update()
         });
         
+        selectDevices(){
+            return function(e){
+                e.preventDefault()
+                self.activeTab = 'devices'
+                readMyDevices()
+            }
+        }
+        
+        selectGroups(){
+            return function(e){
+                e.preventDefault()
+                self.activeTab = 'groups'
+                readMyGroups()
+            }
+        }
+        
         getStatus(lastSeen, interval){
             if(self.now-lastSeen>interval){
                 return '/images/KO.svg'
             }else{
                 return '/images/OK.svg'
+            }
+        }
+        
+        create(){
+            return function(e){
+                e.preventDefault()
+                if(self.activeTab=='groups'){
+                    self.selectedGroup='NEW'
+                    riot.update()
+                    self.refs.gr_edit.init(self.devListener, 'NEW', true)
+                }else{
+                    self.selected='NEW'
+                    riot.update()
+                    self.refs.dev_edit.init(self.devListener, 'NEW', true)
+                }
             }
         }
         
@@ -119,9 +211,28 @@
             }
         }
         
+        editGroup(grEUI, allowEdit){
+            return function(e){
+                e.preventDefault()
+                self.selectedGroup=grEUI
+                riot.update()
+                app.log('SELECTED GROUP FOR EDITING: '+grEUI)
+                self.refs.gr_edit.init(self.devListener, grEUI, allowEdit)
+            }
+        }
+        
+        selectGroupForRemove(grEUI){
+            return function(e){
+                e.preventDefault()
+                self.selectedGroupForRemove=grEUI
+                riot.update()
+                app.log('SELECTED GROUP FOR REMOVE: '+grEUI)
+            }
+        }
+        
         removeDevice(){
             return function(e){
-                console.log('REMOVING ... '+self.selectedForRemove)
+                app.log('REMOVING ... '+self.selectedForRemove)
                 deleteData( 
                     app.iotAPI+'/'+self.selectedForRemove, 
                     app.user.token, 
@@ -140,10 +251,35 @@
             readMyDevices()
         }
         
+        removeGroup(){
+            return function(e){
+                app.log('REMOVING ... '+self.selectedForRemove)
+                deleteData( 
+                    app.groupAPI+'/'+self.selectedGroupForRemove, 
+                    app.user.token, 
+                    self.afterGroupRemove, 
+                    null, //self.listener, 
+                    'submit:OK', 
+                    'submit:ERROR', 
+                    app.debug, 
+                    null //globalEvents
+                )
+            }
+        }
+        
+        self.afterGroupRemove = function(object){
+            self.selectedGroupForRemove = ''
+            readMyGroups()
+        }
+        
         refresh(){
             return function(e){
                 e.preventDefault()
-                readMyDevices()
+                if(self.activeTab == 'groups'){
+                    readMyGroups()
+                }else{
+                    readMyDevices()
+                }
             }
         }
         
@@ -167,5 +303,24 @@
             riot.update();
         }
 
+        var readMyGroups = function() {
+                app.log('reading groups ...')
+                getData(app.groupAPI,
+                    null,
+                    app.user.token,
+                    updateMyGroups,
+                    self.listener, //globalEvents
+                    'OK',
+                    null, // in case of error send response code
+                    app.debug,
+                    globalEvents
+                    );
+        }
+
+        var updateMyGroups = function (text) {
+            app.log("ACCOUNT: " + text)
+            self.myGroups = JSON.parse(text);
+            riot.update();
+        }
     </script> 
 </app_mydevices>

@@ -9,11 +9,14 @@ import java.util.HashMap;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.HttpAdapterIface;
+import org.cricketmsf.livingdoc.architecture.HexagonalAdapter;
+
 
 /**
- *
+ * REST API for managing actuator devices
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
+@HexagonalAdapter
 public class ActuatorApi extends HttpAdapter implements HttpAdapterIface, Adapter {
 
     private boolean dumpRequest = false;

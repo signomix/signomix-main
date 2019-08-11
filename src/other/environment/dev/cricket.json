@@ -26,10 +26,11 @@
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
                 "backup-folder": "./data/backup",
-                "backup-daily": "true",
+                "backup-strategy": "day",
                 "serviceurl": "http://localhost:8080",
                 "SRVC_NAME_ENV_VARIABLE": "SIGNOMIX_ENVIRONMENT_NAME",
-                "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL"
+                "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL",
+                "ga-tracking-id": ""
             },
             "adapters": {
                 "echo": {

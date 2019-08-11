@@ -9,11 +9,13 @@ import java.util.HashMap;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.HttpAdapterIface;
+import org.cricketmsf.livingdoc.architecture.HexagonalAdapter;
 
 /**
- *
+ * TTN REST API
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
+@HexagonalAdapter
 public class TtnApi extends HttpAdapter implements HttpAdapterIface, Adapter {
     
     private boolean dumpRequest = false;

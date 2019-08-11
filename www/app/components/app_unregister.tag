@@ -35,7 +35,7 @@
             app.user.name=null;
             app.user.token=null;
             app.user.status='logged-out';
-            //console.log(self.refs)
+            //app.log(self.refs)
             Object.keys(self.refs).forEach(function(key) {
                 self.refs[key].updateContent()
             });

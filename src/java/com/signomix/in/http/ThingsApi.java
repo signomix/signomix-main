@@ -21,11 +21,13 @@ import org.cricketmsf.in.http.JsonFormatter;
 import org.cricketmsf.in.http.Result;
 import org.cricketmsf.in.http.TxtFormatter;
 import org.cricketmsf.in.http.XmlFormatter;
+import org.cricketmsf.livingdoc.architecture.HexagonalAdapter;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
+@HexagonalAdapter
 public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter {
 
     /**

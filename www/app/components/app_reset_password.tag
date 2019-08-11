@@ -49,13 +49,13 @@
 
         showResponse = function(text){
         self.status = 1
-        console.log("RESET RESP: "+text)
+        app.log("RESET RESP: "+text)
         riot.update()
         }
 
         submitForm = function(e){
         e.preventDefault()
-        console.log("submitting ..."+e.target)
+        app.log("submitting ..."+e.target)
         sendFormData(e.target, 'POST', app.recoveryAPI, self.listener, showResponse, self.listener, 'resetpass:OK', 'resetpass:ERR', app.debug, null)
         self.email = e.target.resetpass.value;
         e.target.reset()

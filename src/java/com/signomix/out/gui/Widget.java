@@ -71,7 +71,7 @@ public class Widget {
      * @param channel the channel to set
      */
     public void setChannel(String channel) {
-        this.channel = channel;
+        this.channel = channel.replaceAll("\\s", "");
     }
 
     /**
@@ -198,6 +198,10 @@ public class Widget {
      */
     public void setGroup(String group) {
         this.group = group;
+    }
+    
+    public void normalize(){
+        setChannel(channel);
     }
 
 }

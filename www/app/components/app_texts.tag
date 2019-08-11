@@ -424,6 +424,12 @@
             "fr": "Map",
             "pl": "Mapa"
         },
+        "type_multimap": {
+            "en": "Group map",
+            "it": "Mappa di gruppo",
+            "fr": "Map de groupe",
+            "pl": "Mapa grupowa"
+        },
         "type_date": {
             "en": "Date",
             "it": "Data",
@@ -568,6 +574,12 @@
             "fr": "Portées des avertissements dans le format du formulaire {alertCondition}[:{warningConditon}] (par ex. <-10>40:<0>30 )",
             "pl": "Zakresy ostrzeżeń w formacie {alertCondition}[:{warningConditon}] (np. <-10>40:<0>30 )"
         },
+        "f_widget_range_hint_mm": {
+            "en": "Scopes of warnings in the format of the form {alertCondition}[:{warningConditon}][@channel] (eg. <-10>40:<0>30@pm100 )",
+            "it": "Scopi degli avvisi secondo il seguente formato {alertCondition}[:{warningCondition}][@channel] (per es. <-10>40:<0>30@pm100 )",
+            "fr": "Portées des avertissements dans le format du formulaire {alertCondition}[:{warningConditon}][@channel] (par ex. <-10>40:<0>30@pm100 )",
+            "pl": "Zakresy ostrzeżeń w formacie {alertCondition}[:{warningConditon}][@channel] (np. <-10>40:<0>30@pm100 )"
+        },
         "f_widget_description": {
             "en": "Description",
             "it": "Descrizione",
@@ -619,6 +631,24 @@
             "fr": "Device definition",
             "pl": "Definicja urządzenia"
         },
+        "header_g_new": {
+            "en": "A new group of devices",
+            "it": "Un nuovo gruppo di dispositivi",
+            "fr": "A new group of devices",
+            "pl": "Nowa grupa urządzeń"
+        },
+        "header_g_modify": {
+            "en": "Modification of the device group",
+            "it": "Modifica del gruppo di dispositivi",
+            "fr": "Modification of the device group",
+            "pl": "Modyfikacja grupy urządzeń"
+        },
+        "header_g_view": {
+            "en": "Definition of a group of devices",
+            "it": "Definizione di un gruppo di dispositivi",
+            "fr": "Definition of a group of devices",
+            "pl": "Definicja grupy urządzeń"
+        },
         "template_undefined": {
             "en": "User defined",
             "it": "Definito dall'utente",
@@ -654,6 +684,12 @@
             "it": "L'identificativo univoco di questo dispositivo fornito dal produttore. Se lasci il campo vuoto, sarà generata automaticamente.",
             "fr": "L'identifiant unique de cet appareil fourni par le fabricant.Si vous laissez ce champ vide, il sera généré automatiquement.",
             "pl": "Unikalny identyfikator tego urządzenia podany przez producenta. Jeśli pozostawisz to pole puste, zostanie wygenerowany automatycznie."
+        },
+        "eui_g_hint": {
+            "en": "A unique device group identifier. Automatically generated.",
+            "it": "L'identificativo univoco di questo dispositivo fornito dal produttore. Se lasci il campo vuoto, sarà generata automaticamente.",
+            "fr": "A unique device group identifier. Automatically generated.",
+            "pl": "Unikalny identyfikator grupy urządzeń. Generowany automatycznie."
         },
         "appeui": {
             "en": "Application EUI",
@@ -731,6 +767,12 @@
             "en": "Logins of other users having access to data from this device. Separated by commas.",
             "it": "Nomi degli altri utenti che hanno accesso ai dati di questo dispositivo. Separati da virgole.",
             "fr": "Logins d'autres utilisateurs qui ont accès aux données de l'appareil. Séparé par des virgules.",
+            "pl": "Loginy innych użytkowników mających dostęp do danych z tego urządzenia. Oddzielone przecinkami."
+        },
+        "team_g_hint": {
+            "en": "Logins of other users having access to data from this group. Separated by commas.",
+            "it": "Login di altri utenti che hanno accesso ai dati da questo gruppo. Separato da virgole.",
+            "fr": "Logins of other users having access to data from this group. Separated by commas.",
             "pl": "Loginy innych użytkowników mających dostęp do danych z tego urządzenia. Oddzielone przecinkami."
         },
         "channels": {
@@ -1077,6 +1119,18 @@
     }
         
     app.texts.mydevices = {
+        "tab_groups": {
+            "en": "Groups",
+            "it": "Groups",
+            "fr": "Groups",
+            "pl": "Grupy"
+        },
+        "tab_devices": {
+            "en": "Devices",
+            "it": "Devices",
+            "fr": "Devices",
+            "pl": "Urządzenia"
+        },
         "title": {
             "en": "my devices",
             "it": "i miei dispositivi",
@@ -1119,6 +1173,12 @@
             "fr": "Voulez-vous supprimer le dispositif selectionne",
             "pl": "Czy chcesz usunąć wybrane urządzenie?"
         },
+        "remove_g_question": {
+            "en": "Do you want to remove selected group?",
+            "it": "Vuoi rimuovere il gruppo selezionato?",
+            "fr": "Voulez-vous supprimer le groupe sélectionné?",
+            "pl": "Czy chcesz usunąć wybraną grupę?"
+        },
         "remove_info": {
             "en": "All data collected from this device will be lost.",
             "it": "Tutti i dati raccolti da questo dispositvo andranno persi.",
@@ -1130,6 +1190,12 @@
             "it": "Elimina dispositivo",
             "fr": "Supprimer le dispositif",
             "pl": "Usuwanie urządzenia"
+        },
+        "remove_g_title": {
+            "en": "Removing the device group",
+            "it": "Eliminazione del gruppo",
+            "fr": "Suppression d'un groupe",
+            "pl": "Usuwanie grupy urządzeń"
         },
         "header_name": {
             "en": "NAME",

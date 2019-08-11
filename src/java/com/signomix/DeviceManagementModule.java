@@ -477,7 +477,7 @@ public class DeviceManagementModule {
 
     private void removeGroup(String groupEUI, ThingsDataIface thingsAdapter) {
         try {
-            String userID = thingsAdapter.getDevice(groupEUI).getUserID();
+            String userID = thingsAdapter.getGroup(groupEUI).getUserID();
             thingsAdapter.removeGroup(userID, groupEUI);
             Kernel.handle(new IotEvent(IotEvent.GROUP_REMOVED, groupEUI + "\t" + userID));
         } catch (ThingsDataException ex) {

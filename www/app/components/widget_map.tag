@@ -1,7 +1,7 @@
 <widget_map>
     <div id={ref} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1">{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body p-0 m-0" style={heightStr} id={ref+'_m'}>
+        <div class="card-body p-0 m-0" style={ heightStr } id={ ref+'_m' }>
 no data received
         </div>
     </div>
@@ -83,7 +83,7 @@ no data received
         try{
             map = L.map(self.ref+'_m')
         }catch(err){
-            console.log(err)
+            app.log(err)
         }
         map.setView([self.lat, self.lon], zoom)
         
@@ -119,7 +119,7 @@ no data received
                     )
                 }
             }
-            console.log(latlngs)
+            app.log(latlngs)
             polyline = L.polyline(latlngs, {
                 color: 'red'
             }).addTo(map);
@@ -143,9 +143,6 @@ no data received
     function getWidth(){
         self.width=$('#'+self.ref).width()
         self.heightStr='width:100%;height:'+self.width+'px;'
-        //console.log('self.ref:'+self.ref)
-        //console.log('self.WIDTH:'+self.width)
-        //console.log('newWIDTH:'+document.getElementById(self.ref).getBoundingClientRect().width)
     }
     
     function resize(){

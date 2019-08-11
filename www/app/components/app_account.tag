@@ -195,7 +195,7 @@
 
         self.closeUnregister = function(object){
         var text = ''+object
-        console.log('CALBACK: '+object)
+        app.log('CALBACK: '+object)
         if(text.startsWith('{')){
         var newUser = JSON.parse(object)
         if(newUser.unregisterRequested){

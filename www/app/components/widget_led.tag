@@ -29,9 +29,9 @@
         self.front = true
         
         self.show2 = function(){
-            console.log('SHOW LED')
+            app.log('SHOW LED')
             self.jsonData = JSON.parse(this.rawdata)
-            console.log(this.rawdata)
+            app.log(this.rawdata)
             if(self.jsonData.length==0 || self.jsonData[0].length==0){
                 return
             }

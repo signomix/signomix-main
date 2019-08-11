@@ -8,11 +8,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import org.cricketmsf.livingdoc.design.BoundedContext;
 
-/**
+/** Description
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
+@BoundedContext
 public class Device {
 
     public static String GENERIC = "GENERIC";
@@ -30,6 +32,9 @@ public class Device {
 
     private String template;
 
+    /**
+     * EUI
+     */
     private String EUI;  // TTN: devEUI
     private String name; // TTN: devID
     private String applicationEUI; //TTN: appEUI
@@ -53,6 +58,9 @@ public class Device {
     private int alertStatus;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
+    /**
+     * IoT device
+     */
     public Device() {
         EUI = "###"; // unique idenitifier
         //uid = ""; // device internal ID ( == not unique device_address in TTN!)
@@ -149,14 +157,14 @@ public class Device {
         return type;
     }
 
-    /**buildDevice
+    /**
      * @param type the type to set
      */
     public void setType(String type) {
         this.type = type;
     }
 
-    /**
+    /** 
      * @return the team
      */
     public String getTeam() {

@@ -130,7 +130,8 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
-            pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
+            pst.setLong(2, checkPoint);
+            //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
             pst.close();
             conn.close();
@@ -205,7 +206,8 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
-            pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
+            pst.setLong(2, checkPoint);
+            //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
             pst.close();
             conn.close();

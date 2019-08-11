@@ -999,6 +999,26 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
+    
+    @Override
+    public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
+        String query;
+        query = "select eui,name,userid,team,channels,description from groups where eui=?";
+
+        try (Connection conn = getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, groupEUI);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                DeviceGroup group = buildGroup(rs);
+                return group;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
 
     @Override
     public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {

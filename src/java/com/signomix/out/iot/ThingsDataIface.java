@@ -52,6 +52,7 @@ public interface ThingsDataIface {
     public List<Device> getInactiveDevices() throws ThingsDataException;
     
     public List <DeviceGroup> getUserGroups(String userID) throws ThingsDataException;
+    public DeviceGroup getGroup(String groupEUI) throws ThingsDataException;
     public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException;
     public void putGroup(String userID, DeviceGroup group) throws ThingsDataException;
     public void modifyGroup(String userID, DeviceGroup group) throws ThingsDataException;

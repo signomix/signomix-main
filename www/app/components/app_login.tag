@@ -47,9 +47,7 @@
         });
         
         globalEvents.on('auth:loggedin', function (event) {
-            if (app.debug) {
-                console.log("Login success!")
-            }
+            app.log("Login success!")
             setCookie('signomixToken',app.user.token, 365)
             setCookie('signomixUser',app.user.name, 365)
             app.currentPage = 'main'

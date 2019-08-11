@@ -229,7 +229,7 @@
                 self.device.type = e.target.value
                 riot.update()
             } else {
-                console.log('UNKNOWN TARGET OF: ' + e)
+                app.log('UNKNOWN TARGET OF: ' + e)
             }
         }
 
@@ -243,7 +243,7 @@
         }
 
         self.changeTemplate = function(e) {
-            //console.log('TEMPLATE SELECTED: '+e.target.value)
+            //app.log('TEMPLATE SELECTED: '+e.target.value)
             switch (e.target.value) {
                 case 'SGMTH01':
                     self.templateDescription = self.getTemplateDescription(self.sgmth01.description)
@@ -457,7 +457,7 @@
             var channel = {}
             for (var key in self.device.channels) {
                 if (self.device.channels.hasOwnProperty(key)) {
-                    //console.log(key + " -> " + self.device.channels[key]);
+                    //app.log(key + " -> " + self.device.channels[key]);
                     channel = self.device.channels[key]
                     if (i > 0) {
                         result = result + ','

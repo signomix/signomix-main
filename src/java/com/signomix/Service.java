@@ -189,7 +189,7 @@ public class Service extends Kernel {
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB, thingsDB, iotDataDB, actuatorCommandsDB);
         //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         //TODO: use services monitoring
-        PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);
+        //PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);
         //TODO: na tym się potrafi zawiesić
         Kernel.getInstance().handleEvent(
                 new Event(
@@ -290,6 +290,7 @@ public class Service extends Kernel {
             HashMap rd = (HashMap) result.getData();
             rd.put("serviceurl", getProperties().get("serviceurl"));
             rd.put("defaultLanguage", getProperties().get("default-language"));
+            rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
             rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
             rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
             rd.put("user", event.getRequest().headers.getFirst("X-user-id"));

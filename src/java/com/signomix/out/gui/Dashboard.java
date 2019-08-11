@@ -193,15 +193,10 @@ public class Dashboard {
         setTeam(tmp);
         /*
         for(int i =0; i<widgets.size(); i++){
-            ((Widget)widgets.get(i)).setChannel(((Widget)widgets.get(i)).getChannel().toLowerCase());
-            if(((Widget)widgets.get(i)).getName().isEmpty()){
-                ((Widget)widgets.get(i)).setName(((Widget)widgets.get(i)).getChannel());
-            }
-            if(((Widget)widgets.get(i)).getTitle().isEmpty()){
-                ((Widget)widgets.get(i)).setTitle(((Widget)widgets.get(i)).getChannel());
-            }
+            ((Widget)widgets.get(i)).normalize();
+            
         }
-         */
+        */
         return this;
     }
 

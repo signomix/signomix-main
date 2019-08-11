@@ -7,16 +7,16 @@
         self.listener = riot.observable()
         
         globalEvents.on('logout:OK', function (eventName) {
-            console.log("RECEIVED: "+eventName)
+            app.log("RECEIVED: "+eventName)
             self.afterLogout()
         });
         globalEvents.on('logout:ERR', function (eventName) {
-            console.log("RECEIVED: "+eventName)
+            app.log("RECEIVED: "+eventName)
             self.afterLogout()
         });
         
         this.on('mount',function(){
-            console.log("LOGOUT");
+            app.log("LOGOUT");
             sendLogout();
         })
         
@@ -33,7 +33,7 @@
         }
 
         self.afterLogout = function (event) {
-            console.log("LOGOUT!");
+            app.log("LOGOUT!");
             app.user.name=null
             app.user.token=null
             app.user.status='logged-out'

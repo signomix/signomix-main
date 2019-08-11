@@ -50,6 +50,7 @@
                     <widget_raw ref={ getRefName(i,j) } if={w_line[i][j]['type']=='raw' || w_line[i][j]['type']=='text'}></widget_raw>
                     <widget_led ref={ getRefName(i,j) } if={w_line[i][j]['type']=='led'}></widget_led>
                     <widget_report ref={ getRefName(i,j) } if={w_line[i][j]['type']=='report'}></widget_report>
+                    <widget_multimap ref={ getRefName(i,j) } if={w_line[i][j]['type']=='multimap'}></widget_multimap>
                 </div>
             </virtual>
         </div>
@@ -114,7 +115,7 @@
         app.log('REFRESHING DATA')
         Object.keys(self.refs).forEach(function(key,index) {
             app.log(key)
-            if(self.dashboardConfig.widgets.length>index && (self.dashboardConfig.widgets[index]['dev_id']||self.dashboardConfig.widgets[index]['type']=='report')){
+            if(self.dashboardConfig.widgets.length>index && (self.dashboardConfig.widgets[index]['dev_id']||self.dashboardConfig.widgets[index]['type']=='report'||self.dashboardConfig.widgets[index]['type']=='multimap')){
                 readDashboardData(self.dashboardConfig.widgets[index], updateWidget, 0, index);
             }
         })
@@ -161,12 +162,12 @@
         app.log(self.dashboardConfig)
         rebuild()
         riot.update()
-        console.log(self.refs)
+        app.log(self.refs)
         Object.keys(self.refs).forEach(function(key,index) {
             app.log(key)
             self.refs[key].update(self.dashboardConfig.widgets[index])
         });
-        //console.log(self.refs.a1)
+        //app.log(self.refs.a1)
         app.log('SHARED TOKEN='+self.dashboardConfig.sharedToken)
         if(self.dashboardConfig.sharedToken){
             self.sharedLink = location.origin+'/app/?tid='+self.dashboardConfig.sharedToken+location.hash
@@ -211,7 +212,7 @@
         }
 
         var location=''
-        if(config.type=='report'){
+        if(config.type=='report'||config.type=='multimap'){
             location=app.groupAPI + "/" + config.group + "/"+channelName+(app.shared!=''?'?tid='+app.shared:'')
         }else if(config.dev_id){
             location=app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query

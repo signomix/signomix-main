@@ -197,7 +197,7 @@
     }
     
     self.submitted = function(){
-        console.log('submitted')
+        app.log('submitted')
     }
     
     sendReset(){
@@ -206,12 +206,12 @@
             if(self.jsonData.length==0 || self.jsonData[0].length==0){
                 return
             }
-            //console.log(self.rawdata)
-            //console.log('sendReset '+(self.deviceEUI)+ ' '+(self.channelName)+ ' '+(document.getElementById('newvalue2set').value))
+            //app.log(self.rawdata)
+            //app.log('sendReset '+(self.deviceEUI)+ ' '+(self.channelName)+ ' '+(document.getElementById('newvalue2set').value))
             var value = document.getElementById('newvalue2set').value
             var dataToSend = {}
             dataToSend[self.channelName] = value
-            //console.log(dataToSend)
+            //app.log(dataToSend)
             sendJsonData(
                 dataToSend, 
                 'POST', 

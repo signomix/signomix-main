@@ -561,7 +561,7 @@ public class PlatformAdministrationModule {
         dashboard.setShared(false);
         dashboard.setTeam(device.getTeam());
         try {
-            dashboardAdapter.addDashboard(device.getUserID(), dashboard, authAdapter);
+            dashboardAdapter.addDashboard(device.getUserID(), dashboard.normalize(), authAdapter);
         } catch (DashboardException ex) {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
         }
