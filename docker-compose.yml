@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+
+  # nginx
+  nginx:
+    #build: src/nginx-new
+    image: gskorupa/signomix-ce-nginx:latest
+    depends_on:
+      - signomix
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 80:80
+      - 443:443
+
+  # signomix
+  signomix:
+    image: gskorupa/signomix-ce:latest
+    restart: always
+    expose:
+      - 8080
+    volumes:
+      - mydata:/dbdata
+    
+  # database
+  dbserver:
+    image: gskorupa/signomix-h2:latest
+    restart: always
+    expose:
+      - 9092
+    volumes:
+      - mydata:/dbdata
+
+volumes:
+    mydata:
+

@@ -11,5 +11,6 @@ package com.signomix.out.notification;
 public interface NotificationIface {
     
     public String send(String recipient, String nodeName, String message);
+    public String getChatID(String recipent);
     
 }

@@ -2,8 +2,9 @@
  * Copyright (C) Grzegorz Skorupa 2018.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot;
+package com.signomix.iot.lora;
 
+import com.signomix.iot.IotDataIface;
 import java.time.Instant;
 import java.util.List;
 
@@ -191,6 +192,11 @@ public class LoRaData implements IotDataIface {
             this.devEUI = this.devEUI.toUpperCase();
         }
         //TODO: gateways?
+    }
+
+    @Override
+    public long getReceivedPackageTimestamp() {
+        return getTimestamp();
     }
 
 }

@@ -18,14 +18,11 @@ import org.cricketmsf.Adapter;
 import org.cricketmsf.out.OutboundAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 
 /**
@@ -219,6 +216,6 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
             ev.setPayload("Data processor script: " + message);
         }
         ev.setType(IotEvent.GENERAL);
-        Kernel.handle(ev);
+        Kernel.getInstance().dispatchEvent(ev);
     }
 }

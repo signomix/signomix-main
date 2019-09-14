@@ -40,7 +40,7 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
 
     public String send(String recipient, String nodeName, String message) {
         if(!ready){
-            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "not configured"));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "not configured"));
             return "ERROR: not configured";
         }
                 
@@ -63,5 +63,10 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
         } else {
             return "ERROR: "+result.getCode()+" "+result.getPayload();
         }
+    }
+
+    @Override
+    public String getChatID(String recipent) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

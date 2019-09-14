@@ -53,5 +53,10 @@ public class KPNData implements IotDataIface{
     public String getPayload() {
         return DevEUI_uplink.payload_hex;
     }
+
+    @Override
+    public long getReceivedPackageTimestamp() {
+        return getTimeField().toEpochMilli();
+    }
     
 }

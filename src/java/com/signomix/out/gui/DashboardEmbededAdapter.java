@@ -67,7 +67,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             }
             if (dashboard.isShared()) {
                 dashboard.setSharedToken(createSharedToken(userID, dashboard.getId(), authAdapter));
-                Kernel.handle(new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
+                Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
             }
             getIotDB().addDashboard(dashboard);
         } catch (ThingsDataException ex) {
@@ -106,7 +106,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             Dashboard d = getIotDB().getDashboard(userID, dashboardID);
             getIotDB().removeDashboard(userID, dashboardID);
             if (d!=null && d.isShared()) {
-                Kernel.handle(new IotEvent(IotEvent.DASHBOARD_REMOVED, this, d.getSharedToken()));
+                Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.DASHBOARD_REMOVED, this, d.getSharedToken()));
             }
         } catch (NullPointerException | ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());

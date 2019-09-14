@@ -54,7 +54,7 @@
                                 <option value="raw" selected={self.editedWidget.type=='raw'}>{self.getTypeName('raw')}</option>
                                 <option value="line" selected={self.editedWidget.type=='line'}>{self.getTypeName('line')}</option>
                                 <option value="stepped" selected={self.editedWidget.type=='stepped'}>{self.getTypeName('stepped')}</option>
-                                <option value="button" selected={self.editedWidget.type=='button'} disabled="true">{self.getTypeName('button')}</option>
+                                <option value="button" selected={self.editedWidget.type=='button'}>{self.getTypeName('button')}</option>
                                 <option value="map" selected={self.editedWidget.type=='map'}>{self.getTypeName('map')}</option>
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
                                 <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>

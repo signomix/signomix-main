@@ -103,4 +103,9 @@ public class IotData2 implements IotDataIface {
     public String getPayload() {
         throw new UnsupportedOperationException("Not supported.");
     }
+
+    @Override
+    public long getReceivedPackageTimestamp() {
+        return getTimestamp();
+    }
 }

@@ -19,7 +19,7 @@
     app.texts.alerts = {
         "title": {
             "en": "my notifications",
-            "it": "I miei allarmi",
+            "it": "le mie notifiche",
             "fr": "mes notifications",
             "pl": "moje powiadomienia"
         },
@@ -49,7 +49,7 @@
         },
         "action": {
             "en": "ACTION",
-            "it": "GESTISCI",
+            "it": "GESTICI",
             "fr": "ACTION",
             "pl": "AKCJA"
         },
@@ -167,25 +167,25 @@
             "en": "GENERAL Notification Channel",
             "it": "Canale di notifica GENERALE",
             "fr": "Canal de notification Général",
-            "pl": "Kanał Notyfikacji GENERAL"
+            "pl": "Kanał powiadomień GENERAL"
         },
         "infoNotifications": {
             "en": "INFO Notification Channel",
             "it": "Canale di notifica INFO",
             "fr": "Canal de notification INFO",
-            "pl": "Kanał Notyfikacji INFO"
+            "pl": "Kanał powiadomień INFO"
         },
         "warningNotifications": {
             "en": "WARNING Notification Channel",
             "it": "Canale di notifica AVVISO",
             "fr": "AVERTISSEMENT Channel de notification",
-            "pl": "Kanał Notyfikacji WARNING"
+            "pl": "Kanał powiadomień WARNING"
         },
         "alertNotifications": {
             "en": "ALERT Notification Channel",
             "it": "Canale di notifica ALLARME",
             "fr": "Canal de notification d'Alertes",
-            "pl": "Kanał Notyfikacji ALERT"
+            "pl": "Kanał powiadomień ALERT"
         },
         "uid": {
             "en": "Login",
@@ -318,7 +318,7 @@
         },
         "action": {
             "en": "Action",
-            "it": "Gestisci",
+            "it": "Gestici",
             "fr": "Action",
             "pl": "Operacja"
         },
@@ -929,10 +929,10 @@
             "pl": "Administracja"
         },
         "alerts": {
-            "en": "Alerts",
-            "it": "Allarmi",
-            "fr": "Alertes",
-            "pl": "Komunikaty"
+            "en": "Notifications",
+            "it": "Notifiche",
+            "fr": "Notifications",
+            "pl": "Powiadomienia"
         },
         "mydevices": {
             "en": "Devices",
@@ -1223,7 +1223,7 @@
         },
         "header_action": {
             "en": "ACTION",
-            "it": "GESTISCI",
+            "it": "GESTICI",
             "fr": "ACTION",
             "pl": "DZIAŁANIE"
         }

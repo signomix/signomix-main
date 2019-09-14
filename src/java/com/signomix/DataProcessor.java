@@ -1,10 +1,9 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix;
 
-import com.signomix.iot.IotEvent;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.Device;
 import com.signomix.out.script.ScriptAdapterException;
@@ -22,10 +21,17 @@ import org.cricketmsf.Kernel;
  */
 public class DataProcessor {
 
-    public static ArrayList<ChannelData> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
+    //public static ArrayList<ChannelData> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
+    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
         ScriptResult scriptResult = null;
         try {
             scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), dataTimestamp);
+            ArrayList<ArrayList> tmp=scriptResult.getOutput();
+            System.out.println("Lists:"+tmp.size());
+            for(int i=0;i<tmp.size();i++){
+                System.out.println("List"+i+":"+tmp.get(i).size());
+            }
+            
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -33,21 +39,16 @@ public class DataProcessor {
         if (scriptResult == null) {
             throw new Exception("preprocessor script returns null result");
         }
-        ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
+        //ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
+        ArrayList<ArrayList> finalValues=scriptResult.getOutput();
         ArrayList<Event> events = scriptResult.getEvents();
-        //Event ev;
         HashMap<String, String> recipients;
         for (int i = 0; i < events.size(); i++) {
-            //ev = events.get(i);
-            if (IotEvent.VIRTUAL_DATA.equals(events.get(i).getType())) {
-                Event newEvent = events.get(i).clone();
-                newEvent.setOrigin(device.getUserID());
-                Kernel.handle(newEvent);
-            }else if(Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())){
+            if (Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())) {
                 Event newEvent = events.get(i).clone();
                 newEvent.setOrigin(device.getEUI());
-                Kernel.handle(newEvent);
-            }else {
+                Kernel.getInstance().dispatchEvent(newEvent);
+            } else {
                 recipients = new HashMap<>();
                 recipients.put(device.getUserID(), "");
                 if (device.getTeam() != null) {
@@ -62,8 +63,26 @@ public class DataProcessor {
                 while (itr.hasNext()) {
                     Event newEvent = events.get(i).clone();
                     newEvent.setOrigin(itr.next() + "\t" + device.getEUI());
-                    Kernel.handle(newEvent);
+                    Kernel.getInstance().dispatchEvent(newEvent);
                 }
+            }
+        }
+        //data events
+        HashMap<String, ArrayList> dataEvents = scriptResult.getDataEvents();
+        ArrayList<Event> el;
+        for (String key : dataEvents.keySet()) {
+            el = dataEvents.get(key);
+            Event newEvent;
+            if (el.size() > 0) {
+                newEvent = el.get(0).clone();
+                newEvent.setOrigin(device.getUserID());
+                String payload="";
+                for (int i = 0; i < el.size(); i++) {
+                    payload=payload+";"+el.get(i).getPayload();
+                }
+                payload=payload.substring(1);
+                newEvent.setPayload(payload);
+                Kernel.getInstance().dispatchEvent(newEvent);
             }
         }
         return finalValues;
@@ -84,16 +103,11 @@ public class DataProcessor {
         //Event ev;
         HashMap<String, String> recipients;
         for (int i = 0; i < events.size(); i++) {
-            //ev = events.get(i);
-            if (IotEvent.VIRTUAL_DATA.equals(events.get(i).getType())) {
-                Event newEvent = events.get(i).clone();
-                newEvent.setOrigin(device.getUserID());
-                Kernel.handle(newEvent);
-            }else if(Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())){
+            if (Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())) {
                 Event newEvent = events.get(i).clone();
                 newEvent.setOrigin(device.getEUI());
-                Kernel.handle(newEvent);
-            }else {
+                Kernel.getInstance().dispatchEvent(newEvent);
+            } else {
                 recipients = new HashMap<>();
                 recipients.put(device.getUserID(), "");
                 if (device.getTeam() != null) {
@@ -108,8 +122,26 @@ public class DataProcessor {
                 while (itr.hasNext()) {
                     Event newEvent = events.get(i).clone();
                     newEvent.setOrigin(itr.next() + "\t" + device.getEUI());
-                    Kernel.handle(newEvent);
+                    Kernel.getInstance().dispatchEvent(newEvent);
                 }
+            }
+        }
+        //data events
+        HashMap<String, ArrayList> dataEvents = scriptResult.getDataEvents();
+        ArrayList<Event> el;
+        for (String key : dataEvents.keySet()) {
+            el = dataEvents.get(key);
+            Event newEvent;
+            if (el.size() > 0) {
+                newEvent = el.get(0).clone();
+                newEvent.setOrigin(device.getUserID());
+                String payload="";
+                for (int i = 0; i < el.size(); i++) {
+                    payload=payload+";"+el.get(i).getPayload();
+                }
+                payload=payload.substring(1);
+                newEvent.setPayload(payload);
+                Kernel.getInstance().dispatchEvent(newEvent);
             }
         }
         return finalValues;

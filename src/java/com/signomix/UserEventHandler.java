@@ -7,10 +7,13 @@ package com.signomix;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.notification.EmailSenderIface;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
+import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.microsite.user.UserEvent;
 import org.cricketmsf.out.log.LoggerAdapterIface;
@@ -115,6 +118,7 @@ public class UserEventHandler {
             case UserEvent.USER_UPDATED:
                 gdprLogger.log(Event.logInfo(event.getId(), "USER DATA UPDATED FOR " + event.getPayload()));
                 break;
+
             default:
                 kernel.handleEvent(Event.logInfo(UserEventHandler.class.getSimpleName(), "Event recived: " + event.getType()));
                 break;

@@ -56,6 +56,7 @@ public class Device {
     private String commandScript;
     private String groups;
     private int alertStatus;
+    private String deviceID;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     /**
@@ -77,6 +78,7 @@ public class Device {
         lastFrame = -1;
         checkFrames = true;
         alertStatus = UNKNOWN;
+        deviceID="";
     }
 
     public void print() {
@@ -124,18 +126,6 @@ public class Device {
         this.EUI = EUI;
     }
 
-    /**
-     * @return the uid
-     */
-    //public String getUid() {
-    //    return uid;
-    //}
-    /**
-     * @param uid the uid to set
-     */
-    //public void setUid(String uid) {
-    //    this.uid = uid;
-    //}
     /**
      * @return the userID
      */
@@ -504,5 +494,19 @@ public class Device {
      */
     public void setAlertStatus(int alertStatus) {
         this.alertStatus = alertStatus;
+    }
+
+    /**
+     * @return the deviceID
+     */
+    public String getDeviceID() {
+        return deviceID;
+    }
+
+    /**
+     * @param deviceID the deviceID to set
+     */
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
     }
 }

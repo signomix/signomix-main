@@ -283,7 +283,7 @@
                 "iotDB": {
                     "name": "iotDB",
                     "interfaceName": "IotDatabaseIface",
-                    "classFullName": "com.signomix.out.db.H2IotDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
                         "path": "./data",
                         "name": "iot",
@@ -298,7 +298,7 @@
                 "iotDataDB": {
                     "name": "iotDataDB",
                     "interfaceName": "IotDataStorageIface",
-                    "classFullName": "com.signomix.out.db.H2DataStorageDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
                         "path": "./data",
                         "name": "data",
@@ -313,7 +313,7 @@
                 "actuatorCommandsDB": {
                     "name": "actuatorCommandsDB",
                     "interfaceName": "ActuatorCommandsDBIface",
-                    "classFullName": "com.signomix.out.db.H2CommandsDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
                         "path": "./data",
                         "file": "actuator",
@@ -385,7 +385,7 @@
                 "cmsDB": {
                     "name": "cmsDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2CmsDB",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteCmsDB",
                     "properties": {
                         "path": "./data",
                         "file": "cms",
@@ -399,7 +399,7 @@
                 "userDB": {
                     "name": "userDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2UserDB",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteUserDB",
                     "properties": {
                         "path": "./data",
                         "file": "user",
@@ -415,7 +415,7 @@
                 "authDB": {
                     "name": "authDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2AuthDB",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteAuthDB",
                     "properties": {
                         "path": "./data",
                         "file": "auth",

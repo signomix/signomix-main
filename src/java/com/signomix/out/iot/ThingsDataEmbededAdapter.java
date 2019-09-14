@@ -47,7 +47,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             init(helperAdapterName, helperAdapterName2);
         } catch (ThingsDataException e) {
             e.printStackTrace();
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
         }
     }
 
@@ -107,7 +107,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         if (getDataStorage().updateDeviceChannels(device, previous) > 0) {
             IotEvent event = new IotEvent(IotEvent.INFO, "all data channels have been removed because of the device channels modification");
             event.setOrigin(userID + "\t" + device.getEUI());
-            Kernel.handle(event);
+            Kernel.getInstance().dispatchEvent(event);
         }
     }
 
@@ -255,28 +255,11 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         getIotDB().removeOutdatedAlerts(checkPoint);
     }
 
-    //@Override
-    //public List getChannels(String deviceEUI) throws ThingsDataException {
-    //    return getDataStorage().getDeviceChannels(deviceEUI);
-    //}
-
     @Override
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException {
         getDataStorage().removeChannel(deviceEUI, channelName);
     }
 
-    /*
-    @Override
-    public void putVirtualData(String userID, Device device, ScriptingAdapterIface scriptingAdapter, List<ChannelData> values) throws ThingsDataException {
-        ArrayList<ChannelData> finalValues = null;
-        try {
-            finalValues = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter);
-        } catch (Exception e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
-        }
-        getDataStorage().putData(userID, device.getEUI(), finalValues);
-    }
-     */
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
         return getIotDB().getInactiveDevices();

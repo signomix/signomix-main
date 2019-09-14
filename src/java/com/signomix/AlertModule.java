@@ -4,7 +4,6 @@
 */
 package com.signomix;
 
-import com.signomix.iot.IotEvent;
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
@@ -41,7 +40,7 @@ public class AlertModule {
                 List l = thingsAdapter.getAlerts(userID);
                 result.setData(l);
             } catch (ThingsDataException ex) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
                 result.setMessage(ex.getMessage());
             }
@@ -60,7 +59,7 @@ public class AlertModule {
             thingsAdapter.removeAlert(Long.parseLong(alertId));
             result.setData("OK");
         } catch (NumberFormatException | ThingsDataException ex) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());
         }
@@ -73,7 +72,7 @@ public class AlertModule {
             thingsAdapter.removeUserAlerts(userId);
             result.setData("OK");
         } catch (ThingsDataException ex) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());
         }
@@ -84,7 +83,7 @@ public class AlertModule {
         try {
             thingsAdapter.saveAlert(event);
         } catch (ThingsDataException ex) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
         }
     }
     

@@ -10,8 +10,7 @@ import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData2;
-import com.signomix.iot.IotEvent;
-import com.signomix.iot.LoRaData;
+import com.signomix.iot.lora.LoRaData;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -26,14 +25,11 @@ import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.VirtualDevice;
 import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.script.ScriptAdapterException;
-import com.signomix.out.script.ScriptResult;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import static org.cricketmsf.Kernel.handle;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
@@ -63,7 +59,7 @@ public class DeviceIntegrationModule {
         try {
             String authKey = request.headers.getFirst("Authorization");
             if (authKey == null || authKey.isEmpty()) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
                 if (debugMode) {
                     result.setCode(HttpAdapter.SC_UNAUTHORIZED);
                     result.setData("Authorization header not found");
@@ -73,7 +69,7 @@ public class DeviceIntegrationModule {
             String jsonString = request.body;
 
             jsonString
-                    = "{\"@type\":\"com.signomix.iot.LoRaData\","
+                    = "{\"@type\":\"com.signomix.iot.lora.LoRaData\","
                     + jsonString.substring(jsonString.indexOf("{") + 1);
             LoRaData data = null;
             try {
@@ -81,7 +77,7 @@ public class DeviceIntegrationModule {
                 data = (LoRaData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
+                Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -99,20 +95,20 @@ public class DeviceIntegrationModule {
                 device = thingsAdapter.getDevice(data.getDevEUI());
                 isRegistered = (null != device);
                 if (!isRegistered) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDevEUI() + " is not registered"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDevEUI() + " is not registered"));
                     result.setCode(HttpAdapter.SC_NOT_FOUND);
                     result.setData("device not found");
                     return result;
                 }
                 if ("VIRTUAL".equals(device.getType()) || device.getType().startsWith("TTN")) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDevEUI() + " type is not valid"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDevEUI() + " type is not valid"));
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
                     result.setData("device type not valid");
                     return result;
                 }
 
             } catch (ThingsDataException ex) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
                 result.setData("device not found");
                 return result;
@@ -122,7 +118,6 @@ public class DeviceIntegrationModule {
             String secret = userAdapter.get(device.getUserID()).getConfirmString();
             String applicationSecret;
             boolean authorized = false;
-
 
             if (secret != null && !secret.isEmpty()) {
                 authorized = authKey.equals(secret);
@@ -138,7 +133,7 @@ public class DeviceIntegrationModule {
                 }
             }
             if (!authorized) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
                 result.setData("not authorized");
                 return result;
@@ -149,7 +144,7 @@ public class DeviceIntegrationModule {
             if (device.isCheckFrames()) {
                 if (device.getLastFrame() == data.getfCnt()) {
                     //drop request
-                    Kernel.handle(Event.logWarning(this, "duplicated frame " + data.getfCnt() + " for " + device.getEUI()));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "duplicated frame " + data.getfCnt() + " for " + device.getEUI()));
                     result.setCode(HttpAdapter.SC_OK);
                     result.setData("OK");
                     return result;
@@ -158,13 +153,15 @@ public class DeviceIntegrationModule {
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getfCnt(), "");
             ArrayList<ChannelData> listOfValues = prepareLoRaValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
 
-            ArrayList<ChannelData> finalValues = null;
+            ArrayList<ArrayList> listOfLists;
             try {
-                finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
+                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
+                for (int i = 0; i < listOfLists.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                }
             } catch (Exception e) {
-                Kernel.handle(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +182,7 @@ public class DeviceIntegrationModule {
             String authKey = request.headers.getFirst("Authorization");
 
             if (authKey == null || authKey.isEmpty()) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
                 result.setCode(HttpAdapter.SC_UNAUTHORIZED);
                 return result;
             }
@@ -210,7 +207,7 @@ public class DeviceIntegrationModule {
                 } catch (Exception e) {
                     data = parseIotData(dataString);
                     if (null == data) {
-                        Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "deserialization problem from " + request.clientIp + " " + jsonString));
+                        Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "deserialization problem from " + request.clientIp + " " + jsonString));
                         //e.printStackTrace();
                     }
                 }
@@ -232,26 +229,26 @@ public class DeviceIntegrationModule {
                 gateway = thingsAdapter.getDevice(data.gateway_eui);
                 isRegistered = (null != device);
                 if (!isRegistered) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " is not registered"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " is not registered"));
                     result.setCode(HttpAdapter.SC_NOT_FOUND);
                     result.setData("device not found");
                     return result;
                 }
                 if ("VIRTUAL".equals(device.getType()) || device.getType().startsWith("TTN")) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " type is not valid"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " type is not valid"));
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
                     result.setData("device type not valid");
                     return result;
                 }
 
             } catch (ThingsDataException ex) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
                 result.setData("device not found");
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
-                handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
                 result.setData("exception");
                 return result;
@@ -282,7 +279,7 @@ public class DeviceIntegrationModule {
                 }
             }
             if (!authorized) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
                 result.setData("not authorized");
                 return result;
@@ -292,14 +289,16 @@ public class DeviceIntegrationModule {
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), -1, "");
 
             ArrayList<ChannelData> listOfValues = prepareIotValues(data);
-            ArrayList<ChannelData> finalValues = null;
+            ArrayList<ArrayList> listOfLists;
             try {
-                finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
+                System.out.println("RECEIVED TIMESTAMP:"+data.getReceivedPackageTimestamp());
+                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
+                for (int i = 0; i < listOfLists.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                }
             } catch (Exception e) {
-                e.printStackTrace();
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".processIotRequest()", e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
             if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
                 Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
                 if (null != command) {
@@ -331,7 +330,7 @@ public class DeviceIntegrationModule {
         String authKey = request.headers.getFirst("Authorization");
 
         if (authorizationRequired && (authKey == null || authKey.isEmpty())) {
-            handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
             return result;
         }
 
@@ -345,48 +344,46 @@ public class DeviceIntegrationModule {
             data = (TtnData) JsonReader.jsonToJava(jsonString);
             data.normalize();
         } catch (Exception e) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
             e.printStackTrace();
+            //TODO: send warning to the service admin about deserialization error
         }
         if (data == null) {
-            //TODO: send warning to the service admin about deserialization error
             //we don't send error code to TTN
             return result;
         }
-
-        // save value and timestamp in device's channel witch name is the same as the field name
         Device device;
         try {
             device = thingsAdapter.getDevice(data.getDeviceEUI());
             if (null == device) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
                 return result;
             }
         } catch (ThingsDataException ex) {
-            handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return result;
         }
         if (authorizationRequired) {
             try {
                 if (!authKey.equals(device.getKey())) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
                     return result;
                 }
             } catch (Exception ex) { //catch (UserException ex) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 return result;
             }
         }
 
         try {
             if (!device.getType().startsWith("TTN")) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
                 return result;
             }
             if (device.isCheckFrames()) {
                 if (device.getLastFrame() == data.getFrameCounter()) {
                     //drop request
-                    Kernel.handle(Event.logWarning(this, "duplicated frame " + data.getFrameCounter() + " for " + device.getEUI()));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "duplicated frame " + data.getFrameCounter() + " for " + device.getEUI()));
                     result.setCode(HttpAdapter.SC_OK);
                     result.setData("OK");
                     return result;
@@ -395,60 +392,20 @@ public class DeviceIntegrationModule {
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getFrameCounter(), data.getDownlink());
 
         } catch (ThingsDataException ex) {
-            handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return result;
         }
         try {
             ArrayList<ChannelData> listOfValues = prepareTtnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
-
-            // REFACTOR THIS: use DataProcessor 
-            //ScriptResult scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID());
-            ScriptResult scriptResult = null;
+            ArrayList<ArrayList> listOfLists;
             try {
-                scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), data.getTimestamp());
-            } catch (ScriptAdapterException e) {
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".processTTnRequest for device " + device.getEUI(), e.getMessage()));
-                return result;
-            }
-            if (scriptResult == null) {
-                //TODO: warning?
-                return result;
-            }
-            // REFACTOR: END
-
-            ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
-            ArrayList<Event> events = scriptResult.getEvents();
-            HashMap<String, String> recipients;
-            Event ev;
-            for (int i = 0; i < events.size(); i++) {
-                ev = events.get(i);
-                if (IotEvent.VIRTUAL_DATA.equals(ev.getType())) {
-                    Event newEvent = ev.clone();
-                    newEvent.setOrigin(device.getUserID()); // overwriting origin ensures thet it not be possible to send data to other user's device
-                    Kernel.handle(newEvent);
-                } else if (Event.CATEGORY_GENERIC.equals(ev.getCategory())) {
-                    Event newEvent = ev.clone();
-                    newEvent.setOrigin(device.getEUI());
-                    Kernel.handle(newEvent);
-                } else {
-                    recipients = new HashMap<>();
-                    if (device.getTeam() != null) {
-                        String[] r = device.getTeam().split(",");
-                        for (int j = 0; j < r.length; j++) {
-                            recipients.put(r[j], "");
-                        }
-                    }
-                    recipients.put(device.getUserID(), "");
-                    Iterator itr = recipients.keySet().iterator();
-                    while (itr.hasNext()) {
-                        Event newEvent = ev.clone();
-                        newEvent.setOrigin(itr.next() + "\t" + device.getEUI());
-                        Kernel.handle(newEvent);
-                    }
+                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
+                for (int i = 0; i < listOfLists.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
                 }
+            } catch (Exception e) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
             }
-
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -487,7 +444,7 @@ public class DeviceIntegrationModule {
                 data = (KPNData) JsonReader.jsonToJava(jsonString);
                 data.normalize();
             } catch (Exception e) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
+                Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem: incompatible format " + jsonString));
                 e.printStackTrace();
             }
             if (data == null) {
@@ -505,20 +462,20 @@ public class DeviceIntegrationModule {
                 device = thingsAdapter.getDevice(data.getDeviceEUI());
                 isRegistered = (null != device);
                 if (!isRegistered) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
                     result.setCode(HttpAdapter.SC_NOT_FOUND);
                     result.setData("device not found");
                     return result;
                 }
                 if (!device.getType().equalsIgnoreCase("KPN")) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
                     result.setData("device type not valid");
                     return result;
                 }
 
             } catch (ThingsDataException ex) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
                 result.setData("device not found");
                 return result;
@@ -531,34 +488,25 @@ public class DeviceIntegrationModule {
 
             //TODO: authorization
             if (!authorized) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
                 result.setData("not authorized");
                 return result;
             }
             //after successful authorization
 
-            //check frame counter
-            /*
-            if (device.isCheckFrames()) {
-                if (device.getLastFrame() == data.getfCnt()) {
-                    //drop request
-                    Kernel.handle(Event.logWarning(this, "duplicated frame " + data.getfCnt() + " for " + device.getEUI()));
-                    result.setCode(HttpAdapter.SC_OK);
-                    result.setData("OK");
-                    return result;
-                }
-            }
-             */
+            //TODO: check frame counter
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "");
             ArrayList<ChannelData> listOfValues = prepareKpnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
-            ArrayList<ChannelData> finalValues = null;
+            ArrayList<ArrayList> listOfLists;
             try {
-                finalValues = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getTimestamp());
+                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
+                for (int i = 0; i < listOfLists.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                }
             } catch (Exception e) {
-                Kernel.handle(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -596,20 +544,20 @@ public class DeviceIntegrationModule {
                 device = thingsAdapter.getDevice(deviceEUI);
                 isRegistered = (null != device);
                 if (!isRegistered) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " is not registered"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " is not registered"));
                     result.setCode(HttpAdapter.SC_NOT_FOUND);
                     result.setData("device not found");
                     return result;
                 }
                 if (!device.getType().equalsIgnoreCase("GENERIC")) {
-                    handle(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " type is not valid"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + deviceEUI + " type is not valid"));
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
                     result.setData("device type not valid");
                     return result;
                 }
 
             } catch (ThingsDataException ex) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
                 result.setData("device not found");
                 return result;
@@ -622,7 +570,7 @@ public class DeviceIntegrationModule {
 
             //TODO: authorization
             if (!authorized) {
-                handle(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
                 result.setData("not authorized");
                 return result;
@@ -635,7 +583,7 @@ public class DeviceIntegrationModule {
                 finalValues = DataProcessor.processRawValues(request.body, device, scriptingAdapter, System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
-                Kernel.handle(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
             }
             thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
         } catch (Exception e) {
@@ -651,7 +599,7 @@ public class DeviceIntegrationModule {
             try {
                 values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
             } catch (ScriptAdapterException e) {
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
                 return null;
             }
         } else {
@@ -688,6 +636,10 @@ public class DeviceIntegrationModule {
             } else {
                 mval.setTimestamp(data.getTimestamp());
             }
+            if (mval.getTimestamp() == 0) {
+                mval.setTimestamp(System.currentTimeMillis());
+            }
+            System.out.println("TIMESTAMP:"+mval.getTimestamp());
             values.add(mval);
         }
 
@@ -701,7 +653,7 @@ public class DeviceIntegrationModule {
         try {
             values = scriptingAdapter.decodeData(encodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
         } catch (ScriptAdapterException e) {
-            Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
             return null;
         }
         return values;
@@ -713,7 +665,7 @@ public class DeviceIntegrationModule {
         try {
             values = scriptingAdapter.decodeHexData(data.getPayload(), encoderCode, deviceID, data.getTimestamp(), userID);
         } catch (ScriptAdapterException e) {
-            Kernel.handle(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
             return null;
         }
         return values;
@@ -723,8 +675,15 @@ public class DeviceIntegrationModule {
         try {
             long now = System.currentTimeMillis();
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "");
-            ArrayList<ChannelData> finalValues = DataProcessor.processValues(values, device, scriptingAdapter, now);
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
+            ArrayList<ArrayList> listOfLists;
+            try {
+                listOfLists = DataProcessor.processValues(values, device, scriptingAdapter, now);
+                for (int i = 0; i < listOfLists.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                }
+            } catch (Exception e) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -777,13 +736,15 @@ public class DeviceIntegrationModule {
         if (thingsAdapter.isAuthorized(userID, device.getEUI())) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        ArrayList<ChannelData> finalValues = null;
+        ArrayList<ArrayList> listOfLists;
         try {
-            finalValues = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter, data.getTimestamp());
+            listOfLists = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter, data.getTimestamp());
+            for (int i = 0; i < listOfLists.size(); i++) {
+                thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+            }
         } catch (Exception e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
         }
-        thingsAdapter.putData(userID, device.getEUI(), values);
         //thingsAdapter.putVirtualData(userID, device, scriptingAdapter, values);
         //TODO: use DataProcessor
     }
@@ -791,7 +752,7 @@ public class DeviceIntegrationModule {
     private IotData2 parseIotData(String dataStr) {
         IotData2 data = new IotData2();
         data.dev_eui = null;
-        data.timestamp = null;
+        data.timestamp = "" + System.currentTimeMillis();
         data.payload_fields = new ArrayList<>();
         String[] params = dataStr.split("&");
         String[] pair;

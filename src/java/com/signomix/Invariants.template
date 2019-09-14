@@ -63,17 +63,17 @@ public class Invariants extends HashMap {
             put("freeCollectionLimit", 100000);
             put("freeDataRetention", 30); // days
             put("freeDevicesLimit", 20); // user devices
-            put("freeNotifications", "SMTP,SLACK,PUSHOVER");
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("standardCollectionLimit", 100000);
             put("standardDataRetention", 30); // days
             put("standardDevicesLimit", 20); // user devices
-            put("standardNotifications", "SMTP,SLACK,PUSHOVER");
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("primaryCollectionLimit", 100000);
             put("primaryDataRetention", 30); // days
             put("primaryDevicesLimit", 20); // user devices
-            put("primaryNotifications", "SMTP,SLACK,PUSHOVER");
+            put("primaryNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
         } else if (demoVersion) {
             put("maxUsers", 10);
             put("maxDevices", 0); // no limit for total number of registered devices
@@ -81,22 +81,22 @@ public class Invariants extends HashMap {
             put("demoCollectionLimit", 100);
             put("demoDataRetention", 1); // 1 day
             put("demoDevicesLimit", 3); // user devices
-            put("demoNotifications", "SMTP,SLACK,PUSHOVER");
+            put("demoNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("freeCollectionLimit", 100);
             put("freeDataRetention", 1); // 1 day
             put("freeDevicesLimit", 3); // user devices
-            put("freeNotifications", "SMTP,SLACK,PUSHOVER");
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("standardCollectionLimit", 100);
             put("standardDataRetention", 1); // days
             put("standardDevicesLimit", 3); // user devices
-            put("standardNotifications", "SMTP,SLACK,PUSHOVER");
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("primaryCollectionLimit", 100);
             put("primaryDataRetention", 1); // 1 day
             put("primaryDevicesLimit", 3); // user devices
-            put("primaryNotifications", "SMTP,SLACK,PUSHOVER");
+            put("primaryNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
         } else {
             put("maxUsers", 1000);
             put("maxDevices", 0); // no limit for total number of registered devices
@@ -104,22 +104,22 @@ public class Invariants extends HashMap {
             put("demoCollectionLimit", 100);
             put("demoDataRetention", 1); // 1 day
             put("demoDevicesLimit", 1); // user devices
-            put("demoNotifications", "SMTP,SLACK,PUSHOVER");
+            put("demoNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("freeCollectionLimit", 1000);
             put("freeDataRetention", 7); // 1 day
             put("freeDevicesLimit", 5); // user devices
-            put("freeNotifications", "SMTP,SLACK,PUSHOVER");
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("standardCollectionLimit", 50000);
             put("standardDataRetention", 30); // days
             put("standardDevicesLimit", 10); // user devices
-            put("standardNotifications", "SMTP,SLACK,PUSHOVER");
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
             put("primaryCollectionLimit", 100000);
             put("primaryDataRetention", 30); // 1 day
             put("primaryDevicesLimit", 50); // user devices
-            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK");
+            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM");
         }
     }
 

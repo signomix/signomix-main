@@ -46,7 +46,7 @@ public class QueueEmbededAdapter extends OutboundAdapter implements Adapter, Que
             init(helperAdapterName, categoriesToHandle, categoriesToIgnore);
         } catch (QueueException e) {
             e.printStackTrace();
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
         }
     }
 

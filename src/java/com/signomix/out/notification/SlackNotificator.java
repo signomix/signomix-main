@@ -50,5 +50,10 @@ public class SlackNotificator extends HttpClient implements NotificationIface, A
         }
         return statusMap;
     }
+
+    @Override
+    public String getChatID(String recipent) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

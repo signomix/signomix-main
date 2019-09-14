@@ -10,8 +10,8 @@
     <!-- Remember to modify the project name (see line 2 of this file)       -->
     <!--                                                                     -->
     <description>Signomix</description>
-    <property name="version" value="1.2.1"/> <!-- service version           -->
-    <property name="cricket-version" value="1.3.0-alpha.11" /> 
+    <property name="version" value="1.2.3"/> <!-- service version           -->
+    <property name="cricket-version" value="1.3.0-alpha.14" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="javax.mail-version" value="1.6.2" />
@@ -20,13 +20,12 @@
     <property name="JDK-location" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
     -->
     <property name="minify" value="false" />
+    <!-- configuration of libraries included in the distribution fat-jar     -->
+    <!-- set value=false to exclude selected library           -->
+    <property name="module-jsonpath" value="true"/>
+    <property name="json-org-jar-location" value="lib/json-org.jar"/>
     <!-- Doclet -->
     <property name="livingdocumentation-lib" value="lib/LivingDocumentation.jar"/>
-    
-    <!-- configuration of libraries included in the distribution fat-jar     -->
-    <!-- set value=false to exclude selected library                         -->
-    <property name="module-javamail" value="false"/> <!-- JavaMail reference implementation -->
-    <property name="javamail-jar-location" value="lib/javax.mail-${javax.mail-version}.jar" />
     <!--                                                                     -->
     <!-- END OF CONFIGURATION                                                -->
     <!-- ################################################################### -->
@@ -45,7 +44,9 @@
     
     <path id="project-classpath">
         <pathelement location="${cricket-jar-location}"/>
+        <pathelement location="${json-org-jar-location}"/>
         <pathelement location="${livingdocumentation-lib}"/>
+        
         <!--<pathelement location="${h2-jar-location}"/>
         <pathelement location="${kafka-jar-location}"/> 
         <pathelement location="${saaj-jar-location}/"/>
@@ -109,11 +110,57 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
+        <!--
+        <get
+            src="https://search.maven.org/remotecontent?filepath=com/jayway/jsonpath/json-path/2.4.0/json-path-2.4.0.jar"
+            dest="lib/json-path-2.4.0.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="http://repo.maven.apache.org/maven2/net/minidev/json-smart/2.3/json-smart-2.3.jar"
+            dest="lib/json-smart-2.3.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        -->
+        <get
+            src="https://repo1.maven.org/maven2/org/json/json/20190722/json-20190722.jar"
+            dest="lib/json-org.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        
+        <get
+            src="https://search.maven.org/remotecontent?filepath=com/sun/xml/bind/jaxb-impl/2.4.0-b180830.0438/jaxb-impl-2.4.0-b180830.0438.jar"
+            dest="lib/jaxb-impl-2.4.0.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="https://search.maven.org/remotecontent?filepath=javax/xml/bind/jaxb-api/2.4.0-b180830.0359/jaxb-api-2.4.0-b180830.0359.jar"
+            dest="lib/jaxb-api-2.4.0.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="https://search.maven.org/remotecontent?filepath=com/sun/xml/bind/jaxb-core/2.3.0.1/jaxb-core-2.3.0.1.jar"
+            dest="lib/jaxb-core-2.3.0.1.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        <get
+            src="https://search.maven.org/remotecontent?filepath=com/sun/activation/javax.activation/1.2.0/javax.activation-1.2.0.jar"
+            dest="lib/javax.activation-1.2.0.jar" 
+            usetimestamp="true" 
+            ignoreerrors="true"
+        />
+        
     </target>
 
     <target name="compile" depends="init" description="compile the source">
         <echo/>
-        <input message="Please enter release type [standard|mini]:" addproperty="releaseType" defaultvalue="standard"/>
+        <input message="Please enter release type:" validargs="standard,mini" addproperty="releaseType" defaultvalue="standard"/>
         <echo message="Compiling release type: ${releaseType}"/>
         <copy overwrite="true" file="${src}/com/signomix/Invariants.template" tofile="${src}/com/signomix/Invariants.java"/>
         <replace file="${src}/com/signomix/Invariants.java" token="{{type}}" value="${releaseType}"/>
@@ -140,7 +187,6 @@
             classpathref="project-classpath">
             <!--<compilerarg value="-Xlint:unchecked"/>-->
         </javac>
-        <copy overwrite="true" file="${src}/com/signocom/signode/Invariants.original" todir="${build}" failonerror="false"/>
         <delete file="${src}/com/signocom/signode/Invariants.original" failonerror="false"/>
         <copy todir="${build}" file="${src-js}/device-script-template.js"/>
         <copy todir="${build}" file="${src-js}/payload-decoder-envelope.js"/>
@@ -178,7 +224,7 @@
         <mkdir dir="${dist}/var"/>
         <mkdir dir="${dist}/log"/>
         <echo/>
-        <input message="Please enter environment name [dev|production]:" addproperty="environment.name" defaultvalue="dev"/>
+        <input message="Please enter environment name:" validargs="dev,compose" addproperty="environment.name" defaultvalue="dev"/>
         <echo message="Building archive for environment: ${environment.name}"/>
         <copy todir="${dist}/config" file="${src-js}/device-script-template.js"/>
         <copy todir="${dist}/config" file="${src-js}/payload-decoder-envelope.js"/>
@@ -221,6 +267,10 @@
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/signomix.sh"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/run.sh"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/readme.txt"/>
+        <copy todir="${dist}/lib" file="${lib}/jaxb-api-2.4.0.jar"/>
+        <copy todir="${dist}/lib" file="${lib}/jaxb-core-2.3.0.1.jar"/>
+        <copy todir="${dist}/lib" file="${lib}/jaxb-impl-2.4.0.jar"/>
+        <copy todir="${dist}/lib" file="${lib}/javax.activation-1.2.0.jar"/>
         <replace file="${dist}/signomix.sh" token="{{distribution}}" value="${ant.project.name}-${version}"/>
         <replace file="${dist}/run.sh" token="{{distribution}}" value="${ant.project.name}-${version}"/>
         <replace file="${dist}/www/admin/components/app_main.tag" token="cricket-version" value="${cricket-version}"/>
@@ -239,15 +289,6 @@
             <fileset dir="${src}" includes="*.json"/>
             <fileset dir="${src}" includes="*.txt"/>
         </copy>
-        <!--
-        <jar destfile="${dist}/${ant.project.name}-core-${version}.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.cricketmsf.Runner"/>
-            </manifest>
-            <fileset dir="${build}"/>
-            <zipfileset src="${cricket-jar-location}" excludes="**/*.json" includes="**/*"/>
-        </jar>
-        -->
         <jar destfile="${dist}/${ant.project.name}-${version}.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.cricketmsf.Runner"/>
@@ -255,10 +296,7 @@
             <zipfileset src="${cricket-jar-location}" excludes="**/*.json" includes="**/*"/>
             <fileset dir="${build}" />
             <!-- optional libraries -->
-            <zipfileset if:true="${module-h2}" src="${h2-jar-location}" includes="org/**/*"/>
-            <zipfileset if:true="${module-kafka}" src="${kafka-jar-location}" includes="org/**/*,kafka/**/*"/>
-            <zipfileset if:true="${module-saaj}" src="${saaj-jar-location}" includes="com/**/*,META-INF/services/**/*"/>
-            <zipfileset if:true="${module-javamail}" src="${javamail-jar-location}" includes="com/**/*,javax/**/*"/>
+            <zipfileset if:true="${module-jsonpath}" src="${json-org-jar-location}" includes="org/**/*"/>
         </jar>
     </target>
     
@@ -324,6 +362,9 @@
             <arg value="-c"/>
             <arg value="config/cricket.json"/>
         </exec>
+    </target>
+    <target name="get-signomix">
+        <!-- -->
     </target>
     <target name="test" depends="compile.tests">
         <delete dir="${reports}"/>

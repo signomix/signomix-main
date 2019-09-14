@@ -12,14 +12,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
-import org.cricketmsf.out.db.H2EmbededDB;
+import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
 
@@ -27,7 +26,7 @@ import org.cricketmsf.out.db.SqlDBIface;
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataStorageIface, Adapter {
+public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, IotDataStorageIface, Adapter {
 
     private int requestLimit = 0; //no limit
 
@@ -264,11 +263,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
                 if (i <= values.size()) {
                     index = channelNames.indexOf(values.get(i - 1).getName());
                     if (index >= 0 && index < limit) { // TODO: there must be control of mthe number of measures while defining device, not here
-                        try {
-                            pst.setDouble(6 + index, values.get(i - 1).getValue());
-                        } catch (NullPointerException e) {
-                            pst.setNull(6 + index, Types.DOUBLE);
-                        }
+                        pst.setDouble(6 + index, values.get(i - 1).getValue());
                     }
                 }
             }
@@ -477,7 +472,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             conn.close();
             return result;
         } catch (SQLException e) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = " + query));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = "+query));
             e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
@@ -597,7 +592,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             tmp = tmpValues.get(0);
             for (int j = 0; j < tmp.size(); j++) {
                 cd = (ChannelData) tmp.get(j);
-                if (groupChannels.indexOf(cd.getName()) > -1) {
+                if (groupChannels.indexOf(cd.getName())>-1) {
                     idx = requestChannels.indexOf(cd.getName());
                     if (idx > -1) {
                         row.set(idx, cd);

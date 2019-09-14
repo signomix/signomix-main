@@ -131,4 +131,9 @@ public class TtnData extends HashMap implements Map, IotDataIface {
         }
         //TODO: gateways?
     }
+
+    @Override
+    public long getReceivedPackageTimestamp() {
+        return getTimeField().toEpochMilli();
+    }
 }

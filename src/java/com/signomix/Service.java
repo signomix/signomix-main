@@ -102,6 +102,7 @@ public class Service extends Kernel {
     NotificationIface smsNotification = null;
     NotificationIface pushoverNotification = null;
     NotificationIface slackNotification = null;
+    NotificationIface telegramNotification = null;
     EmailSenderIface emailSender = null;
 
     //Integration services
@@ -150,6 +151,7 @@ public class Service extends Kernel {
         smsNotification = (NotificationIface) getRegistered("smsNotification");
         pushoverNotification = (NotificationIface) getRegistered("pushoverNotification");
         slackNotification = (NotificationIface) getRegistered("slackNotification");
+        telegramNotification = (NotificationIface) getRegistered("telegramNotification");
         emailSender = (EmailSenderIface) getRegistered("emailSender");
 
         integrationService = (IntegrationApi) getRegistered("IntegrationService");
@@ -265,7 +267,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "WwwService", requestMethod = "GET")
     public Object wwwGet(Event event) {
         //TODO: to nie jest optymalne rozwiązanie
-        handle(Event.logFinest(this.getClass().getSimpleName(), event.getRequest().uri));
+        dispatchEvent(Event.logFinest(this.getClass().getSimpleName(), event.getRequest().uri));
         String language = (String) event.getRequest().parameters.get("language");
         if (language == null || language.isEmpty()) {
             language = "en";
@@ -563,7 +565,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "POST")
     public Object userAdd(Event event) {
         boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
-        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation);
+        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, telegramNotification);
     }
 
     /**
@@ -575,11 +577,16 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "PUT")
     public Object userUpdate(Event event) {
         String resetPassEmail = event.getRequestParameter("resetpass");
+        try{
         if (resetPassEmail == null || resetPassEmail.isEmpty()) {
-            return UserModule.getInstance().handleUpdateRequest(event, userAdapter);
+            return UserModule.getInstance().handleUpdateRequest(event, userAdapter, telegramNotification);
         } else {
             String userName = event.getRequestParameter("name");
             return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter, emailSender);
+        }
+        }catch(Exception  e){
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -663,12 +670,12 @@ public class Service extends Kernel {
                     result.setPayload(pageContent.getBytes());
                 }
                 //} catch (KeyValueDBException ex) {
-                //    Kernel.handle(Event.logFine(this.getClass().getSimpleName(), "confirmation error: " + ex.getMessage()));
+                //    Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "confirmation error: " + ex.getMessage()));
                 //    if (ex.getCode() == AuthException.EXPIRED) {
                 //        result.setCode(401);
                 //    }
             } catch (UserException ex) {
-                Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -760,6 +767,7 @@ public class Service extends Kernel {
                 smsNotification,
                 pushoverNotification,
                 slackNotification,
+                telegramNotification,
                 dashboardAdapter,
                 authAdapter,
                 virtualStackAdapter,
@@ -832,7 +840,7 @@ public class Service extends Kernel {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
+            dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
             r.setCode(500);
         }
         return r;

@@ -40,6 +40,7 @@ public class IotEventHandler {
             NotificationIface smsNotification,
             NotificationIface pushoverNotification,
             NotificationIface slackNotification,
+            NotificationIface telegramNotification,
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             VirtualStackIface virtualStackAdapter,
@@ -63,7 +64,7 @@ public class IotEventHandler {
                     }
                     //save alert
                     AlertModule.getInstance().putAlert(event, thingsAdapter);
-                    
+
                     //send message
                     User user;
                     String payload;
@@ -75,9 +76,12 @@ public class IotEventHandler {
                             break;
                         }
                         String nodeName = origin[1];
-                        if(IotEvent.DEVICE_LOST.equals(event.getType())){
+                        if (IotEvent.DEVICE_LOST.equals(event.getType())) {
                             // this event can appear several times: for device owner + all team members
                             thingsAdapter.updateAlertStatus(nodeName, Device.FAILURE);
+                            // see also: 
+                            // ThingsDataIface.updateHealthStatus()
+                            // DeviceManagementModule.checkStatus()
                         }
                         String[] channelConfig = user.getChannelConfig(event.getType());
                         if (!(channelConfig != null && channelConfig.length == 2)) {
@@ -100,16 +104,19 @@ public class IotEventHandler {
                             case "SLACK":
                                 response = slackNotification.send(address, nodeName, message);
                                 break;
+                            case "TELEGRAM":
+                                response = telegramNotification.send(address, nodeName, message);
+                                break;
                             default:
-                                Kernel.handle(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
+                                Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
                         }
                         if (response.startsWith("ERROR")) {
-                            Kernel.handle(Event.logWarning(IotEventHandler.class.getSimpleName(), response));
+                            Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), response));
                         }
                     } catch (UserException ex) {
-                        Kernel.handle(Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
-                    } catch (ThingsDataException ex){
-                        Kernel.handle(Event.logSevere(IotEventHandler.class.getSimpleName(), "updateAlertStatus() "+ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
+                    } catch (ThingsDataException ex) {
+                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName(), "updateAlertStatus() " + ex.getMessage()));
                     }
                     break;
                 case IotEvent.CHANNEL_REMOVE:
@@ -119,9 +126,9 @@ public class IotEventHandler {
                     try {
                         Device device = thingsAdapter.getDevice(params[1]);
                         IotEvent info = new IotEvent(IotEvent.INFO, params[1] + "\t" + device.getUserID(), "Data channel \"" + params[0] + "\" has been removed from the device definition. You should check dependent dashboards.");
-                        Kernel.handle(info);
+                        Kernel.getInstance().dispatchEvent(info);
                     } catch (ThingsDataException e) {
-                        Kernel.handle(Event.logSevere(IotEventHandler.class.getSimpleName() + ".processIotEvent()", e.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName() + ".processIotEvent()", e.getMessage()));
                     }
                     break;
                 case IotEvent.DEVICE_REGISTERED:
@@ -134,10 +141,10 @@ public class IotEventHandler {
                     try {
                         params = ((String) event.getPayload()).split("\t");
                         if (params.length == 2) {
-                            dashboardAdapter.removeDashboard(params[1], params[0] );
+                            dashboardAdapter.removeDashboard(params[1], params[0]);
                         }
                     } catch (Exception e) {
-                        Kernel.handle(Event.logWarning("Problem renoving dashboards", e.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logWarning("Problem renoving dashboards", e.getMessage()));
                     }
                     break;
                 case IotEvent.DASHBOARD_SHARED:
@@ -146,66 +153,70 @@ public class IotEventHandler {
                 case IotEvent.DASHBOARD_REMOVED:
                 case IotEvent.DASHBOARD_UNSHARED:
                     //TODO: remove "public" team member from devices raported by this dashboard
-                    Kernel.handle(Event.logInfo(IotEventHandler.class.getSimpleName(), "removing shared token " + event.getPayload()));
+                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), "removing shared token " + event.getPayload()));
                     try {
                         authAdapter.removePermanentToken("" + event.getPayload());
                     } catch (AuthException ex) {
-                        Kernel.handle(Event.logWarning(IotEventHandler.class.getSimpleName(), "error while removing token " + event.getPayload() + "->" + ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "error while removing token " + event.getPayload() + "->" + ex.getMessage()));
                     }
                     break;
                 case IotEvent.VIRTUAL_DATA:
                     try {
                         String userID = event.getOrigin();
                         payload = (String) event.getPayload();
-                        params = payload.split(":");
-                        /*
-                        System.out.println("userID="+userID);
-                        System.out.println("EUI="+params[0]);//params[0] - device EUI
-                        System.out.println("channel="+params[1]);//params[1] - channel name
-                        System.out.println("value="+params[2]);//params[2] - value
-                        System.out.println("timestamp="+params[3]);//params[3= - timestamp
-                         */
-                        Device device = thingsAdapter.getDevice(userID, params[0], false);
+                        String[] channels = payload.split(";");
+                        params = channels[0].split(":");
+                        String deviceEUI = params[0];
+
+                        //params = payload.split(":");
+                        Device device = thingsAdapter.getDevice(userID, deviceEUI, false);
                         if (device != null) {
                             if (device.getType().equals(Device.VIRTUAL)) {
-                                long value = 0;
-                                boolean counterChange = false;
-                                VirtualDevice vd = new VirtualDevice(device.getEUI());
-                                try {
-                                    value = (long) Double.parseDouble(params[2]); //to obcina część ułamkową.
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                ArrayList<ChannelData> values = new ArrayList<>();
+                                ChannelData data;
+                                String channelName;
+                                Double value;
+                                long timestamp;
+                                boolean counterChange;
+                                VirtualDevice vd;
+                                for (String channel : channels) {
+                                    params = channel.split(":");
+                                    channelName = params[1];
+                                    try {
+                                        value = Double.parseDouble(params[2]);
+                                        timestamp = Long.parseLong(params[3]);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        break;
+                                    }
+                                    counterChange = false;
+                                    vd = new VirtualDevice(device.getEUI());
+                                    if ("_in".equals(channelName) && value != 0) { // previously "incoming"
+                                        counterChange = true;
+                                        virtualStackAdapter.get(vd).addInputs(value.longValue());
+                                    } else if ("_out".equals(channelName) && value != 0) { // previously "exiting"
+                                        counterChange = true;
+                                        virtualStackAdapter.get(vd).addOutputs(value.longValue());
+                                    } else {
+                                        //virtua/lStackAdapter.get(device.getEUI())
+                                        //TODO: ? reset?
+                                    }
+                                    if (counterChange && virtualStackAdapter.getProperty("write-interval").isEmpty()) {
+                                        // empty write interval == write virtual device counters to the data channels
+                                        DeviceIntegrationModule
+                                                .getInstance()
+                                                .writeVirtualState(vd, device, userID, thingsAdapter, virtualStackAdapter, scriptingAdapter, false, null);
+                                    } else if (!counterChange) {
+                                        data = new ChannelData();
+                                        data.setDeviceEUI(device.getEUI());
+                                        data.setName(channelName);
+                                        data.setValue(value);
+                                        data.setTimestamp(timestamp);
+                                        values.add(data);
+                                    }
                                 }
-                                if ("incoming".equals(params[1]) && value != 0) {
-                                    counterChange = true;
-                                    virtualStackAdapter.get(vd).addInputs(value);
-                                } else if ("exiting".equals(params[1]) && value != 0) {
-                                    counterChange = true;
-                                    virtualStackAdapter.get(vd).addOutputs(value);
-                                } else {
-                                    //virtua/lStackAdapter.get(device.getEUI())
-                                    //TODO: ? reset?
-                                }
-                                if (counterChange && virtualStackAdapter.getProperty("write-interval").isEmpty()) {
-                                    // empty write interval == write virtual device counters to the data channels
-                                    DeviceIntegrationModule
-                                            .getInstance()
-                                            .writeVirtualState(vd, device, userID, thingsAdapter, virtualStackAdapter, scriptingAdapter, false, null);
-                                } else if (counterChange && !virtualStackAdapter.getProperty("write-interval").isEmpty()) {
-                                    //TODO: data will be send to DB by Scheduler
-                                    //System.out.println("WRITE_INTERVAL is not empty");
-                                } else {
-                                    // data channels != (incoming || exiting) are stored immediately
-                                    //System.out.println(">>>> writing data to virtual device");
-                                    ArrayList<ChannelData> values = new ArrayList<>();
-                                    ChannelData data = new ChannelData();
-                                    data.setDeviceEUI(device.getEUI());
-                                    data.setName(params[1]);
-                                    data.setValue(params[2]);
-                                    data.setTimestamp(Long.parseLong(params[3]));
-                                    values.add(data);
+                                if (!values.isEmpty()) {
                                     DeviceIntegrationModule.getInstance().writeVirtualData(thingsAdapter, scriptingAdapter, device, values);
-                                    //thingsAdapter.putData(userID, device.getEUI(), data.getName(), data);
                                 }
                             } else {
                                 System.out.println("NOT VIRTUAL DEVICE");
@@ -218,7 +229,7 @@ public class IotEventHandler {
                     }
                     break;
                 default:
-                    Kernel.handle(
+                    Kernel.getInstance().dispatchEvent(
                             Event.logWarning("Don't know how to handle category/type " + event.getCategory() + "/" + event.getType(),
                                     "" + event.getPayload())
                     );

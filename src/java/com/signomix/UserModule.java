@@ -4,6 +4,7 @@
 */
 package com.signomix;
 
+import com.signomix.out.notification.NotificationIface;
 import java.util.List;
 import org.cricketmsf.microsite.user.*;
 import java.util.Map;
@@ -69,8 +70,7 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    @Override
-    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
+    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default (plus APPLICATION type)
         RequestObject request = event.getRequest();
@@ -125,6 +125,7 @@ public class UserModule extends UserBusinessLogic {
                 result.setMessage("lack of required parameters");
                 return result;
             }
+            newUser = verifyNotificationsConfig(newUser, telegramNotifier);
             newUser = userAdapter.register(newUser);
             if (withConfirmation) {
                 result.setCode(HttpAdapter.SC_ACCEPTED);
@@ -175,8 +176,8 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    @Override
-    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter) {
+    
+    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter, NotificationIface telegramNotifier) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default
         RequestObject request = event.getRequest();
@@ -244,12 +245,16 @@ public class UserModule extends UserBusinessLogic {
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
             }
+            user = verifyNotificationsConfig(user, telegramNotifier);
             userAdapter.modify(user);
             //fire event
             handle(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));
             result.setCode(HttpAdapter.SC_OK);
             result.setData(user);
         } catch (NullPointerException | UserException e) {
+            e.printStackTrace();
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+        } catch(Exception e){
             e.printStackTrace();
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
         }
@@ -287,5 +292,56 @@ public class UserModule extends UserBusinessLogic {
      */
     public Object resetCounters(String userName){
         return null;
+    }
+    
+        public User verifyNotificationsConfig(User user, NotificationIface telegramNotifier) {
+        //String chatID = telegramNotifier.getChatID(recipent);
+        String telegramUserID;
+        String telegramChatID;
+        if (user.getGeneralNotificationChannel().startsWith("TELEGRAM:")) {
+            telegramUserID = getTelegramUserID(user.getGeneralNotificationChannel());
+            telegramChatID = telegramNotifier.getChatID(telegramUserID);
+            if(null!=telegramChatID){
+                user.setGeneralNotificationChannel("TELEGRAM:"+telegramUserID+"@"+telegramChatID);
+            }else{
+                user.setGeneralNotificationChannel("SIGNOMIX:");
+            }
+        }
+        if (user.getInfoNotificationChannel().startsWith("TELEGRAM:")) {
+            telegramUserID = getTelegramUserID(user.getInfoNotificationChannel());
+            telegramChatID = telegramNotifier.getChatID(telegramUserID);
+            if(null!=telegramChatID){
+                user.setInfoNotificationChannel("TELEGRAM:"+telegramUserID+"@"+telegramChatID);
+            }else{
+                user.setInfoNotificationChannel("SIGNOMIX:");
+            }
+        }
+        if (user.getWarningNotificationChannel().startsWith("TELEGRAM:")) {
+            telegramUserID = getTelegramUserID(user.getWarningNotificationChannel());
+            telegramChatID = telegramNotifier.getChatID(telegramUserID);
+            if(null!=telegramChatID){
+                user.setWarningNotificationChannel("TELEGRAM:"+telegramUserID+"@"+telegramChatID);
+            }else{
+                user.setWarningNotificationChannel("SIGNOMIX:");
+            }
+        }
+        if (user.getAlertNotificationChannel().startsWith("TELEGRAM:")) {
+            telegramUserID = getTelegramUserID(user.getAlertNotificationChannel());
+            telegramChatID = telegramNotifier.getChatID(telegramUserID);
+            if(null!=telegramChatID){
+                user.setAlertNotificationChannel("TELEGRAM:"+telegramUserID+"@"+telegramChatID);
+            }else{
+                user.setAlertNotificationChannel("SIGNOMIX:");
+            }
+        }
+        return user;
+    }
+
+    private String getTelegramUserID(String config) {
+        String telegramUserID = config.substring(config.indexOf(":")+1);
+        if (telegramUserID.indexOf("@") > 0) {
+            telegramUserID = telegramUserID.substring(0,telegramUserID.indexOf("@"));
+        }
+        return telegramUserID;
     }
 }

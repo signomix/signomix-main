@@ -1,9 +1,10 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package org.cricketmsf.microsite.user;
 
+import com.signomix.out.notification.NotificationIface;
 import java.util.List;
 import java.util.Map;
 import org.cricketmsf.Event;
@@ -159,9 +160,9 @@ public class UserBusinessLogic {
             return result;
         }
         try {
-            User tmpUser=userAdapter.get(uid);
+            User tmpUser = userAdapter.get(uid);
             userAdapter.remove(uid);
-            Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DELETED, tmpUser.getNumber()+ " "+tmpUser.getUid()));
+            Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DELETED, tmpUser.getNumber() + " " + tmpUser.getUid()));
             result.setCode(HttpAdapter.SC_OK);
             result.setData(uid);
         } catch (UserException e) {
@@ -236,6 +237,7 @@ public class UserBusinessLogic {
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
             }
+            //user = verifyNotificationsConfig(user, telegramNotifier);
             userAdapter.modify(user);
             //fire event
             Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));
@@ -247,4 +249,5 @@ public class UserBusinessLogic {
         }
         return result;
     }
+
 }

@@ -21,34 +21,6 @@
             </div>
         </div>
     </div> 
-    <div id={opts.ref} if={ type == 'button' } class="card text-center topspacing p-0">
-        <div class="card-body text-center" if={ !app.user.guest }>
-            <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#myModal">{ title }</button>
-        </div>
-        <div class="card-body text-center" if={ app.user.guest }>
-            <p>---</p>
-        </div>
-    </div>
-    <div id="myModal" class="modal fade" if={ type == 'button' }>
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{ title }</h4>
-                </div>
-                <div class="modal-body">
-                    <p>{ app.texts.widget_a1.device[app.language] } { deviceEUI }</p>
-                    <p>{ app.texts.widget_a1.newvalue[app.language] } { channelName }</p>
-                    <input type='text' value="0" name="newvalue" id='newvalue2set'>
-                    <p>{ description }</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal">{ app.texts.widget_a1.cancel[app.language] }</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick={ sendReset() }>{ app.texts.widget_a1.save[app.language] }</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
     var self = this

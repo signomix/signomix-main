@@ -151,7 +151,7 @@ public class ActuatorModule {
         try {
             device = thingsAdapter.getDevice(deviceEUI);
             if (device == null) {
-                Kernel.handle(Event.logWarning(this, "device " + deviceEUI + " not found"));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, "device " + deviceEUI + " not found"));
                 return;
             }
 
@@ -172,11 +172,11 @@ public class ActuatorModule {
             } else {
                 actuatorCommandsDB.putDeviceCommand(commandEvent.getOrigin(), commandEvent);
             }
-            Kernel.handle(Event.logInfo(this, "processCommand " + commandEvent.getOrigin() + ":" + commandEvent.getPayload()));
+            Kernel.getInstance().dispatchEvent(Event.logInfo(this, "processCommand " + commandEvent.getOrigin() + ":" + commandEvent.getPayload()));
         } catch (ThingsDataException e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
         } catch (Exception e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
         }
 
     }

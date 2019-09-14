@@ -13,15 +13,15 @@ function decodeData(eui, originalPayload, timestamp) {
     for(var i = 0; i < originalPayload.length; i++) {
         payload[i] = originalPayload[i];
     }
-    return encode(eui, payload, timestamp);
+    return decode(eui, payload, timestamp);
 }
 
 function decodeHexData(eui, originalPayload, timestamp) {
     var payload = hexToBytes(originalPayload);
-    return encode(eui, payload, timestamp);
+    return decode(eui, payload, timestamp);
 }
 
-var encode = function(eui, payload, timestamp){
+var decode = function(eui, payload, timestamp){
     var result = new List();
     //injectedCode
     return result;

@@ -44,7 +44,8 @@ public class ChannelData {
     }
 
     public String toString() {
-        return getDeviceEUI()+ ":" + getName()+ ":" + getTimestamp() + ":" + getValue();
+        //return getName()+ ":" + getTimestamp() + ":" + getValue();
+        return getName()+":"+getValue()+":"+getTimestamp();
     }
 
     public String toCsv(String delimeter, boolean convertTimestamp) {
@@ -54,13 +55,13 @@ public class ChannelData {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             dateFormatted = dateFormat.format(new Date(getTimestamp()));
-            return getDeviceEUI() + delimeter + getName() + delimeter + dateFormatted + delimeter + getValue();
+            return getDeviceEUI() + delimeter + getName() + delimeter + getValue() + delimeter + dateFormatted ;
         }
-        return getDeviceEUI() + delimeter + getName() + delimeter + getTimestamp() + delimeter + getValue();
+        return getDeviceEUI() + delimeter + getName() + delimeter + getValue()+ delimeter + getTimestamp() ;
     }
 
     public static String getCsvHeaderLine(boolean convertTimestamp) {
-        return "EUI,name,"+(convertTimestamp?"date (UTC)":"timestamp")+",value\r\n";
+        return "EUI,name,value,"+(convertTimestamp?"date (UTC)":"timestamp")+"\r\n";
     }
 
     /**

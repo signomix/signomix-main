@@ -27,7 +27,7 @@ import org.cricketmsf.Kernel;
  *
  * @author greg
  */
-public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface, Adapter {
+public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabaseIface, Adapter {
 
     private int timeOffset = 0;
 
@@ -86,8 +86,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
                         .append("appid varchar,")
                         .append("groups varchar,")
                         .append("alert number,")
-                        .append("appeui varchar,")
-                        .append("devid varchar)");
+                        .append("appeui varchar)");
                 break;
             case "dashboards":
                 sb.append("create table dashboards (")
@@ -147,9 +146,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices where userid = ? or team like ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices where userid = ? or team like ?";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices where userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices where userid = ?";
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -199,9 +198,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices where upper(eui)=upper(?) and (userid = ? or team like ?)";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices where upper(eui)=upper(?) and (userid = ? or team like ?)";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices where upper(eui)=upper(?) and userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices where upper(eui)=upper(?) and userid = ?";
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -224,7 +223,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public Device getDevice(String deviceEUI) throws ThingsDataException {
-        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices where upper(eui) = upper(?)";
+        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices where upper(eui) = upper(?)";
         if (deviceEUI == null || deviceEUI.isEmpty()) {
             return null;
         }
@@ -248,7 +247,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         if (getDevice(device.getUserID(), device.getEUI(), false) != null) {
             throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + " is already defined");
         }
-        String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(true);
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -273,7 +272,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(19, device.getApplicationEUI());
             pstmt.setString(20, device.getGroups());
             pstmt.setInt(21, device.getAlertStatus());
-            pstmt.setString(22, device.getDeviceID());
             int updated = pstmt.executeUpdate();
             conn.close();
             if (updated < 1) {
@@ -289,7 +287,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
-        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,interval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=? where eui=?";
+        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,interval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=? where eui=?";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(true);
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -313,8 +311,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(18, device.getApplicationEUI());
             pstmt.setString(19, device.getGroups());
             pstmt.setInt(20, device.getAlertStatus());
-            pstmt.setString(21, device.getDeviceID());
-            pstmt.setString(22, device.getEUI());
+            pstmt.setString(21, device.getEUI());
             //TODO: last frame
             int updated = pstmt.executeUpdate();
             conn.close();
@@ -639,7 +636,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         d.setApplicationEUI(rs.getString(19));
         d.setGroups(rs.getString(20));
         d.setAlertStatus(rs.getInt(21));
-        d.setDeviceID(rs.getString(22));
         return d;
     }
 
@@ -897,12 +893,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
                 break;
             case 7:
                 sb = new StringBuilder();
-                sb.append("alter table devices add alert number default -1");
-                query = sb.toString();
-                break;
-            case 8:
-                sb = new StringBuilder();
-                sb.append("alter table devices add devid varchar default ''");
+                sb.append("alter table devices add alert number set default -1");
                 query = sb.toString();
                 break;
         }
@@ -972,7 +963,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
         String query
-                = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid from devices "
+                = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert from devices "
                 + "where interval > 0 and alert < 2 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-" + timeOffset + ") > interval/1000;";
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
