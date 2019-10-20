@@ -41,9 +41,9 @@ public class ChannelClient {
         try {
             List<List> result;
             if(newValue==null){
-                result =thingsAdapter.getValues(userID, deviceID, channel, "average " + scope + " "+newValue);
+                result =thingsAdapter.getValues(userID, deviceID, "channel "+channel+" average " + scope);
             }else{
-                result =thingsAdapter.getValues(userID, deviceID, channel, "average " + scope + " "+newValue);
+                result =thingsAdapter.getValues(userID, deviceID, "channel "+channel+" average " + scope + " new "+newValue);
             }
             if(result!=null){
                 if(result.get(0).size()>0){

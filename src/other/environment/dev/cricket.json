@@ -32,17 +32,18 @@
                 "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL",
                 "ga-tracking-id": ""
             },
-            "adapters": {
-                "echo": {
+            "ports": [
+                {
                     "name": "echo",
                     "interfaceName": "EchoHttpAdapterIface",
                     "classFullName": "org.cricketmsf.in.http.EchoHttpAdapter",
                     "properties": {
                         "context": "/api/echo",
+                        "dump-request":"true",
                         "silent-mode": "false"
                     }
                 },
-                "UserService": {
+                {
                     "name": "UserService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.UserApi",
@@ -51,7 +52,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "RecoveryService": {
+                {
                     "name": "RecoveryService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.UserApi",
@@ -60,7 +61,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "AuthService": {
+                {
                     "name": "AuthService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.AuthApi",
@@ -69,7 +70,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "ConfirmationService": {
+                {
                     "name": "ConfirmationService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ConfirmationApi",
@@ -78,7 +79,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "ContentManager": {
+                {
                     "name": "ContentManager",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.ContentApi",
@@ -87,7 +88,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "ContentService": {
+                {
                     "name": "ContentService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.ContentApi",
@@ -96,7 +97,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "DeviceService": {
+                {
                     "name": "DeviceService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ThingsApi",
@@ -105,7 +106,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "GroupService": {
+                {
                     "name": "GroupService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ThingsApi",
@@ -114,7 +115,16 @@
                         "silent-mode": "false"
                     }
                 },
-                "IntegrationService": {
+                {
+                    "name": "TemplateService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ThingsApi",
+                    "properties": {
+                        "context": "/api/iot/template",
+                        "silent-mode": "false"
+                    }
+                },
+                {
                     "name": "IntegrationService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.IntegrationApi",
@@ -124,8 +134,8 @@
                         "dump-request": "true"
                     }
                 },
-                "SimpleIntegrationService": {
-                    "name": "IntegrationService",
+                {
+                    "name": "SimpleIntegrationService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.IntegrationApi",
                     "properties": {
@@ -134,7 +144,7 @@
                         "dump-request": "true"
                     }
                 },
-                "RawIntegrationService": {
+                {
                     "name": "RawIntegrationService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.IntegrationApi",
@@ -145,7 +155,7 @@
                         "dump-request": "true"
                     }
                 },
-                "TtnIntegrationService": {
+                {
                     "name": "TtnIntegrationService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.TtnApi",
@@ -153,10 +163,10 @@
                         "context": "/api/ttn",
                         "silent-mode": "false",
                         "dump-request": "true",
-                        "authorization-required": "false"
+                        "authorization-required": "true"
                     }
                 },
-                "DashboardService": {
+                {
                     "name": "DashboardService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.DashboardApi",
@@ -165,7 +175,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "AlertService": {
+                {
                     "name": "AlertService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.AlertApi",
@@ -174,7 +184,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "SystemService": {
+                {
                     "name": "SystemService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.SystemApi",
@@ -183,7 +193,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "LoRaUplinkService": {
+                {
                     "name": "LoRaUplinkService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.LoRaApi",
@@ -193,7 +203,7 @@
                         "dump-request": "true"
                     }
                 },
-                "LoRaJoinService": {
+                {
                     "name": "LoRaJoinService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.LoRaApi",
@@ -202,7 +212,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "LoRaAckService": {
+                {
                     "name": "LoRaAckService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.LoRaApi",
@@ -211,7 +221,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "LoRaErrorService": {
+                {
                     "name": "LoRaErrorService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.LoRaApi",
@@ -220,7 +230,7 @@
                         "silent-mode": "false"
                     }
                 },
-                "KpnUplinkService": {
+                {
                     "name": "KpnUplinkService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.KpnApi",
@@ -230,16 +240,17 @@
                         "dump-request": "true"
                     }
                 },
-                "ActuatorService": {
+                {
                     "name": "ActuatorService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ActuatorApi",
                     "properties": {
                         "context": "/api/actuator",
+                        "dump-request":"true",
                         "silent-mode": "false"
                     }
                 },
-                "logger": {
+                {
                     "name": "logger",
                     "interfaceName": "LoggerAdapterIface",
                     "classFullName": "org.cricketmsf.out.log.StandardLogger",
@@ -252,7 +263,7 @@
                         "console": "true"
                     }
                 },
-                "GdprLogger": {
+                {
                     "name": "GdprLogger",
                     "interfaceName": "LoggerAdapterIface",
                     "classFullName": "org.cricketmsf.out.log.FileLogger",
@@ -261,7 +272,7 @@
                         "log-file-name": "./log/gdpr.log"
                     }
                 },
-                "database": {
+                {
                     "name": "database",
                     "interfaceName": "KeyValueDBIface",
                     "classFullName": "org.cricketmsf.out.db.KeyValueDB",
@@ -271,7 +282,7 @@
                         "name": "local"
                     }
                 },
-                "queueDB": {
+                {
                     "name": "queueDB",
                     "interfaceName": "KeyValueDBIface",
                     "classFullName": "org.cricketmsf.out.db.KeyValueDB",
@@ -280,7 +291,7 @@
                         "name": "queue"
                     }
                 },
-                "iotDB": {
+                {
                     "name": "iotDB",
                     "interfaceName": "IotDatabaseIface",
                     "classFullName": "com.signomix.out.db.H2IotDB",
@@ -289,13 +300,13 @@
                         "name": "iot",
                         "file": "iot",
                         "test-query": "select * from serviceversion",
-                        "version": "7",
+                        "version": "8",
                         "user": "sa",
                         "password": "",
                         "time-offset": "7200"
                     }
                 },
-                "iotDataDB": {
+                {
                     "name": "iotDataDB",
                     "interfaceName": "IotDataStorageIface",
                     "classFullName": "com.signomix.out.db.H2DataStorageDB",
@@ -304,13 +315,13 @@
                         "name": "data",
                         "file": "data",
                         "test-query": "select * from serviceversion",
-                        "version": "2",
+                        "version": "3",
                         "user": "sa",
                         "password": "",
                         "requestLimit": "200"
                     }
                 },
-                "actuatorCommandsDB": {
+                {
                     "name": "actuatorCommandsDB",
                     "interfaceName": "ActuatorCommandsDBIface",
                     "classFullName": "com.signomix.out.db.H2CommandsDB",
@@ -324,7 +335,7 @@
                         "password": ""
                     }
                 },
-                "scheduler": {
+                {
                     "name": "scheduler",
                     "interfaceName": "SchedulerIface",
                     "classFullName": "org.cricketmsf.in.scheduler.Scheduler",
@@ -335,7 +346,7 @@
                         "init":"Data2,SYSTEM,EVENT,CHECK_DEVICES,*1m,_|_;Data1,SYSTEM,EVENT,CLEAR_DATA,*1m,_|_;EV2,EC1COUNTER,EVENT,COMMAND,17:40:00 GMT|*24h,{\"value\":\"0\"};EV3,EC1,EVENT,BACKUP,21:40:00 GMT|*24h,_"
                     }
                 },
-                "FileReader": {
+                {
                     "name": "FileReader",
                     "interfaceName": "FileReaderAdapterIface",
                     "classFullName": "org.cricketmsf.out.file.FileReaderAdapter",
@@ -344,7 +355,7 @@
                         "index-file": "index.html"
                     }
                 },
-                "CMS": {
+                {
                     "name": "CMS",
                     "interfaceName": "HtmlGenAdapterIface",
                     "classFullName": "org.cricketmsf.in.http.HtmlGenAdapter",
@@ -354,7 +365,7 @@
                         "page-processor": "true"
                     }
                 },
-                "WwwService": {
+                {
                     "name": "WwwService",
                     "interfaceName": "HtmlGenAdapterIface",
                     "classFullName": "org.cricketmsf.in.http.HtmlGenAdapter",
@@ -364,7 +375,7 @@
                         "page-processor": "true"
                     }
                 },
-                "userAdapter": {
+                {
                     "name": "userAdapter",
                     "interfaceName": "UserAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.out.user.UserEmbededAdapter",
@@ -372,7 +383,7 @@
                         "helper-name": "userDB"
                     }
                 },
-                "authAdapter": {
+                {
                     "name": "authAdapter",
                     "interfaceName": "AuthAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.out.auth.AuthEmbededAdapter",
@@ -382,7 +393,7 @@
                         "token-timeout": "600"
                     }
                 },
-                "cmsDB": {
+                {
                     "name": "cmsDB",
                     "interfaceName": "SqlDBIface",
                     "classFullName": "org.cricketmsf.microsite.out.db.H2CmsDB",
@@ -396,7 +407,7 @@
                         "password": ""
                     }
                 },
-                "userDB": {
+                {
                     "name": "userDB",
                     "interfaceName": "SqlDBIface",
                     "classFullName": "org.cricketmsf.microsite.out.db.H2UserDB",
@@ -412,7 +423,7 @@
                         "password": ""
                     }
                 },
-                "authDB": {
+                {
                     "name": "authDB",
                     "interfaceName": "SqlDBIface",
                     "classFullName": "org.cricketmsf.microsite.out.db.H2AuthDB",
@@ -426,7 +437,7 @@
                         "password": ""
                     }
                 },
-                "cms": {
+                {
                     "name": "cms",
                     "interfaceName": "CmsIface",
                     "classFullName": "org.cricketmsf.microsite.cms.CmsEmbededAdapter",
@@ -438,7 +449,7 @@
                         "index-file": "index.html"
                     }
                 },
-                "queueAdaptehttps://api.pushover.net/1/messages.jsonr": {
+                {
                     "name": "queueAdapter",
                     "interfaceName": "QueueAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.out.queue.QueueEmbededAdapter",
@@ -448,7 +459,7 @@
                         "ignoring": "-"
                     }
                 },
-                "iotAdapter": {
+                {
                     "name": "iotAdapter",
                     "interfaceName": "ThingsDataIface",
                     "classFullName": "com.signomix.out.iot.ThingsDataEmbededAdapter",
@@ -457,7 +468,7 @@
                         "helper-name2": "iotDataDB"
                     }
                 },
-                "dashboardAdapter": {
+                {
                     "name": "dashboardAdapter",
                     "interfaceName": "DashboardIface",
                     "classFullName": "com.signomix.out.gui.DashboardEmbededAdapter",
@@ -466,7 +477,7 @@
                         "helper-name2": "userAdapter"
                     }
                 },
-                "scriptingAdapter": {
+                {
                     "name": "scriptingAdapter",
                     "interfaceName": "ScriptingAdapterIface",
                     "classFullName": "com.signomix.out.script.NashornScriptingAdapter",
@@ -476,7 +487,7 @@
                         "helper-name": "iotAdapter"
                     }
                 },
-                "actuatorAdapter": {
+                {
                     "name": "actuatorAdapter",
                     "interfaceName": "ActuatorDataIface",
                     "classFullName": "com.signomix.out.iot.ActuatorDataEmbededAdapter",
@@ -484,7 +495,7 @@
                         "helper-name": "actuatorCommandsDB"
                     }
                 },
-                "smtpNotification": {
+                {
                     "name": "smtpNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SmtpNotificator",
@@ -496,7 +507,7 @@
                         "debug-session": "false"
                     }
                 },
-                "smtpNotification2": {
+                {
                     "name": "smtpNotification2",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SmtpNotificator",
@@ -509,7 +520,7 @@
                         "debug-session": "false"
                     }
                 },
-                "pushoverNotification": {
+                {
                     "name": "pushoverNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.PushoverNotificator",
@@ -519,7 +530,7 @@
                         "ignore-certificate-check": "true"
                     }
                 },
-                "telegramNotification": {
+                {
                     "name": "telegramNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.TelegramNotificator",
@@ -529,7 +540,7 @@
                         "ignore-certificate-check": "true"
                     }
                 },
-                "slackNotification": {
+                {
                     "name": "slackNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SlackNotificator",
@@ -538,7 +549,7 @@
                         "ignore-certificate-check":"true"
                     }
                 },
-                "emailSender": {
+                {
                     "name": "emailSender",
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
@@ -550,7 +561,7 @@
                         "debug-session": "false"
                     }
                 },
-                "virtualStack": {
+                {
                     "name": "virtualStack",
                     "interfaceName": "VirtualStackIface",
                     "classFullName": "com.signomix.out.iot.VirtualStack",
@@ -558,7 +569,7 @@
                         "write-interval": ""
                     }
                 }
-            }
+    ]
         }
     ]
 }

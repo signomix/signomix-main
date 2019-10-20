@@ -211,9 +211,9 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         IotEvent ev = new IotEvent();
         ev.setOrigin(origin);
         if (source == 1) {
-            ev.setPayload("Decoder script: " + message);
+            ev.setPayload("Decoder script (1): " + message);
         } else {
-            ev.setPayload("Data processor script: " + message);
+            ev.setPayload("Data processor script (1): " + message);
         }
         ev.setType(IotEvent.GENERAL);
         Kernel.getInstance().dispatchEvent(ev);

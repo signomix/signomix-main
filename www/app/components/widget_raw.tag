@@ -3,8 +3,11 @@
         <div class="card-header h6 text-left p-1">{title}</div>
         <div class="card-body"><pre>{rawdata}</pre></div>
     </div>
-    <div id={opts.ref} if={type == 'text'} class="card card-block topspacing p-1">
+    <div id={opts.ref} if={type == 'text' && description.trim() != ''} class="card card-block topspacing p-1">
         <raw content={ description }></raw>
+    </div>
+    <div id={opts.ref} if={type == 'text' && description.trim() == ''} class="topspacing p-1">
+    &nbsp;
     </div>
     <script>
     var self = this

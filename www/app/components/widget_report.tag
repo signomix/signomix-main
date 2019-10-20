@@ -7,17 +7,19 @@
                 <thead>
                     <tr class="table-active">
                         <td class="text-uppercase text-left" scope="col">{ app.texts.widget_report.EUI[app.language] }</td>
+                        <td class="text-uppercase text-left" scope="col">{ app.texts.widget_report.NAME[app.language] }</td>
                         <td class="text-uppercase text-right" scope="col" each={ name in measureNames }>{name}</td>
                         <td class="text-uppercase text-right"scope="col">{ app.texts.widget_report.DATE[app.language] }</td>
-                        <td class="text-uppercase text-right" scope="col">{ app.texts.widget_report.DETAILS[app.language] }</td>
+                        <!--<td class="text-uppercase text-right" scope="col">{ app.texts.widget_report.DETAILS[app.language] }</td>-->
                     </tr>
                 </thead>
                 <tbody>
                     <tr each={device in jsonData}>
-                        <td class="text-left">{device[0].deviceEUI}</td>
+                        <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI}">{device[0].deviceEUI}</a></td>
+                        <td class="text-left">{getDeviceName(device[0].deviceEUI)}</td>
                         <td class="text-right" each={measure in device}>{(measure?measure.value:'')}</td>
                         <td class="text-right">{getDateFormatted(new Date(device[0].timestamp))}</td>
-                        <td class="text-right"><a href="{'#!dashboard,'+device[0].deviceEUI}">{ app.texts.widget_report.MORE[app.language] }</a></td>
+                        <!--<td class="text-right"><a href="{'#!dashboard,'+device[0].deviceEUI}">{ app.texts.widget_report.MORE[app.language] }</a></td>-->
                     </tr>
                 </tbody>
             </table>
@@ -47,13 +49,68 @@
     self.width=100
     self.heightStr='height:100px;'
     self.measureNames = []
+    self.groups = []
     
     self.show2 = function(){
-        self.measureNames=self.channel.split(",")
+        getGroups(self.group)
+        if(self.channelTranslated){
+            self.measureNames=self.channelTranslated.split(",")
+        }else{
+            self.measureNames=self.channel.split(",")
+        }
         app.log('SHOW2 '+self.type)
         self.jsonData = JSON.parse(this.rawdata)
+        self.verify()
         if(self.jsonData[0]) self.noData = false
         getWidth()
+    }
+    
+    var getGroups = function(gr) {
+                getData(app.groupAPI+'?group='+gr,
+                    null,
+                    app.user.token,
+                    updateGroups,
+                    self.listener, //globalEvents
+                    'OK',
+                    null, // in case of error send response code
+                    app.debug,
+                    globalEvents
+                    );
+        }
+
+    var updateGroups = function (text) {
+            self.groups = JSON.parse(text);
+            riot.update();
+    }
+        
+    self.getDeviceName = function(eui){
+            for(var i =0; i< self.groups.length; i++){
+                if(self.groups[i].EUI===eui){
+                    return self.groups[i].name
+                }
+            }
+        return eui;
+    }
+    
+    self.verify=function(){
+        var i=0
+        var valuesOK=true
+        var j
+        while(i<self.jsonData.length){
+            if(self.jsonData[i]==null || self.jsonData[i].length<2){
+                self.jsonData.splice(i,1)
+            }else{
+                valuesOK=true
+                j=0
+                while(j<self.jsonData[i].length){
+                    if(self.jsonData[i][j]===null){
+                        self.jsonData[i][j]={'eui':'','name':null,'value':null,'timestamp':null}
+                    }
+                    j=j+1
+                }
+                i=i+1
+            }
+        }
     }
         
     $(window).on('resize', resize)

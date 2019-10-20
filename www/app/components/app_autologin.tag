@@ -7,9 +7,9 @@
         self.on('mount', function () {
             self.token = getCookie('signomixToken')
             self.login = getCookie('signomixUser')
-            app.log('cooke automatic login as user '+self.login)
-            app.log('using token '+self.token)
-            app.log('guest=='+app.user.guest)
+            console.log('cooke automatic login as user '+self.login)
+            console.log('using token '+self.token)
+            console.log('guest=='+app.user.guest)
             if (!app.user.guest && self.token && self.login) {
                 getData(app.authAPI+'/'+self.token, null, null, getUserData, globalEvents, 'data:ok', 'data.error', app.debug)
                 app.requests=0
@@ -17,6 +17,7 @@
         })
 
         getUserData = function(data){
+            console.log('getUserData:'+data)
             riot.update()
             getData(app.userAPI + '/' + self.login, null, self.token, fillUserData, globalEvents, 'user:ok', 'user.error', app.debug)
             getData(app.alertAPI, null, self.token, saveResponse, globalEvents, 'data:ok', 'data.error', app.debug)

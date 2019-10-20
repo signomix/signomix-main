@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.iot;
 
 import java.io.UnsupportedEncodingException;
@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import org.cricketmsf.livingdoc.design.BoundedContext;
 
-/** Description
+/**
+ * Description
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
@@ -28,7 +29,6 @@ public class Device {
     public static int UNKNOWN = 0;
     public static int OK = 1;
     public static int FAILURE = 2;
-    
 
     private String template;
 
@@ -36,27 +36,29 @@ public class Device {
      * EUI
      */
     private String EUI;  // TTN: devEUI
-    private String name; // TTN: devID
+    private String name; // 
     private String applicationEUI; //TTN: appEUI
     private String applicationID;  //TTn: appID
-    private String key;  // TTN: appKey
-    private String userID;
-    private String type;
+    private String key;  // TTN: HTTP Integration Authorization request header
+    private String userID; //device owner
+    private String type; 
     private String team;
     private LinkedHashMap channels;
-    private String code; // JavaScript code
-    private String encoder; // JavaScript to encode LoRa payload
+    private String code; // JavaScript data preprocessor code
+    private String encoder; // JavaScript to decode LoRa payload
     private String description;
     private long lastSeen;
     private long transmissionInterval;
     private long lastFrame;
     private boolean checkFrames;
-    private String pattern;
+    private String pattern; //not used
     private String downlink;
     private String commandScript;
     private String groups;
     private int alertStatus;
-    private String deviceID;
+    private String deviceID; // TTN: devAddress
+    private boolean active;
+    private String project;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     /**
@@ -78,7 +80,9 @@ public class Device {
         lastFrame = -1;
         checkFrames = true;
         alertStatus = UNKNOWN;
-        deviceID="";
+        deviceID = "";
+        project = "";
+        active = true;
     }
 
     public void print() {
@@ -154,7 +158,7 @@ public class Device {
         this.type = type;
     }
 
-    /** 
+    /**
      * @return the team
      */
     public String getTeam() {
@@ -214,7 +218,7 @@ public class Device {
     public String getCodeUnescaped() {
         try {
             return URLDecoder.decode(code, "UTF-8");
-        } catch(NullPointerException | UnsupportedEncodingException e){
+        } catch (NullPointerException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return "";
@@ -322,13 +326,14 @@ public class Device {
     public void setEncoder(String encoder) {
         if (encoder != null) {
             this.encoder = encoder.replaceAll("\\+", "%2B");
-        } else { this.team = team;
-        if (!this.team.startsWith(",")) {
-            this.team = "," + this.team;
-        }
-        if (!this.team.endsWith(",")) {
-            this.team = this.team + ",";
-        }
+        } else {
+            this.team = team;
+            if (!this.team.startsWith(",")) {
+                this.team = "," + this.team;
+            }
+            if (!this.team.endsWith(",")) {
+                this.team = this.team + ",";
+            }
             this.encoder = "";
         }
     }
@@ -470,8 +475,8 @@ public class Device {
      */
     public void setGroups(String groups) {
         this.groups = groups;
-        if(null==groups){
-            this.groups=",";
+        if (null == groups) {
+            this.groups = ",";
             return;
         }
         if (!this.groups.startsWith(",")) {
@@ -508,5 +513,33 @@ public class Device {
      */
     public void setDeviceID(String deviceID) {
         this.deviceID = deviceID;
+    }
+
+    /**
+     * @return the active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the project
+     */
+    public String getProject() {
+        return project;
+    }
+
+    /**
+     * @param project the project to set
+     */
+    public void setProject(String project) {
+        this.project = project;
     }
 }

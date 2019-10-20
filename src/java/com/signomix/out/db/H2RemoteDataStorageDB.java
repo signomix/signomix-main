@@ -6,12 +6,15 @@ package com.signomix.out.db;
 
 import com.signomix.Service;
 import com.signomix.out.iot.ChannelData;
+import com.signomix.out.iot.DataQuery;
+import com.signomix.out.iot.DataQueryException;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +87,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
                         .append("d21 double,")
                         .append("d22 double,")
                         .append("d23 double,")
-                        .append("d24 double)");
+                        .append("d24 double,")
+                        .append("project varchar)");
                 indexQuery = "create primary key on devicedata (eui,tstamp)";
                 break;
             default:
@@ -231,13 +235,13 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     }
 
     @Override
-    public void putData(String userID, String deviceEUI, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, List<ChannelData> values) throws ThingsDataException {
         if (values == null || values.isEmpty()) {
             return;
         }
         int limit = 24;
         List channelNames = getDeviceChannels(deviceEUI);
-        String query = "insert into devicedata (eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into devicedata (eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,project) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         long timestamp = values.get(0).getTimestamp();
         java.sql.Date date = new java.sql.Date(timestamp);
         java.sql.Time time = new java.sql.Time(timestamp);
@@ -263,10 +267,15 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
                 if (i <= values.size()) {
                     index = channelNames.indexOf(values.get(i - 1).getName());
                     if (index >= 0 && index < limit) { // TODO: there must be control of mthe number of measures while defining device, not here
-                        pst.setDouble(6 + index, values.get(i - 1).getValue());
+                        try {
+                            pst.setDouble(6 + index, values.get(i - 1).getValue());
+                        } catch (NullPointerException e) {
+                            pst.setNull(6 + index, Types.DOUBLE);
+                        }
                     }
                 }
             }
+            pst.setString(30, project);
             pst.executeUpdate();
             pst.close();
             conn.close();
@@ -333,77 +342,157 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         }
     }
 
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
-        return getValues(userID, deviceEUI, limit, false);
-    }
-
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, int limit, boolean timeseriesMode) throws ThingsDataException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? order by tstamp desc limit ?";
+    private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit, String project) throws ThingsDataException {
+        String query;
+        String defaultQuery = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,project from devicedata where eui=? and ?? is not null order by tstamp desc limit ?";
+        String projectQuery = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,project from devicedata where eui=? and project=? and ?? is not null order by tstamp desc limit ?";
+        if(null==project){
+            query=defaultQuery;
+        }else{
+            query=projectQuery;
+        }
+        int limit = resultsLimit;
+        if (requestLimit > 0 && requestLimit < limit) {
+            limit = requestLimit;
+        }
         List<String> channels = getDeviceChannels(deviceEUI);
-        List<List> result = new ArrayList<>();
-        ArrayList<ChannelData> row;
-        ArrayList row2;
+        ArrayList<ChannelData> result = new ArrayList<>();
+        int channelIndex = channels.indexOf(channel);
+        if (channelIndex < 0) {
+            return result;
+        }
+        String columnName = "d" + (channelIndex + 1);
+        query = query.replaceFirst("\\?\\?", columnName);
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
-            pst.setInt(2, limit);
-            ResultSet rs = pst.executeQuery();
-            if (timeseriesMode) {
-                row2 = new ArrayList();
-                row2.add("timestamp");
-                for (int i = 0; i < channels.size(); i++) {
-                    row2.add(channels.get(i));
-                }
-                result.add(row2);
+            if(null==project){
+                pst.setInt(2, limit);
+            }else{
+                pst.setString(2, project);
+                pst.setInt(3, limit);
             }
+            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
-                if (timeseriesMode) {
-                    row2 = new ArrayList();
-                    row2.add(rs.getTimestamp(5).getTime());
-                    for (int i = 0; i < channels.size(); i++) {
-                        row2.add(rs.getDouble(6 + i));
-                    }
-                    result.add(row2);
-                } else {
-                    row = new ArrayList<>();
-                    for (int i = 0; i < channels.size(); i++) {
-                        row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i), rs.getTimestamp(5).getTime()));
-                    }
-                    result.add(row);
-                }
+                result.add(0, new ChannelData(deviceEUI, channel, rs.getDouble(6 + channelIndex), rs.getTimestamp(5).getTime()));
             }
             pst.close();
             conn.close();
             return result;
         } catch (SQLException e) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = " + query));
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
 
     @Override
-    public List<List> getValues(String userID, String deviceEUI, String channel, String dataQuery) throws ThingsDataException {
-        if (dataQuery.startsWith("group ")) {
-            String groupEUI = dataQuery.substring(6).trim();
-            return getValuesOfGroup(userID, groupEUI, channel.split(","));
+    public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
+        return getDeviceMeasures(userID, deviceEUI, query);
+    }
+
+    @Override
+    protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
+        String query = "";
+        switch (versionNumber) {
+            case 2:
+                query = "alter table devicedata add (d17 double, d18 double, d19 double, d20 double, d21 double, d22 double, d23 double, d24 double);";
+                break;
+            case 3:
+                query = "alter table devicedata add project varchar;";
+                break;
         }
-        int limit = getLimit(dataQuery);
-        int averageLimit = getAverageLimit(dataQuery);
-        Double newValue = getNewValue(dataQuery);
+        try {
+            PreparedStatement pst;
+            pst = conn.prepareStatement(query);
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
+    }
+
+    /**
+     * Get last registered measuresfrom groupDevices dedicated to the specified
+     * group
+     *
+     * @param userID
+     * @param groupEUI
+     * @param channelNames
+     * @return
+     * @throws ThingsDataException
+     */
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        List<Device> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID, groupEUI);
+        List<String> groupChannels = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupChannels(groupEUI);
+        List<List> tmp, tmpValues;
+        List<List> result = new ArrayList();
+        List<ChannelData> row;
+        ChannelData cd;
+        ArrayList<String> requestChannels = new ArrayList<>();
+        for (int n = 0; n < channelNames.length; n++) {
+            requestChannels.add(channelNames[n]);
+        }
+        int idx;
+        for (int i = 0; i < groupDevices.size(); i++) {
+            tmpValues = getLastValues(userID, groupDevices.get(i).getEUI());
+            if (tmpValues.isEmpty()) {
+                continue;
+            }
+            row = new ArrayList(requestChannels.size());
+            for (int n = 0; n < requestChannels.size(); n++) {
+                row.add(null);
+            }
+            tmp = tmpValues.get(0);
+            for (int j = 0; j < tmp.size(); j++) {
+                cd = (ChannelData) tmp.get(j);
+                if (groupChannels.indexOf(cd.getName()) > -1) {
+                    idx = requestChannels.indexOf(cd.getName());
+                    if (idx > -1) {
+                        row.set(idx, cd);
+                    }
+                }
+            }
+            result.add(row);
+        }
+        return result;
+    }
+
+    @Override
+    public List<List> getDeviceMeasures(String userID, String deviceEUI, String dataQuery) throws ThingsDataException {
+        DataQuery dq;
+        try {
+            dq= DataQuery.parse(dataQuery);
+        } catch (DataQueryException ex) {
+            throw new ThingsDataException(requestLimit, "DataQuery "+ex.getMessage());
+        }
+        if(null!=dq.getGroup()){
+            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","));
+        }
+        int limit=dq.getLimit();
+        int averageLimit= dq.getAverage();
+        Double newValue = dq.getNewValue();        
+        String project=dq.getProject();
+        String channel=dq.getChannelName();
+        boolean timeSeries=dq.isTimeseries();
+        
         List<List> result = new ArrayList<>();
         if (newValue != null) {
             limit = limit - 1;
         }
+        if(null==channel){
+            //TODO
+        }
         if (!channel.contains(",")) {
-            result.add(getChannelValues(userID, deviceEUI, channel, limit));
+            result.add(getChannelValues(userID, deviceEUI, channel, limit, project)); //project
         } else {
             String[] channels = channel.split(",");
             List<ChannelData>[] temp = new ArrayList[channels.length];
             for (int i = 0; i < channels.length; i++) {
-                temp[i] = getChannelValues(userID, deviceEUI, channels[i], limit);
+                temp[i] = getChannelValues(userID, deviceEUI, channels[i], limit, project); //project
             }
             List<ChannelData> values;
             for (int i = 0; i < limit; i++) {
@@ -441,165 +530,6 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             resultAvg.add(data);
             result.clear();
             result.add(resultAvg);
-        }
-        return result;
-    }
-
-    private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit) throws ThingsDataException {
-        String query = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 from devicedata where eui=? and ?? is not null order by tstamp desc limit ?";
-        int limit = resultsLimit;
-        if (requestLimit > 0 && requestLimit < limit) {
-            limit = requestLimit;
-        }
-        List<String> channels = getDeviceChannels(deviceEUI);
-        ArrayList<ChannelData> result = new ArrayList<>();
-        int channelIndex = channels.indexOf(channel);
-        if (channelIndex < 0) {
-            return result;
-        }
-        String columnName = "d" + (channelIndex + 1);
-        query = query.replaceFirst("\\?\\?", columnName);
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
-            pst.setInt(2, limit);
-            ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                result.add(0, new ChannelData(deviceEUI, channel, rs.getDouble(6 + channelIndex), rs.getTimestamp(5).getTime()));
-            }
-            pst.close();
-            conn.close();
-            return result;
-        } catch (SQLException e) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = "+query));
-            e.printStackTrace();
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
-        }
-
-    }
-
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
-        List<List> result;
-        String channelName = "";
-        int indexOfChannel = query.indexOf("channel ");
-        int limit = 1;
-        boolean compactFormat = false;
-        if (indexOfChannel >= 0) {
-            channelName = query.substring(indexOfChannel + 8, query.indexOf(" ", indexOfChannel + 8));
-        }
-        if (query.contains("last")) {
-            limit = getLimit(query.substring(query.indexOf("last")));
-        }
-        compactFormat = query.endsWith("timeseries");
-        result = new ArrayList();
-        if (channelName.isEmpty()) {
-            return getValues(userID, deviceEUI, limit, compactFormat);
-        } else {
-            result.add(getValues(userID, deviceEUI, channelName, "last " + limit));
-        }
-        return result;
-    }
-
-    private int getLimit(String query) {
-        int result = 1;
-        String[] params = query.trim().split(" ");
-        if ((params[0].equalsIgnoreCase("last") || params[0].equalsIgnoreCase("average")) && params.length > 1) {
-            try {
-                result = Integer.parseInt(params[1]);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
-    }
-
-    private int getAverageLimit(String query) {
-        int result = 0;
-        String[] params = query.trim().split(" ");
-        if (params[0].equalsIgnoreCase("average") && params.length > 1) {
-            try {
-                result = Integer.parseInt(params[1]);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
-    }
-
-    private Double getNewValue(String query) {
-        Double result = null;
-        String[] params = query.trim().split(" ");
-        if (params[0].equalsIgnoreCase("average") && params.length > 2) {
-            try {
-                result = Double.parseDouble(params[2]);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return result;
-    }
-
-    @Override
-    protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
-        String query = "";
-        switch (versionNumber) {
-            case 2:
-                query = "alter table devicedata add (d17 double, d18 double, d19 double, d20 double, d21 double, d22 double, d23 double, d24 double);";
-                break;
-        }
-        try {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
-            pst.executeUpdate();
-            pst.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
-        }
-    }
-
-    /**
-     * Get last registered measuresfrom groupDevices dedicated to the specified
-     * group
-     *
-     * @param userID
-     * @param groupEUI
-     * @param channelNames
-     * @return
-     * @throws ThingsDataException
-     */
-    @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
-        List<String> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID, groupEUI);
-        List<String> groupChannels = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupChannels(groupEUI);
-        List<List> tmp, tmpValues;
-        List<List> result = new ArrayList();
-        List<ChannelData> row;
-        ChannelData cd;
-        ArrayList<String> requestChannels = new ArrayList<>();
-        for (int n = 0; n < channelNames.length; n++) {
-            requestChannels.add(channelNames[n]);
-        }
-        int idx;
-        for (int i = 0; i < groupDevices.size(); i++) {
-            tmpValues = getLastValues(userID, groupDevices.get(i));
-            if (tmpValues.isEmpty()) {
-                continue;
-            }
-            row = new ArrayList(requestChannels.size());
-            for (int n = 0; n < requestChannels.size(); n++) {
-                row.add(null);
-            }
-            tmp = tmpValues.get(0);
-            for (int j = 0; j < tmp.size(); j++) {
-                cd = (ChannelData) tmp.get(j);
-                if (groupChannels.indexOf(cd.getName())>-1) {
-                    idx = requestChannels.indexOf(cd.getName());
-                    if (idx > -1) {
-                        row.set(idx, cd);
-                    }
-                }
-            }
-            result.add(row);
         }
         return result;
     }

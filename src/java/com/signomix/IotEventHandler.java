@@ -5,6 +5,7 @@
 package com.signomix;
 
 import com.signomix.iot.IotEvent;
+import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.Device;
@@ -44,7 +45,8 @@ public class IotEventHandler {
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             VirtualStackIface virtualStackAdapter,
-            ScriptingAdapterIface scriptingAdapter) {
+            ScriptingAdapterIface scriptingAdapter,
+            ActuatorCommandsDBIface actuatorCommandsDB) {
         String[] origin;
         if (event.getTimePoint() != null) {
             scheduler.handleEvent(event);
@@ -64,7 +66,6 @@ public class IotEventHandler {
                     }
                     //save alert
                     AlertModule.getInstance().putAlert(event, thingsAdapter);
-
                     //send message
                     User user;
                     String payload;
@@ -227,6 +228,12 @@ public class IotEventHandler {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                    break;
+                case IotEvent.ACTUATOR_CMD:
+                    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
+                    break;
+                case IotEvent.ACTUATOR_HEXCMD:
+                    ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
                     break;
                 default:
                     Kernel.getInstance().dispatchEvent(

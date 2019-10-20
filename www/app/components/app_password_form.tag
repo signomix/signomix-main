@@ -49,7 +49,6 @@
         init(eventListener, uid){
             self.uid = uid
             self.callbackListener = eventListener
-            app.log('HELLO ' + uid)
         }
 
         self.submitForm = function (e) {

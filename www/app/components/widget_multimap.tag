@@ -34,30 +34,6 @@ no data received
       "name":"latitude",
       "value":11,
       "timestamp":1563222281230,
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"longitude",
-      "value":11,
-      "timestamp":1563222281230,
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"pm100",
-      "value":70,
-      "timestamp":1563222281230
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"temperature",
-      "value":25.3,
-      "timestamp":1563222281230
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"humidity",
-      "value":37.5,
-      "timestamp":1563222281230
     }
   ],
   [
@@ -72,68 +48,6 @@ no data received
       "name":"pm100",
       "value":55.0,
       "timestamp":1563824861350
-    },
-    {
-      "deviceEUI":"52774790D697B9DD",
-      "name":"temperature",
-      "value":21.9,
-      "timestamp":1563824861350
-    },
-    {
-      "deviceEUI":"52774790D697B9DD",
-      "name":"humidity",
-      "value":99.9,
-      "timestamp":1563824861350
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"latitude",
-      "value":11.1,
-      "timestamp":1563222281230,
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"longitude",
-      "value":11,
-      "timestamp":1563222281230,
-    }
-  ],
-  [
-    {
-      "deviceEUI":"AA6637AC0B234D38",
-      "name":"pm25",
-      "value":7.0,
-      "timestamp":1563824880391
-    },
-    {
-      "deviceEUI":"AA6637AC0B234D38",
-      "name":"pm100",
-      "value":7.0,
-      "timestamp":1563824880391
-    },
-    {
-      "deviceEUI":"AA6637AC0B234D38",
-      "name":"temperature",
-      "value":22.6,
-      "timestamp":1563824880391
-    },
-    {
-      "deviceEUI":"AA6637AC0B234D38",
-      "name":"humidity",
-      "value":49.4,
-      "timestamp":1563824880391
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"latitude",
-      "value":11,
-      "timestamp":1563222281230,
-    },
-    {
-      "deviceEUI":"009FB2FF8EBB8E00",
-      "name":"longitude",
-      "value":11.2,
-      "timestamp":1563222281230,
     }
   ]
 ]
@@ -164,10 +78,32 @@ no data received
     self.show2 = function(){
         app.log('SHOW2: widget_map')
         self.jsonData = JSON.parse(self.rawdata)
-        //self.jsonData=self.testGroup
         app.log(self.jsonData)
-        //getWidth()
+        self.verify()
         self.showMap()
+    }
+    
+    self.verify=function(){
+        var i=0
+        var valuesOK=true
+        var j
+        //removing null values
+        while(i<self.jsonData.length){
+            if(self.jsonData[i]==null || self.jsonData[i].length<2){
+                self.jsonData.splice(i,1)
+            }else{
+                valuesOK=true
+                j=0
+                while(j<self.jsonData[i].length){
+                    if(self.jsonData[i][j]===null){
+                        self.jsonData[i].splice(j,1)
+                    }else{
+                        j=j+1
+                    }
+                }
+                i=i+1
+            }
+        }
     }
     
     self.showMap = function(){
@@ -196,6 +132,9 @@ no data received
         }).addTo(map);
         
         for(var j=0; j<self.jsonData.length;j++){
+            if(self.jsonData[j]==null){
+                continue;
+            }
             if(!markerList[j]){
                 marker=new L.CircleMarker(self.getLatLon(self.jsonData[j]),{
                     radius: 12,
@@ -253,18 +192,35 @@ no data received
         return result
     }
     
-    
     self.getLatLon = function (point){
         result=[0,0]
+        var found=false
         for(var i=0;i<point.length;i++){
             if(point[i]){
                 if(point[i].name=='latitude'){
                     result[0]=point[i].value
+                    found=true
                 }else if(point[i].name=='longitude'){
                     result[1]=point[i].value
+                    found=true
                 }
             }
         }
+        if(found) return result
+        for(var i=0;i<point.length;i++){
+            if(point[i]){
+                if(point[i].name=='lat'){
+                    result[0]=point[i].value
+                    found=true
+                }else if(point[i].name=='lon'){
+                    result[1]=point[i].value
+                    found=true
+                }
+            }
+        }
+        if(found) return result
+        result[0]=point[0]
+        result[1]=point[1]        
         return result
     }
     

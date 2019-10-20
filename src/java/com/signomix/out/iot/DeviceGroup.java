@@ -19,6 +19,7 @@ public class DeviceGroup {
     private String team;
     private HashMap channels;
     private String description;
+    private boolean open;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     public DeviceGroup() {
@@ -26,6 +27,7 @@ public class DeviceGroup {
         userID = "";
         team = "";
         description = "";
+        open=true;
     }
 
     public boolean userIsTeamMember(String userID) {
@@ -158,6 +160,20 @@ public class DeviceGroup {
             }
         }
         return result;
+    }
+
+    /**
+     * @return the open
+     */
+    public boolean isOpen() {
+        return open;
+    }
+
+    /**
+     * @param open the open to set
+     */
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 
 }

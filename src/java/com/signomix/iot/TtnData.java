@@ -16,14 +16,19 @@ import java.util.Map;
 public class TtnData extends HashMap implements Map, IotDataIface {
 
     private String[] fieldNames = null;
+    
+    public void putField(String key, Object value){
+        getPayloadFields().put(key, value);
+    }
+    
+    public void removeField(String key){
+        getPayloadFields().remove(key);
+    }
 
     public String getApplicationId() {
         return (String) get("app_id");
     }
 
-    //public String getDeviceId() {
-    //    return (String) get("dev_id");
-    //}
     public String getDeviceEUI() {
         return (String) get("hardware_serial");
     }
@@ -135,5 +140,10 @@ public class TtnData extends HashMap implements Map, IotDataIface {
     @Override
     public long getReceivedPackageTimestamp() {
         return getTimeField().toEpochMilli();
+    }
+
+    @Override
+    public String getDeviceID() {
+        return (String) get("dev_id");
     }
 }

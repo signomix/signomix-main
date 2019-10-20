@@ -368,17 +368,16 @@ public class PlatformAdministrationModule {
 
                 DeviceTemplate template = new DeviceTemplate();
                 template.setType(Device.TTN);
-                template.setEUI("SGMTH01");
-                template.setApplicationEUI("");
-                channels = new LinkedHashMap<>();
-                channels.put("temperature", new Channel("temperature"));
-                channels.put("humidity", new Channel("humidity"));
-                channels.put("battery", new Channel("battery"));
-                template.setChannels(channels);
+                template.setEui("SGMTH01");
+                template.setAppid("");
+                template.setAppeui("");
+                template.setChannels("temperature,humidity,battery");
                 template.setCommandScript("");
-                template.setDescription("Example device build on Arduino Pro Mini and DTH11/DHT22 sensor.");
-                template.setPattern("");
-                template.setProducer("community");
+                template.setDescription("Example device: Arduino Pro Mini and DTH11/DHT22 sensor.");
+                template.setPattern(",eui,name,key,");
+                template.setProducer("TTN Community");
+                template.setCode("");
+                template.setDecoder("");
                 thingsDB.addDeviceTemplate(template); //demo device
 
                 Device device = new Device();
@@ -417,7 +416,7 @@ public class PlatformAdministrationModule {
                 widget.setType("raw");
                 widget.setDev_id("IOT-EMULATOR");
                 widget.setChannel("temperature");
-                widget.setQuery("last");
+                widget.setQuery("last 1");
                 widget.setRange("");
 
                 Widget widget2 = new Widget();
@@ -438,7 +437,7 @@ public class PlatformAdministrationModule {
                 widget3.setDev_id("IOT-EMULATOR");
                 widget3.setChannel("humidity");
                 widget3.setUnitName("%");
-                widget3.setQuery("last");
+                widget3.setQuery("last 1");
                 widget3.setRange("<25");
 
                 Widget widget5 = new Widget();
@@ -449,7 +448,7 @@ public class PlatformAdministrationModule {
                 widget5.setDev_id("IOT-EMULATOR");
                 widget5.setChannel("temperature");
                 widget5.setUnitName("&deg;C");
-                widget5.setQuery("last");
+                widget5.setQuery("last 1");
                 widget5.setRange("<-10>35:<0>25");
 
                 Widget widget1 = new Widget();
@@ -475,7 +474,7 @@ public class PlatformAdministrationModule {
                 //thingsDB.put("widgets", widget.getId(), widget);
                 
                 DeviceGroup dg=new DeviceGroup();
-                dg.setChannels("temperature,humidity");
+                dg.setChannels("latitude,longitude,temperature,humidity");
                 dg.setEUI("test");
                 dg.setName("Test group");
                 dg.setTeam("tester1");
@@ -901,6 +900,7 @@ public class PlatformAdministrationModule {
                 }
             }
         } catch (ClassCastException | UserException | ThingsDataException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName()+".clearOldData()", ex.getMessage()));
             ex.printStackTrace();
         }
     }

@@ -45,7 +45,20 @@ no data received
         self.jsonData = JSON.parse(self.rawdata)
         app.log(self.jsonData)
         //getWidth()
+        self.verify()
         self.showMap()
+    }
+    
+    self.verify=function(){
+        var i=0
+        while(i<self.jsonData.length){
+            if(self.jsonData[i]==null || self.jsonData[i].length<2 || self.jsonData[i][0]==null || self.jsonData[i][1]==null 
+                    || (self.jsonData[i][0]['value']==0.0 && self.jsonData[i][1]['value']==0.0)){
+                self.jsonData.splice(i,1)
+            }else{
+                i=i+1
+            }
+        }
     }
     
     self.showMap = function(){
@@ -55,14 +68,14 @@ no data received
         }
         riot.update()
         self.noData=false
-        var p1=self.jsonData[self.jsonData.length-1][0]['name'].toLowerCase()
-        var p2=self.jsonData[self.jsonData.length-1][1]['name'].toLowerCase()
-        var latFirst=false
+        var p1=self.jsonData[0][0]['name'].toLowerCase()
+        var p2=self.jsonData[0][1]['name'].toLowerCase()
+        var lonFirst=false
         
         if(p2=='latitude'&&p1=='longitude' || p2=='lat'&&p1=='lon'){
-            latFirst=true
+            lonFirst=true
         }
-        if(latFirst){
+        if(lonFirst){
             self.lat=parseFloat(self.jsonData[self.jsonData.length-1][1]['value'])
             self.lon=parseFloat(self.jsonData[self.jsonData.length-1][0]['value'])
         }else{
@@ -103,7 +116,7 @@ no data received
             var latlngs =[]
             var polyline
             for(i=0; i<self.jsonData.length; i++){
-                if(latFirst){
+                if(lonFirst){
                     latlngs.push(
                         [
                         parseFloat(self.jsonData[i][1]['value']),
@@ -137,6 +150,7 @@ no data received
     self.listener.on('*',function(eventName){
         app.log("widget_a1 listener on event: "+eventName)
     })
+    
     
     //$(window).on('resize', resize)
     

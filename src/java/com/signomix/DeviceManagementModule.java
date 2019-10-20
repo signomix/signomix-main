@@ -107,7 +107,7 @@ public class DeviceManagementModule {
                                 //TODO: data query
                                 // zmiana: 
                                 if (null == query) {
-                                    query = "last"; //nigdy nie zwracany wszystkich rekordów
+                                    query = "last 1"; //nigdy nie zwracany wszystkich rekordów
                                 }                                //if (null == query) {
                                 //    result.setData(getAllValuesOfChannel(tmpUserID, params[0], params[1], thingsAdapter));
                                 //} else {
@@ -172,6 +172,33 @@ public class DeviceManagementModule {
         return result;
     }
 
+    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+        //TODO: exception handling - send 400 or 403
+        RequestObject request = event.getRequest();
+        StandardResult result = new StandardResult();
+        String userID = request.headers.getFirst("X-user-id");
+        String issuerID = request.headers.getFirst("X-issuer-id");
+        //request.headers.keySet().forEach(key -> System.out.println(key + ":" + request.headers.getFirst(key)));
+        String pathExt = request.pathExt;
+        if (userID == null || userID.isEmpty()) {
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            result.setData("user not recognized");
+            return result;
+        }
+        try {
+            switch (request.method) {
+                case "GET":  // get list of user devices
+                    result.setData(getTemplates(thingsAdapter));
+                    break;
+                default:
+                    result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         //TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
@@ -188,7 +215,13 @@ public class DeviceManagementModule {
             if (pathExt.isEmpty()) {  // user id is from request header
                 switch (request.method) {
                     case "GET":  // get list of groups
-                        result.setData(getUserGroups(userID, thingsAdapter));
+                        if(null==request.parameters.get("group")){
+                            result.setData(getUserGroups(userID, thingsAdapter));
+                        }else{
+                            result.setData(
+                                getGroupDevices(userID, (String)request.parameters.get("group"), thingsAdapter)
+                            );
+                        }
                         break;
                     case "POST": // add new group
                         User user = users.get(userID);
@@ -364,6 +397,11 @@ public class DeviceManagementModule {
         } catch (NullPointerException | NumberFormatException e) {
         }
 
+        String newProject = (String) request.parameters.getOrDefault("project", "");
+        device.setProject(newProject);
+        String newActive = (String) request.parameters.getOrDefault("active", "true");
+        device.setActive(Boolean.parseBoolean(newActive));
+
         String newCode = (String) request.parameters.getOrDefault("code", "");
         if (newCode != null && !newCode.isEmpty()) {
             try {
@@ -497,7 +535,7 @@ public class DeviceManagementModule {
         try {
             if (channelID != null && !"$".equals(channelID)) {
                 //Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "channelID parameter is not supported"));
-                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, channelID, query);
+                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query+" channel "+channelID);
                 return result;
             } else {
                 return (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query);
@@ -537,10 +575,32 @@ public class DeviceManagementModule {
         }
 
     }
+    
+    private List getGroupDevices(String userID, String group, ThingsDataIface thingsAdapter) {
+        try {
+            return (ArrayList) thingsAdapter.getGroupDevices(userID, group);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return new ArrayList();
+        }
+
+    }
 
     private List getUserGroups(String userID, ThingsDataIface thingsAdapter) {
         try {
             return (ArrayList) thingsAdapter.getUserGroups(userID);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return new ArrayList();
+        }
+
+    }
+    
+    private List getTemplates(ThingsDataIface thingsAdapter) {
+        try {
+            return (ArrayList) thingsAdapter.getTemplates();
         } catch (Exception ex) {
             ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));

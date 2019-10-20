@@ -6,11 +6,11 @@
     <label for={ opts.id } if={ opts.type != 'check' }>{ (opts.required?'* ':'')+opts.label }</label>
     <input if={ opts.type == 'text' || opts.type == 'password' || opts.type == 'email'} 
         class="form-control" id={ opts.id } name={ opts.name } type={ opts.type } required={ opts.required }
-        pattern={ opts.pattern } oninvalid="this.setCustomValidity('{opts.oninvalid}')"
+        pattern={ opts.pattern } 
+        oninvalid="this.setCustomValidity('{opts.oninvalid}')"
         value={ opts.content }
         readonly={ opts.readonly }
         oninput="this.setCustomValidity('')"
-        <!--onchange={ runCallback }-->
         aria-describedby={ opts.id+'Help' }
     >
     <textarea if={ opts.type == 'textarea'} 
@@ -23,22 +23,9 @@
     <script>
         var self=this
         self.areaRows = 3
-        //self.callback = opts.onchangeCallback
         if(opts.rows){
             self.areaRows = opts.rows
         }
         app.log('PATTERN:'+opts.pattern)
-        /*
-        $(function () {
-            $('[data-toggle="popover"]').popover()
-        })
-        */
-        /*
-        runCallback=function(e){
-            if (self.callback && typeof(self.callback) === "function") {
-                self.callback(e);
-            }
-        }
-        */
     </script>
 </form_input>

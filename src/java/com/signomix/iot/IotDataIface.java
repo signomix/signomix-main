@@ -12,6 +12,7 @@ import java.time.Instant;
  */
 public interface IotDataIface {
     public String getDeviceEUI();
+    public String getDeviceID();
     public String getPayload();
     public String[] getPayloadFieldNames();
     //public long getLongValue(String fieldName, int multiplier);

@@ -298,6 +298,9 @@ public class UserModule extends UserBusinessLogic {
         //String chatID = telegramNotifier.getChatID(recipent);
         String telegramUserID;
         String telegramChatID;
+        if(null==user.getGeneralNotificationChannel()){
+            return user;
+        }
         if (user.getGeneralNotificationChannel().startsWith("TELEGRAM:")) {
             telegramUserID = getTelegramUserID(user.getGeneralNotificationChannel());
             telegramChatID = telegramNotifier.getChatID(telegramUserID);

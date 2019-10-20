@@ -521,16 +521,40 @@
             "pl": "EUI grupy urządzeń"
         },
         "f_widget_channel": {
-            "en": "Measure name",
+            "en": "Measure(s) name",
             "it": "Nome della misura",
             "fr": "Nom de la mesure",
-            "pl": "Nazwa danej"
+            "pl": "Nazwa(y) danej"
         },
         "f_widget_channel_hint": {
-            "en": "The name of the data registered by the device (eg. temperature)",
-            "it": "Il nome dei dati registrati dal dispositivo (per esempio, temperatura)",
-            "fr": "Le nom des données enregistrées par l'appareil (par exemple la température)",
-            "pl": "Nazwa danej rejestrowanej przez urządzenie (np. temperatura)"
+            "en": "The name of the data registered by the device or names separated with comma",
+            "it": "Il nome dei dati registrati dal dispositivo o nomi separati da virgola",
+            "fr": "Le nom des données enregistrées par le périphérique ou les noms séparés par une virgule",
+            "pl": "Nazwa danej rejestrowanej przez urządzenie lub nazwy oddzielone przecinkami"
+        },
+        "f_widget_channel_translated": {
+            "en": "Data name displayed",
+            "it": "Nome dati visualizzato",
+            "fr": "Nom de données affiché",
+            "pl": "Nazwa danej wyświetlana"
+        },
+        "f_widget_channel_translated_hint": {
+            "en": "Name / names of data presented in the header",
+            "it": "Nome / nomi dei dati presentati nell'intestazione",
+            "fr": "Nom / noms des données présentées dans l'en-tête",
+            "pl": "Nazwa/nazwy danych prezentowane w nagłówku"
+        },
+        "f_widget_datatype": {
+            "en": "Data type",
+            "it": "Tipo di dati",
+            "fr": "Type de données",
+            "pl": "Typ danych"
+        },
+        "f_widget_datatype_hint": {
+            "en": "The type of data that will be sent to the device. The value can only be hex or json",
+            "it": "Il tipo di dati che verranno inviati al dispositivo. Il valore può essere solo hex o json",
+            "fr": "Le type de données qui seront envoyées à l'appareil. La valeur ne peut être qu'hexadécimale ou json",
+            "pl": "Typ danych, które będą wysłane do urządzenia. Wartością może być tylko hex lub json"
         },
         "f_widget_unit": {
             "en": "Measure unit symbol",
@@ -545,16 +569,22 @@
             "pl": "Podaj symbol jednostki jeśli ma się wyświetlać na kontrolce"
         },
         "f_widget_query": {
-            "en": "Number of requested values",
-            "it": "Numero di valori richiesti",
-            "fr": "Nombre de valeurs demandées",
-            "pl": "Ilość pobieranych wartości"
+            "en": "Data query",
+            "it": "Interrogazione dei dati",
+            "fr": "Demande de données",
+            "pl": "Zapytanie o dane"
         },
         "f_widget_query_hint": {
-            "en": "Widgets of type JSON, chart and map can display more than one value",
-            "it": "I widget di tipo JSON, grafico e mappa possono visualizzare più di un valore",
-            "fr": "Les widgets de type JSON, chart et map peuvent afficher plusieurs valeurs.",
-            "pl": "Kontrolki typu JSON, wykres i mapa mogą prezentować więcej niż jedną wartość"
+            "en": "For some widgets it is possible to specify the type and amount of data",
+            "it": "Per alcuni widget è possibile specificare il tipo e la quantità di dati",
+            "fr": "Pour certains widgets, il est possible de spécifier le type et la quantité de données",
+            "pl": "Dla niektórych widżetów możliwe jest określenie rodzaju i ilości danych"
+        },
+        "f_widget_query_error": {
+            "en": "Incorrect syntax of the query. Check the documentation.",
+            "it": "Sintassi errata della query. Controllare la documentazione.",
+            "fr": "Syntaxe incorrecte de la requête. Vérifiez la documentation.",
+            "pl": "Niewłaściwa składnia zapytnia. Sprawdź w dokumentacji."
         },
         "f_widget_range": {
             "en": "Alert ranges",
@@ -567,6 +597,12 @@
             "it": "Formato dei dati",
             "fr": "Format de données",
             "pl": "Format danych"
+        },
+        "f_widget_chartOption": {
+            "en": "Chart style",
+            "it": "Stile grafico",
+            "fr": "Style de graphique",
+            "pl": "Styl wykresu"
         },
         "f_widget_range_hint": {
             "en": "Scopes of warnings in the format of the form {alertCondition}[:{warningConditon}] (eg. <-10>40:<0>30 )",
@@ -714,6 +750,24 @@
             "it": "ID dell'applicazione The Things Network dove questo dispositivo è registrato",
             "fr": "ID de l'application The Things Network où cet appareil est enregistré.",
             "pl": "ID aplikacji The Things Network, w której jest zarejestrowane to urządzenie."
+        },
+        "project": {
+            "en": "Project symbol",
+            "it": "Simbolo del progetto",
+            "fr": "Symbole du projet",
+            "pl": "Symbol projektu"
+        },
+        "project_hint": {
+            "en": "Symbol to be used to tag data from the device",
+            "it": "Il simbolo con cui verranno taggati i dati dal dispositivo",
+            "fr": "Le symbole avec lequel les données de l'appareil seront étiquetées",
+            "pl": "Symbol, którym będą tagowane dane z urządzenia"
+        },
+        "active": {
+            "en": "Active",
+            "it": "Attivo",
+            "fr": "Actif",
+            "pl": "Aktywny"
         },
         "name": {
             "en": "Name",
@@ -981,6 +1035,12 @@
             "it": "Contatti",
             "fr": "Contact",
             "pl": "Kontakt"
+        },
+        "guest": {
+            "en": "guest",
+            "it": "ospite",
+            "fr": "visiteur",
+            "pl": "gość"
         }
     }
         
@@ -1226,6 +1286,30 @@
             "it": "GESTICI",
             "fr": "ACTION",
             "pl": "DZIAŁANIE"
+        },
+        "download_title": {
+            "en": "Downloading data",
+            "it": "Download di dati",
+            "fr": "Téléchargement de données",
+            "pl": "Pobiranie danych"
+        },
+        "download_download": {
+            "en": "Start download",
+            "it": "Download di dati",
+            "fr": "Téléchargement de données",
+            "pl": "Rozpocznij pobieranie"
+        },
+        "download_comment": {
+            "en": "Data selection",
+            "it": "Selezione dei dati",
+            "fr": "Sélection de données",
+            "pl": "Wybór danych"
+        },
+        "download_open": {
+            "en": "Open downloaded file",
+            "it": "Apri il file scaricato",
+            "fr": "Ouvrir le fichier téléchargé",
+            "pl": "Otwórz pobrany plik"
         }
     }
    
@@ -1502,30 +1586,75 @@
         }
     }
     
+    app.texts.widget_button = {
+        "confirm": {
+            "en": "Confirmed. Send!",
+            "it": "Confermato. Invia!",
+            "fr": "Confirmé. Envoyer!",
+            "pl": "Potwierdzone. Wysyłaj!"
+        },
+        "save": {
+            "en": "OK",
+            "it": "OK",
+            "fr": "OK",
+            "pl": "OK"
+        },
+        "cancel": {
+            "en": "Cancel",
+            "it": "Annulla",
+            "fr": "Annuler",
+            "pl": "Porzuć"
+        },
+        "title": {
+            "en": "Confirm the command",
+            "it": "Conferma il comando",
+            "fr": "Confirmer la commande",
+            "pl": "Potwierdź polecenie"
+        },
+        "device": {
+            "en": "Device",
+            "it": "Dispositivo",
+            "fr": "Device",
+            "pl": "Urządzenie"
+        },
+        "line1": {
+            "en": "You are going to send the data listed below to the device:",
+            "it": "Si inviano al dispositivo i dati elencati di seguito:",
+            "fr": "Vous allez envoyer les données listées ci-dessous à l'appareil:",
+            "pl": "Zamierzasz wysłać do urządzenia dane wyświetlone poniżej:"
+        },
+        "line2": {
+            "en": "This operation could be potentially hazardous.",
+            "it": "Questa operazione potrebbe essere potenzialmente pericolosa.",
+            "fr": "Cette opération pourrait être potentiellement dangereuse.",
+            "pl": "Ta operacja może być potencjalnie niebezpieczna."
+        },
+        "line3": {
+            "en": "Make sure in the device manual that the command is correct and that its effects are as intended.",
+            "it": "Assicurarsi nel manuale dell'apparecchio che il comando sia corretto e che i suoi effetti siano quelli previsti.",
+            "fr": "Assurez-vous dans le manuel de l'appareil que la commande est correcte et que ses effets sont tels que prévus.",
+            "pl": "Upewnij się w instrukcji obsługi urządzenia, że polecenie jest prawidłowe i że jego efekty są zgodne z zamierzonymi."
+        }
+    }
+    
     app.texts.widget_report = {
         "EUI": {
-            "en": "DEVICE EUI",
-            "it": "EUI DEL DISPOSITIVO",
-            "fr": "EUI DE L'APPAREIL",
-            "pl": "EUI URZĄDZENIA"
+            "en": "EUI",
+            "it": "EUI",
+            "fr": "EUI",
+            "pl": "EUI"
+        },
+        "NAME": {
+            "en": "DEVICE NAME",
+            "it": "NOME DEL DISPOSITIVO",
+            "fr": "NOM DE L'APPAREIL",
+            "pl": "NAZWA URZĄDZENIA"
         },
         "DATE": {
             "en": "DATE",
             "it": "DATE",
             "fr": "DATA",
             "pl": "DATA"
-        },
-        "DETAILS": {
-            "en": "details",
-            "it": "dettagli",
-            "fr": "détails",
-            "pl": "szczegóły"
-        },
-        "MORE": {
-            "en": "show ...",
-            "it": "mostrare ...",
-            "fr": "montre ...",
-            "pl": "pokaż ..."
         },
         "NO_DATA": {
             "en": "No data found",

@@ -64,31 +64,21 @@
         app.log('SHOW2 '+self.type)
         self.jsonData = JSON.parse(this.rawdata)
         app.log(self.jsonData)
-        if(self.jsonData.length>0 && self.jsonData[0].length>0){
-            self.deviceEUI = self.jsonData[0][0]['deviceEUI']
-            self.channelName = self.jsonData[0][0]['name']
-        }
         self.levels = []
         self.tableIndex = 0
         getWidth()
-        switch(self.type){
-            case 'symbol':
-                self.showSymbol()
-                break
-            case 'button':
-                self.showButton()
-                break
-        }
+        self.showSymbol()
     }
     
     self.showSymbol = function(){
         app.log('SYMBOL')
         self.iconName = 'data_usage'
         self.alertLevel=0
-        if(self.jsonData.length==0 || self.jsonData[0].length==0){
+        if(self.jsonData == null || self.jsonData.length==0 || self.jsonData[0].length==0){
             return
         }
-        self.measureType=getMeasureType(self.jsonData[0][0]['name'])
+        self.measureType=getMeasureType(self.jsonData[0][0]['name'].toLowerCase())
+        if(self.measureType==0) self.measureType=getMeasureType(self.title.toLowerCase())
         switch(self.measureType){
             case 1:
                 self.iconName='whatshot'
@@ -103,10 +93,10 @@
                 self.iconName='event'
                 break
             case 5:
-                self.iconName='label_important'
+                self.iconName='speed'
                 break
             case 6:
-                self.iconName='linear_scale'
+                self.iconName='straighten'
                 break
             case 7:
                 self.iconName='wb_incandescent'
@@ -126,16 +116,6 @@
         self.measureDate = getDateFormatted(new Date(self.jsonData[0][0]['timestamp']))
         self.alertLevel=getAlertLevel(self.range, self.value)
     }
-
-    self.showButton = function(){
-        app.log('BUTTON')
-        if(self.jsonData.length==0 || self.jsonData[0].length==0){
-            return
-        }
-        self.channelName = self.jsonData[0][0]['name']
-        self.value = parseFloat(self.jsonData[0][0]['value'])
-        app.log('BUTTON name: '+self.channelName)
-    }
         
     this.on('update', function(e){
     })
@@ -154,9 +134,6 @@
             self.tableIndex = 0
             self.front=!self.front
             riot.update()
-            if(self.front && (self.type=='line' || self.type=='stepped')){
-                self.showLineGraph()
-            }
         }
     }
     
@@ -170,34 +147,6 @@
     
     self.submitted = function(){
         app.log('submitted')
-    }
-    
-    sendReset(){
-        return function(e){
-            e.preventDefault()
-            if(self.jsonData.length==0 || self.jsonData[0].length==0){
-                return
-            }
-            //app.log(self.rawdata)
-            //app.log('sendReset '+(self.deviceEUI)+ ' '+(self.channelName)+ ' '+(document.getElementById('newvalue2set').value))
-            var value = document.getElementById('newvalue2set').value
-            var dataToSend = {}
-            dataToSend[self.channelName] = value
-            //app.log(dataToSend)
-            sendJsonData(
-                dataToSend, 
-                'POST', 
-                app.actuatorAPI+'/'+self.deviceEUI,
-                'Authentication',
-                app.user.token, 
-                self.submitted, 
-                self.listener, 
-                'submit:OK', 
-                'submit:ERROR', 
-                app.debug, 
-                globalEvents
-            )
-        }
     }
     
     self.toLocaleTimeStringSupportsLocales = function() {

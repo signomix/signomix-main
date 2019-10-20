@@ -53,7 +53,7 @@ public class SystemEventHandler {
             case "SHUTDOWN":
                 kernel.shutdown();
                 break;
-            case "EMAIL_ADMIN":
+            case "EMAIL_ADMIN_STARTUP":
                 emailSender.send(
                         (String) kernel.getProperties().getOrDefault("admin-notification-email", ""),
                         "Signomix - started", "" + event.getPayload()
@@ -99,9 +99,9 @@ public class SystemEventHandler {
             case "STATUS":
                 System.out.println(kernel.printStatus());
                 break;
-            case "COMMAND":
-                ActuatorModule.getInstance().processCommand(event, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
-                break;
+            //case "COMMAND":
+            //    ActuatorModule.getInstance().processCommand(event, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
+            //    break;
             case "BACKUP":
                 PlatformAdministrationModule.getInstance().backupDatabases(database, userDB, authDB, cmsDatabase, thingsDB, iotDataDB, actuatorCommandsDB);
                 break;

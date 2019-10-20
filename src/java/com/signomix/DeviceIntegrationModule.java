@@ -10,6 +10,7 @@ import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData2;
+import com.signomix.iot.IotEvent;
 import com.signomix.iot.lora.LoRaData;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -24,11 +25,12 @@ import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.VirtualDevice;
 import com.signomix.out.iot.VirtualStackIface;
-import com.signomix.out.script.ScriptAdapterException;
 import com.signomix.out.script.ScriptingAdapterIface;
+import com.signomix.util.HexTool;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
@@ -139,6 +141,11 @@ public class DeviceIntegrationModule {
                 return result;
             }
             //after successful authorization
+            if (!device.isActive()) {
+                result.setCode(HttpAdapter.SC_UNAVAILABLE);
+                result.setData("device is not active");
+                return result;
+            }
 
             //check frame counter
             if (device.isCheckFrames()) {
@@ -150,17 +157,18 @@ public class DeviceIntegrationModule {
                     return result;
                 }
             }
-            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getfCnt(), "");
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getfCnt(), "", "");
             ArrayList<ChannelData> listOfValues = prepareLoRaValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
 
             ArrayList<ArrayList> listOfLists;
             try {
                 listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
                 for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
                 }
             } catch (Exception e) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processLoraRequest()", e.getMessage()));
+                fireEvent(2, device, e.getMessage());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,6 +186,7 @@ public class DeviceIntegrationModule {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("");
+        result.setHeader("Content-type", "text/plain");
         try {
             String authKey = request.headers.getFirst("Authorization");
 
@@ -190,7 +199,6 @@ public class DeviceIntegrationModule {
             String dataString = request.body;
             String jsonString;
             if (dataString == null) {
-
                 dataString = ((String) request.parameters.getOrDefault("data", "")).trim();
             }
             IotData2 data = null;
@@ -267,7 +275,7 @@ public class DeviceIntegrationModule {
             if (secret != null && !secret.isEmpty()) {
                 authorized = authKey.equals(secret);
             }
-            if (!authorized) {
+            if (!authorized) { //TODO: remove
                 try {
                     User user = userAdapter.get(data.getApplicationID());
                     if (user != null) {
@@ -285,28 +293,37 @@ public class DeviceIntegrationModule {
                 return result;
             }
 
+            if (!device.isActive()) {
+                result.setCode(HttpAdapter.SC_UNAVAILABLE);
+                result.setData("device is not active");
+                return result;
+            }
+
             //after successful authorization
-            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), -1, "");
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), -1, "", "");
 
             ArrayList<ChannelData> listOfValues = prepareIotValues(data);
             ArrayList<ArrayList> listOfLists;
             try {
-                System.out.println("RECEIVED TIMESTAMP:"+data.getReceivedPackageTimestamp());
+                //System.out.println("RECEIVED TIMESTAMP:"+data.getReceivedPackageTimestamp());
                 listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
                 for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
                 }
             } catch (Exception e) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processIotRequest()", e.getMessage()));
+                fireEvent(2, device, e.getMessage());
             }
             if (Device.GENERIC.equals(device.getType()) || Device.GATEWAY.equals(device.getType())) {
                 Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
                 if (null != command) {
                     String commandPayload = (String) command.getPayload();
-                    try {
-                        result.setData(JsonReader.jsonToJava(commandPayload));
-                    } catch (Exception e) {
-                        result.setData(commandPayload);
+                    System.out.println("EVENT CATEGORY TYPE:" + command.getCategory() + " " + command.getType());
+                    if (IotEvent.ACTUATOR_HEXCMD.equals(command.getType())) {
+                        String rawCmd = new String(Base64.getEncoder().encode(HexTool.hexStringToByteArray(commandPayload)));
+                        result.setPayload(rawCmd.getBytes());
+                    } else {
+                        result.setPayload(commandPayload.getBytes());
                     }
                     ActuatorModule.getInstance().archiveCommand(command, actuatorCommandsDB);
                 }
@@ -352,6 +369,7 @@ public class DeviceIntegrationModule {
             //we don't send error code to TTN
             return result;
         }
+
         Device device;
         try {
             device = thingsAdapter.getDevice(data.getDeviceEUI());
@@ -366,13 +384,18 @@ public class DeviceIntegrationModule {
         if (authorizationRequired) {
             try {
                 if (!authKey.equals(device.getKey())) {
-                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match device's key"));
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match for " + device.getEUI()));
                     return result;
                 }
             } catch (Exception ex) { //catch (UserException ex) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 return result;
             }
+        }
+
+        if (!device.isActive()) {
+            result.setData("device is not active");
+            return result;
         }
 
         try {
@@ -389,7 +412,7 @@ public class DeviceIntegrationModule {
                     return result;
                 }
             }
-            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getFrameCounter(), data.getDownlink());
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getFrameCounter(), data.getDownlink(), data.getDeviceID());
 
         } catch (ThingsDataException ex) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
@@ -401,10 +424,10 @@ public class DeviceIntegrationModule {
             try {
                 listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
                 for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
                 }
             } catch (Exception e) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processTtnRequest()", e.getMessage()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -495,17 +518,24 @@ public class DeviceIntegrationModule {
             }
             //after successful authorization
 
+            if (!device.isActive()) {
+                result.setCode(HttpAdapter.SC_UNAVAILABLE);
+                result.setData("device is not active");
+                return result;
+            }
+
             //TODO: check frame counter
-            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "");
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "", "");
             ArrayList<ChannelData> listOfValues = prepareKpnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
             ArrayList<ArrayList> listOfLists;
             try {
                 listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
                 for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
                 }
             } catch (Exception e) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processKpnRequest()", e.getMessage()));
+                fireEvent(2, device, e.getMessage());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -576,16 +606,21 @@ public class DeviceIntegrationModule {
                 return result;
             }
             //after successful authorization
+            if (!device.isActive()) {
+                result.setCode(HttpAdapter.SC_UNAVAILABLE);
+                result.setData("device is not active");
+                return result;
+            }
 
-            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "");
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "", "");
             ArrayList<ChannelData> finalValues = null;
             try {
                 finalValues = DataProcessor.processRawValues(request.body, device, scriptingAdapter, System.currentTimeMillis());
             } catch (Exception e) {
-                e.printStackTrace();
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processRawRequest()", e.getMessage()));
+                fireEvent(2, device, e.getMessage());
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, finalValues));
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -598,11 +633,32 @@ public class DeviceIntegrationModule {
             byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
             try {
                 values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
-            } catch (ScriptAdapterException e) {
+            } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
+                fireEvent(1, deviceID, userID, e.getMessage());
                 return null;
             }
         } else {
+            // TEST: handling Cayenne LPP
+            Iterator it = data.getPayloadFields().keySet().iterator();
+            Object payloadField;
+            String fieldName;
+            while (it.hasNext()) {
+                fieldName = (String) it.next();
+                payloadField = data.getPayloadFields().get(fieldName);
+                if (payloadField instanceof com.cedarsoftware.util.io.JsonObject) {
+                    com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) data.getPayloadFields().get(fieldName);
+                    Iterator it2 = j.keySet().iterator();
+                    String key;
+                    while (it2.hasNext()) {
+                        key = (String) it2.next();
+                        data.putField(fieldName + "_" + key, j.get(key));
+                        System.out.println(fieldName + "_" + key);
+                    }
+                    data.removeField(fieldName);
+                }
+            }
+            // TEST END
             for (String payloadFieldName : data.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
                 mval.setDeviceEUI(data.getDeviceEUI());
@@ -639,7 +695,7 @@ public class DeviceIntegrationModule {
             if (mval.getTimestamp() == 0) {
                 mval.setTimestamp(System.currentTimeMillis());
             }
-            System.out.println("TIMESTAMP:"+mval.getTimestamp());
+            //System.out.println("TIMESTAMP:"+mval.getTimestamp());
             values.add(mval);
         }
 
@@ -652,8 +708,9 @@ public class DeviceIntegrationModule {
         ArrayList<ChannelData> values;
         try {
             values = scriptingAdapter.decodeData(encodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
-        } catch (ScriptAdapterException e) {
+        } catch (Exception e) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
+            fireEvent(1, deviceID, userID, e.getMessage());
             return null;
         }
         return values;
@@ -664,8 +721,9 @@ public class DeviceIntegrationModule {
         ArrayList<ChannelData> values;
         try {
             values = scriptingAdapter.decodeHexData(data.getPayload(), encoderCode, deviceID, data.getTimestamp(), userID);
-        } catch (ScriptAdapterException e) {
+        } catch (Exception e) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareLoRaValues for device " + deviceID, e.getMessage()));
+            fireEvent(1, deviceID, userID, e.getMessage());
             return null;
         }
         return values;
@@ -674,12 +732,12 @@ public class DeviceIntegrationModule {
     public void writeVirtualData(ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter, Device device, ArrayList<ChannelData> values) {
         try {
             long now = System.currentTimeMillis();
-            thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "");
+            thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
             ArrayList<ArrayList> listOfLists;
             try {
                 listOfLists = DataProcessor.processValues(values, device, scriptingAdapter, now);
                 for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
@@ -740,7 +798,7 @@ public class DeviceIntegrationModule {
         try {
             listOfLists = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter, data.getTimestamp());
             for (int i = 0; i < listOfLists.size(); i++) {
-                thingsAdapter.putData(device.getUserID(), device.getEUI(), fixValues(device, listOfLists.get(i)));
+                thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
             }
         } catch (Exception e) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
@@ -794,6 +852,7 @@ public class DeviceIntegrationModule {
             String value = (String) entry.getValue();
             if ("eui".equalsIgnoreCase(key)) {
                 data.dev_eui = value;
+                System.out.println("dev_eui:" + data.dev_eui);
             } else if ("timestamp".equalsIgnoreCase(key)) {
                 data.timestamp = value;
             } else {
@@ -801,13 +860,31 @@ public class DeviceIntegrationModule {
                 map.put("name", key);
                 map.put("value", value);
                 data.payload_fields.add(map);
+                System.out.println(key + ":" + value);
             }
-
+            System.out.println("timestamp:" + data.timestamp);
         }
         if (null == data.dev_eui || data.payload_fields.isEmpty()) {
+            System.out.println("ERROR: " + data.dev_eui + "," + data.payload_fields);
             return null;
         }
         data.normalize();
         return data;
+    }
+
+    private void fireEvent(int source, Device device, String message) {
+        fireEvent(source, device.getUserID(), device.getEUI(), message);
+    }
+
+    private void fireEvent(int source, String userID, String deviceEUI, String message) {
+        IotEvent ev = new IotEvent();
+        ev.setOrigin(userID + "\t" + deviceEUI);
+        if (source == 1) {
+            ev.setPayload("Decoder script (0): " + message);
+        } else {
+            ev.setPayload("Data processor script (0): " + message);
+        }
+        ev.setType(IotEvent.GENERAL);
+        Kernel.getInstance().dispatchEvent(ev);
     }
 }

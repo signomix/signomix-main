@@ -7,8 +7,8 @@
     <div class="row" if={ !selected }>
         <div class="col-md-12">
             <h2 class="module-title">{app.texts.mydashboards.pagetitle[app.language]}
-                <i class="material-icons clickable" onclick={ refresh() }>refresh</i>
-                <i class="material-icons clickable" onclick={ editDefinition('NEW', true) }>add</i>
+                <i class="material-icons clickable" onclick={ refresh() } title="REFRESH">refresh</i>
+                <i class="material-icons clickable" onclick={ editDefinition('NEW', true, false) } title="ADD NEW">add_circle_outline</i>
             </h2>
             <table class="table table-condensed">
                 <tr>
@@ -18,9 +18,10 @@
                 <tr each={ dashboard in definitions }>
                     <td><a href="#!dashboard,{dashboard.id}">{ dashboard.title }</a></td>
                     <td class="text-right">
-                        <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, false)} if={dashboard.userID==app.user.name} >open_in_browser</i>
-                        <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, true)} if={dashboard.userID==app.user.name} >mode_edit</i>
-                        <i class="material-icons clickable" onclick={ selectForRemove(dashboard.id) } if={dashboard.userID==app.user.name} data-toggle="modal" data-target="#myModal">delete</i>
+                        <i class="material-icons clickable" onclick={ createCopy(dashboard.id, true) } title="CREATE COPY">filter_none</i>
+                        <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, false)} if={dashboard.userID==app.user.name} title="VIEW DEFINITION" >open_in_browser</i>
+                        <i class="material-icons clickable" onclick={ editDefinition(dashboard.id, true)} if={dashboard.userID==app.user.name}  title="MODIFY">mode_edit</i>
+                        <i class="material-icons clickable" onclick={ selectForRemove(dashboard.id) } if={dashboard.userID==app.user.name} title="REMOVE" data-toggle="modal" data-target="#myModal">delete</i>
                     </td>
                 </tr>
             </table>
@@ -82,13 +83,22 @@
             }
         }
         
+        createCopy(id){
+            return function(e){
+                e.preventDefault()
+                self.selected=id
+                riot.update()
+                app.log('SELECTED FOR COPY: '+id)
+                self.refs.d_edit.init(self.listener, id, true, true)
+            }
+        }
         editDefinition(id, allowEdit){
             return function(e){
                 e.preventDefault()
                 self.selected=id
                 riot.update()
                 app.log('SELECTED FOR EDITING: '+id)
-                self.refs.d_edit.init(self.listener, id, allowEdit)
+                self.refs.d_edit.init(self.listener, id, allowEdit, false)
             }
         }
         

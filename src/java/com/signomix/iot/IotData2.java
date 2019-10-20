@@ -108,4 +108,9 @@ public class IotData2 implements IotDataIface {
     public long getReceivedPackageTimestamp() {
         return getTimestamp();
     }
+
+    @Override
+    public String getDeviceID() {
+        return "";
+    }
 }

@@ -223,10 +223,10 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     @Override
     public void addDeviceTemplate(DeviceTemplate template) throws ThingsDataException {
         try {
-            if (containsKey("devicetemplates", template.getEUI())) {
+            if (containsKey("devicetemplates", template.getEui())) {
                 throw new ThingsDataException(ThingsDataException.UNKNOWN, "this template EUI already exists");
             }
-            put("devicetemplates", template.getEUI(), template);
+            put("devicetemplates", template.getEui(), template);
         } catch (KeyValueDBException ex) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -349,7 +349,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public List<String> getGroupDevices(String userID, String groupID) throws ThingsDataException {
+    public List<Device> getGroupDevices(String userID, String groupID) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

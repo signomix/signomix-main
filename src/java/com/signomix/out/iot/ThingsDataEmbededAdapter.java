@@ -52,25 +52,26 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public void putData(String userID, String deviceEUI, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, List<ChannelData> values) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         //TODO: dla urządzeń wirtualnych uruchomić skrypt preprocessora
-        getDataStorage().putData(userID, deviceEUI, values);
+        getDataStorage().putData(userID, deviceEUI, project, values);
     }
 
     @Override
     //REMOVE
-    public void putData(String userID, String deviceEUI, String channel, ChannelData value) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, String channel, ChannelData value) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         ArrayList<ChannelData> list = new ArrayList<>();
         list.add(value);
-        getDataStorage().putData(userID, deviceEUI, list);
+        getDataStorage().putData(userID, deviceEUI, project, list);
     }
 
+    /*
     @Override
     public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -78,7 +79,8 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         }
         return getDataStorage().getAllValues(userID, deviceEUI, channel);
     }
-
+    */
+    
     @Override
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -112,7 +114,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public void updateHealthStatus(String EUI, long lastSeen, long frameCounter, String downlink) throws ThingsDataException {
+    public void updateHealthStatus(String EUI, long lastSeen, long frameCounter, String downlink, String deviceID) throws ThingsDataException {
         Device dev = getDevice(EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
@@ -121,6 +123,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setLastFrame(frameCounter);
         dev.setDownlink(downlink);
         dev.setAlertStatus(Device.OK);
+        dev.setDeviceID(deviceID);
         getIotDB().updateDevice(dev); //TODO
     }
     
@@ -148,12 +151,22 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         return getIotDB().getUserDevices(userID, withShared);
     }
+    
+    @Override
+    public List<Device> getGroupDevices(String userID, String group) throws ThingsDataException {
+        return getIotDB().getGroupDevices(userID, group);
+    }
 
     @Override
     public int getUserDevicesCount(String userID) throws ThingsDataException {
         return getIotDB().getUserDevicesCount(userID);
     }
 
+    @Override
+    public List<DeviceTemplate> getTemplates() throws ThingsDataException {
+        return getIotDB().getDeviceTemplates();
+    }
+    
     @Override
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -173,7 +186,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
      * @param query
      * @return
      * @throws ThingsDataException
-     */
+     *
     @Override
     public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -183,17 +196,18 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         //TODO: there should be additional option to synchdonize data lists
         return getDataStorage().getValues(userID, deviceEUI, channel, query);
     }
+    */
 
     @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, query);
     }
-
+/*
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, limit);
     }
-
+*/
     @Override
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         return getIotDB().isAuthorized(userID, deviceEUI);

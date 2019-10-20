@@ -58,5 +58,10 @@ public class KPNData implements IotDataIface{
     public long getReceivedPackageTimestamp() {
         return getTimeField().toEpochMilli();
     }
+
+    @Override
+    public String getDeviceID() {
+        return "";
+    }
     
 }

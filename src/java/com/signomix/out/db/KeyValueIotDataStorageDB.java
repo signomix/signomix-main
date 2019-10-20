@@ -23,8 +23,17 @@ import org.cricketmsf.out.db.KeyValueDBException;
  */
 public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStorageIface {
 
+    /**
+     * Stores data in the database
+     * Notice - storing project name is not implemented
+     * @param userID
+     * @param deviceEUI
+     * @param project
+     * @param values
+     * @throws ThingsDataException 
+     */
     @Override
-    public void putData(String userID, String deviceEUI, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, List<ChannelData> values) throws ThingsDataException {
         if (values.size() > 20) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "too many values");
         }
@@ -139,64 +148,8 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     }
 
     @Override
-    public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
-        //TODO: get several channels - see H2DataStorageBD
-        /*
-        String tableName = getTableNameForChannel(deviceEUI, channel);
-        int resultSize = 1;
-        String[] params = query.split(";");
-        for (int i = 0; i < params.length; i++) {
-            if (params[i].startsWith("last ")) {
-                try {
-                    resultSize = Integer.parseInt(params[i].substring(params[i].indexOf(" ") + 1));
-                } catch (Exception e) {
-                    throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "malformed query [" + query + "]");
-                }
-            }
-        }
-
-        List result = new ArrayList();
-        if (resultSize == 1) {
-            result.add(getLastValue(userID, deviceEUI, channel));
-            return result;
-        } else if (resultSize > 100) { //TODO: configuration
-            resultSize = 100;
-        }
-        try {
-            List list = search(tableName, new MeasurePseudoComparator(), null);
-            int startIndex = list.size() - resultSize;
-            if (startIndex < 0) {
-                startIndex = 0;
-            }
-            for (int i = startIndex; i < list.size(); i++) {
-                result.add(list.get(i));
-            }
-        } catch (KeyValueDBException ex) {
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-        */
-        throw new ThingsDataException(ThingsDataException.BAD_REQUEST);
-    }
-
-    @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
-        List<List> result = new ArrayList<>();
-        if ("last".equalsIgnoreCase(query)) {
-            result.add(getLastValues(userID, deviceEUI));
-        } else {
-            int index = query.indexOf(";");
-            if (index > 0) {
-                String channel = query.substring(0, index);
-                result.add(getValues(userID, deviceEUI, channel, query.substring(index + 1)));
-            } else {
-                //TODO: better handling
-                throw new ThingsDataException(ThingsDataException.UNKNOWN, "malformed query");
-            }
-        }
-        return result;
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -253,17 +206,12 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     }
 
     @Override
-    public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<List> getDeviceMeasures(String userID, String deviceEUI, String query) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

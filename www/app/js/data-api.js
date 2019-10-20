@@ -3,6 +3,85 @@
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
 
+function getFile(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+    var oReq = new XMLHttpRequest();
+    var defaultErrorEventName = "err:";
+    oReq.onerror = function (oEvent) {
+        app.log('ONERROR');
+        app.requests--;
+        app.log("onerror " + this.status + " " + oEvent.toString())
+        if (appEventBus == null) {
+            if(eventBus!=null) eventBus.trigger("data:"+this.status);
+        } else {
+            appEventBus.trigger("data:"+this.status);
+        }
+    }
+    oReq.onloadend = function(oEvent){
+        app.log('ONLOADEND'+this.status);
+        app.requests--;
+        if (eventBus != null) {
+            if(eventBus!=null) eventBus.trigger("dataloaded");
+        }
+        if(appEventBus!=null){
+            appEventBus.trigger("dataloaded");
+        }
+    }
+    oReq.onabort = function(oEvent){
+        app.log('ONABORT'+this.status);
+        app.requests--;
+        if (appEventBus == null) {
+            if(eventBus!=null) eventBus.trigger("data:"+this.status);
+        } else {
+            appEventBus.trigger("data:"+this.status);
+        }
+    }
+    oReq.timeout = function(oEvent){
+        app.log('ONTIMEOUT'+this.status);
+        app.requests--;
+        if (appEventBus == null) {
+            if(eventBus!=null) eventBus.trigger("data:"+this.status);
+        } else {
+            appEventBus.trigger("data:"+this.status);
+        }
+    }
+    oReq.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                if (callback != null) {
+                    callback(oReq.response);
+                } else {
+                    if(eventBus!=null) eventBus.trigger(successEventName);
+                }
+            } else {
+                var tmpErrName
+                if (errorEventName == null) {
+                    tmpErrName=defaultErrorEventName + this.status
+                } else {
+                    tmpErrName=errorEventName
+                }
+                if (appEventBus == null) {
+                    if(eventBus!=null) eventBus.trigger(tmpErrName);
+                } else {
+                    appEventBus.trigger(tmpErrName);
+                }
+            }
+        }else{
+            app.log('READYSTATE='+this.readyState);
+        }
+    };
+    app.log('SENDING');
+    app.requests++;
+    oReq.responseType='blob'
+    oReq.open("get", url, true);
+    if (token != null) {
+        oReq.withCredentials = true;
+        oReq.setRequestHeader("Authentication", token);
+    }
+    oReq.send(query);
+    //app.responses--;
+    return false;
+}
+
 // get data from the service
 function getData(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
     var oReq = new XMLHttpRequest();
@@ -190,6 +269,53 @@ function sendData(data, method, url, token, callback, eventBus, successEventName
         oReq.setRequestHeader("Authentication", token);
     }
     oReq.send(urlEncodedData);
+    return false;
+}
+
+function sendTextData(data, method, url, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+    app.log("sendData ...")
+    var urlEncodedData = "";
+    var urlEncodedDataPairs = [];
+    var name;
+    var oReq = new XMLHttpRequest();
+    var defaultErrorEventName = "err:";
+    oReq.onerror = function (oEvent) {
+        app.log("onerror " + this.status + " " + oEvent.toString())
+        callback(oEvent.toString());
+    }
+    oReq.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            app.requests--;
+            if (this.status > 199 && this.status < 203) {
+                app.log(JSON.parse(this.responseText));
+                if (callback != null) {
+                    callback(this.responseText);
+                } else {
+                    eventBus.trigger(successEventName);
+                }
+            } else {
+                app.log("onreadystatechange")
+                //if (callback != null) {
+                //    callback('error:' + this.status)
+                //} else {
+                    if (errorEventName == null) {
+                        eventBus.trigger(defaultErrorEventName + this.status);
+                    } else {
+                        eventBus.trigger(errorEventName);
+                    }
+                //}
+            }
+        }
+    }
+    app.requests++;
+    // method declared in the form is ignored
+    oReq.open(method, url);
+    oReq.setRequestHeader('Content-Type', 'text/plain');
+    if (token != null) {
+        oReq.withCredentials = true;
+        oReq.setRequestHeader("Authentication", token);
+    }
+    oReq.send(data);
     return false;
 }
 

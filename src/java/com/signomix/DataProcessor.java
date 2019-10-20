@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import com.signomix.iot.IotEvent;
 
 /**
  *
@@ -26,12 +27,6 @@ public class DataProcessor {
         ScriptResult scriptResult = null;
         try {
             scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), dataTimestamp);
-            ArrayList<ArrayList> tmp=scriptResult.getOutput();
-            System.out.println("Lists:"+tmp.size());
-            for(int i=0;i<tmp.size();i++){
-                System.out.println("List"+i+":"+tmp.get(i).size());
-            }
-            
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -44,10 +39,8 @@ public class DataProcessor {
         ArrayList<Event> events = scriptResult.getEvents();
         HashMap<String, String> recipients;
         for (int i = 0; i < events.size(); i++) {
-            if (Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())) {
-                Event newEvent = events.get(i).clone();
-                newEvent.setOrigin(device.getEUI());
-                Kernel.getInstance().dispatchEvent(newEvent);
+            if (IotEvent.ACTUATOR_CMD.equals(events.get(i).getType()) || IotEvent.ACTUATOR_HEXCMD.equals(events.get(i).getType())) {
+                Kernel.getInstance().dispatchEvent(events.get(i));
             } else {
                 recipients = new HashMap<>();
                 recipients.put(device.getUserID(), "");

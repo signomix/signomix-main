@@ -12,8 +12,9 @@
     <div class="row" if={ !selected && !selectedGroup}>
         <div class="col-md-12">
             <h2 class="module-title">{app.texts.mydevices.devices[app.language]}
-                <i class="material-icons clickable" onclick={ refresh() }>refresh</i>
-                <i class="material-icons clickable" onclick={ create() }>add</i>
+                <i class="material-icons clickable" onclick="{ refresh() }" aria-label="refresh" title="REFRESH">refresh</i>
+                <i class="material-icons clickable" onclick={ create() } title="ADD NEW">add_circle_outline</i>
+                <i class="material-icons clickable" onclick={ createFromTemplate() } title="ADD PRODUCT" if="{activeTab=='devices'}">filter_none</i>
             </h2>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
@@ -40,9 +41,10 @@
                         <td>{device.type}</td>
                         <td><img height="16px" style="margin-right: 10px;" src={ getStatus(device.lastSeen, device.transmissionInterval) }></td>
                         <td class="text-right">
-                            <i class="material-icons clickable" onclick={ editDevice(device.EUI, false) }>open_in_browser</i>
-                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ editDevice(device.EUI, true) }>mode_edit</i>
-                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ selectForRemove(device.EUI) } data-toggle="modal" data-target="#myModal">delete</i>
+                            <i class="material-icons clickable" onclick="{ selectForDownload(device.EUI) }" title="DOWNLOAD DATA" data-toggle="modal" data-target="#downloadModal">cloud_download</i>
+                            <i class="material-icons clickable" onclick={ editDevice(device.EUI, false) } title="VIEW">open_in_browser</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ editDevice(device.EUI, true) } title="MODIFY">mode_edit</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ selectForRemove(device.EUI) } title="REMOVE" data-toggle="modal" data-target="#myModal">delete</i>
                         </td>
                     </tr>
                 </tbody>
@@ -111,6 +113,31 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">{app.texts.mydevices.download_title[app.language]}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label={app.texts.mydevices.cancel[app.language]}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div if="{dataURL!=''}">
+                            <a href="{dataURL}">{app.texts.mydevices.download_open[app.language]}</a>
+                        </div>
+                        <div if="{dataURL==''}">
+                        <p><b>{ selectedForDownload }</b></p>
+                        <p>{app.texts.mydevices.download_comment[app.language]}</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="{ download(null) }">{app.texts.mydevices.download_download[app.language]}</button>
+                        <button type="button" class="btn btn-secondary" onclick="{ dataURL='' }" data-dismiss="modal">{app.texts.mydevices.cancel[app.language]}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script charset="UTF-8">
         var self = this
         self.devListener = riot.observable()
@@ -121,9 +148,11 @@
         self.selectedGroup= ''
         self.selectedForRemove = ''
         self.selectedGroupForRemove = ''
+        self.selectedForDownload=''
         //self.edited = false
         self.now = Date.now()
         self.activeTab = 'devices'
+        self.dataURL = ''
         
         this.on('mount',function(){
             self.selected = ''
@@ -146,6 +175,7 @@
                 case 'cancelled':
                     self.selected = ''
                     self.selectedGroup = ''
+                    self.dataURL = ''
                     break
                 default:
                     app.log('ACCOUNT: error ' + eventName)
@@ -187,7 +217,18 @@
                 }else{
                     self.selected='NEW'
                     riot.update()
-                    self.refs.dev_edit.init(self.devListener, 'NEW', true)
+                    self.refs.dev_edit.init(self.devListener, 'NEW', true, false)
+                }
+            }
+        }
+        
+        createFromTemplate(){
+            return function(e){
+                e.preventDefault()
+                if(self.activeTab!='groups'){
+                    self.selected='NEW'
+                    riot.update()
+                    self.refs.dev_edit.init(self.devListener, 'NEW', true, true)
                 }
             }
         }
@@ -197,8 +238,7 @@
                 e.preventDefault()
                 self.selected=devEUI
                 riot.update()
-                app.log('SELECTED FOR EDITING: '+devEUI)
-                self.refs.dev_edit.init(self.devListener, devEUI, allowEdit)
+                self.refs.dev_edit.init(self.devListener, devEUI, allowEdit, false)
             }
         }
                 
@@ -207,7 +247,14 @@
                 e.preventDefault()
                 self.selectedForRemove=devEUI
                 riot.update()
-                app.log('SELECTED FOR REMOVE: '+devEUI)
+            }
+        }
+        
+        selectForDownload(devEUI){
+            return function(e){
+                e.preventDefault()
+                self.selectedForDownload=devEUI
+                riot.update()
             }
         }
         
@@ -216,7 +263,6 @@
                 e.preventDefault()
                 self.selectedGroup=grEUI
                 riot.update()
-                app.log('SELECTED GROUP FOR EDITING: '+grEUI)
                 self.refs.gr_edit.init(self.devListener, grEUI, allowEdit)
             }
         }
@@ -226,7 +272,6 @@
                 e.preventDefault()
                 self.selectedGroupForRemove=grEUI
                 riot.update()
-                app.log('SELECTED GROUP FOR REMOVE: '+grEUI)
             }
         }
         
@@ -265,6 +310,30 @@
                     null //globalEvents
                 )
             }
+        }
+        
+        self.handleFile=function(resp){
+            self.dataURL=URL.createObjectURL(resp)
+            self.selectedForDownload=''
+            riot.update()
+        }
+        
+        download(form){
+            return function(e){
+                var query='query=channel%20*%20last%201000%20csv.timeseries'
+                getFile( 
+                    app.iotAPI+'/'+self.selectedForDownload+'?'+query,
+                    '',
+                    app.user.token, 
+                    self.handleFile, 
+                    null, //self.listener, 
+                    'submit:OK', 
+                    'submit:ERROR', 
+                    app.debug, 
+                    null //globalEvents
+                )
+            }    
+            
         }
         
         self.afterGroupRemove = function(object){

@@ -206,7 +206,7 @@
         if(config.query){
             query = config.query
         }else{
-            query = 'last'
+            query = 'last 1'
         }
         if(config.format){
             if(config.format == 'timeseries'){

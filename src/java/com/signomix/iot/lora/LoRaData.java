@@ -24,6 +24,9 @@ public class LoRaData implements IotDataIface {
     private int port;
     private String data;
 
+    /*
+    
+    */
     @Override
     public String getDeviceEUI() {
         return getDevEUI();
@@ -197,6 +200,11 @@ public class LoRaData implements IotDataIface {
     @Override
     public long getReceivedPackageTimestamp() {
         return getTimestamp();
+    }
+
+    @Override
+    public String getDeviceID() {
+        return "";
     }
 
 }

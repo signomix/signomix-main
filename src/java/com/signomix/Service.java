@@ -197,7 +197,7 @@ public class Service extends Kernel {
                 new Event(
                         this.getClass().getSimpleName(),
                         Event.CATEGORY_GENERIC,
-                        "EMAIL_ADMIN",
+                        "EMAIL_ADMIN_STARTUP",
                         "+1s",
                         "Signomix service has been started.")
         );
@@ -415,6 +415,18 @@ public class Service extends Kernel {
     public Object groupServiceHandle(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
+    
+    @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "OPTIONS")
+    public Object templateServiceCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "*")
+    public Object templateServiceHandle(Event event) {
+        return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    }
 
     @HttpAdapterHook(adapterName = "TtnIntegrationService", requestMethod = "OPTIONS")
     public Object ttnDataCors(Event requestEvent) {
@@ -449,7 +461,6 @@ public class Service extends Kernel {
             e.printStackTrace();
             return null;
         }
-        //ActuatorModule.getInstance().getCommand(deviceEUI, actuatorCommandsDB);
         return result;
     }
     
@@ -469,7 +480,6 @@ public class Service extends Kernel {
             e.printStackTrace();
             return null;
         }
-        //ActuatorModule.getInstance().getCommand(deviceEUI, actuatorCommandsDB);
         return result;
     }
     
@@ -489,7 +499,6 @@ public class Service extends Kernel {
             e.printStackTrace();
             return null;
         }
-        //ActuatorModule.getInstance().getCommand(deviceEUI, actuatorCommandsDB);
         return result;
     }
 
@@ -771,7 +780,8 @@ public class Service extends Kernel {
                 dashboardAdapter,
                 authAdapter,
                 virtualStackAdapter,
-                scriptingAdapter
+                scriptingAdapter,
+                actuatorCommandsDB
         );
 
     }
@@ -819,6 +829,7 @@ public class Service extends Kernel {
     }
 
     public Object sendEcho(RequestObject request) {
+        System.out.println("REQUEST DATA:"+request.body);
         StandardResult r = new StandardResult();
         r.setCode(HttpAdapter.SC_OK);
         try {

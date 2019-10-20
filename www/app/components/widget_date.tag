@@ -25,7 +25,7 @@
             self.jsonData = JSON.parse(this.rawdata)
             if(self.jsonData.length>0 && self.jsonData[0].length>0){
                 self.value = parseFloat(self.jsonData[0][0]['value'])
-                self.d=new Date(self.value)
+                self.d=new Date(Math.floor(self.value))
                 self.dt = getDateFormatted(self.d)
             }
         }

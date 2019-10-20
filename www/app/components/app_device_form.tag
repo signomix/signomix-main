@@ -7,8 +7,22 @@
         </div>
     </div>
     <div class="row">
-        <form class="col-md-12" onsubmit={ self.submitForm }>
-            <div class="form-row">
+        <form class="col-md-12" onsubmit="{ self.submitSelectTemplate }" if="{self.useTemplate}">
+            <div class="form-group">
+                <div class="input-field">
+                    <label for="template">{ app.texts.device_form.template[app.language] }</label>
+                    <select class="form-control" id="template" name="template" value={ selectedTemplate } onchange={ changeTemplate } disabled={ !(allowEdit && !device.EUI) }>
+                        <option each="{t in templates}" value="{t.eui}">{ t.producer+': '+t.eui}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{ app.texts.device_form.next[app.language] }</button>
+                <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.device_form.cancel[app.language] }</button>
+            </div>
+        </form>
+        <form class="col-md-12" onsubmit="{ self.submitForm }" if="{!self.useTemplate}">
+            <div class="form-row" if="{isVisible('type')}">
                 <div class="form-group col-md-6">
                     <label for="type">{ app.texts.device_form.type[app.language] }</label>
                     <select class="form-control" id="type" name="type" value={ device.type } onchange={ changeType } disabled={ !(allowEdit && !device.EUI) } required>
@@ -20,70 +34,88 @@
                         <option value="VIRTUAL">VIRTUAL</option>
                     </select>
                 </div>
-                <div class="card text-center z-depth-2 col-md-6" style="margin-bottom: 10px">
+                <div class="card text-center col-md-6" style="margin-bottom: 10px">
                     <div class="card-body">
                         <p class="mb-0" style="margin: 10px">{ getTypeDescription() }</p>
                     </div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <form_input id="name" name="name" label={ app.texts.device_form.name[app.language] } type="text" required="true" content={ device.name } readonly={ !allowEdit } hint={ app.texts.device_form.name_hint[app.language] }></form_input>
+            <div class="form-row" if="{!isVisible('type')}">
+                <div class="card text-center col-md-12" style="margin-bottom: 10px">
+                    <div class="card-body">
+                        <p class="mb-0" style="margin: 10px">{ device.description }</p>
+                    </div>
                 </div>
             </div>
             <div class="form-row">
+                <div class="form-group col-md-12">
+                    <form_input id="name" name="name" label="{ app.texts.device_form.name[app.language] }" type="text" required="true" content="{ device.name }" readonly="{ !allowEdit }" hint="{ app.texts.device_form.name_hint[app.language] }"></form_input>
+                </div>
+            </div>
+            <div class="form-row" if="{isVisible('eui')}">
                 <div class="form-group col-md-12">
                     <form_input id="eui" name="eui" label={ app.texts.device_form.eui[app.language] } type="text" content={ device.EUI } required={device.type=='TTN' || device.type=='KPN' || device.type=='LORA'} readonly={ !(allowEdit && !device.EUI) } hint={ app.texts.device_form.eui_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('key')}">
                 <div class="form-group col-md-12">
                     <form_input id="key" name="key" label={ app.texts.device_form.key[app.language] } type="text" content={ device.key } readonly={ !allowEdit } hint={ app.texts.device_form.key_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('channels')}">
                 <div class="form-group col-md-12">
                     <form_input id="channels" name="channels" label={ app.texts.device_form.channels[app.language] } type="text" content={ device.channels } readonly={ !allowEdit } hint={ app.texts.device_form.channels_hint[app.language] } onchange={ changeChannels }></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('team')}">
                 <div class="form-group col-md-12">
                     <form_input id="team" name="team" label={ app.texts.device_form.team[app.language] } type="text" content={ device.team } readonly={ !allowEdit } hint={ app.texts.device_form.team_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('description')}">
                 <div class="form-group col-md-12">
                     <form_input id="description" name="description" label={ app.texts.device_form.description[app.language] } type="textarea" content={ device.description } readonly={ !allowEdit } rows=2></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('encoder')}">
                 <div class="form-group col-md-12">
                     <form_input id="encoder" name="encoder" label={ app.texts.device_form.encoder[app.language] } type="textarea" content={ device.encoder } readonly={ !allowEdit } rows=6 hint={ app.texts.device_form.encoder_hint[app.language] }></form_input>
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12" if="{isVisible('code')}">
                     <form_input id="code" name="code" label={ app.texts.device_form.code[app.language] } type="textarea" content={ device.code } readonly={ !allowEdit } rows=6 hint={ app.texts.device_form.code_hint[app.language] }></form_input>
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12" if="{isVisible('interval')}">
                     <form_input id="interval" name="interval" label={ app.texts.device_form.interval[app.language] } type="text" content={ device.transmissionInterval/60000 } readonly={ !allowEdit } hint={ app.texts.device_form.interval_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" if="{isVisible('groups')}">
                 <div class="form-group col-md-12">
                     <form_input id="groups" name="groups" label={ app.texts.device_form.groups[app.language] } type="text" content={ device.groups } readonly={ !allowEdit } hint={ app.texts.device_form.groups_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row" if={ device.type=='TTN' }>
+            <div class="form-row" if="{ device.type=='TTN' && isVisible('appeui') }">
                 <div class="form-group col-md-12">
-                    <form_input id="appeui" name="appeui" label={ app.texts.device_form.appeui[app.language] } type="text" content={ device.applicationEUI } hint={ app.texts.device_form.appeui_hint[app.language] }></form_input>
+                    <form_input id="appeui" name="appeui" label={ app.texts.device_form.appeui[app.language] } type="text" content={ device.applicationEUI } readonly={ !allowEdit } hint={ app.texts.device_form.appeui_hint[app.language] }></form_input>
                 </div>
             </div>
-            <div class="form-row" if={ device.type=='TTN' }>
+            <div class="form-row" if="{ device.type=='TTN' && isVisible('appid')}">
                 <div class="form-group col-md-12">
-                    <form_input id="appid" name="appid" label={ app.texts.device_form.appid[app.language] } type="text" content={ device.applicationID } hint={ app.texts.device_form.appid_hint[app.language] }></form_input>
+                    <form_input id="appid" name="appid" label={ app.texts.device_form.appid[app.language] } type="text" content={ device.applicationID } readonly={ !allowEdit } hint={ app.texts.device_form.appid_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row" if="{isVisible('project')}">
+                <div class="form-group col-md-12">
+                    <form_input id="project" name="project" label={ app.texts.device_form.project[app.language] } type="text" content={ device.project } readonly={ !allowEdit } hint={ app.texts.device_form.project_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row" if="{isVisible('active')}">  
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="active" value={device.active} readonly={ !allowEdit } checked="{device.active}">
+                    <label class="form-check-label" for="active">{ app.texts.device_form.active[app.language] }</label>
                 </div>
             </div>
             <div class="form-row" if={ self.mode !='create' }>
@@ -121,20 +153,15 @@
         self.templateSelected = true
         self.selectedTemplate = 'UNDEFINED'
         self.allowEdit = false
+        self.useTemplate = false
         self.method = 'POST'
         self.mode = 'view'
         self.channelsEncoded = ''
         self.channelsChanged = false
         self.communicationError = false
         self.errorMessage = ''
-        self.template = {
-            'EUI': 'UNDEFINED',
-            'type':'GENERIC',
-            'description': '{"en": "",'+
-                    '"it": "",'+
-                    '"fr": "",'+
-                    '"pl": ""}'
-        }
+        self.templates=[]
+        self.template = {}
         self.device = {
             'EUI': '',
             'applicationEUI': '',
@@ -152,7 +179,8 @@
             'transmissionInterval': 0,
             'pattern': '',
             'commandscript': '',
-            'template': ''
+            'template': '',
+            'active':'true'
         }
         self.accepted = 0
 
@@ -179,9 +207,10 @@
             app.log('SUBMITTED')
         })
 
-        init(eventListener, id, editable) {
+        init(eventListener, id, editable, fromTemplate){
             self.callbackListener = eventListener
             self.allowEdit = editable
+            self.useTemplate = fromTemplate
             self.method = 'POST'
             if (id != 'NEW') {
                 readDevice(id)
@@ -192,19 +221,23 @@
                     self.mode = 'view'
                 }
             } else {
+                if(self.useTemplate){
+                    readTemplates()
+                }
                 self.mode = 'create'
             }
         }
 
         self.changeType = function(e) {
+            e.preventDefault()
             if (e.target) {
-                self.device.type = e.target.value
+                self.device.type = e.target
                 riot.update()
             } else {
                 app.log('UNKNOWN TARGET OF: ' + e)
             }
         }
-
+        
         self.changeChannels = function(e) {
             if (self.device.channels != e.target.value.trim()) {
                 self.channelsChanged = true
@@ -215,21 +248,26 @@
         }
 
         self.undefined = {
-            'EUI': 'UNDEFINED',
-            'type': 'GENERIC',
-            'applicationID': '',
-            'channels': '',
-            'code': '',
-            'encoder': '',
-            'pattern': '',
-            'groups': '',
-            'transmissionInterval': '',
-            'commandscript': '',
-            'description': '{"en":"Device line not specified. You must define required parameters yourself.","it":"Device line not specified. You must define required parameters yourself.","fr":"Device line not specified. You must define required parameters yourself.","pl":"Linia produktów nie jest wybrana. Musisz zdefiniować wymagane parametry."}'
+            "eui":"",
+            "appid":"",
+            "appeui":"",
+            "type":"",
+            "channels":"",
+            "code":"",
+            "decoder":"",
+            "description":"",
+            "interval":0,
+            "pattern":",type,eui,name,key,channels,encoder,code,description,team,interval,active,appeui,appid,project,groups,",
+            "commandScript":"",
+            "producer":"user defined"
         }
 
         self.template = self.undefined
-        self.selectedTemplate = 'UNDEFINED'
+        self.selectedTemplate = ''
+        
+        isVisible(fieldName){
+            return (self.mode!='create' || self.template.pattern.indexOf(','+fieldName+',')>=0)
+        }
 
         getStatus(lastSeen, interval) {
             if (self.now - lastSeen > interval) {
@@ -265,6 +303,39 @@
                     return app.texts.device_form.default_desc[app.language]
             }
         }
+        
+        self.changeTemplate = function(e) {
+            e.preventDefault()
+            var templateEui=e.target.value
+            console.log('selected template:'+templateEui)
+            if(templateEui=='') return
+            for(var i=0; i<self.templates.length; i++){
+                if(self.templates[i].eui==templateEui){
+                    self.selectedTemplate = self.templates[i].eui
+                    self.template=self.templates[i]
+                    continue
+                }
+            }
+            self.device.type=self.template.type
+            self.device.channels=self.template.channels
+            self.device.description=self.template.description
+            self.device.encoder=self.template.decoder
+            self.device.code=self.template.code
+            self.device.appid=self.template.appid
+            self.device.appeui=self.template.appeui
+            self.device.interval=self.template.interval
+            self.device.template=self.template.eui
+            self.device.active='true'
+            self.device.project=''
+            self.device.applicationEUI = ''
+            self.device.applicationID=''
+            riot.update()
+        }
+        
+        self.submitSelectTemplate =function(e){
+            e.preventDefault()
+            self.useTemplate=false
+        }
 
         self.submitForm = function(e) {
             e.preventDefault()
@@ -287,28 +358,89 @@
                 pattern: '',
                 groups: '',
                 commandscript: '',
-                template: ''
+                template: '',
+                project: '',
+                active: ''
             }
-            formData.eui = e.target.elements['eui'].value
+            if(e.target.elements['eui']) formData.eui = e.target.elements['eui'].value
             if (self.device.type == 'TTN') {
-                formData.appeui = e.target.elements['appeui'].value
-                formData.appid = e.target.elements['appid'].value
+                if(e.target.elements['appeui']) {
+                    formData.appeui = e.target.elements['appeui'].value
+                }else{
+                    formData.appeui = self.device.applicationEUI
+                }
+                if(e.target.elements['appid']) {
+                    formData.appid = e.target.elements['appid'].value
+                }else{
+                    formData.appid = self.device.applicationID
+                }
             }
-            formData.name = e.target.elements['name'].value
-            formData.key = e.target.elements['key'].value
-            formData.type = e.target.elements['type'].value
-            formData.team = e.target.elements['team'].value
-            formData.channels = e.target.elements['channels'].value
-            formData.groups = e.target.elements['groups'].value
-            formData.description = e.target.elements['description'].value
+            if(e.target.elements['name']) {
+                formData.name = e.target.elements['name'].value
+            }else{
+                formData.name = self.device.name
+            }
+            if(e.target.elements['key']) {
+                formData.key = e.target.elements['key'].value
+            }else{
+                formData.key = self.device.key
+            }
+            if(e.target.elements['type']) {
+                formData.type = e.target.elements['type'].value
+            }else{
+                formData.type = self.device.type
+            }
+            if(e.target.elements['team']) {
+                formData.team = e.target.elements['team'].value
+            }else{
+                formData.team = self.device.team
+            }
+            if(e.target.elements['channels']) {
+                formData.channels = e.target.elements['channels'].value
+            }else{
+                formData.channels = self.device.channels
+            }
+            if(e.target.elements['groups']) {
+                formData.groups = e.target.elements['groups'].value
+            }else{
+                formData.groups = self.device.groups
+            }
+            if(e.target.elements['project']) {
+                formData.project = e.target.elements['project'].value
+            }else{
+                formData.project = self.device.project
+            }
+            if(e.target.elements['active']) {
+                var aCheck = e.target.elements['active']
+                formData.active = aCheck.checked?'true':'false'
+            }else{
+                formData.active = self.device.active
+            }
+            if(e.target.elements['description']) {
+                formData.description = e.target.elements['description'].value
+            }else{
+                formData.description = self.device.description
+            }
             //formData.code = escape(trimSpaces(e.target.elements['code'].value))
             //formData.encoder = escape(trimSpaces(e.target.elements['encoder'].value))
-            formData.code = trimSpaces(e.target.elements['code'].value)
-            formData.encoder = trimSpaces(e.target.elements['encoder'].value)
-            formData.pattern = self.device.pattern
+            if(e.target.elements['code']) {
+                formData.code = trimSpaces(e.target.elements['code'].value)
+            }else{
+                formData.code = self.device.code
+            }
+            if(e.target.elements['encoder']) {
+                formData.encoder = trimSpaces(e.target.elements['encoder'].value)
+            }else{
+                formData.encoder = self.device.encoder
+            }
+            
             formData.commandscript = self.device.commandscript
             formData.template = self.device.template
-            formData.transmissionInterval = 60000 * Number(e.target.elements['interval'].value)
+            if(e.target.elements['interval']) {
+                formData.transmissionInterval = 60000 * Number(e.target.elements['interval'].value)
+            }else{
+                formData.transmissionInterval = self.device.intervalnterval
+            }
             app.log(JSON.stringify(formData))
             sendData(
                 formData,
@@ -367,12 +499,31 @@
             self.templateSelected = true
             riot.update();
         }
+        
+         var updateTemplates = function(text) {
+            self.templates = JSON.parse(text);
+            self.templates.unshift(self.undefined)
+            riot.update()
+        }
 
         var readDevice = function(devEUI) {
             getData(app.iotAPI + '/' + devEUI,
                 null,
                 app.user.token,
                 update,
+                self.listener, //globalEvents
+                'OK',
+                null, // in case of error send response code
+                app.debug,
+                globalEvents
+            );
+        }
+        
+        var readTemplates = function() {
+            getData(app.templateAPI,
+                null,
+                app.user.token,
+                updateTemplates,
                 self.listener, //globalEvents
                 'OK',
                 null, // in case of error send response code

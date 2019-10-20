@@ -24,14 +24,17 @@ public interface IotDataStorageIface extends KeyValueDBIface {
     public void removeAllChannels(String deviceEUI) throws ThingsDataException;
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException;
 
-    public void putData(String userID, String deviceEUI, List<ChannelData>values) throws ThingsDataException;
-    public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException;
-    public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException;
-    public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException;
-    public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException;
-    public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException;
-    public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException;
-    public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException;
+    public void putData(String userID, String deviceEUI, String project, List<ChannelData>values) throws ThingsDataException;
+    
+    public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException; //T
+    public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException; //T
+    public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException; //T
+    //public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException; //T
+    public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException; //TT
+    //public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException; //TT
+    //public List<List> getValues(String userID, String deviceEUI, int limit, boolean tsFormat) throws ThingsDataException;
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException;
     
+    
+    public List<List> getDeviceMeasures(String userID, String deviceEUI, String query) throws ThingsDataException;
 }
