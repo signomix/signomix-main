@@ -22,11 +22,16 @@ import com.signomix.iot.IotEvent;
  */
 public class DataProcessor {
 
-    //public static ArrayList<ChannelData> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
-    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
+//    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
+//            Double latitude, Double longitude, Double altitude) throws Exception {
+    public static Object[] processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
+            Double latitude, Double longitude, Double altitude) throws Exception {
         ScriptResult scriptResult = null;
         try {
-            scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), dataTimestamp);
+            scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), 
+                    device.getEUI(), device.getUserID(), dataTimestamp,
+                    latitude, longitude, altitude, device.getState(),
+                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude());
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -34,6 +39,13 @@ public class DataProcessor {
         if (scriptResult == null) {
             throw new Exception("preprocessor script returns null result");
         }
+        /*
+        if(device.getState()!=scriptResult.getDeviceState()){
+            //TODO: fire event
+            System.out.println("DEVICE STATE "+device.getState()+" "+scriptResult.getDeviceState());
+            Kernel.getInstance().dispatchEvent(Event.logInfo("DataProcessor", "device state changed"));
+        }
+        */
         //ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
         ArrayList<ArrayList> finalValues=scriptResult.getOutput();
         ArrayList<Event> events = scriptResult.getEvents();
@@ -78,7 +90,8 @@ public class DataProcessor {
                 Kernel.getInstance().dispatchEvent(newEvent);
             }
         }
-        return finalValues;
+        Object[] result = {finalValues,scriptResult.getDeviceState()};
+        return result;
     }
 
     public static ArrayList<ChannelData> processRawValues(String requestBody, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {

@@ -98,9 +98,19 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
         } else if (((List) source.getData()).get(0) instanceof List) {
             List<List> devices = (List) source.getData();
             for (List row : devices) {
-                if (row.get(0) instanceof ChannelData) {
+                if (row.size()>0 && row.get(0) instanceof ChannelData) {
                     for (Object record : row) {
                         sb.append(((ChannelData) record).toCsv(",", true)).append("\r\n");
+                    }
+                }else if (row.size()>0 && row.get(0) instanceof List) {
+                    for (Object record : row) {
+                        for(int i=0; i<((List)record).size();i++){
+                            sb.append(((List)record).get(i));
+                            if(i<((List)record).size()-1){
+                                sb.append(",");
+                            }
+                        }
+                        sb.append("\r\n");
                     }
                 } else {
                     for (Object column : row) {

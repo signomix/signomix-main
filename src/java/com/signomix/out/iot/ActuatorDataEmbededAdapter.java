@@ -59,4 +59,9 @@ public class ActuatorDataEmbededAdapter extends OutboundAdapter implements Adapt
         getActuatorDB().clearAllLogs(deviceEUI, checkPoint);
     }
 
+    @Override
+    public void clearAllCommandsLimit(String deviceEUI, long limit) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

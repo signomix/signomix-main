@@ -21,8 +21,12 @@ public class ScriptResult {
     HashMap<String, ChannelData> measures;
     HashMap<String, ArrayList> dataEvents;
     ArrayList<Event> events;
+    /**
+     * Each map in the autput list can include data with different timestamps
+     * This way, output can hold several data points
+     */
     ListOfMaps output = new ListOfMaps();
-
+    public Double deviceState;
     private boolean listsUsed = false;
 
     public ScriptResult() {
@@ -200,5 +204,19 @@ public class ScriptResult {
             }
             return result;
         }
+    }
+
+    /**
+     * @return the deviceState
+     */
+    public Double getDeviceState() {
+        return deviceState;
+    }
+
+    /**
+     * @param deviceState the deviceState to set
+     */
+    public void setDeviceState(Double deviceState) {
+        this.deviceState = deviceState;
     }
 }

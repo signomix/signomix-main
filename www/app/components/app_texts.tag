@@ -698,10 +698,10 @@
             "pl": "Przykład urządzenia połączonego przez HTTP"
         },
         "template": {
-            "en": "Device line",
-            "it": "Linea del dispositivo",
-            "fr": "Device line",
-            "pl": "Linia urządzeń"
+            "en": "Choose device type (product)",
+            "it": "Scegli il tipo di dispositivo (prodotto)",
+            "fr": "Choisissez le type d'appareil (produit)",
+            "pl": "Wybierz rodzaj urządzenia (produkt)"
         },
         "next": {
             "en": "Next",
@@ -852,6 +852,42 @@
             "it": "Group EUIs separated by commas",
             "fr": "Group EUIs separated by commas",
             "pl": "EUI grup oddzielone przecinkami"
+        },
+        "state": {
+            "en": "State",
+            "it": "State",
+            "fr": "State",
+            "pl": "Stan"
+        },
+        "state_hint": {
+            "en": "Device state",
+            "it": "Device state",
+            "fr": "Device state",
+            "pl": "Stan urządzenia"
+        },
+        "latitude": {
+            "en": "Latitude",
+            "it": "Latitude",
+            "fr": "Latitude",
+            "pl": "Latitude"
+        },
+        "latitude_hint": {
+            "en": "Device location: latitude",
+            "it": "Device location: latitude",
+            "fr": "Device location: latitude",
+            "pl": "Lokalizacja urządzenia: latitude"
+        },
+        "longitude": {
+            "en": "Longitude",
+            "it": "Longitude",
+            "fr": "Longitude",
+            "pl": "Longitude"
+        },
+        "longitude_hint": {
+            "en": "Device location: longitude",
+            "it": "Device location: longitude",
+            "fr": "Device location: longitude",
+            "pl": "Lokalizacja urządzenia: longitude"
         },
         "description": {
             "en": "Description",
@@ -1300,10 +1336,10 @@
             "pl": "Rozpocznij pobieranie"
         },
         "download_comment": {
-            "en": "Data selection",
-            "it": "Selezione dei dati",
-            "fr": "Sélection de données",
-            "pl": "Wybór danych"
+            "en": "You will start downloading all data of the selected device currently stored in the Signomix database",
+            "it": "Inizierai a scaricare tutti i dati del dispositivo selezionato attualmente memorizzati nel database Signomix",
+            "fr": "Vous commencerez à télécharger toutes les données du périphérique sélectionné actuellement stockées dans la base de données Signomix.",
+            "pl": "Rozpoczniesz pobieranie wszystkich danych wybranego urządzenia przechowywanych aktualnie w bazie Signomksa"
         },
         "download_open": {
             "en": "Open downloaded file",

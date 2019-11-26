@@ -24,7 +24,7 @@ public interface IotDataStorageIface extends KeyValueDBIface {
     public void removeAllChannels(String deviceEUI) throws ThingsDataException;
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException;
 
-    public void putData(String userID, String deviceEUI, String project, List<ChannelData>values) throws ThingsDataException;
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData>values) throws ThingsDataException;
     
     public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException; //T
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException; //T

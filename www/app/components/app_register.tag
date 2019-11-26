@@ -85,68 +85,78 @@
     self.alertText = ''
     self.success = false
     self.registeredEmai = ''
+    self.listener = riot.observable();
+    
+    self.listener.on('*', function (eventName) {
+        app.log('ALERTS: ' + eventName)
+        if('err:409'==eventName){
+            self.alert=true
+            self.alertText = app.texts.register.l_alertName[app.language]
+            riot.update()
+        }
+    });
 
     submitRegistrationForm = function (e) {
-    e.preventDefault()
-    self.alert = false
-    riot.update()
-    app.log("registering ..." + e.target)
-    var formData = {
-    type: 'USER',
-    confirmed: false
-    }
-    formData.uid = e.target.elements['login'].value
-    formData.password = e.target.elements['password'].value
-    formData.email = e.target.elements['email'].value
-    formData.accept = e.target.elements['accept'].value
-    self.registeredEmail = formData.email
-    if (self.validate(formData,e.target.elements['password2'].value) == 0) {
-    //send
-    app.log(JSON.stringify(formData))
-    urlPath = ''
-    sendData(
-    formData,
-    'POST',
-    app.userAPI,
-    null,
-    self.close,
-    null, //self.listener, 
-    'submit:OK',
-    'submit:ERROR',
-    app.debug,
-    null //globalEvents
-    )
-    } else {
-    self.alert = true
-    self.alertText = app.texts.register.l_alertPassword[app.language]
-    this.update()
-    }
-    riot.update()
+        e.preventDefault()
+        self.alert = false
+        riot.update()
+        app.log("registering ..." + e.target)
+        var formData = {
+            type: 'USER',
+            confirmed: false
+        }
+        formData.uid = e.target.elements['login'].value
+        formData.password = e.target.elements['password'].value
+        formData.email = e.target.elements['email'].value
+        formData.accept = e.target.elements['accept'].value
+        self.registeredEmail = formData.email
+        if (self.validate(formData,e.target.elements['password2'].value) == 0) {
+            //send
+            app.log(JSON.stringify(formData))
+            urlPath = ''
+            sendData(
+                formData,
+                'POST',
+                app.userAPI,
+                null,
+                self.close,
+                self.listener, 
+                'submit:OK',
+                null,
+                app.debug,
+                null //globalEvents
+            )
+        } else {
+            self.alert = true
+            self.alertText = app.texts.register.l_alertPassword[app.language]
+            this.update()
+        }
+        riot.update()
     }
 
     self.validate = function (form, password2) {
-    app.log('validating ...')
-    if (form.password != password2) {
-    return 1;
-    }
-    return 0
+        app.log('validating ...')
+        if (form.password != password2) {
+            return 1;
+        }
+        return 0
     }
 
     self.close = function (object) {
-    var text = '' + object
-    app.log(text)
-    if (text.startsWith('"')) {
-    self.success = true
-    } else if (text.startsWith('error:409')) {
-    self.alert = true
-    self.alertText = app.texts.register.l_alertName[app.language]
-    } else if (text.startsWith('error:')) {
-    self.alert = true
-    self.alertText = app.texts.register.l_alertError[app.language]
-    } else {
-    app.currentPage = 'main'
-    }
-    riot.update()
+        var text = '' + object
+        app.log(text)
+        if (text.startsWith('"')) {
+            self.success = true
+        } else if (text.startsWith('error:409')) {
+            self.alert = true
+            self.alertText = app.texts.register.l_alertName[app.language]
+        } else if (text.startsWith('error:')) {
+            self.alert = true
+            self.alertText = app.texts.register.l_alertError[app.language]
+        } else {
+            app.currentPage = 'main'
+        }
+        riot.update()
     }
 
 </script>

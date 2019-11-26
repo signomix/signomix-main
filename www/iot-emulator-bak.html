@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Signomix IoT emulator</title>
+        <link rel="icon" href="/resources/signomix-icon.png">
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="/resources/css/font-awesome.min.css">
+        <!-- Style -->
+        <style>
+            .container-fluid {
+                margin-right: auto;
+                margin-left: auto;
+                max-width: 500px; /* or 950px */
+            }
+        </style>
+    </head>
+    <body>
+    <app-header></app-header>
+    <app-main></app-main>
+    <app-footer></app-footer>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+    <!-- Riot scripts we need -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/riot-route@3.1.4/dist/route.min.js"></script>
+    <!-- Application scripts -->
+    <script src="/iot-emulator/routing.js"></script>
+    <script src="/iot-emulator/app.js"></script>
+    <script src="/iot-emulator/data-api.js"></script>
+    <!-- loading tags -->
+    <script data-src="/iot-emulator/app-main.html" type="riot/tag"></script>
+    <script data-src="/iot-emulator/app-form.tag" type="riot/tag"></script>
+    <script data-src="/iot-emulator/raw.html" type="riot/tag"></script>
+    <script data-src="/iot-emulator/app-header.html" type="riot/tag"></script>
+    <script data-src="/iot-emulator/app-about.html" type="riot/tag"></script>
+    <script data-src="/iot-emulator/app-footer.html" type="riot/tag"></script>
+    <script>
+<!-- -->
+        riot.compile(function () {
+            var tags = riot.mount('*');
+            route.start(true);
+        })
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
 
-function getFile(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+function getFile(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus, ctype) {
     var oReq = new XMLHttpRequest();
     var defaultErrorEventName = "err:";
     oReq.onerror = function (oEvent) {
@@ -73,6 +73,7 @@ function getFile(url, query, token, callback, eventBus, successEventName, errorE
     app.requests++;
     oReq.responseType='blob'
     oReq.open("get", url, true);
+    oReq.setRequestHeader("Accept", ctype);
     if (token != null) {
         oReq.withCredentials = true;
         oReq.setRequestHeader("Authentication", token);
@@ -83,9 +84,12 @@ function getFile(url, query, token, callback, eventBus, successEventName, errorE
 }
 
 // get data from the service
-function getData(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus) {
+function getData(url, query, token, callback, eventBus, successEventName, errorEventName, debug, appEventBus,ctype,pcallback) {
     var oReq = new XMLHttpRequest();
     var defaultErrorEventName = "err:";
+    if(pcallback){
+        oReq.addEventListener("progress",pcallback)
+    }
     oReq.onerror = function (oEvent) {
         app.log('ONERROR');
         app.requests--;
@@ -127,11 +131,12 @@ function getData(url, query, token, callback, eventBus, successEventName, errorE
     oReq.onreadystatechange = function () {
         if (this.readyState == 4) {
             if (this.status == 200) {
-                try{
-                app.log(JSON.parse(this.responseText));
-                }catch(err){}
                 if (callback != null) {
-                    callback(this.responseText, successEventName);
+                    if(ctype==null||ctype=='') { 
+                        callback(this.responseText, successEventName);
+                    }else{
+                        callback(oReq.response)
+                    }
                 } else {
                     eventBus.trigger(successEventName);
                 }
@@ -154,7 +159,15 @@ function getData(url, query, token, callback, eventBus, successEventName, errorE
     };
     app.log('SENDING');
     app.requests++;
-    oReq.open("get", url, true);
+    
+    if(ctype){
+        oReq.responseType='blob'
+        oReq.open("get", url, true);
+        oReq.setRequestHeader("Accept", ctype);
+    }else{
+        oReq.open("get", url, true);
+    }
+    
     if (token != null) {
         oReq.withCredentials = true;
         oReq.setRequestHeader("Authentication", token);

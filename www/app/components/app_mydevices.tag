@@ -128,7 +128,7 @@
                         </div>
                         <div if="{dataURL==''}">
                         <p><b>{ selectedForDownload }</b></p>
-                        <p>{app.texts.mydevices.download_comment[app.language]}</p>
+                        <p>{app.texts.mydevices.download_comment[app.language]} {downloadPercent}</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -149,6 +149,7 @@
         self.selectedForRemove = ''
         self.selectedGroupForRemove = ''
         self.selectedForDownload=''
+        self.downloadPercent=''
         //self.edited = false
         self.now = Date.now()
         self.activeTab = 'devices'
@@ -156,7 +157,6 @@
         
         this.on('mount',function(){
             self.selected = ''
-            //self.edited = false
             readMyDevices()
         })
 
@@ -254,6 +254,7 @@
             return function(e){
                 e.preventDefault()
                 self.selectedForDownload=devEUI
+                self.downloadPercent=''
                 riot.update()
             }
         }
@@ -317,11 +318,17 @@
             self.selectedForDownload=''
             riot.update()
         }
+        self.showProgress=function(oEvent){
+            if (oEvent.lengthComputable) {
+            var percentComplete = oEvent.loaded / oEvent.total;
+            self.downloadPercent=percentComplete+'%'
+            } 
+        }
         
         download(form){
             return function(e){
                 var query='query=channel%20*%20last%201000%20csv.timeseries'
-                getFile( 
+                getData( 
                     app.iotAPI+'/'+self.selectedForDownload+'?'+query,
                     '',
                     app.user.token, 
@@ -330,7 +337,9 @@
                     'submit:OK', 
                     'submit:ERROR', 
                     app.debug, 
-                    null //globalEvents
+                    null, //globalEvents
+                    "text/csv",
+                    self.showProgress
                 )
             }    
             

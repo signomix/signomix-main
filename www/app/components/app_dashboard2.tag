@@ -214,15 +214,17 @@
             }
         }
 
-        var location=''
-        if(config.type=='report'||config.type=='multimap'){
-            location=app.groupAPI + "/" + config.group + "/"+channelName+(app.shared!=''?'?tid='+app.shared:'')
+        var url=''
+        if(config.type=='devinfo'||config.type=='devmap'){
+            //TODO: get device data
+        }else if(config.type=='report'||config.type=='multimap'){
+            url=app.groupAPI + "/" + config.group + "/"+channelName+(app.shared!=''?'?tid='+app.shared:'')
         }else if(config.dev_id){
-            location=app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query
+            url=app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query
         }
-        if(location.length>0) {
+        if(url.length>0) {
             getData(
-                location, 
+                url, 
                 null,  
                 (app.shared==''?app.user.token:null),                            //session token
                 callback,

@@ -71,7 +71,10 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public ScriptResult processData(ArrayList<ChannelData> values, String deviceScript, String deviceID, String userID, long dataTimestamp) throws ScriptAdapterException {
+    public ScriptResult processData(ArrayList<ChannelData> values, String deviceScript,
+            String deviceID, String userID, long dataTimestamp,
+            Double latitude, Double longitude, Double altitude,
+            Double state, int alert, Double devLatitude, Double devLongitude, Double devAltitude) throws ScriptAdapterException {
         Invocable invocable;
         ScriptResult result = new ScriptResult();
         if (values == null) {
@@ -81,7 +84,8 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         try {
             engine.eval(deviceScript != null ? merge(scriptTemplate, deviceScript) : scriptTemplate);
             invocable = (Invocable) engine;
-            result = (ScriptResult) invocable.invokeFunction("processData", deviceID, values, channelReader, userID, dataTimestamp);
+            result = (ScriptResult) invocable.invokeFunction("processData", deviceID, values, channelReader, userID, dataTimestamp, latitude, longitude, altitude, state, alert,
+                    devLatitude, devLongitude, devAltitude);
         } catch (NoSuchMethodException e) {
             fireEvent(2, userID + "\t" + deviceID, e.getMessage());
             throw new ScriptAdapterException(ScriptAdapterException.NO_SUCH_METHOD, "NashornScriptingAdapter.no_such_method " + e.getMessage());
@@ -186,8 +190,8 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
 
         } catch (Exception e) {
             Kernel.getInstance().getLogger().print("WARNING: " + e.getClass().getName() + " " + e.getMessage());
-            if(path.lastIndexOf("/")>-1){
-                path= path.substring(path.lastIndexOf("/")+1);
+            if (path.lastIndexOf("/") > -1) {
+                path = path.substring(path.lastIndexOf("/") + 1);
             }
             InputStream resource = getClass().getClassLoader().getResourceAsStream(path);
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resource, "UTF-8"))) {

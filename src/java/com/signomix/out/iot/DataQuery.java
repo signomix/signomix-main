@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2019.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2019.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.iot;
 
 /**
@@ -9,82 +9,95 @@ package com.signomix.out.iot;
  * @author greg
  */
 public class DataQuery {
-    
+
     private int limit;
     private int average;
     private String channelName;
     private boolean timeseries;
     private String project;
     private Double newValue;
-    private String group; 
-    
-    public DataQuery(){
-        limit=1;
-        average=0;
-        channelName=null;
-        timeseries=false;
-        project=null;
-        newValue=null;
-        group=null;
+    private String group;
+    private Double state;
+
+    public DataQuery() {
+        limit = 1;
+        average = 0;
+        channelName = null;
+        timeseries = false;
+        project = null;
+        newValue = null;
+        group = null;
+        state = null;
     }
-    
-    public static DataQuery parse(String query) throws DataQueryException{
+
+    public static DataQuery parse(String query) throws DataQueryException {
         //TODO: in case of number format exception - log SEVERE event
-        DataQuery dq=new DataQuery();
-        String q=query.trim().toLowerCase();
-        if(q.equalsIgnoreCase("last")){
-            q="last 1";
+        DataQuery dq = new DataQuery();
+        String q = query.trim().toLowerCase();
+        if (q.equalsIgnoreCase("last")) {
+            q = "last 1";
         }
         String[] params = q.split(" ");
-        for(int i=0; i<params.length;){
-            switch(params[i]){
+        for (int i = 0; i < params.length;) {
+            switch (params[i]) {
                 case "last":
-                    dq.setLimit(Integer.parseInt(params[i+1]));
-                    i=i+2;
+                    dq.setLimit(Integer.parseInt(params[i + 1]));
+                    i = i + 2;
                     break;
                 case "average":
-                    dq.setAverage(Integer.parseInt(params[i+1]));
-                    if(params.length>i+2){
-                        try{
-                            dq.setNewValue(Double.parseDouble(params[i+2]));
-                            i=i+3;
-                        }catch(NumberFormatException ex){
-                            i=i+2;
+                    dq.setAverage(Integer.parseInt(params[i + 1]));
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
                         }
-                    }else{
-                        i=i+2;
+                    } else {
+                        i = i + 2;
                     }
                     break;
                 case "project":
-                    dq.setProject(params[i+1]);
-                    i=i+2;
+                    dq.setProject(params[i + 1]);
+                    i = i + 2;
                     break;
+                case "state": {
+                    try {
+                        dq.setState(Double.parseDouble(params[i + 1]));
+                    } catch (NumberFormatException e) {
+                        //TODO:inform user about wrong query selector
+                    }
+                    i = i + 2;
+                    break;
+                }
                 case "timeseries":
                 case "csv.timeseries":
                     dq.setTimeseries(true);
-                    i=i+1;
+                    i = i + 1;
                     break;
                 case "channel":
-                    dq.setChannelName(params[i+1]);
-                    i=i+2;
+                    dq.setChannelName(params[i + 1]);
+                    i = i + 2;
                     break;
                 case "group":
-                    dq.setGroup(params[i+1]);
-                    i=i+2;
+                    dq.setGroup(params[i + 1]);
+                    i = i + 2;
                     break;
-                case "new":
-                    try{
-                    Double n=Double.parseDouble(params[i+1]);
-                    dq.setNewValue(n);
-                    }catch(NumberFormatException e){
+                case "new": {
+                    try {
+                        Double n = Double.parseDouble(params[i + 1]);
+                        dq.setNewValue(n);
+                    } catch (NumberFormatException e) {
+                        //TODO:inform user about wrong query selector
                     }
-                    i=i+2;
+                    i = i + 2;
                     break;
+                }
                 default:
-                    throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word "+params[i]);
+                    throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
             }
         }
-        if(dq.getAverage()>0){
+        if (dq.getAverage() > 0) {
             dq.setLimit(dq.getAverage());
         }
         return dq;
@@ -187,5 +200,19 @@ public class DataQuery {
     public void setGroup(String group) {
         this.group = group;
     }
-    
+
+    /**
+     * @return the state
+     */
+    public Double getState() {
+        return state;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(Double state) {
+        this.state = state;
+    }
+
 }

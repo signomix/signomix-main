@@ -17,6 +17,14 @@ public class TtnData extends HashMap implements Map, IotDataIface {
 
     private String[] fieldNames = null;
     
+    public TtnData(){
+        super();
+    }
+    
+    public TtnData(TtnData source){
+        source.keySet().forEach(key->{this.put(key, source.get(key));});
+    }
+    
     public void putField(String key, Object value){
         getPayloadFields().put(key, value);
     }
@@ -77,7 +85,7 @@ public class TtnData extends HashMap implements Map, IotDataIface {
     }
 
     public String getMetadata(String fieldName) {
-        return (String) getMetadata().get(fieldName);
+        return ""+getMetadata().get(fieldName);
     }
 
     @Override
@@ -94,24 +102,6 @@ public class TtnData extends HashMap implements Map, IotDataIface {
         return value;
     }
 
-    /*
-    @Override
-    public long getLongValue(String fieldName, int multiplier) {
-        long value;
-        try {
-            Double d = ((Double)getPayloadFields().get(fieldName));
-            d=d*multiplier;
-            return d.longValue();
-        } catch (Exception e) {
-        }
-        try {
-            value = multiplier* (Long) getPayloadFields().get(fieldName);
-            return value;
-        } catch (Exception e) {
-        }
-        return 0;
-    }
-     */
     @Override
     public long getTimestamp() {
         long t;
@@ -145,5 +135,40 @@ public class TtnData extends HashMap implements Map, IotDataIface {
     @Override
     public String getDeviceID() {
         return (String) get("dev_id");
+    }
+
+    @Override
+    public String getStringValue(String fieldName) {
+        return ""+getPayloadFields().get(fieldName);
+    }
+
+    @Override
+    public Double getLatitude() {
+        try {
+            return Double.parseDouble(getMetadata("latitude"));
+        } catch (NumberFormatException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Double getLongitude() {
+        try {
+            return Double.parseDouble(getMetadata("longitude"));
+        } catch (NumberFormatException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Double getAltitude() {
+        try {
+            return Double.parseDouble(getMetadata("altitude"));
+        } catch (NumberFormatException e) {
+            //e.printStackTrace();
+        }
+        return null;
     }
 }

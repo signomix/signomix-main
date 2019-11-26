@@ -79,6 +79,8 @@ public class IotEventHandler {
                         String nodeName = origin[1];
                         if (IotEvent.DEVICE_LOST.equals(event.getType())) {
                             // this event can appear several times: for device owner + all team members
+                            // TODO: the event should be directed for "system" user and only this particulrar
+                            // event instance should modify alert status
                             thingsAdapter.updateAlertStatus(nodeName, Device.FAILURE);
                             // see also: 
                             // ThingsDataIface.updateHealthStatus()

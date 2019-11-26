@@ -401,7 +401,48 @@ public class DeviceManagementModule {
         device.setProject(newProject);
         String newActive = (String) request.parameters.getOrDefault("active", "true");
         device.setActive(Boolean.parseBoolean(newActive));
-
+        
+        String newLatitude = (String) request.parameters.getOrDefault("latitude", "");
+        if (newLatitude != null && !newLatitude.isEmpty()) {
+            try {
+                device.setLatitude(Double.parseDouble(newLatitude.trim()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        String newLongitude = (String) request.parameters.getOrDefault("longitude", "");
+        if (newLongitude != null && !newLongitude.isEmpty()) {
+            try {
+                device.setLongitude(Double.parseDouble(newLongitude.trim()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        String newAltitude = (String) request.parameters.getOrDefault("altitude", "");
+        if (newAltitude != null && !newAltitude.isEmpty()) {
+            try {
+                device.setAltitude(Double.parseDouble(newAltitude.trim()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        String newState = (String) request.parameters.getOrDefault("state", "");
+        if (newState != null && !newState.isEmpty()) {
+            try {
+                device.setState(Double.parseDouble(newState.trim()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        String newRetentionTime = (String) request.parameters.getOrDefault("retention", "");
+        if (newRetentionTime != null && !newRetentionTime.isEmpty()) {
+            try {
+                device.setRetentionTime(Long.parseLong(newRetentionTime.trim()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        
         String newCode = (String) request.parameters.getOrDefault("code", "");
         if (newCode != null && !newCode.isEmpty()) {
             try {

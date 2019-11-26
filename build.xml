@@ -354,8 +354,6 @@
         <exec 
             dir="${dist}"
             executable="java">
-            <env key="SIGNOMIX_ENVIRONMENT_NAME" value="DEMO"/>
-            <env key="SIGNOMIX_URL" value="http://localhost:8080"/>
             <arg value="-jar"/>
             <arg value="${ant.project.name}-${version}.jar"/>
             <arg value="-r"/>

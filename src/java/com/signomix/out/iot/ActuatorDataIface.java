@@ -15,4 +15,5 @@ public interface ActuatorDataIface {
     public List getCommands(String deviceEUI) throws ThingsDataException;
     public void removeAllCommands(String deviceEUI) throws ThingsDataException;
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException;
+    public void clearAllCommandsLimit(String deviceEUI, long limit) throws ThingsDataException;
 }

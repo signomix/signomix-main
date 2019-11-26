@@ -62,6 +62,11 @@ public class IotData2 implements IotDataIface {
     public Double getDoubleValue(String fieldName) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public String getStringValue(String fieldName) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     /**
      * @return the applicationID
@@ -112,5 +117,20 @@ public class IotData2 implements IotDataIface {
     @Override
     public String getDeviceID() {
         return "";
+    }
+
+    @Override
+    public Double getLatitude() {
+        return null;
+    }
+
+    @Override
+    public Double getLongitude() {
+        return null;
+    }
+
+    @Override
+    public Double getAltitude() {
+        return null;
     }
 }

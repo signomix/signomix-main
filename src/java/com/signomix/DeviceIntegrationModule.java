@@ -158,13 +158,20 @@ public class DeviceIntegrationModule {
                 }
             }
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getfCnt(), "", "");
-            ArrayList<ChannelData> listOfValues = prepareLoRaValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
+            ArrayList<ChannelData> inputList = prepareLoRaValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
 
-            ArrayList<ArrayList> listOfLists;
+            ArrayList<ArrayList> outputList;
             try {
-                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
-                for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+                Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
+                        data.getReceivedPackageTimestamp(), data.getLatitude(),
+                        data.getLongitude(), data.getAltitude());
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processLoraRequest()", e.getMessage()));
@@ -302,13 +309,20 @@ public class DeviceIntegrationModule {
             //after successful authorization
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), -1, "", "");
 
-            ArrayList<ChannelData> listOfValues = prepareIotValues(data);
-            ArrayList<ArrayList> listOfLists;
+            ArrayList<ChannelData> inputList = prepareIotValues(data);
+            ArrayList<ArrayList> outputList;
             try {
-                //System.out.println("RECEIVED TIMESTAMP:"+data.getReceivedPackageTimestamp());
-                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
-                for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+                Object[] processingResult
+                        = DataProcessor.processValues(inputList, device, scriptingAdapter,
+                                data.getReceivedPackageTimestamp(), data.getLatitude(),
+                                data.getLongitude(), data.getAltitude());
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processIotRequest()", e.getMessage()));
@@ -419,14 +433,26 @@ public class DeviceIntegrationModule {
             return result;
         }
         try {
-            ArrayList<ChannelData> listOfValues = prepareTtnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
-            ArrayList<ArrayList> listOfLists;
+            ArrayList<ChannelData> inputList = prepareTtnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
+            ArrayList<ArrayList> outputList;
             try {
-                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
-                for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+                Object[] processingResult = DataProcessor.processValues(inputList,
+                        device,
+                        scriptingAdapter,
+                        data.getReceivedPackageTimestamp(),
+                        data.getLatitude(),
+                        data.getLongitude(),
+                        data.getAltitude());
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processTtnRequest()", e.getMessage()));
             }
         } catch (Exception e) {
@@ -526,12 +552,19 @@ public class DeviceIntegrationModule {
 
             //TODO: check frame counter
             thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), 0/*new frame count*/, "", "");
-            ArrayList<ChannelData> listOfValues = prepareKpnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
-            ArrayList<ArrayList> listOfLists;
+            ArrayList<ChannelData> inputList = prepareKpnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
+            ArrayList<ArrayList> outputList;
             try {
-                listOfLists = DataProcessor.processValues(listOfValues, device, scriptingAdapter, data.getReceivedPackageTimestamp());
-                for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+                Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
+                        data.getReceivedPackageTimestamp(), data.getLatitude(),
+                        data.getLongitude(), data.getAltitude());
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processKpnRequest()", e.getMessage()));
@@ -620,7 +653,7 @@ public class DeviceIntegrationModule {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processRawRequest()", e.getMessage()));
                 fireEvent(2, device, e.getMessage());
             }
-            thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, finalValues));
+            thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, finalValues));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -629,17 +662,20 @@ public class DeviceIntegrationModule {
 
     private ArrayList<ChannelData> prepareTtnValues(TtnData data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
-        if (data.getPayloadFieldNames() == null) {
-            byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
-            try {
-                values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
-            } catch (Exception e) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
-                fireEvent(1, deviceID, userID, e.getMessage());
-                return null;
+        if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
+            if (null != data.getPayload()) {
+                byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
+                try {
+                    values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
+                } catch (Exception e) {
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
+                    fireEvent(1, deviceID, userID, e.getMessage());
+                    return null;
+                }
             }
         } else {
-            // TEST: handling Cayenne LPP
+            TtnData processedData = new TtnData(data);
+            // handling Cayenne LPP
             Iterator it = data.getPayloadFields().keySet().iterator();
             Object payloadField;
             String fieldName;
@@ -652,18 +688,20 @@ public class DeviceIntegrationModule {
                     String key;
                     while (it2.hasNext()) {
                         key = (String) it2.next();
-                        data.putField(fieldName + "_" + key, j.get(key));
-                        System.out.println(fieldName + "_" + key);
+                        processedData.putField(fieldName + "_" + key, j.get(key));
                     }
-                    data.removeField(fieldName);
+                    processedData.removeField(fieldName);
+                } else {
+                    // nothing to do
                 }
             }
-            // TEST END
-            for (String payloadFieldName : data.getPayloadFieldNames()) {
+            // Cayenne LPP - end
+            for (String payloadFieldName : processedData.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
-                mval.setDeviceEUI(data.getDeviceEUI());
+                mval.setDeviceEUI(processedData.getDeviceEUI());
                 mval.setName(payloadFieldName.toLowerCase());
-                mval.setValue(data.getDoubleValue(payloadFieldName));
+                mval.setValue(processedData.getDoubleValue(payloadFieldName));
+                mval.setStringValue(processedData.getStringValue(payloadFieldName));
                 if (data.getTimeField() != null) {
                     mval.setTimestamp(data.getTimeField().toEpochMilli());
                 } else {
@@ -687,6 +725,7 @@ public class DeviceIntegrationModule {
             } catch (ClassCastException e) {
                 mval.setValue((String) data.payload_fields.get(i).get("value"));
             }
+            mval.setStringValue("" + data.payload_fields.get(i).get("value"));
             if (data.getTimeField() != null) {
                 mval.setTimestamp(data.getTimeField().toEpochMilli());
             } else {
@@ -733,11 +772,15 @@ public class DeviceIntegrationModule {
         try {
             long now = System.currentTimeMillis();
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
-            ArrayList<ArrayList> listOfLists;
+            ArrayList<ArrayList> outputList;
             try {
-                listOfLists = DataProcessor.processValues(values, device, scriptingAdapter, now);
-                for (int i = 0; i < listOfLists.size(); i++) {
-                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+                Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter, now, null, null, null);
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
@@ -794,11 +837,16 @@ public class DeviceIntegrationModule {
         if (thingsAdapter.isAuthorized(userID, device.getEUI())) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        ArrayList<ArrayList> listOfLists;
+        ArrayList<ArrayList> outputList;
         try {
-            listOfLists = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter, data.getTimestamp());
-            for (int i = 0; i < listOfLists.size(); i++) {
-                thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), fixValues(device, listOfLists.get(i)));
+            Object[] processingResult = DataProcessor.processValues((ArrayList) values, device,
+                    scriptingAdapter, data.getTimestamp(), null, null, null);
+            outputList = (ArrayList<ArrayList>) processingResult[0];
+            for (int i = 0; i < outputList.size(); i++) {
+                thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+            }
+            if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
             }
         } catch (Exception e) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));

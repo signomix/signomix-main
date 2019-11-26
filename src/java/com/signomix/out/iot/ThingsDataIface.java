@@ -14,9 +14,9 @@ import org.cricketmsf.Event;
 public interface ThingsDataIface {
     public void init(String helperName, String helperName2) throws ThingsDataException;
     
-    public void putData(String userID, String deviceEUI, String project, List<ChannelData>values) throws ThingsDataException;
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData>values) throws ThingsDataException;
     //public void putVirtualData(String userID, Device device, ScriptingAdapterIface scriptingAdapter, List<ChannelData>values) throws ThingsDataException;
-    public void putData(String userID, String deviceEUI, String project, String channel, ChannelData value) throws ThingsDataException;
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, String channel, ChannelData value) throws ThingsDataException;
     
     
     //public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException;
@@ -31,6 +31,7 @@ public interface ThingsDataIface {
     //public List getChannels(String deviceEUI) throws ThingsDataException;
     public void removeAllChannels(String deviceEUI) throws ThingsDataException;
     public void clearAllChannels(String deviceEUI, long checkPoint) throws ThingsDataException;
+    public void clearAllChannelsLimit(String deviceEUI, long limit) throws ThingsDataException;
     
     
     public boolean isAuthorized(String userIF, String deviceEUI) throws ThingsDataException;
@@ -39,6 +40,7 @@ public interface ThingsDataIface {
     public void modifyDevice(String userID, Device device) throws ThingsDataException;
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink, String deviceID) throws ThingsDataException;
     public void updateAlertStatus(String id, int status) throws ThingsDataException;
+    public void updateDeviceState(String id, Double state) throws ThingsDataException;
     public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException;
@@ -53,6 +55,7 @@ public interface ThingsDataIface {
     public void removeUserAlerts(String userId) throws ThingsDataException;
     public void removeUserAlerts(String userId, long checkPoint) throws ThingsDataException;
     public void removeOutdatedAlerts(long checkPoint) throws ThingsDataException;
+    public void removeUserAlertsLimit(String userId, long limit) throws ThingsDataException;
     
     public List<Device> getInactiveDevices() throws ThingsDataException;
     

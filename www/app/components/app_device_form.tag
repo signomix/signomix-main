@@ -8,6 +8,11 @@
     </div>
     <div class="row">
         <form class="col-md-12" onsubmit="{ self.submitSelectTemplate }" if="{self.useTemplate}">
+            <div class="card text-center col-md-12" style="margin-bottom: 1rem">
+                <div class="card-body">
+                    <p class="mb-0" style="margin: 10px">{ template.description }</p>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="input-field">
                     <label for="template">{ app.texts.device_form.template[app.language] }</label>
@@ -112,6 +117,21 @@
                     <form_input id="project" name="project" label={ app.texts.device_form.project[app.language] } type="text" content={ device.project } readonly={ !allowEdit } hint={ app.texts.device_form.project_hint[app.language] }></form_input>
                 </div>
             </div>
+            <div class="form-row" if="{isVisible('state')}">
+                <div class="form-group col-md-12">
+                    <form_input id="state" name="state" label={ app.texts.device_form.state[app.language] } type="text" content={ device.state } readonly={ !allowEdit } hint={ app.texts.device_form.state_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row" if="{isVisible('latitude')}">
+                <div class="form-group col-md-12">
+                    <form_input id="latitude" name="latitude" label={ app.texts.device_form.latitude[app.language] } type="text" content={ device.latitude } readonly={ !allowEdit } hint={ app.texts.device_form.latitude_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row" if="{isVisible('longitude')}">
+                <div class="form-group col-md-12">
+                    <form_input id="longitude" name="longitude" label={ app.texts.device_form.longitude[app.language] } type="text" content={ device.longitude } readonly={ !allowEdit } hint={ app.texts.device_form.longitude_hint[app.language] }></form_input>
+                </div>
+            </div>
             <div class="form-row" if="{isVisible('active')}">  
                 <div class="form-group form-check">
                     <input type="checkbox" class="form-check-input" id="active" value={device.active} readonly={ !allowEdit } checked="{device.active}">
@@ -180,7 +200,10 @@
             'pattern': '',
             'commandscript': '',
             'template': '',
-            'active':'true'
+            'active':'true',
+            'state': 0,
+            'latitude': '',
+            'longitude': ''
         }
         self.accepted = 0
 
@@ -226,12 +249,15 @@
                 }
                 self.mode = 'create'
             }
+            if(fromTemplate){
+                self.changeTemplate()
+            }
         }
 
         self.changeType = function(e) {
             e.preventDefault()
             if (e.target) {
-                self.device.type = e.target
+                self.device.type = e.target.value
                 riot.update()
             } else {
                 app.log('UNKNOWN TARGET OF: ' + e)
@@ -248,14 +274,14 @@
         }
 
         self.undefined = {
-            "eui":"",
+            "eui":"-",
             "appid":"",
             "appeui":"",
             "type":"",
             "channels":"",
             "code":"",
             "decoder":"",
-            "description":"",
+            "description":"self defined",
             "interval":0,
             "pattern":",type,eui,name,key,channels,encoder,code,description,team,interval,active,appeui,appid,project,groups,",
             "commandScript":"",
@@ -266,7 +292,7 @@
         self.selectedTemplate = ''
         
         isVisible(fieldName){
-            return (self.mode!='create' || self.template.pattern.indexOf(','+fieldName+',')>=0)
+            return (self.mode!='create' || self.template.pattern.indexOf(fieldName)>=0)
         }
 
         getStatus(lastSeen, interval) {
@@ -305,10 +331,11 @@
         }
         
         self.changeTemplate = function(e) {
-            e.preventDefault()
-            var templateEui=e.target.value
-            console.log('selected template:'+templateEui)
-            if(templateEui=='') return
+            var templateEui='-'
+            try {
+                e.preventDefault()
+                templateEui=e.target.value
+            }catch(err){}
             for(var i=0; i<self.templates.length; i++){
                 if(self.templates[i].eui==templateEui){
                     self.selectedTemplate = self.templates[i].eui
@@ -329,6 +356,9 @@
             self.device.project=''
             self.device.applicationEUI = ''
             self.device.applicationID=''
+            self.device.state=''
+            self.device.latitude=''
+            self.device.longitude=''
             riot.update()
         }
         
@@ -360,7 +390,10 @@
                 commandscript: '',
                 template: '',
                 project: '',
-                active: ''
+                active: '',
+                state:'',
+                latitude:'',
+                longitude:''
             }
             if(e.target.elements['eui']) formData.eui = e.target.elements['eui'].value
             if (self.device.type == 'TTN') {
@@ -441,6 +474,21 @@
             }else{
                 formData.transmissionInterval = self.device.intervalnterval
             }
+            if(e.target.elements['state']) {
+                formData.state = e.target.elements['state'].value
+            }else{
+                formData.state = self.device.state
+            }
+            if(e.target.elements['latitude']) {
+                formData.latitude = e.target.elements['latitude'].value
+            }else{
+                formData.latitude = self.device.latitude
+            }
+            if(e.target.elements['longitude']) {
+                formData.longitude = e.target.elements['longitude'].value
+            }else{
+                formData.longitude = self.device.longitude
+            }
             app.log(JSON.stringify(formData))
             sendData(
                 formData,
@@ -494,6 +542,12 @@
                 self.device.encoder = unescape(self.device.encoder)
             } else {
                 self.device.encoder = ''
+            }
+            if(self.device.latitude==100000){
+                self.device.latitude=''
+            }
+            if(self.device.longitude==100000){
+                self.device.longitude=''
             }
             self.device.channels = encodeChannels()
             self.templateSelected = true

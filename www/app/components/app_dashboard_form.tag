@@ -81,7 +81,7 @@
                         <div class="form-group col-md-12">
                             <div class="input-field">
                                 <label for="w_dev_id">{ app.texts.dashboard_form.f_widget_deviceid[app.language] }</label>
-                                    <select class="form-control" id="w_dev_id" name="w_dev_id">
+                                    <select class="form-control" id="w_dev_id" name="w_dev_id" disabled={!allowEdit}>
                                         <option each="{d in myDevices}" value="{d.EUI}" selected="{d.EUI==self.editedWidget.dev_id}">{ d.EUI+': '+d.name}</option>
                                     </select>
                             </div>
@@ -520,6 +520,7 @@
                         i=i+2;
                         break;
                     case "project":
+                    case "state":
                     case "channel":
                     case "group":
                         if(params.length<i+2) return false

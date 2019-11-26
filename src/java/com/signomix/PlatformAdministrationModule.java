@@ -905,6 +905,59 @@ public class PlatformAdministrationModule {
         }
     }
     
+    /**
+     * Removes user's data, alerts when collection exceeds allowed size
+     * @param demoMode
+     * @param userAdapter
+     * @param thingsAdapter
+     * @param dashboardAdapter 
+     */
+    private void clearDataExceedingLimit(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
+        try {
+            long freeSize = (int) getPlatformConfig().get("freeCollectionLimit");
+            long standardSize = (int) getPlatformConfig().get("standardCollectionLimit");
+            long primarySize = (int) getPlatformConfig().get("primaryCollectionLimit");
+            Map users = userAdapter.getAll();
+            List<Device> devices;
+            Iterator it = users.keySet().iterator();
+            String uid;
+            long limit=1008;
+            long limitFree = 1008;
+            long limitStandard = 1008;
+            long limitPrimary = 1008;
+            
+            while (it.hasNext()) {
+                uid = (String) it.next();
+                if (!demoMode) {
+                    switch(userAdapter.get(uid).getType()){
+                        case User.OWNER:
+                        case User.PRIMARY:
+                            limit = limitPrimary;
+                            break;
+                        case User.USER:
+                            limit = limitStandard;
+                            break;
+                        default:
+                            limit = limitFree;
+                    }
+                }
+                thingsAdapter.removeUserAlertsLimit(uid, limit);
+                devices = thingsAdapter.getUserDevices(uid,false);
+                for (int j = 0; j < devices.size(); j++) {
+                    thingsAdapter.clearAllChannelsLimit(devices.get(j).getEUI(), limit);
+                    try{
+                        actuatorAdapter.clearAllCommandsLimit(devices.get(j).getEUI(), limit);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (ClassCastException | UserException | ThingsDataException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName()+".clearTooMuchData()", ex.getMessage()));
+            ex.printStackTrace();
+        }
+    }
+    
     public String createEui(String prefix) {
         String eui = Long.toHexString(Kernel.getEventId());
         StringBuilder tmp = new StringBuilder(prefix).append(eui.substring(0, 2));

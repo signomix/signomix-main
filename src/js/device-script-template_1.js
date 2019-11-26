@@ -84,11 +84,6 @@ sgx0.getStringValue = function (channelName) {
 sgx0.put = function (name, newValue, timestamp) {
     this.result.putData(this.eui, name, newValue, timestamp);
 }
-
-sgx0.setState = function(newState){
-    this.result.setDeviceState(newState);
-}
-
 sgx0.reverseHex=function(hexStr){
     if (!(typeof hexStr === 'string' || hexStr instanceof String)){
         return 0
@@ -114,10 +109,59 @@ sgx0.distance = function(latitude1, longitude1, latitude2, longitude2){
 sgx0.xaddList = function (timestamp) {
     this.result.addDataList(timestamp);
 }
+//NOT NEEDED?
+//function modifyTimestamp(name, newTimestamp) {
+//    sgx.result.modifyTimestamp(name, newTimestamp);
+//}
+//function removeData(name) {
+//    sgx.result.removeData(name);
+//}
+//function renameData(oldName, newName) {
+//    sgx.result.rename(oldName, newName);
+//}
 
-var processData = function (eui, dataReceived, channelReader, userID, dataTimestamp, 
-    latitude, longitude, altitude, state, alert,
-    devLatitude, devLongitude, devAltitude) {
+//DEPRECATED:
+//function addNotification(newType, newMessage) {
+//    result.addEvent(newType, newMessage);
+//}
+//function putData(name, newValue) {
+//    result.putData(new ChannelData(eui, name, newValue, dataTimestamp));
+//}
+//function putData(name, newValue, newTimestamp) {
+//    result.putData(new ChannelData(eui, name, newValue, newTimestamp));
+//}
+
+//function addCommand(targetEUI, payload) {
+//    result.addCommand(targetEUI, payload);
+//}
+
+//function getValueOf(channelName) {
+//    for (i = 0; i < sgx.dataReceived.length; i++) {
+//        if (dataReceived[i].getName() == channelName) {
+//            return dataReceived[i].getValue();
+//        }
+//    }
+//    return null;
+//}
+
+//function getLastValue(channelName) {
+//    return channelReader.getLastData(channelName);
+//}
+
+//function getAverageOf(channelName, scope) {
+//    return channelReader.getAverageValue(channelName, scope).getValue();
+//}
+
+//function getNewAverageOf(channelName, scope, newValue) {
+///    return channelReader.getAverageValue(channelName, scope, newValue).getValue();
+//}
+
+
+//function addVirtualData(newEUI, newUser, newName, newValue) {
+//    result.addDataEvent(newEUI, newUser, new ChannelData(newEUI, newName, newValue, dataTimestamp));
+//}
+
+var processData = function (eui, dataReceived, channelReader, userID, dataTimestamp, latitude, longitude, altitude) {
     var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
     var IotEvent = Java.type("com.signomix.iot.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
@@ -126,17 +170,13 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
     var sgx=Object.create(sgx0)
     sgx.eui=eui
     sgx.latitude=latitude
-    if(sgx.latitude==null){sgx.latitude=devLatitude}
     sgx.longitude=longitude
-    if(sgx.longitude==null){sgx.longitude=devLongitude}
     sgx.altitude=altitude
-    if(sgx.altitude==null){sgx.altitude=devAltitude}
     sgx.result=new ScriptResult()
     sgx.dataReceived=dataReceived
-    sgx.dataTimestamp=Number(dataTimestamp)
+    sgx.dataTimestamp=dataTimestamp
     sgx.channelReader=channelReader
-    sgx.state=state
-    sgx.alert=alert
+   
     
     //put original values. 
     if (dataReceived.length > 0) {
@@ -145,7 +185,6 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
             sgx.result.putData(channelData);
         }
     }
-    sgx.result.setDeviceState(state);
     //injectedCode
     
     return sgx.result;

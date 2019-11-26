@@ -202,7 +202,7 @@ public class ActuatorModule {
         JsonObject o = (JsonObject) JsonReader.jsonToJava(payload);
         String channelName = (String) o.get("channel");
         String newValue = (String) o.get("value");
-        String processName = "";
+        String projectName = "";
         try {
             if (channelName != null) {
                 ChannelData data = new ChannelData();
@@ -210,7 +210,7 @@ public class ActuatorModule {
                 data.setName(channelName);
                 data.setValue(new Double(virtualStack.get(vd).get()));
                 data.setTimestamp(System.currentTimeMillis());
-                thingsAdapter.putData(device.getUserID(), device.getEUI(), processName, data.getName(), data);
+                thingsAdapter.putData(device.getUserID(), device.getEUI(), projectName, null, data.getName(), data);
             } else {
                 Double value;
                 value = Double.parseDouble(newValue); //to obcina część ułamkową.

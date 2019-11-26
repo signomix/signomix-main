@@ -55,22 +55,22 @@ public class Invariants extends HashMap {
             put("maxUsers", 10);
             put("maxDevices", 20); // no limit for total number of registered devices
 
-            put("demoCollectionLimit", 100);
+            put("demoCollectionLimit", 144);
             put("demoDataRetention", 1); // days
             put("demoDevicesLimit", 3); // user devices
             put("demoNotifications", "SMTP");
 
-            put("freeCollectionLimit", 100000);
+            put("freeCollectionLimit", 4320);
             put("freeDataRetention", 30); // days
             put("freeDevicesLimit", 20); // user devices
             put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("standardCollectionLimit", 100000);
+            put("standardCollectionLimit", 4320);
             put("standardDataRetention", 30); // days
             put("standardDevicesLimit", 20); // user devices
             put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("primaryCollectionLimit", 100000);
+            put("primaryCollectionLimit", 4320);
             put("primaryDataRetention", 30); // days
             put("primaryDevicesLimit", 20); // user devices
             put("primaryNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
@@ -78,22 +78,22 @@ public class Invariants extends HashMap {
             put("maxUsers", 10);
             put("maxDevices", 0); // no limit for total number of registered devices
 
-            put("demoCollectionLimit", 100);
+            put("demoCollectionLimit", 144);
             put("demoDataRetention", 1); // 1 day
             put("demoDevicesLimit", 3); // user devices
             put("demoNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("freeCollectionLimit", 100);
+            put("freeCollectionLimit", 144);
             put("freeDataRetention", 1); // 1 day
             put("freeDevicesLimit", 3); // user devices
             put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("standardCollectionLimit", 100);
+            put("standardCollectionLimit", 144);
             put("standardDataRetention", 1); // days
             put("standardDevicesLimit", 3); // user devices
             put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("primaryCollectionLimit", 100);
+            put("primaryCollectionLimit", 144);
             put("primaryDataRetention", 1); // 1 day
             put("primaryDevicesLimit", 3); // user devices
             put("primaryNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
@@ -101,23 +101,23 @@ public class Invariants extends HashMap {
             put("maxUsers", 1000);
             put("maxDevices", 0); // no limit for total number of registered devices
 
-            put("demoCollectionLimit", 100);
+            put("demoCollectionLimit", 144);
             put("demoDataRetention", 1); // 1 day
             put("demoDevicesLimit", 1); // user devices
             put("demoNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("freeCollectionLimit", 1000);
+            put("freeCollectionLimit", 1008); // 6 transmission/hour * 7 days
             put("freeDataRetention", 7); // 1 day
             put("freeDevicesLimit", 5); // user devices
             put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("standardCollectionLimit", 50000);
+            put("standardCollectionLimit", 4320);
             put("standardDataRetention", 30); // days
-            put("standardDevicesLimit", 10); // user devices
+            put("standardDevicesLimit", 15); // user devices
             put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM");
 
-            put("primaryCollectionLimit", 100000);
-            put("primaryDataRetention", 30); // 1 day
+            put("primaryCollectionLimit", 4320);
+            put("primaryDataRetention", 30); 
             put("primaryDevicesLimit", 50); // user devices
             put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM");
         }

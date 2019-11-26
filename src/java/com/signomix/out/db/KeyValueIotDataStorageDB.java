@@ -33,7 +33,7 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
      * @throws ThingsDataException 
      */
     @Override
-    public void putData(String userID, String deviceEUI, String project, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values) throws ThingsDataException {
         if (values.size() > 20) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "too many values");
         }

@@ -20,5 +20,9 @@ public interface IotDataIface {
     public long getTimestamp();
     public long getReceivedPackageTimestamp(); // timestamp from data object metadata
     public Double getDoubleValue(String fieldName);
+    public String getStringValue(String fieldName);
+    public Double getLatitude();
+    public Double getLongitude();
+    public Double getAltitude();
     public void normalize();
 }

@@ -52,23 +52,23 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public void putData(String userID, String deviceEUI, String project, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         //TODO: dla urządzeń wirtualnych uruchomić skrypt preprocessora
-        getDataStorage().putData(userID, deviceEUI, project, values);
+        getDataStorage().putData(userID, deviceEUI, project, deviceState, values);
     }
 
     @Override
     //REMOVE
-    public void putData(String userID, String deviceEUI, String project, String channel, ChannelData value) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, String channel, ChannelData value) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         ArrayList<ChannelData> list = new ArrayList<>();
         list.add(value);
-        getDataStorage().putData(userID, deviceEUI, project, list);
+        getDataStorage().putData(userID, deviceEUI, project, deviceState, list);
     }
 
     /*
@@ -134,6 +134,16 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         }
         dev.setAlertStatus(newAlertStatus);
+        getIotDB().updateDevice(dev);
+    }
+    
+    @Override
+    public void updateDeviceState(String EUI, Double newState) throws ThingsDataException {
+        Device dev = getDevice(EUI);
+        if (dev == null) {
+            throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
+        }
+        dev.setState(newState);
         getIotDB().updateDevice(dev);
     }
 
@@ -331,5 +341,15 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames);
+    }
+
+    @Override
+    public void clearAllChannelsLimit(String deviceEUI, long limit) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeUserAlertsLimit(String userId, long limit) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

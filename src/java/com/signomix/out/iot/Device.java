@@ -41,7 +41,7 @@ public class Device {
     private String applicationID;  //TTn: appID
     private String key;  // TTN: HTTP Integration Authorization request header
     private String userID; //device owner
-    private String type; 
+    private String type;
     private String team;
     private LinkedHashMap channels;
     private String code; // JavaScript data preprocessor code
@@ -59,6 +59,11 @@ public class Device {
     private String deviceID; // TTN: devAddress
     private boolean active;
     private String project;
+    private Double latitude;
+    private Double longitude;
+    private Double altitude;
+    private Double state;
+    private long retentionTime;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     /**
@@ -76,13 +81,17 @@ public class Device {
         key = null;
         description = "";
         lastSeen = -1;
-        transmissionInterval = 600000; //10 minutes
+        transmissionInterval = 0; //10 minutes
         lastFrame = -1;
         checkFrames = true;
         alertStatus = UNKNOWN;
         deviceID = "";
         project = "";
         active = true;
+        latitude = 100000d;
+        longitude = 100000d;
+        altitude = 100000d;
+        state = 0d;
     }
 
     public void print() {
@@ -542,4 +551,75 @@ public class Device {
     public void setProject(String project) {
         this.project = project;
     }
+
+    /**
+     * @return the latitude
+     */
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * @param latitude the latitude to set
+     */
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    /**
+     * @return the longitude
+     */
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    /**
+     * @param longitude the longitude to set
+     */
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    /**
+     * @return the altitude
+     */
+    public Double getAltitude() {
+        return altitude;
+    }
+
+    /**
+     * @param altitude the altitude to set
+     */
+    public void setAltitude(Double altitude) {
+        this.altitude = altitude;
+    }
+
+    /**
+     * @return the state
+     */
+    public Double getState() {
+        return state;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(Double state) {
+        this.state = state;
+    }
+
+    /**
+     * @return the retentionTime
+     */
+    public long getRetentionTime() {
+        return retentionTime;
+    }
+
+    /**
+     * @param retentionTime the retentionTime to set
+     */
+    public void setRetentionTime(long retentionTime) {
+        this.retentionTime = retentionTime;
+    }
+
 }

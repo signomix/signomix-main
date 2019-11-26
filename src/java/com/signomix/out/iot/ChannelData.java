@@ -20,6 +20,7 @@ public class ChannelData {
     //private long longValue;
     private long timestamp;
     //private int multiplier;
+    private String stringValue;
 
     public ChannelData() {
     }
@@ -104,6 +105,7 @@ public class ChannelData {
         try {
             v = new Double((Long.parseLong(stringValue)));
         } catch (Exception e) {
+            setStringValue(stringValue);
         }
         this.value = v;
     }
@@ -134,6 +136,20 @@ public class ChannelData {
      */
     public void setDeviceEUI(String deviceEUI) {
         this.deviceEUI = deviceEUI;
+    }
+
+    /**
+     * @return the stringValue
+     */
+    public String getStringValue() {
+        return stringValue;
+    }
+
+    /**
+     * @param stringValue the stringValue to set
+     */
+    public void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
     }
 
 }
