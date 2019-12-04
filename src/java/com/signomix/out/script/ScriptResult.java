@@ -63,10 +63,10 @@ public class ScriptResult {
         events.add(new IotEvent(type, message));
     }
 
-    public void addDataEvent(String deviceName, String userID, ChannelData data) {
+    public void addDataEvent(String deviceName, String fromEui, ChannelData data) {
         String payload = deviceName + ":" + data.getName() + ":" + data.getValue() + ":" + data.getTimestamp();
         IotEvent event = new IotEvent(IotEvent.VIRTUAL_DATA, payload);
-        event.setOrigin(userID); //to be informed who created the event
+        event.setOrigin(fromEui); //to be informed which device created the event
         ArrayList<Event> list = dataEvents.get(deviceName);
         if (null == list) {
             list = new ArrayList<>();

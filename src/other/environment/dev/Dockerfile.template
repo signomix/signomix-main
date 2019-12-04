@@ -7,10 +7,11 @@
 # The file is used by Ant build to cereate Dockerfile.
 # {{version}} parameter will be replaced automatically with the actual project version configured in build.xml
 #
-FROM gskorupa/jelastic-java10:latest
+FROM azul/zulu-openjdk-alpine:13.0.1
 
 WORKDIR /usr/signomix
 RUN mkdir /usr/signomix/data
+RUN mkdir /usr/signomix/log
 
 #VOLUME /usr/signomix/data
 #VOLUME /usr/signomix/www
@@ -18,10 +19,10 @@ RUN mkdir /usr/signomix/data
 VOLUME /dbdata
 
 COPY dist/data/cricket_publickeystore.jks /usr/signomix/data
-COPY dist/signomix-{{version}}.jar /usr/signomix/
+COPY dist/signomix-ce-{{version}}.jar /usr/signomix/
 COPY dist/config/cricket.json /usr/signomix/config/
 COPY src/js/device-script-template.js /usr/signomix/config/
 COPY src/js/payload-decoder-envelope.js /usr/signomix/config/
 COPY www /usr/signomix/www
 
-CMD ["java", "--illegal-access=deny", "--add-modules","java.xml.bind", "--add-modules", "java.activation", "-Xms50m",  "-Xmx100m", "-jar", "./signomix-{{version}}.jar", "-r", "-c", "config/cricket.json"]
+CMD ["java", "-Xms50m", "-Xmx100m", "-jar", "signomix-ce-{{version}}.jar", "-r", "-c", "config/cricket.json"]

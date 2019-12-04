@@ -4,10 +4,10 @@ How to run Signomix
 
 scp signomix.zip signomix@yourhost:.
 
-2. Configure system service using files:
-signomix.sh
-signomix.service
+2. Unpack
 
-Reference:
+3. run.sh
+
+Run as a service:
 http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/
 https://wiki.archlinux.org/index.php/systemd

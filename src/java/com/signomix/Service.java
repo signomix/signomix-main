@@ -37,7 +37,6 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
@@ -96,7 +95,6 @@ public class Service extends Kernel {
     IotDataStorageIface iotDataDB = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
-    VirtualStackIface virtualStackAdapter = null;
     //notifications and emails
     NotificationIface smtpNotification = null;
     NotificationIface smsNotification = null;
@@ -145,7 +143,6 @@ public class Service extends Kernel {
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
         //widgetAdapter = (WidgetAdapterIface) getRegistered("widgetAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
-        virtualStackAdapter = (VirtualStackIface) getRegistered("virtualStack");
         //notifications
         smtpNotification = (NotificationIface) getRegistered("smtpNotification");
         smsNotification = (NotificationIface) getRegistered("smsNotification");
@@ -511,7 +508,7 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
-        return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB, virtualStackAdapter, scriptingAdapter);
+        return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB, scriptingAdapter);
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
@@ -620,7 +617,13 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "POST")
     public Object authLogin(Event event) {
-        return AuthBusinessLogic.getInstance().login(event, authAdapter);
+        StandardResult result= (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
+        if(result.getCode()==HttpAdapter.SC_OK){
+            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
+        }else{
+            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login_error"));
+        }
+        return result;
     }
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "DELETE")
@@ -779,7 +782,6 @@ public class Service extends Kernel {
                 telegramNotification,
                 dashboardAdapter,
                 authAdapter,
-                virtualStackAdapter,
                 scriptingAdapter,
                 actuatorCommandsDB
         );
@@ -808,7 +810,6 @@ public class Service extends Kernel {
                 thingsDB,
                 iotDataDB,
                 dashboardAdapter,
-                virtualStackAdapter,
                 scriptingAdapter,
                 emailSender
         );

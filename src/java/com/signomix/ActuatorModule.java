@@ -4,23 +4,21 @@
  */
 package com.signomix;
 
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import com.signomix.in.http.ActuatorApi;
 import com.signomix.iot.IotEvent;
 import com.signomix.iot.TtnDownlinkMessage;
 import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.iot.ChannelData;
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.StandardResult;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.iot.VirtualDevice;
-import com.signomix.out.iot.VirtualStackIface;
+import com.signomix.out.script.ScriptAdapterException;
+import com.signomix.out.script.ScriptResult;
 import com.signomix.out.script.ScriptingAdapterIface;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
@@ -48,7 +46,6 @@ public class ActuatorModule {
             ActuatorApi actuatorApi,
             ThingsDataIface thingsAdapter,
             ActuatorCommandsDBIface actuatorCommandsDB,
-            VirtualStackIface virtualStack,
             ScriptingAdapterIface scriptingAdapter
     ) {
         RequestObject request = event.getRequest();
@@ -82,7 +79,7 @@ public class ActuatorModule {
                 result = processGet(device.getEUI(), actuatorCommandsDB);
                 break;
             case "POST":
-                result = processPost(device, userID, request, hexPayload, actuatorCommandsDB, virtualStack, thingsAdapter, scriptingAdapter);
+                result = processPost(device, userID, request, hexPayload, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
                 break;
             default:
                 result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
@@ -108,7 +105,6 @@ public class ActuatorModule {
             RequestObject request,
             boolean hexPayload,
             ActuatorCommandsDBIface actuatorCommandsDB,
-            VirtualStackIface virtualStack,
             ThingsDataIface thingsAdapter,
             ScriptingAdapterIface scriptingAdapter) {
         StandardResult result = new StandardResult();
@@ -152,13 +148,13 @@ public class ActuatorModule {
             Event event,
             boolean hexagonalRepresentation,
             ActuatorCommandsDBIface actuatorCommandsDB,
-            VirtualStackIface virtualStack,
             ThingsDataIface thingsAdapter,
             ScriptingAdapterIface scriptingAdapter
     ) {
         String deviceEUI;
         deviceEUI = event.getOrigin();
         String payload = (String) event.getPayload();
+        System.out.println(">>>>>>>>>>>>>>>>>"+deviceEUI+" "+payload);
         boolean done = false;
         Device device = null;
         try {
@@ -168,7 +164,7 @@ public class ActuatorModule {
                 return;
             }
             if (device.getType().equals(Device.VIRTUAL)) {
-                done = sendToVirtual(device, payload, virtualStack, thingsAdapter, scriptingAdapter);
+                done = sendToVirtual(device, payload, thingsAdapter, scriptingAdapter);
             } else if (device.getType().equals(Device.TTN)) {
                 done = sendToTtn(device, payload, hexagonalRepresentation);
             } else if (device.getType().equals(Device.LORA)) {
@@ -176,9 +172,6 @@ public class ActuatorModule {
             } else if (device.getType().equals(Device.GENERIC) || device.getType().equals(Device.GATEWAY)) {
                 // Nothing to do. Command will be included in the response for the next device data transfer.
             }
-            //IotEvent commandEvent = new IotEvent(IotEvent.ACTUATOR_CMD, deviceEUI, payload);
-            //commandEvent.setId(event.getId());
-            //commandEvent.setCreatedAt(event.getCreatedAt());
             if (done) {
                 actuatorCommandsDB.putCommandLog(event.getOrigin(), event);
             } else {
@@ -193,35 +186,20 @@ public class ActuatorModule {
 
     }
 
-    private boolean sendToVirtual(Device device, String payload, VirtualStackIface virtualStack, ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter) {
-        VirtualDevice vd = virtualStack.get(new VirtualDevice(device.getEUI()));
-        if (vd == null) {
-            Kernel.getLogger().log(Event.logWarning(this, "virtual object for device " + device.getEUI() + "not initialized"));
-            return false;
-        }
-        JsonObject o = (JsonObject) JsonReader.jsonToJava(payload);
-        String channelName = (String) o.get("channel");
-        String newValue = (String) o.get("value");
-        String projectName = "";
+    private boolean sendToVirtual(Device device, String command, ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter) {
+        ScriptResult scriptResult = null;
         try {
-            if (channelName != null) {
-                ChannelData data = new ChannelData();
-                data.setDeviceEUI(device.getEUI());
-                data.setName(channelName);
-                data.setValue(new Double(virtualStack.get(vd).get()));
-                data.setTimestamp(System.currentTimeMillis());
-                thingsAdapter.putData(device.getUserID(), device.getEUI(), projectName, null, data.getName(), data);
-            } else {
-                Double value;
-                value = Double.parseDouble(newValue); //to obcina część ułamkową.
-                virtualStack.get(vd).resetAndSet(value.longValue());
-                //DeviceManagementModule.getInstance().writeVirtualState(vd, device, device.getUserID(), thingsAdapter, virtualStack, scriptingAdapter, true, value);
-                DeviceIntegrationModule.getInstance().writeVirtualState(vd, device, device.getUserID(), thingsAdapter, virtualStack, scriptingAdapter, true, value);
+            //TODO: sendToVirtual
+            scriptResult = scriptingAdapter.processData(
+                    new ArrayList(), device,
+                    System.currentTimeMillis(), null, null, null, null, 0, command, "");
+            if (device.getState().compareTo(scriptResult.getDeviceState()) != 0) {
+                thingsAdapter.updateDeviceState(device.getEUI(), scriptResult.getDeviceState());
             }
-            Kernel.handle(Event.logFine(this, "command send to device " + device.getEUI()));
-        } catch (ThingsDataException e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
+        } catch (ScriptAdapterException | ThingsDataException ex) {
+            //Logger.getLogger(ActuatorModule.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return true;
     }
 
@@ -265,14 +243,10 @@ public class ActuatorModule {
     }
 
     public Event getCommand(String deviceEUI, ActuatorCommandsDBIface actuatorCommandsDB) {
-        //String result = "";
         Event result = null;
         if (deviceEUI != null) {
             try {
                 result = (Event) actuatorCommandsDB.getFirstCommand(deviceEUI);
-                //if (null != commandEvent) {
-                //    result = (String) commandEvent.getPayload();
-                //}
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

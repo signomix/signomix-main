@@ -10,7 +10,6 @@ import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import org.cricketmsf.Event;
@@ -41,7 +40,6 @@ public class SystemEventHandler {
             IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
             DashboardAdapterIface dashboardAdapter,
-            VirtualStackIface virtualStackAdapter,
             ScriptingAdapterIface scriptingAdapter,
             EmailSenderIface emailSender) {
 

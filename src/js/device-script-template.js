@@ -33,8 +33,8 @@ sgx0.addHexCommand = function (targetEUI, payload) {
 sgx0.addNotification = function (newType, newMessage) {
     this.result.addEvent(newType, newMessage);
 }
-sgx0.addVirtualData = function (newEUI, newUser, newName, newValue) {
-    this.result.addDataEvent(newEUI, newUser, new ChannelData(newEUI, newName, newValue, this.dataTimestamp));
+sgx0.addVirtualData = function (newEUI, newName, newValue) {
+    this.result.addDataEvent(newEUI, this.eui, new ChannelData(newEUI, newName, newValue, this.dataTimestamp));
 }
 sgx0.getAverageOf = function (channelName, scope) {
     return this.channelReader.getAverageValue(channelName, scope).getValue();
@@ -117,7 +117,7 @@ sgx0.xaddList = function (timestamp) {
 
 var processData = function (eui, dataReceived, channelReader, userID, dataTimestamp, 
     latitude, longitude, altitude, state, alert,
-    devLatitude, devLongitude, devAltitude) {
+    devLatitude, devLongitude, devAltitude, newCommand, requestData) {
     var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
     var IotEvent = Java.type("com.signomix.iot.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
@@ -137,6 +137,8 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
     sgx.channelReader=channelReader
     sgx.state=state
     sgx.alert=alert
+    sgx.virtualCommand=newCommand
+    sgx.requestData=requestData
     
     //put original values. 
     if (dataReceived.length > 0) {

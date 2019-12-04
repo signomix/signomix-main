@@ -6,6 +6,7 @@ package com.signomix.out.script;
 
 import com.signomix.iot.IotEvent;
 import com.signomix.out.iot.ChannelData;
+import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataIface;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -74,7 +75,8 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
     public ScriptResult processData(ArrayList<ChannelData> values, String deviceScript,
             String deviceID, String userID, long dataTimestamp,
             Double latitude, Double longitude, Double altitude,
-            Double state, int alert, Double devLatitude, Double devLongitude, Double devAltitude) throws ScriptAdapterException {
+            Double state, int alert, Double devLatitude, Double devLongitude, Double devAltitude,
+            String command, String requestData) throws ScriptAdapterException {
         Invocable invocable;
         ScriptResult result = new ScriptResult();
         if (values == null) {
@@ -85,7 +87,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
             engine.eval(deviceScript != null ? merge(scriptTemplate, deviceScript) : scriptTemplate);
             invocable = (Invocable) engine;
             result = (ScriptResult) invocable.invokeFunction("processData", deviceID, values, channelReader, userID, dataTimestamp, latitude, longitude, altitude, state, alert,
-                    devLatitude, devLongitude, devAltitude);
+                    devLatitude, devLongitude, devAltitude, command, requestData);
         } catch (NoSuchMethodException e) {
             fireEvent(2, userID + "\t" + deviceID, e.getMessage());
             throw new ScriptAdapterException(ScriptAdapterException.NO_SUCH_METHOD, "NashornScriptingAdapter.no_such_method " + e.getMessage());
@@ -222,4 +224,14 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         ev.setType(IotEvent.GENERAL);
         Kernel.getInstance().dispatchEvent(ev);
     }
+
+    @Override
+    public ScriptResult processData(ArrayList<ChannelData> values, Device device, 
+            long dataTimestamp, Double latitude, Double longitude, Double altitude, Double state, 
+            int alert, String command, String requestData) throws ScriptAdapterException {
+        return processData(values, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), 
+                dataTimestamp, latitude, longitude, altitude, device.getState(), device.getAlertStatus(),
+                device.getLatitude(), device.getLongitude(), device.getAltitude(), command, requestData);
+    }
+
 }

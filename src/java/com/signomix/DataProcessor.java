@@ -24,14 +24,15 @@ public class DataProcessor {
 
 //    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
 //            Double latitude, Double longitude, Double altitude) throws Exception {
-    public static Object[] processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
-            Double latitude, Double longitude, Double altitude) throws Exception {
+    public static Object[] processValues(ArrayList<ChannelData> listOfValues, Device device, 
+            ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
+            Double latitude, Double longitude, Double altitude, String requestData) throws Exception {
         ScriptResult scriptResult = null;
         try {
             scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), 
                     device.getEUI(), device.getUserID(), dataTimestamp,
                     latitude, longitude, altitude, device.getState(),
-                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude());
+                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude(), "", "");
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -50,6 +51,7 @@ public class DataProcessor {
         ArrayList<ArrayList> finalValues=scriptResult.getOutput();
         ArrayList<Event> events = scriptResult.getEvents();
         HashMap<String, String> recipients;
+        //commands and notifications
         for (int i = 0; i < events.size(); i++) {
             if (IotEvent.ACTUATOR_CMD.equals(events.get(i).getType()) || IotEvent.ACTUATOR_HEXCMD.equals(events.get(i).getType())) {
                 Kernel.getInstance().dispatchEvent(events.get(i));

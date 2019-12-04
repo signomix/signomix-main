@@ -12,7 +12,6 @@ import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.iot.VirtualDevice;
-import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class IotEventHandler {
             NotificationIface telegramNotification,
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
-            VirtualStackIface virtualStackAdapter,
             ScriptingAdapterIface scriptingAdapter,
             ActuatorCommandsDBIface actuatorCommandsDB) {
         String[] origin;
@@ -164,78 +162,63 @@ public class IotEventHandler {
                     }
                     break;
                 case IotEvent.VIRTUAL_DATA:
+                    String sourceDeviceEui = event.getOrigin();
+                    payload = (String) event.getPayload();
+                    String[] channels = payload.split(";");
+                    params = channels[0].split(":");
+                    String deviceEUI = params[0];
+                    Device device;
+                    Device sourceDevice;
                     try {
-                        String userID = event.getOrigin();
-                        payload = (String) event.getPayload();
-                        String[] channels = payload.split(";");
-                        params = channels[0].split(":");
-                        String deviceEUI = params[0];
-
-                        //params = payload.split(":");
-                        Device device = thingsAdapter.getDevice(userID, deviceEUI, false);
-                        if (device != null) {
-                            if (device.getType().equals(Device.VIRTUAL)) {
-                                ArrayList<ChannelData> values = new ArrayList<>();
-                                ChannelData data;
-                                String channelName;
-                                Double value;
-                                long timestamp;
-                                boolean counterChange;
-                                VirtualDevice vd;
-                                for (String channel : channels) {
-                                    params = channel.split(":");
-                                    channelName = params[1];
-                                    try {
-                                        value = Double.parseDouble(params[2]);
-                                        timestamp = Long.parseLong(params[3]);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        break;
-                                    }
-                                    counterChange = false;
-                                    vd = new VirtualDevice(device.getEUI());
-                                    if ("_in".equals(channelName) && value != 0) { // previously "incoming"
-                                        counterChange = true;
-                                        virtualStackAdapter.get(vd).addInputs(value.longValue());
-                                    } else if ("_out".equals(channelName) && value != 0) { // previously "exiting"
-                                        counterChange = true;
-                                        virtualStackAdapter.get(vd).addOutputs(value.longValue());
-                                    } else {
-                                        //virtua/lStackAdapter.get(device.getEUI())
-                                        //TODO: ? reset?
-                                    }
-                                    if (counterChange && virtualStackAdapter.getProperty("write-interval").isEmpty()) {
-                                        // empty write interval == write virtual device counters to the data channels
-                                        DeviceIntegrationModule
-                                                .getInstance()
-                                                .writeVirtualState(vd, device, userID, thingsAdapter, virtualStackAdapter, scriptingAdapter, false, null);
-                                    } else if (!counterChange) {
-                                        data = new ChannelData();
-                                        data.setDeviceEUI(device.getEUI());
-                                        data.setName(channelName);
-                                        data.setValue(value);
-                                        data.setTimestamp(timestamp);
-                                        values.add(data);
-                                    }
-                                }
-                                if (!values.isEmpty()) {
-                                    DeviceIntegrationModule.getInstance().writeVirtualData(thingsAdapter, scriptingAdapter, device, values);
-                                }
-                            } else {
-                                System.out.println("NOT VIRTUAL DEVICE");
-                            }
-                        } else {
-                            System.out.println("DEVICE NOT FOUND");
+                        sourceDevice = thingsAdapter.getDevice(sourceDeviceEui);
+                        device = thingsAdapter.getDevice(sourceDevice.getUserID(), deviceEUI, false);
+                    } catch (ThingsDataException ex) {
+                        Kernel.getInstance().dispatchEvent(Event.logWarning("IotEventHandler", "virtual device: " + ex.getMessage()));
+                        return;
+                    }
+                    if (!device.getType().equals(Device.VIRTUAL)) {
+                        System.out.println("DEVICE NOT FOUND OR NOT VIRTUAL");
+                        return;
+                    }
+                    ArrayList<ChannelData> values = new ArrayList<>();
+                    ChannelData data;
+                    String channelName;
+                    Double value;
+                    long timestamp;
+                    VirtualDevice vd;
+                    for (String channel : channels) {
+                        params = channel.split(":");
+                        channelName = params[1];
+                        try {
+                            value = Double.parseDouble(params[2]);
+                            timestamp = Long.parseLong(params[3]);
+                            data = new ChannelData();
+                            data.setDeviceEUI(device.getEUI());
+                            data.setName(channelName);
+                            data.setValue(value);
+                            data.setTimestamp(timestamp);
+                            values.add(data);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            break;
                         }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    }
+                    if (!values.isEmpty()) {
+                        DeviceIntegrationModule.getInstance().writeVirtualData(thingsAdapter, scriptingAdapter, device, values);
                     }
                     break;
                 case IotEvent.ACTUATOR_CMD:
-                    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
+                    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
                     break;
                 case IotEvent.ACTUATOR_HEXCMD:
-                    ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
+                    ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                    break;
+                case IotEvent.PLATFORM_MONITORING:
+                    String eui = (String) kernel.getProperties().getOrDefault("monitoring_device", "");
+                    if (!eui.isEmpty()) {
+                        event.setOrigin(eui);
+                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                    }
                     break;
                 default:
                     Kernel.getInstance().dispatchEvent(

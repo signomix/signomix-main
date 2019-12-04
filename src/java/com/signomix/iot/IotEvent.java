@@ -38,6 +38,8 @@ public class IotEvent extends Event {
     
     public static final String PLATFORM_DEVICE_LIMIT_EXCEEDED = "PLATFORM_DEVICE_LIMIT_EXCEEDED";
     
+    public static final String PLATFORM_MONITORING = "PLATFORM_MONITORING";
+    
 
     public IotEvent() {
         //super("", "", "", null, null); //TODO: cannot use super() because of NPE
@@ -95,6 +97,10 @@ public class IotEvent extends Event {
                 break;
             case "DEVICE_LOST":
                 setType(DEVICE_LOST);
+                setPayload(payload);
+                break;
+            case "PLATFORM_MONITORING":
+                setType(PLATFORM_MONITORING);
                 setPayload(payload);
                 break;
             default:

@@ -24,7 +24,6 @@ import com.signomix.iot.kpn.KPNData;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.VirtualDevice;
-import com.signomix.out.iot.VirtualStackIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import com.signomix.util.HexTool;
 import java.util.ArrayList;
@@ -164,7 +163,7 @@ public class DeviceIntegrationModule {
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
                         data.getReceivedPackageTimestamp(), data.getLatitude(),
-                        data.getLongitude(), data.getAltitude());
+                        data.getLongitude(), data.getAltitude(), "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -211,6 +210,7 @@ public class DeviceIntegrationModule {
             IotData2 data = null;
             if (dataString.isEmpty()) {
                 data = parseIotData(request.parameters);
+                dataString=buildParamString(request.parameters);
             } else {
                 jsonString
                         = "{\"@type\":\"com.signomix.iot.IotData2\","
@@ -315,7 +315,7 @@ public class DeviceIntegrationModule {
                 Object[] processingResult
                         = DataProcessor.processValues(inputList, device, scriptingAdapter,
                                 data.getReceivedPackageTimestamp(), data.getLatitude(),
-                                data.getLongitude(), data.getAltitude());
+                                data.getLongitude(), data.getAltitude(), dataString);
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -442,7 +442,8 @@ public class DeviceIntegrationModule {
                         data.getReceivedPackageTimestamp(),
                         data.getLatitude(),
                         data.getLongitude(),
-                        data.getAltitude());
+                        data.getAltitude(),
+                        request.body);
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -557,7 +558,7 @@ public class DeviceIntegrationModule {
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
                         data.getReceivedPackageTimestamp(), data.getLatitude(),
-                        data.getLongitude(), data.getAltitude());
+                        data.getLongitude(), data.getAltitude(),request.body);
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -676,6 +677,7 @@ public class DeviceIntegrationModule {
         } else {
             TtnData processedData = new TtnData(data);
             // handling Cayenne LPP
+            ArrayList<String> toExpand=new ArrayList<>();
             Iterator it = data.getPayloadFields().keySet().iterator();
             Object payloadField;
             String fieldName;
@@ -683,7 +685,9 @@ public class DeviceIntegrationModule {
                 fieldName = (String) it.next();
                 payloadField = data.getPayloadFields().get(fieldName);
                 if (payloadField instanceof com.cedarsoftware.util.io.JsonObject) {
-                    com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) data.getPayloadFields().get(fieldName);
+                    toExpand.add(fieldName);
+                    /*
+                    com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) payloadField;
                     Iterator it2 = j.keySet().iterator();
                     String key;
                     while (it2.hasNext()) {
@@ -691,10 +695,23 @@ public class DeviceIntegrationModule {
                         processedData.putField(fieldName + "_" + key, j.get(key));
                     }
                     processedData.removeField(fieldName);
+                    */
                 } else {
                     // nothing to do
                 }
             }
+            toExpand.forEach(name->{
+                com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) data.getPayloadFields().get(name);
+                Iterator it2 = j.keySet().iterator();
+                    String key;
+                    while (it2.hasNext()) {
+                        key = (String) it2.next();
+                        processedData.putField(name + "_" + key, j.get(key));
+                    }
+            });
+            toExpand.forEach(name->{
+                processedData.removeField(name);
+            });
             // Cayenne LPP - end
             for (String payloadFieldName : processedData.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
@@ -774,7 +791,8 @@ public class DeviceIntegrationModule {
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
             ArrayList<ArrayList> outputList;
             try {
-                Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter, now, null, null, null);
+                Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter, 
+                        now, device.getLatitude(), device.getLongitude(), device.getAltitude(), "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -788,71 +806,6 @@ public class DeviceIntegrationModule {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    public void writeVirtualState(
-            VirtualDevice vd,
-            Device device,
-            String userID,
-            ThingsDataIface thingsAdapter,
-            VirtualStackIface virtualStackAdapter,
-            ScriptingAdapterIface scriptingAdapter,
-            boolean reset,
-            Double resetValue
-    ) throws ThingsDataException {
-        ArrayList<ChannelData> values = new ArrayList<>();
-        long now = System.currentTimeMillis();
-        VirtualDevice localCopy = virtualStackAdapter.get(vd);
-        ChannelData data = new ChannelData();
-        data.setDeviceEUI(device.getEUI());
-        data.setName("counter");
-        //data.setValue(new Double(virtualStackAdapter.get(vd).get()));
-        data.setValue(new Double(localCopy.get()));
-        data.setTimestamp(now);
-        ChannelData data2 = new ChannelData();
-        data2.setDeviceEUI(device.getEUI());
-        data2.setName("incoming");
-        //data2.setValue(new Double(virtualStackAdapter.get(vd).getInputs()));
-        data2.setValue(new Double(localCopy.getInputs()));
-        data2.setTimestamp(now);
-        ChannelData data3 = new ChannelData();
-        data3.setDeviceEUI(device.getEUI());
-        data3.setName("exiting");
-        //data3.setValue(new Double(virtualStackAdapter.get(vd).getOutputs()));
-        data3.setValue(new Double(localCopy.getOutputs()));
-        data3.setTimestamp(now);
-        values.add(data);
-        values.add(data2);
-        values.add(data3);
-        if (reset) {
-            ChannelData data4 = new ChannelData();
-            data4.setDeviceEUI(device.getEUI());
-            data4.setName("reset");
-            data4.setValue(resetValue);
-            data4.setTimestamp(now);
-            values.add(data4);
-            //thingsAdapter.putData(userID, device.getEUI(), data4.getName(), data4);
-        }
-        //TODO: w putData, dla urządzeń virtual, trzeba wywołać skrypt preprocessora
-        if (thingsAdapter.isAuthorized(userID, device.getEUI())) {
-            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
-        }
-        ArrayList<ArrayList> outputList;
-        try {
-            Object[] processingResult = DataProcessor.processValues((ArrayList) values, device,
-                    scriptingAdapter, data.getTimestamp(), null, null, null);
-            outputList = (ArrayList<ArrayList>) processingResult[0];
-            for (int i = 0; i < outputList.size(); i++) {
-                thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
-            }
-            if (device.getState().compareTo((Double) processingResult[1]) != 0) {
-                System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
-            }
-        } catch (Exception e) {
-            Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
-        }
-        //thingsAdapter.putVirtualData(userID, device, scriptingAdapter, values);
-        //TODO: use DataProcessor
     }
 
     private IotData2 parseIotData(String dataStr) {
@@ -887,6 +840,16 @@ public class DeviceIntegrationModule {
         }
         data.normalize();
         return data;
+    }
+    
+    private String buildParamString(Map<String, Object> parameters){
+        StringBuilder result=new StringBuilder();
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            String key = entry.getKey();
+            String value = (String) entry.getValue();
+            result.append(entry.getKey()).append("=").append((String) entry.getValue()).append("\r\n");
+        }
+        return result.toString();
     }
 
     private IotData2 parseIotData(Map<String, Object> parameters) {
@@ -935,4 +898,5 @@ public class DeviceIntegrationModule {
         ev.setType(IotEvent.GENERAL);
         Kernel.getInstance().dispatchEvent(ev);
     }
+    
 }

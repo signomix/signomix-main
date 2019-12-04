@@ -468,8 +468,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit, String project, Double state) throws ThingsDataException {
         String query;
         String defaultQuery = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,project,state from devicedata where eui=? and ?? is not null";
-        String projectQuery = "and project=?";
-        String stateQuery = "and state=?";
+        String projectQuery = " and project=?";
+        String stateQuery = " and state=?";
         String orderPart = " order by tstamp desc limit ?";
         query = defaultQuery;
         if (null != project) {
