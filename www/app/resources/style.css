@@ -45,17 +45,20 @@ html {
 
 body {
     /* Margin bottom by footer height */
-    margin-bottom: 40px;
+    /*margin-bottom: 40px;*/
     background-color: #F8F8F8;
 }
 
-.footer {
+.footer{
+    background-color: #F8F8F8;
+}
+.footer2 {
     position: absolute;
     bottom: 0;
     width: 100%;
     /* Set the fixed height of the footer here */
-    height: 40px;
-    line-height: 40px; /* Vertically center the text there */
+    /*height: 40px;*/
+    /*line-height: 40px;*/ /* Vertically center the text there */
 }
 
 .signomix-form{

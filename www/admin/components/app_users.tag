@@ -23,6 +23,8 @@
                             <th>{app.texts.app_users.t_uid[app.language]}</th>
                             <th>{app.texts.app_users.t_type[app.language]}</th>
                             <th>{app.texts.app_users.t_role[app.language]}</th>
+                            <th>SERVICES</th>
+                            <th>CREDITS</th>
                             <th>{app.texts.app_users.t_status[app.language]}</th>
                             <th class="text-right">
                                 <i class="material-icons clickable" onclick={ editUser('NEW', true) }>add</i>
@@ -35,6 +37,8 @@
                             <td>{ user.uid }</td>
                             <td>{ userTypeAsLetter(user.type) }</td>
                             <td>{ user.role }</td>
+                            <td>{ user.services }</td>
+                            <td>{ user.credits }</td>
                             <td>{ user.authStatus }</td>
                             <td class="text-right">
                                 <i class="material-icons clickable" onclick={ editPassword(user.uid) } if={ user.uid == app.user.name }>vpn_key</i>
@@ -182,6 +186,9 @@
 
 self.userTypeAsLetter = function(type){
         switch (type){
+            case 7:
+                return 'E'
+                break
             case 6:
                 return 'R'
                 break

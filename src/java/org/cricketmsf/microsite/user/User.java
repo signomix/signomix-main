@@ -40,22 +40,28 @@ public class User {
         return alertNotificationChannel;
     }
 
-    public static final int USER = 0; // default type, normal user
-    public static final int OWNER = 1; // 
+    public static final int USER = 0; // default type, standard user
+    public static final int OWNER = 1; // owner, admin
     public static final int APPLICATION = 2; // application
     public static final int DEMO = 3;
-    public static final int FREE = 4;
-    public static final int PRIMARY = 5;
+    public static final int FREE = 4; // registered, free account
+    public static final int PRIMARY = 5; // primary account
     public static final int READONLY = 6;
+    public static final int EXTENDED = 7; // students, scientists, nonprofits
 
     public static final int IS_REGISTERING = 0;
     public static final int IS_ACTIVE = 1;
     public static final int IS_UNREGISTERING = 2;
     public static final int IS_LOCKED = 3;
 
+    public static final int SERVICE_SMS = 0b00000001;
+    public static final int SERVICE_NEW = 0b00000010; //not used
+    
     private int type = FREE;
     private String uid;
     private String email;
+    private String name;
+    private String surname;
     private String role;
     private boolean confirmed;
     private boolean unregisterRequested;
@@ -68,12 +74,17 @@ public class User {
     private int authStatus;
     private long createdAt;
     private long number;
+    private int services;
+    private String phonePrefix;
+    private long credits;
 
     public User() {
         confirmed = false;
         unregisterRequested = false;
         authStatus = IS_REGISTERING;
         createdAt = System.currentTimeMillis();
+        services = 0b0;
+        credits=0;
     }
 
     /**
@@ -293,4 +304,84 @@ public class User {
         this.number = number;
     }
 
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the surname
+     */
+    public String getSurname() {
+        return surname;
+    }
+
+    /**
+     * @param surname the surname to set
+     */
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    /**
+     * @return the services
+     */
+    public int getServices() {
+        return services;
+    }
+
+    /**
+     * @param services the services to set
+     */
+    public void setServices(int services) {
+        this.services = services;
+    }
+    
+    public void addService(int newService){
+        services = services|newService;
+    }
+
+    public void removeService(int newService){
+        services = services^newService;
+    }
+
+    /**
+     * @return the phonePrefix
+     */
+    public String getPhonePrefix() {
+        return phonePrefix;
+    }
+
+    /**
+     * @param phonePrefix the phonePrefix to set
+     */
+    public void setPhonePrefix(String phonePrefix) {
+        this.phonePrefix = phonePrefix;
+    }
+
+    /**
+     * @return the credits
+     */
+    public long getCredits() {
+        return credits;
+    }
+
+    /**
+     * @param credits the credits to set
+     */
+    public void setCredits(long credits) {
+        this.credits = credits;
+        if(this.credits<0){
+            this.credits=0;
+        }
+    }
 }

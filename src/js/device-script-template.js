@@ -21,16 +21,17 @@ sgx0.accept = function (name) {
         }
     }
 }
-sgx0.addCommand = function (targetEUI, payload) {
+sgx0.addCommand = function (targetEUI, payload, overwrite) {
     //JSON payload
-    this.result.addCommand(targetEUI, payload, false);
+    this.result.addCommand(targetEUI, this.eui, payload, false, overwrite);
 }
-sgx0.addHexCommand = function (targetEUI, payload) {
+sgx0.addHexCommand = function (targetEUI, payload, overwrite) {
     //for TTN devices payload must be String representing byte array as hex values
     //eg. 00FFAA01
-    this.result.addCommand(targetEUI, payload, true);
+    this.result.addCommand(targetEUI, this.eui, payload, true, overwrite);
 }
 sgx0.addNotification = function (newType, newMessage) {
+    //this.result.log(">>>>"+newType+">>"+newMessage+">>");
     this.result.addEvent(newType, newMessage);
 }
 sgx0.addVirtualData = function (newEUI, newName, newValue) {
@@ -40,6 +41,14 @@ sgx0.getAverageOf = function (channelName, scope) {
     return this.channelReader.getAverageValue(channelName, scope).getValue();
 }
 sgx0.getLastValue = function (channelName) {
+    var tmpLastData=this.channelReader.getLastData(channelName);
+    if(tmpLastData!=null){
+        return tmpLastData.value
+    }else{
+        return null
+    }
+}
+sgx0.getLastData = function (channelName) {
     return this.channelReader.getLastData(channelName);
 }
 sgx0.getModulo = function (value, divider) {

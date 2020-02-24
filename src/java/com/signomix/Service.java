@@ -13,6 +13,7 @@ import com.signomix.iot.IotEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.ShortenerDBIface;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -45,6 +46,7 @@ import org.cricketmsf.annotation.EventHook;
 import org.cricketmsf.event.EventMaster;
 import org.cricketmsf.exception.EventException;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
+import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
 import org.cricketmsf.microsite.out.queue.QueueException;
 import org.cricketmsf.microsite.user.UserEvent;
@@ -101,6 +103,7 @@ public class Service extends Kernel {
     NotificationIface pushoverNotification = null;
     NotificationIface slackNotification = null;
     NotificationIface telegramNotification = null;
+    NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
 
     //Integration services
@@ -109,6 +112,9 @@ public class Service extends Kernel {
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
     KpnApi kpnUplinkService = null;
+
+    //Utils
+    ShortenerDBIface shortenerDB = null;
 
     @Override
     public void getAdapters() {
@@ -149,6 +155,7 @@ public class Service extends Kernel {
         pushoverNotification = (NotificationIface) getRegistered("pushoverNotification");
         slackNotification = (NotificationIface) getRegistered("slackNotification");
         telegramNotification = (NotificationIface) getRegistered("telegramNotification");
+        webhookNotification = (NotificationIface) getRegistered("webhookNotification");
         emailSender = (EmailSenderIface) getRegistered("emailSender");
 
         integrationService = (IntegrationApi) getRegistered("IntegrationService");
@@ -156,12 +163,14 @@ public class Service extends Kernel {
         loraUplinkService = (LoRaApi) getRegistered("LoRaUplinkService");
         ttnIntegrationService = (TtnApi) getRegistered("TtnIntegrationService");
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
+
+        shortenerDB = (ShortenerDBIface) getRegistered("ShortenerDB");
     }
 
-    public IotDatabaseIface getThingsAdapter(){
+    public IotDatabaseIface getThingsAdapter() {
         return thingsDB;
     }
-    
+
     @Override
     public void runInitTasks() {
         try {
@@ -185,7 +194,9 @@ public class Service extends Kernel {
             }
         }
         invariants = new Invariants();
-        PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB, thingsDB, iotDataDB, actuatorCommandsDB);
+        PlatformAdministrationModule.getInstance().initDatabases(
+                database, userDB, authDB, thingsDB,
+                iotDataDB, actuatorCommandsDB, shortenerDB);
         //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         //TODO: use services monitoring
         //PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);
@@ -254,6 +265,11 @@ public class Service extends Kernel {
         return super.handleEvent(event);
     }
 
+    @HttpAdapterHook(adapterName = "goto", requestMethod = "*")
+    public Object goTo(Event event) {
+        return UrlShortener.getInstance().processRequest(event, shortenerDB);
+    }
+
     /**
      * Process requests from simple web server implementation given by
      * HtmlGenAdapter access web web resources
@@ -263,61 +279,80 @@ public class Service extends Kernel {
      */
     @HttpAdapterHook(adapterName = "WwwService", requestMethod = "GET")
     public Object wwwGet(Event event) {
-        //TODO: to nie jest optymalne rozwiązanie
-        dispatchEvent(Event.logFinest(this.getClass().getSimpleName(), event.getRequest().uri));
-        String language = (String) event.getRequest().parameters.get("language");
-        if (language == null || language.isEmpty()) {
-            language = "en";
-        } else if (language.endsWith("/")) {
-            language = language.substring(0, language.length() - 1);
-        }
-        ParameterMapResult result = null;
+        ParameterMapResult result = new ParameterMapResult();
         try {
-            String cacheName = "webcache_" + language;
-            result = (ParameterMapResult) cms
-                    .getFile(event.getRequest(), htmlAdapter.useCache() ? database : null, cacheName, language);
-            if (result.getCode() == HttpAdapter.SC_NOT_FOUND) {
-                if (event.getRequest().pathExt.endsWith(".html")) {
-                    //TODO: configurable index file params
-                    //RequestObject request = processRequest(event.getRequest(), ".html", "index_pl.html");
-                    RequestObject request = processRequest(event.getRequest(), ".html", "index.html");
-                    result = (ParameterMapResult) fileReader
-                            .getFile(request, htmlAdapter.useCache() ? database : null, "webcache");
-                }
+            //TODO: to nie jest optymalne rozwiązanie
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, "GET WWW: " + event.getRequest().pathExt));
+            dispatchEvent(Event.logFinest(this.getClass().getSimpleName(), event.getRequest().uri));
+            String language = event.getRequestParameter("language");
+            if (language == null || language.isEmpty()) {
+                language = "en";
+            } else if (language.endsWith("/")) {
+                language = language.substring(0, language.length() - 1);
             }
-            //((HashMap) result.getData()).put("serviceurl", getProperties().get("serviceurl"));
-            HashMap rd = (HashMap) result.getData();
-            rd.put("serviceurl", getProperties().get("serviceurl"));
-            rd.put("defaultLanguage", getProperties().get("default-language"));
-            rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
-            rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
-            rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
-            rd.put("user", event.getRequest().headers.getFirst("X-user-id"));
-            rd.put("environmentName", getName());
-            rd.put("distroType", (String) invariants.get("release"));
-            rd.put("javaversion", System.getProperty("java.version"));
-            List<String> roles = event.getRequest().headers.get("X-user-role");
-            if (roles != null) {
-                StringBuilder sb = new StringBuilder("[");
-                for (int i = 0; i < roles.size(); i++) {
-                    if (i > 0) {
-                        sb.append(",");
+
+            try {
+                String cacheName = "webcache_" + language;
+                result = (ParameterMapResult) cms
+                        .getFile(event.getRequest(), htmlAdapter.useCache() ? database : null, cacheName, language);
+
+                if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+                    if (event.getRequest().pathExt.endsWith(".html")) {
+                        //TODO: configurable index file params
+                        //RequestObject request = processRequest(event.getRequest(), ".html", "index_pl.html");
+                        RequestObject request = processRequest(event.getRequest(), ".html", "index.html");
+                        result = (ParameterMapResult) fileReader
+                                .getFile(request, htmlAdapter.useCache() ? database : null, "webcache_en");
                     }
-                    sb.append("'").append(roles.get(i)).append("'");
                 }
-                sb.append("]");
-                rd.put("roles", sb.toString());
-            } else {
-                rd.put("roles", "[]");
+
+                if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "404 WWW: " + event.getRequest().pathExt));
+                    return result;
+                } else if (HttpAdapter.SC_NOT_FOUND != result.getCode()
+                        && ("".equals(event.getRequest().pathExt) || event.getRequest().pathExt.endsWith("/") || event.getRequest().pathExt.endsWith(".html"))) {
+                    //((HashMap) result.getData()).put("serviceurl", getProperties().get("serviceurl"));
+                    HashMap rd = (HashMap) result.getData();
+                    rd.put("serviceurl", getProperties().get("serviceurl"));
+                    rd.put("defaultLanguage", getProperties().get("default-language"));
+                    rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
+                    rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
+                    rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
+                    rd.put("user", event.getRequest().headers.getFirst("X-user-id"));
+                    rd.put("environmentName", getName());
+                    rd.put("distroType", (String) invariants.get("release"));
+                    rd.put("javaversion", System.getProperty("java.version"));
+                    List<String> roles = event.getRequest().headers.get("X-user-role");
+                    if (roles != null) {
+                        StringBuilder sb = new StringBuilder("[");
+                        for (int i = 0; i < roles.size(); i++) {
+                            if (i > 0) {
+                                sb.append(",");
+                            }
+                            sb.append("'").append(roles.get(i)).append("'");
+                        }
+                        sb.append("]");
+                        rd.put("roles", sb.toString());
+                    } else {
+                        rd.put("roles", "[]");
+                    }
+                    // TODO: caching policy 
+                    result.setMaxAge(120);
+                }
+            } catch (Exception e) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, "500 WWW: " + event.getRequest().pathExt));
+                e.printStackTrace();
+                result = new ParameterMapResult();
+                result.setCode(HttpAdapter.SC_INTERNAL_SERVER_ERROR);
+                return result;
             }
-            // TODO: caching policy 
-            result.setMaxAge(120);
+            if ("HEAD".equalsIgnoreCase(event.getRequest().method)) {
+                byte[] empty = {};
+                result.setPayload(empty);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        if ("HEAD".equalsIgnoreCase(event.getRequest().method)) {
-            byte[] empty = {};
-            result.setPayload(empty);
+            result.setCode(HttpAdapter.SC_INTERNAL_SERVER_ERROR);
         }
         return result;
     }
@@ -364,9 +399,9 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "AlertService", requestMethod = "DELETE")
     public Object alertDelete(Event event) {
         String alertId = event.getRequest().pathExt;
-        if(alertId!=null && !alertId.isEmpty()){
+        if (alertId != null && !alertId.isEmpty()) {
             return AlertModule.getInstance().removeAlert(event, thingsAdapter);
-        }else{
+        } else {
             return AlertModule.getInstance().removeAll(event.getRequestParameter("user"), thingsAdapter);
         }
     }
@@ -412,7 +447,7 @@ public class Service extends Kernel {
     public Object groupServiceHandle(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
-    
+
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "OPTIONS")
     public Object templateServiceCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -460,7 +495,7 @@ public class Service extends Kernel {
         }
         return result;
     }
-    
+
     @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "OPTIONS")
     public Object iotSimpleDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -479,7 +514,7 @@ public class Service extends Kernel {
         }
         return result;
     }
-    
+
     @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "OPTIONS")
     public Object rawDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -583,14 +618,14 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "PUT")
     public Object userUpdate(Event event) {
         String resetPassEmail = event.getRequestParameter("resetpass");
-        try{
-        if (resetPassEmail == null || resetPassEmail.isEmpty()) {
-            return UserModule.getInstance().handleUpdateRequest(event, userAdapter, telegramNotification);
-        } else {
-            String userName = event.getRequestParameter("name");
-            return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter, emailSender);
-        }
-        }catch(Exception  e){
+        try {
+            if (resetPassEmail == null || resetPassEmail.isEmpty()) {
+                return UserModule.getInstance().handleUpdateRequest(event, userAdapter, telegramNotification);
+            } else {
+                String userName = event.getRequestParameter("name");
+                return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter, emailSender);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -617,10 +652,10 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "POST")
     public Object authLogin(Event event) {
-        StandardResult result= (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
-        if(result.getCode()==HttpAdapter.SC_OK){
+        StandardResult result = (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
+        if (result.getCode() == HttpAdapter.SC_OK) {
             Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
-        }else{
+        } else {
             Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login_error"));
         }
         return result;
@@ -709,14 +744,28 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ContentService", requestMethod = "GET")
     public Object contentGetPublished(Event event) {
+        StandardResult result = null;
         try {
-            return new ContentRequestProcessor().processGetPublished(event, cms);
+            result = (StandardResult) new ContentRequestProcessor().processGetPublished(event, cms);
+            if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+                String path = event.getRequest().pathExt;
+                if (null != path) {
+                    String filePath = fileReader.getRootPath() + path;
+                    Document doc = new Document();
+                    doc.setTitle("");
+                    doc.setSummary("");
+                    doc.setAuthor("");
+                    doc.setContent(new String(fileReader.readFile(filePath)));
+                    result.setData(doc);
+                    result.setCode(HttpAdapter.SC_OK);
+                }
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, "missing in CMS so read form disk " + path));
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            StandardResult r = new StandardResult();
-            r.setCode(HttpAdapter.SC_NOT_FOUND);
-            return r;
+            result = new StandardResult();
+            result.setCode(HttpAdapter.SC_NOT_FOUND);
         }
+        return result;
     }
 
     @HttpAdapterHook(adapterName = "ContentManager", requestMethod = "OPTIONS")
@@ -780,6 +829,7 @@ public class Service extends Kernel {
                 pushoverNotification,
                 slackNotification,
                 telegramNotification,
+                webhookNotification,
                 dashboardAdapter,
                 authAdapter,
                 scriptingAdapter,
@@ -830,7 +880,7 @@ public class Service extends Kernel {
     }
 
     public Object sendEcho(RequestObject request) {
-        System.out.println("REQUEST DATA:"+request.body);
+        System.out.println("REQUEST DATA:" + request.body);
         StandardResult r = new StandardResult();
         r.setCode(HttpAdapter.SC_OK);
         try {

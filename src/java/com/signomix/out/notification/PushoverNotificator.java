@@ -38,6 +38,11 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
         Kernel.getInstance().getLogger().print("\ttoken: " + token);
     }
 
+    @Override
+    public String send(String userID, String recipient, String nodeName, String message) {
+        return send(recipient, nodeName, message);
+    }
+    
     public String send(String recipient, String nodeName, String message) {
         if(!ready){
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "not configured"));

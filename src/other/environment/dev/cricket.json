@@ -19,9 +19,9 @@
                 "time-zone": "GMT",
                 "default-language": "en",
                 "user-confirm": "true",
-                "initial-admin-email": "name@host",
+                "initial-admin-email": "admin@experiot.com.pl",
                 "initial-admin-secret": "test123",
-                "admin-notification-email": "",
+                "admin-notification-email": "admin@experiot.com.pl",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
@@ -34,6 +34,16 @@
                 "monitoring_device": "signomix_int_monitor"
             },
             "ports": [
+                {
+                    "name": "goto",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.in.http.StandardHttpAdapter",
+                    "properties": {
+                        "context": "/gt",
+                        "dump-request": "true",
+                        "silent-mode": "false"
+                    }
+                },
                 {
                     "name": "echo",
                     "interfaceName": "EchoHttpAdapterIface",
@@ -411,7 +421,7 @@
                 {
                     "name": "userDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2UserDB",
+                    "classFullName": "com.signomix.out.db.H2UserDB",
                     "properties": {
                         "path": "./data",
                         "file": "user",
@@ -446,8 +456,9 @@
                         "helper-name": "cmsDB",
                         "root-path": "./www/",
                         "file-path": "./files/",
-                        "file-path-published": "./assets/",
-                        "index-file": "index.html"
+                        "file-path-published": "./www/assets/",
+                        "index-file": "index.html",
+                        "default-language": "en"
                     }
                 },
                 {
@@ -509,19 +520,6 @@
                     }
                 },
                 {
-                    "name": "smtpNotification2",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.SmtpNotificator",
-                    "properties": {
-                        "from": "name@host",
-                        "mailhost": "",
-                        "user": "name@host",
-                        "password": "mypassword",
-                        "starttls": "true",
-                        "debug-session": "false"
-                    }
-                },
-                {
                     "name": "pushoverNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.PushoverNotificator",
@@ -551,23 +549,50 @@
                     }
                 },
                 {
+                    "name": "webhookNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.WebhookNotificator",
+                    "properties": {
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "smsNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.ServerSmsNotificator",
+                    "properties": {
+                        "url": "https://api2.serwersms.pl/messages/send_sms",
+                        "login":"webapi_experiottest",
+                        "password":"haslotest",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
                     "name": "emailSender",
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
                     "properties": {
-                        "from": "test@signocom.com",
-                        "mailhost": "85.128.192.150",
-                        "user": "test@signocom.com",
-                        "password": "Ypsylon#2017#",
+                        "from": "signomix@experiot.com.pl",
+                        "mailhost": "experiot.com.pl",
+                        "user": "signomix@experiot.com.pl",
+                        "password": "k[Hm70m^Mo7=",
                         "debug-session": "false"
                     }
                 },
                 {
-                    "name": "virtualStack",
-                    "interfaceName": "VirtualStackIface",
-                    "classFullName": "com.signomix.out.iot.VirtualStack",
+                    "name": "ShortenerDB",
+                    "interfaceName": "ShortenerDBIface",
+                    "classFullName": "com.signomix.out.db.H2ShortenerDB",
                     "properties": {
-                        "write-interval": ""
+                        "path": "./data",
+                        "file": "urls",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "encrypted": "false",
+                        "filePassword": "",
+                        "name": "user",
+                        "user": "sa",
+                        "password": ""
                     }
                 }
             ]

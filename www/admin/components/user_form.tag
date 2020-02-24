@@ -13,6 +13,14 @@
                     <label for="email">{ app.texts.user_form.email[app.language] }</label>
                     <input class="form-control" id="email" name="email" type="email" value={ user.email } readonly={ !allowEdit } required>
                 </div>
+                <div class="form-group">
+                    <label for="name">{ app.texts.user_form.name[app.language] }</label>
+                    <input class="form-control" id="name" name="name" type="text" value={ user.name } readonly={ !allowEdit } required>
+                </div>
+                <div class="form-group">
+                    <label for="surname">{ app.texts.user_form.surname[app.language] }</label>
+                    <input class="form-control" id="surname" name="surname" type="text" value={ user.surname } readonly={ !allowEdit } required>
+                </div>
                 <div class="form-group" if={ adminMode }>
                      <label for="type">{ app.texts.user_form.type[app.language] }</label>
                     <input class="form-control" id="type" name="type" type="text" value={ userTypeAsString(user.type) } readonly={ !allowEdit } required>
@@ -21,96 +29,166 @@
                      <label for="role">{ app.texts.user_form.role[app.language] }</label>
                     <input class="form-control" id="role" name="role" type="text"  value={ user.role } readonly={ !allowEdit }>
                 </div>
+                <div class="form-group" if={ adminMode }>
+                     <label for="services">{ app.texts.user_form.services[app.language] }</label>
+                    <input class="form-control" id="services" name="services" type="text"  value={ user.services } readonly={ !allowEdit }>
+                </div>
+                <div class="form-group" if={ adminMode }>
+                     <label for="phoneprefix">{ app.texts.user_form.phoneprefix[app.language] }</label>
+                    <input class="form-control" id="phoneprefix" name="phoneprefix" type="text"  value={ user.phonePrefix } readonly={ !allowEdit }>
+                </div>
+                <div class="form-group" if={ adminMode }>
+                    <label for="credits">{ app.texts.user_form.credits[app.language] }</label>
+                    <input class="form-control" id="credits" name="credits" type="text"  value={ user.credits } readonly={ !allowEdit }>
+                </div>
                 <div class="form-group border-dark border-bottom">
                     <label>{ app.texts.user_form.notificationsGroup[app.language] }</label><br>
                 </div>
                 <div class="form-row">
-                    <div class="col-md-3 my-1">
-                        <label class="mr-sm-2" for="genNotCh">GENERAL</label>
-                        <select class="custom-select mr-sm-2" id="genNotCh" disabled={ !allowEdit }>
-                            <option value='SIGNOMIX' selected={''==user.generalNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel }>{ app.texts.user_form.select[app.language] }</option>
+                    <div class="form-group col-md-3 my-1">
+                        <label class="mr-sm-2" for="genNotCh">GENERAL/SYSTEM</label>
+                        <select class="custom-select mr-sm-2" id="genNotCh" disabled={ !allowEdit } onchange={ changeGeneralNotification } value={user.generalNotificationChannel}>
+                            <option value='SIGNOMIX' selected={''==user.generalNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Pushover</option>
-                            <option value="TELEGRAM" selected={'Telegram'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Telegram</option>
+                            <option value="TELEGRAM" selected={'TELEGRAM'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Telegram</option>
+                            <option value="WEBHOOK" selected={'WEBHOOK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Webhook</option>
+                            <option if={smsEnabled} value="SMS" selected={'SMS'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
                     </div>
-                    <div class="col-md-9 my-1">
-                        <div class="form-group">
+                    <div class="form-group col-md-2 my-1" if={smsGeneral}>
+                        <label for="phonePrefix">{ app.texts.user_form.prefix[app.language] }</label>
+                        <input class="form-control" 
+                                   id="phonePrefix" 
+                                   name="phonePrefix" 
+                                   type="text" 
+                                   readonly={true }
+                                   value={ user.phonePrefix }
+                        >
+                    </div>
+                    <div class="form-group col-md-7 my-1">
+                            <!--
                             <label for="generalNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
                             <input class="form-control" id="generalNotificationChannel" 
                                    name="generalNotificationChannel" type="text" readonly={ !allowEdit }
                                    value={ user.generalNotificationChannel.substring(user.generalNotificationChannel.indexOf(':')+1) }
-                            >
-                        </div>
+                            >-->
+                        <form_input 
+                            id="generalNotificationChannel"
+                            name="generalNotificationChannel"
+                            label={ app.texts.user_form.config[app.language] }
+                            type="text"
+                            content={ user.generalNotificationChannel.substring(user.generalNotificationChannel.indexOf(':')+1) }
+                            required={!(user.generalNotificationChannel==''||user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':')))}
+                            readonly={ !allowEdit }
+                            pattern=""
+                            oninvalid="not valid"
+                            hint=""/>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="col-md-3 my-1">
+                    <div class="form-group col-md-3 my-1">
                         <label class="mr-sm-2" for="infoNotCh">INFO</label>
-                        <select class="custom-select mr-sm-2" id="infoNotCh" disabled={ !allowEdit }>
-                            <option value='SIGNOMIX' selected={''==user.infoNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                        <select class="custom-select mr-sm-2" id="infoNotCh" disabled={ !allowEdit } onchange={ changeInfoNotification } value={user.infoNotificationChannel}>
+                            <option value='SIGNOMIX' selected={''==user.infoNotificationChannel || 'SIGNOMIX'==user.infoNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Telegram</option>
+                            <option value="WEBHOOK" selected={'WEBHOOK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Webhook</option>
+                            <option if={smsEnabled} value="SMS" selected={'SMS'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
                     </div>
-                    <div class="col-md-9 my-1">
-                        <div class="form-group">
+                    <div class="form-group col-md-2 my-1" if={smsInfo}>
+                        <label for="phonePrefix">{ app.texts.user_form.prefix[app.language] }</label>
+                        <input class="form-control" 
+                                   id="phonePrefix" 
+                                   name="phonePrefix" 
+                                   type="text" 
+                                   readonly={true }
+                                   value={ user.phonePrefix }
+                        >
+                    </div>
+                    <div class="form-group col-md-7 my-1">
                             <label for="infoNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
-                            <input class="form-control" id="infoNotificationChannel" 
-                                   name="infoNotificationChannel" type="text" readonly={ !allowEdit }
+                            <input class="form-control" 
+                                   id="infoNotificationChannel" 
+                                   name="infoNotificationChannel" 
+                                   type="text" 
+                                   readonly={ !allowEdit }
                                    value={ user.infoNotificationChannel.substring(user.infoNotificationChannel.indexOf(':')+1) }
                             >
-                        </div>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="col-md-3 my-1">
+                    <div class="form-group col-md-3 my-1">
                         <label class="mr-sm-2" for="warningNotCh">WARNING</label>
-                        <select class="custom-select mr-sm-2" id="warningNotCh" disabled={ !allowEdit }>
-                            <option value='SIGNOMIX' selected={''==user.warningNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                        <select class="custom-select mr-sm-2" id="warningNotCh" disabled={ !allowEdit } onchange={ changeWarningNotification } value={user.warningNotificationChannel}>
+                            <option value='SIGNOMIX' selected={''==user.warningNotificationChannel || 'SIGNOMIX'==user.warningNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Telegram</option>
+                            <option value="WEBHOOK" selected={'WEBHOOK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Webhook</option>
+                            <option if={smsEnabled} value="SMS" selected={'SMS'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
                     </div>
-                    <div class="col-md-9 my-1">
-                        <div class="form-group">
+                    <div class="form-group col-md-2 my-1" if={smsWarning}>
+                        <label for="phonePrefix">{ app.texts.user_form.prefix[app.language] }</label>
+                        <input class="form-control" 
+                                   id="phonePrefix" 
+                                   name="phonePrefix" 
+                                   type="text" 
+                                   readonly={true }
+                                   value={ user.phonePrefix }
+                        >
+                    </div>
+                    <div class="form-group col-md-7 my-1">
                             <label for="warningNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
                             <input class="form-control" id="warningNotificationChannel" 
                                    name="warningNotificationChannel" type="text" readonly={ !allowEdit }
                                    value={ user.warningNotificationChannel.substring(user.warningNotificationChannel.indexOf(':')+1) }
                             >
-                        </div>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="col-md-3 my-1">
+                    <div class="form-group col-md-3 my-1">
                         <label class="mr-sm-2" for="alertNotCh">ALERT</label>
-                        <select class="custom-select mr-sm-2" id="alertNotCh" disabled={ !allowEdit }>
-                            <option value='SIGNOMIX' selected={''==user.alertNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
+                        <select class="custom-select mr-sm-2" id="alertNotCh" disabled={ !allowEdit } onchange={ changeAlertNotification } value={user.alertNotificationChannel}>
+                            <option value='SIGNOMIX' selected={''==user.alertNotificationChannel || 'SIGNOMIX'==user.alertNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Telegram</option>
+                            <option value="WEBHOOK" selected={'WEBHOOK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Webhook</option>
+                            <option if={smsEnabled} value="SMS" selected={'SMS'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
                     </div>
-                    <div class="col-md-9 my-1">
-                        <div class="form-group">
+                    <div class="form-group col-md-2 my-1" if={smsAlert}>
+                        <label for="phonePrefix">{ app.texts.user_form.prefix[app.language] }</label>
+                        <input class="form-control" 
+                                   id="phonePrefix" 
+                                   name="phonePrefix" 
+                                   type="text" 
+                                   readonly={true }
+                                   value={ user.phonePrefix }
+                        >
+                    </div>
+                    <div class="form-group col-md-7 my-1">
                             <label for="alertNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
                             <input class="form-control" id="alertNotificationChannel" 
                                    name="alertNotificationChannel" type="text" readonly={ !allowEdit }
                                    value={ user.alertNotificationChannel.substring(user.alertNotificationChannel.indexOf(':')+1) }
                             >
-                        </div>
                     </div>
                 </div>
                 <div class="form-group border-dark border-top">
                 </div>
-                  
+                <div class="form-group">
+                    <label for="pp">{ app.texts.user_form.phoneprefix[app.language] }</label>
+                    <input class="form-control" id="pp" name="pp" type="text" value={ user.phonePrefix } readonly={ true }>
+                </div>
                 <div class="form-group">
                     <label for="confirmString">{ app.texts.user_form.confirmString[app.language] }</label>
                     <input class="form-control" id="confirmString" name="confirmString" type="text" value={ user.confirmString } readonly={ true }>
@@ -141,9 +219,16 @@
         self.adminMode = false
         self.method = 'POST'
         self.mode = 'view'
+        self.smsEnabled = false
+        self.smsGeneral = false
+        self.smsInfo = false
+        self.smsWarning = false
+        self.smsAlert = false
         self.user = {
             'uid': '',
             'email': '',
+            'name':'',
+            'surname':'',
             'type': '',
             'role': '',
             'confirmString': '',
@@ -153,7 +238,10 @@
             'infoNotificationChannel': '',
             'warningNotificationChannel': '',
             'alertNotificationChannel': '',
-            'unregisterRequested': false
+            'unregisterRequested': false,
+            'services':0,
+            'phonePrefix':'',
+            'credits':0
         }
 
         globalEvents.on('data:submitted', function(event){
@@ -183,6 +271,9 @@
 
         userTypeAsString(type){
             switch (type){
+                case 7:
+                    return 'EXTENDED'
+                    break
                 case 6:
                     return 'READONLY'
                     break
@@ -210,6 +301,10 @@
         
         userTypeAsNumber(type){
             switch (type.toUpperCase()){
+                case 'EXTENDED':
+                case '7':
+                    return '7'
+                    break
                 case 'READONLY':
                 case '6':
                     return '6'
@@ -258,10 +353,21 @@
                 formData.uid = e.target.elements['uid'].value
             }
             formData.email = e.target.elements['email'].value
+            formData.name = e.target.elements['name'].value
+            formData.surname = e.target.elements['surname'].value
             if (self.adminMode){
                 formData.type = self.userTypeAsNumber(e.target.elements['type'].value)
                 if (e.target.elements['role'].value != '') {
                     formData.role = e.target.elements['role'].value
+                }
+                if (e.target.elements['services'].value != '') {
+                    formData.services = e.target.elements['services'].value
+                }
+                if (e.target.elements['phoneprefix'].value != '') {
+                    formData.phoneprefix = e.target.elements['phoneprefix'].value
+                }
+                if (e.target.elements['credits'].value != '') {
+                    formData.credits = e.target.elements['credits'].value
                 }
             }
             if (e.target.elements['genNotCh'].value!='SIGNOMIX' && e.target.elements['generalNotificationChannel'].value != '') {
@@ -301,36 +407,94 @@
         }
 
         self.close = function(object){
-        var text = '' + object
-        app.log('CALLBACK: ' + object)
-        if (text.startsWith('"') || text.startsWith('{')){
-        self.callbackListener.trigger('submitted')
-        } else if (text.startsWith('error:202')){
-        self.callbackListener.trigger('submitted')
-        } else if (text.startsWith('[object MouseEvent')){
-        self.callbackListener.trigger('cancelled')
+            var text = '' + object
+            app.log('CALLBACK: ' + object)
+            if (text.startsWith('"') || text.startsWith('{')){
+                self.callbackListener.trigger('submitted')
+            } else if (text.startsWith('error:202')){
+                self.callbackListener.trigger('submitted')
+            } else if (text.startsWith('[object MouseEvent')){
+                self.callbackListener.trigger('cancelled')
             } else if (text.startsWith('error:409')){
                 alert('This login is already registered!')
-        } else{
-        alert(text)
-        }
+            } else{
+                alert(text)
+            }
         }
 
         var update = function (text) {
-        app.log("USER: " + text)
-        self.user = JSON.parse(text);
-        riot.update();
+            app.log("USER: " + text)
+            self.user = JSON.parse(text);
+            self.smsEnabled=(self.user.services & 00000001) == 00000001
+            self.smsGeneral = self.user.generalNotificationChannel.startsWith('SMS')
+            self.smsInfo = self.user.infoNotificationChannel.startsWith('SMS')
+            self.smsWarning = self.user.warningNotificationChannel.startsWith('SMS')
+            self.smsAlert = self.user.alertNotificationChannel.startsWith('SMS')
+            riot.update();
         }
+        
         self.listener.on('*', function(event){
           riot.update()
         })
 
         var readUser = function (uid) {
-            getData(app.userAPI+'/'+uid,null,app.user.token,update,self.listener)
+            getData(app.userAPI+uid,null,app.user.token,update,self.listener)
         }
 
         var generatePassword = function(){
-        return window.btoa((new Date().getMilliseconds() + ''))
+            return window.btoa((new Date().getMilliseconds() + ''))
+        }
+        
+        self.changeGeneralNotification = function(e) {
+            if (e.target) {
+                if('SMS'==e.target.value){
+                    self.smsGeneral=true
+                }else{
+                    self.smsGeneral=false
+                }
+                riot.update()
+            } else {
+                app.log('UNKNOWN TARGET OF: ' + e)
+            }
+        }
+        
+        self.changeInfoNotification = function(e) {
+            if (e.target) {
+                if('SMS'==e.target.value){
+                    self.smsInfo=true
+                }else{
+                    self.smsInfo=false
+                }
+                riot.update()
+            } else {
+                app.log('UNKNOWN TARGET OF: ' + e)
+            }
+        }
+        
+        self.changeWarningNotification = function(e) {
+            if (e.target) {
+                if('SMS'==e.target.value){
+                    self.smsWarning=true
+                }else{
+                    self.smsWarning=false
+                }
+                riot.update()
+            } else {
+                app.log('UNKNOWN TARGET OF: ' + e)
+            }
+        }
+        
+        self.changeAlertNotification = function(e) {
+            if (e.target) {
+                if('SMS'==e.target.value){
+                    self.smsAlert=true
+                }else{
+                    self.smsAlert=false
+                }
+                riot.update()
+            } else {
+                app.log('UNKNOWN TARGET OF: ' + e)
+            }
         }
 
     </script>

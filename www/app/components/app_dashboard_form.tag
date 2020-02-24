@@ -55,11 +55,15 @@
                                 <option value="line" selected={self.editedWidget.type=='line'}>{self.getTypeName('line')}</option>
                                 <option value="stepped" selected={self.editedWidget.type=='stepped'}>{self.getTypeName('stepped')}</option>
                                 <option value="map" selected={self.editedWidget.type=='map'}>{self.getTypeName('map')}</option>
+                                <option value="plan" selected={self.editedWidget.type=='plan'}>{self.getTypeName('plan')}</option>
                                 <option value="date" selected={self.editedWidget.type=='date'}>{self.getTypeName('date')}</option>
                                 <option value="led" selected={self.editedWidget.type=='led'}>{self.getTypeName('led')}</option>
                                 <option value="report" selected={self.editedWidget.type=='report'}>{self.getTypeName('report')}</option>
                                 <option value="multimap" selected={self.editedWidget.type=='multimap'}>{self.getTypeName('multimap')}</option>
                                 <option value="button" selected={self.editedWidget.type=='button'}>{self.getTypeName('button')}</option>
+                                <option value="stopwatch" selected={self.editedWidget.type=='stopwatch'}>{self.getTypeName('stopwatch')}</option>
+                                <option value="time" selected={self.editedWidget.type=='time'}>{self.getTypeName('time')}</option>
+                                <option value="devinfo" selected={self.editedWidget.type=='devinfo'}>{self.getTypeName('devinfo')}</option>
                             </select>
                         </div>
                         </div>
@@ -77,7 +81,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap' }>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap' && self.editedWidget.type!='plan' }>
                         <div class="form-group col-md-12">
                             <div class="input-field">
                                 <label for="w_dev_id">{ app.texts.dashboard_form.f_widget_deviceid[app.language] }</label>
@@ -87,7 +91,7 @@
                             </div>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='report' || self.editedWidget.type=='multimap' }>
+                        <div class="row" if={ self.editedWidget.type=='report' || self.editedWidget.type=='multimap' || self.editedWidget.type=='plan'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_group"
@@ -124,7 +128,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='report' || self.editedWidget.type=='multimap' }>
+                        <div class="row" if={ self.editedWidget.type=='report' || self.editedWidget.type=='multimap' || self.editedWidget.type=='plan' }>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_channel_translated"
@@ -150,7 +154,7 @@
                             ></form_input>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap' && self.editedWidget.type!='button'}>
+                        <div class="row" if={ self.editedWidget.type!='text' && self.editedWidget.type!='report' && self.editedWidget.type!='multimap' && self.editedWidget.type!='button' && self.editedWidget.type!='plan'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_query"
@@ -184,7 +188,7 @@
                             </select>
                         </div>
                         </div>
-                        <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led' || self.editedWidget.type=='multimap'}>
+                        <div class="row" if={ self.editedWidget.type=='symbol' || self.editedWidget.type=='led' || self.editedWidget.type=='plan' || self.editedWidget.type=='multimap'}>
                         <div class="form-group col-md-12">
                             <form_input 
                                 id="w_range"
@@ -226,7 +230,7 @@
                             <form_input 
                                 id="w_description"
                                 name="w_description"
-                                label={ app.texts.dashboard_form.f_widget_description[app.language] }
+                                label={ self.editedWidget.type!='plan'?app.texts.dashboard_form.f_widget_description[app.language]:app.texts.dashboard_form.f_widget_svg[app.language] }
                                 type="textarea"
                                 content={ self.editedWidget.description }
                                 readonly={ !allowEdit }
@@ -697,8 +701,20 @@
                 case 'led':
                     return app.texts.dashboard_form.type_led[app.language]
                     break
+                case 'plan':
+                    return app.texts.dashboard_form.type_plan[app.language]
+                    break
                 case 'report':
                     return app.texts.dashboard_form.type_report[app.language]
+                    break
+                case 'stopwatch':
+                    return app.texts.dashboard_form.type_stopwatch[app.language]
+                    break
+                case 'time':
+                    return app.texts.dashboard_form.type_time[app.language]
+                    break
+                case 'devinfo':
+                    return app.texts.dashboard_form.type_devinfo[app.language]
                     break
                 default:
                     return name

@@ -36,6 +36,8 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
                 .append("uid varchar primary key,")
                 .append("type int,")
                 .append("email varchar,")
+                .append("name varchar,")
+                .append("surname varchar,")
                 .append("role varchar,")
                 .append("secret varchar,")
                 .append("password varchar,")
@@ -47,6 +49,9 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
                 .append("unregisterreq boolean,")
                 .append("authstatus int,")
                 .append("created timestamp,")
+                .append("services int,")
+                .append("phoneprefix varchar,")
+                .append("credits bigint,")
                 .append("user_number bigint default user_number_seq.nextval )");
         query = sb.toString();
         try (Connection conn = getConnection()) {
@@ -84,23 +89,28 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
 
     private void putUser(String tableName, String key, User user) throws KeyValueDBException {
         try (Connection conn = getConnection()) {
-            String query = "merge into ?? (uid,type,email,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,services,phoneprefix,credits) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             query = query.replaceFirst("\\?\\?", tableName);
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, user.getUid());
             pstmt.setInt(2, user.getType());
             pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getRole());
-            pstmt.setString(5, user.getConfirmString());
-            pstmt.setString(6, user.getPassword());
-            pstmt.setString(7, user.getGeneralNotificationChannel());
-            pstmt.setString(8, user.getInfoNotificationChannel());
-            pstmt.setString(9, user.getWarningNotificationChannel());
-            pstmt.setString(10, user.getAlertNotificationChannel());
-            pstmt.setBoolean(11, user.isConfirmed());
-            pstmt.setBoolean(12, user.isUnregisterRequested());
-            pstmt.setInt(13, user.getStatus());
-            pstmt.setTimestamp(14, new Timestamp(user.getCreatedAt()));
+            pstmt.setString(4, user.getName());
+            pstmt.setString(5, user.getSurname());
+            pstmt.setString(6, user.getRole());
+            pstmt.setString(7, user.getConfirmString());
+            pstmt.setString(8, user.getPassword());
+            pstmt.setString(9, user.getGeneralNotificationChannel());
+            pstmt.setString(10, user.getInfoNotificationChannel());
+            pstmt.setString(11, user.getWarningNotificationChannel());
+            pstmt.setString(12, user.getAlertNotificationChannel());
+            pstmt.setBoolean(13, user.isConfirmed());
+            pstmt.setBoolean(14, user.isUnregisterRequested());
+            pstmt.setInt(15, user.getStatus());
+            pstmt.setTimestamp(16, new Timestamp(user.getCreatedAt()));
+            pstmt.setInt(17, user.getServices());
+            pstmt.setString(18, user.getPhonePrefix());
+            pstmt.setLong(19, user.getCredits());
             int updated = pstmt.executeUpdate();
             //check?
         } catch (SQLException e) {
@@ -129,7 +139,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         HashMap<String, User> map = new HashMap<>();
         //TODO: nie używać, zastąpić konkretnymi search'ami
         if (tableName.equals("users")) {
-            String query = "select uid,type,email,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number from users";
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits from users";
             try (Connection conn = getConnection()) {
                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ResultSet rs = pstmt.executeQuery();
@@ -225,25 +235,30 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         user.setUid(rs.getString(1));
         user.setType(rs.getInt(2));
         user.setEmail(rs.getString(3));
-        user.setRole(rs.getString(4));
-        user.setConfirmString(rs.getString(5));
-        user.setPassword(rs.getString(6));
-        user.setGeneralNotificationChannel(rs.getString(7));
-        user.setInfoNotificationChannel(rs.getString(8));
-        user.setWarningNotificationChannel(rs.getString(9));
-        user.setAlertNotificationChannel(rs.getString(10));
-        user.setConfirmed(rs.getBoolean(11));
-        user.setUnregisterRequested(rs.getBoolean(12));
-        user.setStatus(rs.getInt(13));
-        user.setCreatedAt(rs.getTimestamp(14).getTime());
-        user.setNumber(rs.getLong(15));
+        user.setName(rs.getString(4));
+        user.setSurname(rs.getString(5));
+        user.setRole(rs.getString(6));
+        user.setConfirmString(rs.getString(7));
+        user.setPassword(rs.getString(8));
+        user.setGeneralNotificationChannel(rs.getString(9));
+        user.setInfoNotificationChannel(rs.getString(10));
+        user.setWarningNotificationChannel(rs.getString(11));
+        user.setAlertNotificationChannel(rs.getString(12));
+        user.setConfirmed(rs.getBoolean(13));
+        user.setUnregisterRequested(rs.getBoolean(14));
+        user.setStatus(rs.getInt(15));
+        user.setCreatedAt(rs.getTimestamp(16).getTime());
+        user.setNumber(rs.getLong(17));
+        user.setServices(rs.getInt(18));
+        user.setPhonePrefix(rs.getString(19));
+        user.setCredits(rs.getLong(20));
         return user;
     }
 
     private Object getUser(String tableName, String key, Object defaultResult) throws KeyValueDBException {
         User user = null;
         try (Connection conn = getConnection()) {
-            String query = "select uid,type,email,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number from " + tableName + " where uid=?";
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits from " + tableName + " where uid=?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();

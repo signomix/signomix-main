@@ -6,7 +6,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <a class="navbar-brand text-signo" href={ (app.user.roles.indexOf("guest")>-1)?'/':'#!' }>
-                <img src="/resources/signomix-logo.png" height="32px" style="margin-right:0.5em;"><strong>{ getDistroType()}</strong>
+                <img src="/resources/logo.png" height="32px" style="margin-right:0.5em;"><strong>{ getDistroType()}</strong>
             </a>
             <span hidden={ app.requests<=0 }><spinner/></span>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
@@ -28,10 +28,10 @@
                         <a class="nav-link text-signo" href="#!doc,toc" onclick={ goto('#!doc,toc') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.documentation[app.language] }</a>
                     </li>
                     <li class="nav-item" if={!app.user.guest && app.user.status != 'logged-in' }>
-                        <a class="nav-link text-signo" href="#!login" onclick={ goto('#!login') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> { app.texts.header.guest[app.language] }</a>
+                        <a class="nav-link text-signo" href="#!login" onclick={ goto('#!login') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> { app.texts.header.login[app.language] } ({ app.texts.header.guest[app.language] })</a>
                     </li>
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest}>
-                        <a class="nav-link text-signo" href="#!logout"onclick={ goto('#!logout') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> {app.user.name}</a>
+                        <a class="nav-link text-signo" href="#!logout"onclick={ goto('#!logout') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> { app.texts.header.logout[app.language] } ({app.user.name})</a>
                     </li>
                     <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='en'}>
                         <a href="#!en" class="nav-link text-signo" onclick={ goto('#!en') } data-toggle="collapse" data-target="#navbarNavDropdown">

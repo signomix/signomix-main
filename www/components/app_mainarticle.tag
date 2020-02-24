@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <cs_article class="container" ref="homeart" path="/landingpage/article" eventname="appMainArticleOK" erroreventname="appMainArticleErr" language={ app.language }></cs_article>
+                <cs_article class="container" ref="homeart" path="/landingpage/article.html" eventname="appMainArticleOK" erroreventname="appMainArticleErr" language={ app.language }></cs_article>
             </div>
         </div>
     </div>

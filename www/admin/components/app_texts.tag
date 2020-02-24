@@ -228,6 +228,18 @@
                 "fr": "* adresse e-mail ",
                 "pl": "* adres e-mail"
             },
+            "name": {
+                "en": "* name",
+                "it": "* name",
+                "fr": "* name",
+                "pl": "* nazwisko"
+            },
+            "surname": {
+                "en": "* surname",
+                "it": "* surname",
+                "fr": "* surname",
+                "pl": "* nazwisko"
+            },
             "generalNotifications": {
                 "en": "Definition",
                 "it": "Definizione",
@@ -311,6 +323,24 @@
                 "it": "Seleziona ...",
                 "fr": "Choisir ...",
                 "pl": "Wybierz ..."
+            },
+            "services": {
+                "en": "Services",
+                "it": "Services",
+                "fr": "Services",
+                "pl": "Serwisy"
+            },
+            "phoneprefix": {
+                "en": "Phone prefix",
+                "it": "Phone prefix",
+                "fr": "Phone prefix",
+                "pl": "Prefix numeru"
+            },
+            "credits": {
+                "en": "Credits",
+                "it": "Credits",
+                "fr": "Credits",
+                "pl": "Liczba kredytów"
             }
         }
     

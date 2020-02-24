@@ -79,22 +79,65 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
     @Override
     public void putDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException {
         String query = "insert into commands (id,category,type,origin,payload,createdat) values (?,?,?,?,?,?);";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
-            pst.setLong(1, commandEvent.getId());
-            pst.setString(2, commandEvent.getCategory());
-            pst.setString(3, commandEvent.getType());
-            pst.setString(4, deviceEUI);
-            pst.setString(5, (String)commandEvent.getPayload());
-            pst.setLong(6, commandEvent.getCreatedAt());
-            pst.executeUpdate();
-            pst.close();
-            conn.close();
-        } catch (SQLException e) {
-            throw new ThingsDataException(e.getErrorCode(), e.getMessage());
+        //String query2 = "update commands set id=?,payload=?,createdat=? where category=? and type=? and origin=?";
+        String query2 = "merge into commands key (category,type,origin) values (?,?,?,?,?,?)";
+        String command = (String) commandEvent.getPayload();
+        boolean overwriteMode = false;
+        if (command.startsWith("&")) {
+            overwriteMode = false;
+        } else if (command.startsWith("#")) {
+            query = query2;
+            overwriteMode = true;
         }
-    }
+            try (Connection conn = getConnection()) {
+                PreparedStatement pst;
+                pst = conn.prepareStatement(query);
+                pst.setLong(1, commandEvent.getId());
+                pst.setString(2, commandEvent.getCategory());
+                pst.setString(3, commandEvent.getType());
+                pst.setString(4, deviceEUI);
+                pst.setString(5, (String) commandEvent.getPayload());
+                pst.setLong(6, commandEvent.getCreatedAt());
+                pst.executeUpdate();
+                pst.close();
+                conn.close();
+            } catch (SQLException e) {
+                throw new ThingsDataException(e.getErrorCode(), e.getMessage());
+            }
+        /*if (!overwriteMode) {
+            try (Connection conn = getConnection()) {
+                PreparedStatement pst;
+                pst = conn.prepareStatement(query);
+                pst.setLong(1, commandEvent.getId());
+                pst.setString(2, commandEvent.getCategory());
+                pst.setString(3, commandEvent.getType());
+                pst.setString(4, deviceEUI);
+                pst.setString(5, (String) commandEvent.getPayload());
+                pst.setLong(6, commandEvent.getCreatedAt());
+                pst.executeUpdate();
+                pst.close();
+                conn.close();
+            } catch (SQLException e) {
+                throw new ThingsDataException(e.getErrorCode(), e.getMessage());
+            }
+        } else {
+            try (Connection conn = getConnection()) {
+                PreparedStatement pst;
+                pst = conn.prepareStatement(query2);
+                pst.setLong(1, commandEvent.getId());
+                pst.setString(2, (String) commandEvent.getPayload());
+                pst.setLong(3, commandEvent.getCreatedAt());
+                pst.setString(4, commandEvent.getCategory());
+                pst.setString(5, commandEvent.getType());
+                pst.setString(6, commandEvent.getOrigin());
+                pst.executeUpdate();
+                pst.close();
+                conn.close();
+            } catch (SQLException e) {
+                throw new ThingsDataException(e.getErrorCode(), e.getMessage());
+            }
+        }*/
+        }
 
     @Override
     public Event getFirstCommand(String deviceEUI) throws ThingsDataException {
@@ -189,7 +232,7 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
             pst.setString(2, commandEvent.getCategory());
             pst.setString(3, commandEvent.getType());
             pst.setString(4, deviceEUI);
-            pst.setString(5, (String)commandEvent.getPayload());
+            pst.setString(5, (String) commandEvent.getPayload());
             pst.setLong(6, commandEvent.getCreatedAt());
             pst.executeUpdate();
             pst.close();

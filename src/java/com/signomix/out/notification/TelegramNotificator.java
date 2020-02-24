@@ -38,6 +38,11 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
     }
 
     @Override
+    public String send(String userID, String recipient, String nodeName, String message) {
+        return send(recipient, nodeName, message);
+    }
+
+    @Override
     public String send(String recipient, String nodeName, String message) {
         if (!ready) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "not configured"));

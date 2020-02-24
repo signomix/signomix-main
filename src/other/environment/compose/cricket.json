@@ -506,19 +506,6 @@
                     }
                 },
                 {
-                    "name": "smtpNotification2",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.SmtpNotificator",
-                    "properties": {
-                        "from": "name@host",
-                        "mailhost": "",
-                        "user": "name@host",
-                        "password": "mypassword",
-                        "starttls": "true",
-                        "debug-session": "false"
-                    }
-                },
-                {
                     "name": "pushoverNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.PushoverNotificator",
@@ -557,14 +544,6 @@
                         "user": "test@signocom.com",
                         "password": "Ypsylon#2017#",
                         "debug-session": "false"
-                    }
-                },
-                {
-                    "name": "virtualStack",
-                    "interfaceName": "VirtualStackIface",
-                    "classFullName": "com.signomix.out.iot.VirtualStack",
-                    "properties": {
-                        "write-interval": ""
                     }
                 }
             ]

@@ -7,9 +7,11 @@ package com.signomix.out.script;
 import com.signomix.iot.IotEvent;
 import com.signomix.out.iot.ChannelData;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
 
 /**
  *
@@ -75,16 +77,22 @@ public class ScriptResult {
         dataEvents.put(deviceName, list);
     }
 
-    public void addCommand(String deviceName, String payload, boolean hexRepresentation) {
+    public void addCommand(String toDevice, String fromDevice, String payload, boolean hexRepresentation, boolean overwrite) {
         //events.add(new Event(this.getClass().getSimpleName(), Event.CATEGORY_GENERIC, "COMMAND", null, payload));
         IotEvent event = new IotEvent();
-        event.setOrigin(deviceName);
+        event.setOrigin(fromDevice+"@"+toDevice);
         if (hexRepresentation) {
             event.setType(IotEvent.ACTUATOR_HEXCMD);
         } else {
             event.setType(IotEvent.ACTUATOR_CMD);
         }
-        event.setPayload(payload); //TODO: Base64 encoded
+        String prefix;
+        if(overwrite){
+            prefix="#";
+        }else{
+            prefix="&";
+        }
+        event.setPayload(prefix+Base64.getEncoder().encodeToString(payload.getBytes()));
         events.add(event);
     }
 
@@ -218,5 +226,9 @@ public class ScriptResult {
      */
     public void setDeviceState(Double deviceState) {
         this.deviceState = deviceState;
+    }
+    
+    public void log(String message){
+        Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), message));
     }
 }

@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card border border-0">
-                <cs_article class="container" ref="partnerart" path="/landingpage/partners" eventname="appPartnerboxOK" erroreventname="appPartnerboxErr" language={ app.language }></cs_article>
+                <cs_article class="container" ref="partnerart" path="/landingpage/partners.html" eventname="appPartnerboxOK" erroreventname="appPartnerboxErr" language={ app.language }></cs_article>
                 </div>
             </div>
         </div>

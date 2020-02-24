@@ -70,6 +70,15 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         }
         return thingsAdapter;
     }
+    
+    @Override
+    public ScriptResult processData(ArrayList<ChannelData> values, Device device, 
+            long dataTimestamp, Double latitude, Double longitude, Double altitude, Double state, 
+            int alert, String command, String requestData) throws ScriptAdapterException {
+        return processData(values, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), 
+                dataTimestamp, latitude, longitude, altitude, device.getState(), device.getAlertStatus(),
+                device.getLatitude(), device.getLongitude(), device.getAltitude(), command, requestData);
+    }
 
     @Override
     public ScriptResult processData(ArrayList<ChannelData> values, String deviceScript,
@@ -225,13 +234,6 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
         Kernel.getInstance().dispatchEvent(ev);
     }
 
-    @Override
-    public ScriptResult processData(ArrayList<ChannelData> values, Device device, 
-            long dataTimestamp, Double latitude, Double longitude, Double altitude, Double state, 
-            int alert, String command, String requestData) throws ScriptAdapterException {
-        return processData(values, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), 
-                dataTimestamp, latitude, longitude, altitude, device.getState(), device.getAlertStatus(),
-                device.getLatitude(), device.getLongitude(), device.getAltitude(), command, requestData);
-    }
+
 
 }

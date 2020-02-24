@@ -8,7 +8,7 @@
         <div class="card-body">
              <div class="row">
                  <div class="col text-center" if={ front }>
-                    <img width="33%" style="margin-right: 10px;" src={ getLedImgUrl(alertLevel) }>
+                    <img width="25%" style="margin-right: 10px;" src={ getLedImgUrl(alertLevel) }>
                  </div>
                  <div class="col text-center h5" if={ !front }>
                      {measureDate}<br>{value}

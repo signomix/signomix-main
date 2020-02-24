@@ -4,6 +4,7 @@
  */
 package com.signomix;
 
+import com.signomix.iot.IotEvent;
 import com.signomix.out.notification.NotificationIface;
 import java.util.List;
 import org.cricketmsf.microsite.user.*;
@@ -86,6 +87,8 @@ public class UserModule extends UserBusinessLogic {
             User newUser = new User();
             newUser.setUid(event.getRequestParameter("uid"));
             newUser.setEmail(event.getRequestParameter("email"));
+            newUser.setName(event.getRequestParameter("name"));
+            newUser.setSurname(event.getRequestParameter("surname"));
             newUser.setType(User.FREE);
             newUser.setRole("");
             newUser.setPassword(HashMaker.md5Java(event.getRequestParameter("password")));
@@ -130,7 +133,7 @@ public class UserModule extends UserBusinessLogic {
             if (withConfirmation) {
                 result.setCode(HttpAdapter.SC_ACCEPTED);
                 //fire event to send "need confirmation" email
-                UserEvent ev=new UserEvent(UserEvent.USER_REGISTERED, newUser.getUid());
+                UserEvent ev = new UserEvent(UserEvent.USER_REGISTERED, newUser.getUid());
                 ev.setTimePoint("+5s");
                 Kernel.getInstance().dispatchEvent(ev);
             } else {
@@ -197,6 +200,8 @@ public class UserModule extends UserBusinessLogic {
                 return result;
             }
             String email = event.getRequestParameter("email");
+            String name = event.getRequestParameter("name");
+            String surname = event.getRequestParameter("surname");
             String type = event.getRequestParameter("type");
             String role = event.getRequestParameter("role");
             String password = event.getRequestParameter("password");
@@ -206,8 +211,17 @@ public class UserModule extends UserBusinessLogic {
             String warningNotifications = event.getRequestParameter("warningNotifications");
             String alertNotifications = event.getRequestParameter("alertNotifications");
             String unregisterRequested = event.getRequestParameter("unregisterRequested");
+            String services = event.getRequestParameter("services");
+            String phonePrefix = event.getRequestParameter("phoneprefix");
+            String credits = event.getRequestParameter("credits");
             if (email != null) {
                 user.setEmail(email);
+            }
+            if (name != null) {
+                user.setName(name);
+            }
+            if (surname != null) {
+                user.setSurname(surname);
             }
             if (role != null && admin) {
                 user.setRole(role);
@@ -215,6 +229,21 @@ public class UserModule extends UserBusinessLogic {
             if (type != null && admin) {
                 try {
                     user.setType(Integer.parseInt(type));
+                } catch (NumberFormatException e) {
+                }
+            }
+            if (services != null && isAdmin(request)) {
+                try {
+                    user.setServices(Integer.parseInt(services));
+                } catch (NumberFormatException e) {
+                }
+            }
+            if (phonePrefix != null && isAdmin(request)) {
+                user.setPhonePrefix(phonePrefix);
+            }
+            if (credits != null && isAdmin(request)) {
+                try {
+                    user.setCredits(Long.parseLong(credits));
                 } catch (NumberFormatException e) {
                 }
             }
@@ -311,6 +340,7 @@ public class UserModule extends UserBusinessLogic {
             if (null != telegramChatID) {
                 user.setGeneralNotificationChannel("TELEGRAM:" + telegramUserID + "@" + telegramChatID);
             } else {
+                createNotification(user.getUid(),"unable to get Telegram chat for "+telegramUserID);
                 user.setGeneralNotificationChannel("SIGNOMIX:");
             }
         }
@@ -320,6 +350,7 @@ public class UserModule extends UserBusinessLogic {
             if (null != telegramChatID) {
                 user.setInfoNotificationChannel("TELEGRAM:" + telegramUserID + "@" + telegramChatID);
             } else {
+                createNotification(user.getUid(),"unable to get Telegram chat for "+telegramUserID);
                 user.setInfoNotificationChannel("SIGNOMIX:");
             }
         }
@@ -329,6 +360,7 @@ public class UserModule extends UserBusinessLogic {
             if (null != telegramChatID) {
                 user.setWarningNotificationChannel("TELEGRAM:" + telegramUserID + "@" + telegramChatID);
             } else {
+                createNotification(user.getUid(),"unable to get Telegram chat for "+telegramUserID);
                 user.setWarningNotificationChannel("SIGNOMIX:");
             }
         }
@@ -338,6 +370,7 @@ public class UserModule extends UserBusinessLogic {
             if (null != telegramChatID) {
                 user.setAlertNotificationChannel("TELEGRAM:" + telegramUserID + "@" + telegramChatID);
             } else {
+                createNotification(user.getUid(),"unable to get Telegram chat for "+telegramUserID);
                 user.setAlertNotificationChannel("SIGNOMIX:");
             }
         }
@@ -350,5 +383,9 @@ public class UserModule extends UserBusinessLogic {
             telegramUserID = telegramUserID.substring(0, telegramUserID.indexOf("@"));
         }
         return telegramUserID;
+    }
+    
+    private void createNotification(String userID, String message){
+        Kernel.getInstance().dispatchEvent(new IotEvent().addType(IotEvent.GENERAL).addPayload(message).addOrigin(userID+"\t_"));
     }
 }

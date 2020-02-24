@@ -1,7 +1,7 @@
 <app_documentation>
-    <div class="row text-right">
-        <div class="col-md-12 topspacing">
-            <a href="#!doc,toc">Index</a>
+    <div class="row toc-top">
+        <div class="col-md-12 text-left">
+            <a href="#!doc,toc">{app.texts.documentation.TOC[app.language]}</a>
         </div>
     </div>
     <div class="row" >
@@ -9,9 +9,9 @@
             <cs_article class="container" ref="art1" path={ app.docPath } language={ app.language }></cs_article>
         </div>
     </div>
-    <div class="row text-right">
-        <div class="col-md-12 topspacing">
-            <a href="#!doc,toc">Index</a>
+    <div class="row toc-bottom">
+        <div class="col-md-12 text-left">
+            <a href="#!doc,toc">{app.texts.documentation.TOC[app.language]}</a>
         </div>
     </div>
     <script charset="UTF-8">
@@ -44,4 +44,18 @@
             });
         }
     </script>
+    <style>
+        .toc-top{
+            border-bottom-color: darkgray;
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            margin-bottom: 0rem;
+        }
+        .toc-bottom{
+            border-top-color: darkgray;
+            border-top-style: solid;
+            border-top-width: 1px;
+            margin-top: 0rem;
+        }
+    </style>
 </app_documentation>

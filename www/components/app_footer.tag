@@ -1,13 +1,9 @@
 <app_footer>
-    <div class="container">
-        <footer id="contact" class="pt-4 my-md-5 pt-md-5 border-top">
-            <div class="row">
-                <div class="col-md-12">
-                    <cs_article class="container" ref="homeart" path="/landingpage/footer" eventname="appMainArticleOK" erroreventname="appMainArticleErr" language={ app.language }></cs_article>
-                </div>
-            </div>
-        </footer>
-    </div>
+    <footer class="footer border-top bg-white text-signo text-right mt-4">
+        <div class="container">
+            <cs_article class="container" ref="homeart" path="/landingpage/footer.html" eventname="appMainArticleOK" erroreventname="appMainArticleErr" language={ app.language }></cs_article>
+        </div>
+    </footer>
     <script charset="UTF-8">
         var self = this;
         self.refs = []

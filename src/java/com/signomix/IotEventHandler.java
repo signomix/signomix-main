@@ -41,6 +41,7 @@ public class IotEventHandler {
             NotificationIface pushoverNotification,
             NotificationIface slackNotification,
             NotificationIface telegramNotification,
+            NotificationIface webhookNotification,
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             ScriptingAdapterIface scriptingAdapter,
@@ -97,7 +98,12 @@ public class IotEventHandler {
                                 response = smtpNotification.send(address, nodeName, message);
                                 break;
                             case "SMS":
-                                response = smsNotification.send(address, nodeName, message);
+                                if (user.getCredits() > 0) {
+                                    response = smsNotification.send(user.getUid(), user.getPhonePrefix() + address, nodeName, message);
+                                }
+                                if(!response.startsWith("ERROR")){
+                                    //TODO: decrease user credits
+                                }
                                 break;
                             case "PUSHOVER":
                                 response = pushoverNotification.send(address, nodeName, message);
@@ -107,6 +113,9 @@ public class IotEventHandler {
                                 break;
                             case "TELEGRAM":
                                 response = telegramNotification.send(address, nodeName, message);
+                                break;
+                            case "WEBHOOK":
+                                response = webhookNotification.send(address, nodeName, message);
                                 break;
                             default:
                                 Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
@@ -167,17 +176,26 @@ public class IotEventHandler {
                     String[] channels = payload.split(";");
                     params = channels[0].split(":");
                     String deviceEUI = params[0];
-                    Device device;
-                    Device sourceDevice;
+                    Device device = null;
+                    Device sourceDevice = null;
                     try {
                         sourceDevice = thingsAdapter.getDevice(sourceDeviceEui);
-                        device = thingsAdapter.getDevice(sourceDevice.getUserID(), deviceEUI, false);
+                        if (null != sourceDevice) {
+                            device = thingsAdapter.getDevice(sourceDevice.getUserID(), deviceEUI, false);
+                        }
                     } catch (ThingsDataException ex) {
                         Kernel.getInstance().dispatchEvent(Event.logWarning("IotEventHandler", "virtual device: " + ex.getMessage()));
                         return;
                     }
-                    if (!device.getType().equals(Device.VIRTUAL)) {
-                        System.out.println("DEVICE NOT FOUND OR NOT VIRTUAL");
+                    if (null == sourceDevice) {
+                        System.out.println("SOURCE DEVICE NOT FOUND: " + sourceDeviceEui);
+                        return;
+                    }
+                    if (null == device) {
+                        System.out.println("VIRTUAL DEVICE NOT FOUND: " + deviceEUI);
+                        return;
+                    } else if (!device.getType().equals(Device.VIRTUAL)) {
+                        System.out.println("DEVICE IS NOT VIRTUAL: " + deviceEUI);
                         return;
                     }
                     ArrayList<ChannelData> values = new ArrayList<>();
@@ -216,8 +234,15 @@ public class IotEventHandler {
                 case IotEvent.PLATFORM_MONITORING:
                     String eui = (String) kernel.getProperties().getOrDefault("monitoring_device", "");
                     if (!eui.isEmpty()) {
-                        event.setOrigin(eui);
-                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                        Device d = null;
+                        try {
+                            d = thingsAdapter.getDevice(eui);
+                        } catch (ThingsDataException ex) {
+                        }
+                        if (null != d) {
+                            event.setOrigin(eui);
+                            ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                        }
                     }
                     break;
                 default:

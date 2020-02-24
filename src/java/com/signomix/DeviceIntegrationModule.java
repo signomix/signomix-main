@@ -163,7 +163,7 @@ public class DeviceIntegrationModule {
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
                         data.getReceivedPackageTimestamp(), data.getLatitude(),
-                        data.getLongitude(), data.getAltitude(), "");
+                        data.getLongitude(), data.getAltitude(), "", "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -315,7 +315,7 @@ public class DeviceIntegrationModule {
                 Object[] processingResult
                         = DataProcessor.processValues(inputList, device, scriptingAdapter,
                                 data.getReceivedPackageTimestamp(), data.getLatitude(),
-                                data.getLongitude(), data.getAltitude(), dataString);
+                                data.getLongitude(), data.getAltitude(), dataString, "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -443,7 +443,7 @@ public class DeviceIntegrationModule {
                         data.getLatitude(),
                         data.getLongitude(),
                         data.getAltitude(),
-                        request.body);
+                        request.body, "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -558,7 +558,7 @@ public class DeviceIntegrationModule {
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
                         data.getReceivedPackageTimestamp(), data.getLatitude(),
-                        data.getLongitude(), data.getAltitude(),request.body);
+                        data.getLongitude(), data.getAltitude(),request.body, "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -792,7 +792,7 @@ public class DeviceIntegrationModule {
             ArrayList<ArrayList> outputList;
             try {
                 Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter, 
-                        now, device.getLatitude(), device.getLongitude(), device.getAltitude(), "");
+                        now, device.getLatitude(), device.getLongitude(), device.getAltitude(), "", "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));

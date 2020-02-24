@@ -82,6 +82,10 @@
     <script data-src="components/widget_led.tag" type="riot/tag"></script>
     <script data-src="components/widget_report.tag" type="riot/tag"></script>
     <script data-src="components/widget_button.tag" type="riot/tag"></script>
+    <script data-src="components/widget_plan.tag" type="riot/tag"></script>
+    <script data-src="components/widget_stopwatch.tag" type="riot/tag"></script>
+    <script data-src="components/widget_time.tag" type="riot/tag"></script>
+    <script data-src="components/widget_devinfo.tag" type="riot/tag"></script>
     <script>
         app.dashboardAPI = "$serviceurl"+"/api/dashboard";  
         app.authAPI = "$serviceurl"+"/api/auth";
@@ -99,6 +103,11 @@
         app.user.name = "$user";
         app.user.roles = $roles;
         app.environmentName = "$environmentName"
+        app.distroType = "$distroType"
+        app.language = "$defaultLanguage"
+        if(app.language.startsWith('$')){
+            app.language = 'en'
+        }
         if(!app.user.token.startsWith('$')){
             app.user.token=app.user.token.substring(0,app.user.token.length-1);
             app.user.status = "logged-in";

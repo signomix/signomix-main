@@ -7,6 +7,7 @@ package com.signomix;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.Dashboard;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.gui.DashboardException;
@@ -209,7 +210,8 @@ public class PlatformAdministrationModule {
             KeyValueDBIface authDB,
             IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
-            ActuatorCommandsDBIface actuatorCommandsDB
+            ActuatorCommandsDBIface actuatorCommandsDB,
+            ShortenerDBIface shortenerDB
     ) {
 
         // SYSTEM key parameters and limits
@@ -296,6 +298,8 @@ public class PlatformAdministrationModule {
             if (!userDB.containsKey("users", "tester1")) {
                 newUser = new User();
                 newUser.setUid("tester1");
+                newUser.setName("Testing");
+                newUser.setSurname("Tester");
                 newUser.setEmail(initialAdminEmail);
                 newUser.setType(User.FREE);
                 newUser.setRole("user");
@@ -501,6 +505,14 @@ public class PlatformAdministrationModule {
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
             }
         }
+        
+        if(shortenerDB!=null){
+            try{
+                shortenerDB.addTable("urls", 100, true);
+            }catch(KeyValueDBException ex){
+                Kernel.handle(Event.logInfo(getClass().getSimpleName(), ex.getMessage()));
+            }
+        }
     }
 
     /**
@@ -665,6 +677,9 @@ public class PlatformAdministrationModule {
             case User.USER:
                 limit = (int)getPlatformConfig().get("standardDevicesLimit");
                 break;
+            case User.EXTENDED:
+                limit = (int)getPlatformConfig().get("extendedDevicesLimit");
+                break;
             case User.OWNER:
             case User.PRIMARY:
                 limit = (int)getPlatformConfig().get("primaryDevicesLimit");
@@ -786,6 +801,9 @@ public class PlatformAdministrationModule {
             case "FREE":
                 userTypeToRemove = User.FREE;
                 break;
+            case "EXTENDED":
+                userTypeToRemove = User.EXTENDED;
+                break;
             case "APPLICATION":
                 userTypeToRemove = User.APPLICATION;
                 break;
@@ -862,6 +880,7 @@ public class PlatformAdministrationModule {
         long ONE_DAY = 24 * 3600 * 1000;
         try {
             long freeRetention = ONE_DAY * (int) getPlatformConfig().get("freeDataRetention");
+            long extendedRetention = ONE_DAY * (int) getPlatformConfig().get("extendedDataRetention");
             long standardRetention = ONE_DAY * (int) getPlatformConfig().get("standardDataRetention");
             long primaryRetention = ONE_DAY * (int) getPlatformConfig().get("primaryDataRetention");
             Map users = userAdapter.getAll();
@@ -871,6 +890,7 @@ public class PlatformAdministrationModule {
             long now = System.currentTimeMillis();
             long tooOldPoint = now - 2 * ONE_DAY;
             long tooOldPointFree = now - freeRetention;
+            long tooOldPointExtended = now - extendedRetention;
             long tooOldPointStandard = now - standardRetention;
             long tooOldPointPrimary = now - primaryRetention;
             while (it.hasNext()) {
@@ -883,6 +903,9 @@ public class PlatformAdministrationModule {
                             break;
                         case User.USER:
                             tooOldPoint = tooOldPointStandard;
+                            break;
+                        case User.EXTENDED:
+                            tooOldPoint = tooOldPointExtended;
                             break;
                         default:
                             tooOldPoint = tooOldPointFree;
@@ -914,17 +937,16 @@ public class PlatformAdministrationModule {
      */
     private void clearDataExceedingLimit(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
         try {
-            long freeSize = (int) getPlatformConfig().get("freeCollectionLimit");
-            long standardSize = (int) getPlatformConfig().get("standardCollectionLimit");
-            long primarySize = (int) getPlatformConfig().get("primaryCollectionLimit");
             Map users = userAdapter.getAll();
             List<Device> devices;
             Iterator it = users.keySet().iterator();
             String uid;
             long limit=1008;
-            long limitFree = 1008;
-            long limitStandard = 1008;
-            long limitPrimary = 1008;
+            
+            long limitFree = (int) getPlatformConfig().get("freeCollectionLimit");
+            long limitExtended = (int) getPlatformConfig().get("extendedCollectionLimit");
+            long limitStandard = (int) getPlatformConfig().get("standardCollectionLimit");
+            long limitPrimary = (int) getPlatformConfig().get("primaryCollectionLimit");
             
             while (it.hasNext()) {
                 uid = (String) it.next();
@@ -936,6 +958,9 @@ public class PlatformAdministrationModule {
                             break;
                         case User.USER:
                             limit = limitStandard;
+                            break;
+                        case User.EXTENDED:
+                            limit = limitExtended;
                             break;
                         default:
                             limit = limitFree;

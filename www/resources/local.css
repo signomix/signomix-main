@@ -1,0 +1,51 @@
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.container {
+  max-width: 960px;
+}
+
+.text-signo {
+    color: rgb(80,80,80);
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 40px;
+    background-color: #F8F8F8;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    /*height: 40px;*/
+    /*line-height: 40px;*/ /* Vertically center the text there */
+}
+
+main {
+    padding-top: 60px;
+}
+
+.folder h1 {
+  font-size: xx-large;
+  font-weight: bold;
+}
+.list h1 {
+  font-size: x-large;
+  font-weight: bold;
+}

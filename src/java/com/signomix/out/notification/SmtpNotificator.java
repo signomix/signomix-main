@@ -69,6 +69,11 @@ public class SmtpNotificator extends OutboundAdapter implements NotificationIfac
     }
 
     @Override
+    public String send(String userID, String recipient, String nodeName, String message) {
+        return send(recipient, nodeName, message);
+    }
+
+    @Override
     public String send(String recipient, String nodeName, String message) {
         if (!ready) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "not configured"));

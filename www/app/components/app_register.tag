@@ -24,14 +24,12 @@
                         <form_input 
                             id="login"
                             name="login"
-                            label={ app.texts.register.l_name[app.language] }
+                            label={ app.texts.register.l_login[app.language] }
                             type="text"
                             required="true"
                             pattern="[a-zA-Z][a-zA-Z0-9-_@\.]\{1,20}"
-                            oninvalid={ app.texts.register.l_nameHint[app.language] }
-                            hint={ app.texts.register.l_nameHint[app.language] }/>
-                    </div>
-                    <div class="form-group">
+                            oninvalid={ app.texts.register.l_loginHint[app.language] }
+                            hint={ app.texts.register.l_loginHint[app.language] }/>
                     <form_input 
                         id="email"
                         name="email"
@@ -40,8 +38,22 @@
                         required="true"
                         oninvalid={ app.texts.register.l_emailHint[app.language] }
                         hint={ app.texts.register.l_emailHint[app.language] }/>
-                    </div>
-                    <div class="form-group">
+                    <form_input 
+                        id="name"
+                        name="name"
+                        label={ app.texts.register.l_name[app.language] }
+                        type="text"
+                        required="true"
+                        oninvalid={ app.texts.register.l_nameHint[app.language] }
+                        hint={ app.texts.register.l_nameHint[app.language] }/>
+                    <form_input 
+                        id="surname"
+                        name="surname"
+                        label={ app.texts.register.l_surname[app.language] }
+                        type="text"
+                        required="true"
+                        oninvalid={ app.texts.register.l_surnameHint[app.language] }
+                        hint={ app.texts.register.l_surnameHint[app.language] }/>
                         <form_input 
                         id="password"
                         name="password"
@@ -52,9 +64,7 @@
                         oninvalid={ app.texts.register.l_passwordHint[app.language] }
                         hint={ app.texts.register.l_passwordHint[app.language] }
                         />
-                    </div>
-                    <div class="form-group">
-                        <form_input 
+                <form_input 
                 id="password2"
                 name="password2"
                 label={ app.texts.register.l_retypepassword[app.language] }
@@ -108,6 +118,8 @@
         formData.uid = e.target.elements['login'].value
         formData.password = e.target.elements['password'].value
         formData.email = e.target.elements['email'].value
+        formData.name = e.target.elements['name'].value
+        formData.surname = e.target.elements['surname'].value
         formData.accept = e.target.elements['accept'].value
         self.registeredEmail = formData.email
         if (self.validate(formData,e.target.elements['password2'].value) == 0) {

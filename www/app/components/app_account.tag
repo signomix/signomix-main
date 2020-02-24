@@ -87,10 +87,13 @@
                 <table class="table">
                     <tr><th>{ app.texts.account.uid[app.language] }</th><td>{userProfile.uid}</td></tr>
                     <tr><th>{ app.texts.account.email[app.language] }</th><td>{userProfile.email}</td></tr>
+                    <tr><th>{ app.texts.account.name[app.language] }</th><td>{userProfile.name}</td></tr>
+                    <tr><th>{ app.texts.account.surname[app.language] }</th><td>{userProfile.surname}</td></tr>
                     <tr><th>{ app.texts.account.generalNotifications[app.language] }</th><td>{userProfile.generalNotificationChannel}</td></tr>
                     <tr><th>{ app.texts.account.infoNotifications[app.language] }</th><td>{userProfile.infoNotificationChannel}</td></tr>
                     <tr><th>{ app.texts.account.warningNotifications[app.language] }</th><td>{userProfile.warningNotificationChannel}</td></tr>
                     <tr><th>{ app.texts.account.alertNotifications[app.language] }</th><td>{userProfile.alertNotificationChannel}</td></tr>
+                    <tr><th>Phone prefix</th><td>{userProfile.phonePrefix}</td></tr>
                     <tr if={ app.user.roles.indexOf("admin")>-1 }><th>{ app.texts.account.role[app.language] }</th><td>{userProfile.role}</td></tr>
                     <tr><th>{ app.texts.account.confirmString[app.language] }</th><td>{userProfile.confirmString}</td></tr>
                     <tr if={ app.user.roles.indexOf("admin")>-1 }><th>{ app.texts.account.no[app.language] }</th><td>{userProfile.number}</td></tr>
@@ -232,17 +235,25 @@
         self.getTariffName = function(){
             var resp="Free"
             switch(self.userProfile.type){
+                case 3:
                 case 4:
                 case 6:
-                case 3:
                     resp="Free"
                     break
                 case 0:
                     resp="Standard"
                     break
                 case 1:
+                    resp="Admin"
+                    break;
+                case 2:
+                    resp="" //application
+                    break;
                 case 5:
                     resp="Pro"
+                    break
+                case 7:
+                    resp="Free Ext."
                     break
             }
             return resp

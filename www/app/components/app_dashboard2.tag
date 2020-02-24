@@ -10,12 +10,17 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>{ app.texts.dashboard2.line1[app.language] }</p>
-                <input type='text' onclick='this.select();' value={ sharedLink }/>
-                <p>&nbsp;</p><p>{ app.texts.dashboard2.line2[app.language] }</p>
-                <textarea rows="5" onclick='this.select();'>{ sharedEmbeded }</textarea>
-                <p>&nbsp;</p>
-                <p>{ app.texts.dashboard2.line3[app.language] }</p>
+                <form>
+                    <div class="form-group">
+                        <p>{ app.texts.dashboard2.line1[app.language] }</p>
+                        <input type="text" class="form-control" id="link" onclick="this.select();" value={ sharedLink }/>
+                    </div>
+                    <div class="form-group">
+                        <p>{ app.texts.dashboard2.line2[app.language] }</p>
+                        <textarea class="form-control" rows="5" onclick='this.select();'>{ sharedEmbeded }</textarea>
+                        <p>{ app.texts.dashboard2.line3[app.language] }</p>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">{ app.texts.dashboard2.close[app.language] }</button>
@@ -50,8 +55,12 @@
                     <widget_map ref={ getRefName(i,j) } if={w_line[i][j]['type']=='map'}></widget_map>
                     <widget_raw ref={ getRefName(i,j) } if={w_line[i][j]['type']=='raw' || w_line[i][j]['type']=='text'}></widget_raw>
                     <widget_led ref={ getRefName(i,j) } if={w_line[i][j]['type']=='led'}></widget_led>
+                    <widget_plan ref={ getRefName(i,j) } if={w_line[i][j]['type']=='plan'}></widget_plan>
                     <widget_report ref={ getRefName(i,j) } if={w_line[i][j]['type']=='report'}></widget_report>
                     <widget_multimap ref={ getRefName(i,j) } if={w_line[i][j]['type']=='multimap'}></widget_multimap>
+                    <widget_stopwatch ref={ getRefName(i,j) } if={w_line[i][j]['type']=='stopwatch'}></widget_stopwatch>
+                    <widget_time ref={ getRefName(i,j) } if={w_line[i][j]['type']=='time'}></widget_time>
+                    <widget_devinfo ref={ getRefName(i,j) } if={w_line[i][j]['type']=='devinfo'}></widget_devinfo>
                 </div>
             </virtual>
         </div>
@@ -115,7 +124,7 @@
         app.log('REFRESHING DATA')
         Object.keys(self.refs).forEach(function(key,index) {
             app.log(key)
-            if(self.dashboardConfig.widgets.length>index && (self.dashboardConfig.widgets[index]['dev_id']||self.dashboardConfig.widgets[index]['type']=='report'||self.dashboardConfig.widgets[index]['type']=='multimap')){
+            if(self.dashboardConfig.widgets.length>index && (self.dashboardConfig.widgets[index]['dev_id']||self.dashboardConfig.widgets[index]['type']=='report'||self.dashboardConfig.widgets[index]['type']=='multimap'||self.dashboardConfig.widgets[index]['type']=='plan')){
                 readDashboardData(self.dashboardConfig.widgets[index], updateWidget, 0, index);
             }
         })
@@ -216,8 +225,8 @@
 
         var url=''
         if(config.type=='devinfo'||config.type=='devmap'){
-            //TODO: get device data
-        }else if(config.type=='report'||config.type=='multimap'){
+            url=app.iotAPI + "/" + config.dev_id
+        }else if(config.type=='report'||config.type=='multimap'||config.type=='plan'){
             url=app.groupAPI + "/" + config.group + "/"+channelName+(app.shared!=''?'?tid='+app.shared:'')
         }else if(config.dev_id){
             url=app.iotAPI + "/" + config.dev_id + "/"+channelName+"?"+(app.shared!=''?'tid='+app.shared+'&':'')+"query=" + query

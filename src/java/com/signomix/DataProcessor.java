@@ -26,13 +26,13 @@ public class DataProcessor {
 //            Double latitude, Double longitude, Double altitude) throws Exception {
     public static Object[] processValues(ArrayList<ChannelData> listOfValues, Device device, 
             ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
-            Double latitude, Double longitude, Double altitude, String requestData) throws Exception {
+            Double latitude, Double longitude, Double altitude, String requestData, String command) throws Exception {
         ScriptResult scriptResult = null;
         try {
             scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), 
                     device.getEUI(), device.getUserID(), dataTimestamp,
                     latitude, longitude, altitude, device.getState(),
-                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude(), "", "");
+                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude(), command, requestData);
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -54,6 +54,7 @@ public class DataProcessor {
         //commands and notifications
         for (int i = 0; i < events.size(); i++) {
             if (IotEvent.ACTUATOR_CMD.equals(events.get(i).getType()) || IotEvent.ACTUATOR_HEXCMD.equals(events.get(i).getType())) {
+                Kernel.getLogger().log(events.get(i));
                 Kernel.getInstance().dispatchEvent(events.get(i));
             } else {
                 recipients = new HashMap<>();
@@ -82,7 +83,7 @@ public class DataProcessor {
             Event newEvent;
             if (el.size() > 0) {
                 newEvent = el.get(0).clone();
-                newEvent.setOrigin(device.getUserID());
+                //newEvent.setOrigin(device.getUserID());
                 String payload="";
                 for (int i = 0; i < el.size(); i++) {
                     payload=payload+";"+el.get(i).getPayload();

@@ -9,6 +9,7 @@ import com.signomix.in.http.ActuatorApi;
 import com.signomix.iot.IotEvent;
 import com.signomix.iot.TtnDownlinkMessage;
 import com.signomix.out.db.ActuatorCommandsDBIface;
+import com.signomix.out.iot.ChannelData;
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.StandardResult;
@@ -19,6 +20,7 @@ import com.signomix.out.script.ScriptAdapterException;
 import com.signomix.out.script.ScriptResult;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
@@ -133,7 +135,7 @@ public class ActuatorModule {
          */
         String cmdType = (String) request.parameters.get("hex");
         IotEvent event = new IotEvent();
-        event.setOrigin(device.getEUI());
+        event.setOrigin("@" + device.getEUI());
         if (hexPayload) {
             event.setType(IotEvent.ACTUATOR_HEXCMD);
         } else {
@@ -151,26 +153,43 @@ public class ActuatorModule {
             ThingsDataIface thingsAdapter,
             ScriptingAdapterIface scriptingAdapter
     ) {
-        String deviceEUI;
-        deviceEUI = event.getOrigin();
+        String[] devices = event.getOrigin().split("@");
+        String sourceEUI = devices[0];
+        String deviceEUI = devices[1];
         String payload = (String) event.getPayload();
-        System.out.println(">>>>>>>>>>>>>>>>>"+deviceEUI+" "+payload);
         boolean done = false;
+        Device sourceDevice = null;
         Device device = null;
         try {
+            if (!sourceEUI.isEmpty()) {
+                sourceDevice = thingsAdapter.getDevice(sourceEUI);
+            }
             device = thingsAdapter.getDevice(deviceEUI);
             if (device == null) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, "device " + deviceEUI + " not found"));
                 return;
             }
             if (device.getType().equals(Device.VIRTUAL)) {
-                done = sendToVirtual(device, payload, thingsAdapter, scriptingAdapter);
+                if (null != sourceDevice && !sourceDevice.getType().equals(Device.VIRTUAL)) {
+                    done = sendToVirtual(device, payload.substring(1), thingsAdapter, scriptingAdapter);
+                }else if(null!=sourceDevice){
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "blocked command from virtual to virtual device"));
+                    done=true;
+                }else{
+                    done=true;
+                }
+                
             } else if (device.getType().equals(Device.TTN)) {
-                done = sendToTtn(device, payload, hexagonalRepresentation);
+                done = sendToTtn(device, payload.substring(1), hexagonalRepresentation);
             } else if (device.getType().equals(Device.LORA)) {
+                //TODO: not implemented
+                done = true;
+            } else if (device.getType().equals(Device.KPN)) {
+                //TODO: not implemented
                 done = true;
             } else if (device.getType().equals(Device.GENERIC) || device.getType().equals(Device.GATEWAY)) {
                 // Nothing to do. Command will be included in the response for the next device data transfer.
+                done = false;
             }
             if (done) {
                 actuatorCommandsDB.putCommandLog(event.getOrigin(), event);
@@ -186,20 +205,57 @@ public class ActuatorModule {
 
     }
 
+    /**
+     * Redirect command to virtual device.
+     *
+     * @param device
+     * @param command
+     * @param thingsAdapter
+     * @param scriptingAdapter
+     * @return
+     */
     private boolean sendToVirtual(Device device, String command, ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter) {
-        ScriptResult scriptResult = null;
+        /*ScriptResult scriptResult = null;
         try {
             //TODO: sendToVirtual
+            String cmd=new String(Base64.getDecoder().decode(command));
             scriptResult = scriptingAdapter.processData(
                     new ArrayList(), device,
-                    System.currentTimeMillis(), null, null, null, null, 0, command, "");
+                    System.currentTimeMillis(), null, null, null, null, 0, cmd, "");
+            
             if (device.getState().compareTo(scriptResult.getDeviceState()) != 0) {
                 thingsAdapter.updateDeviceState(device.getEUI(), scriptResult.getDeviceState());
             }
         } catch (ScriptAdapterException | ThingsDataException ex) {
+            ex.printStackTrace();
             //Logger.getLogger(ActuatorModule.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+         */
+        //TODO: refactoring?
+        //the code below is the copy of DeviceIntegrationModule.writeVirtualData()
+        //start
+        try {
+            String cmd = new String(Base64.getDecoder().decode(command));
+            long now = System.currentTimeMillis();
+            thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
+            ArrayList<ArrayList> outputList;
+            try {
+                Object[] processingResult = DataProcessor.processValues(new ArrayList(), device, scriptingAdapter,
+                        now, device.getLatitude(), device.getLongitude(), device.getAltitude(), "", cmd);
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                }
+            } catch (Exception e) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        //end
         return true;
     }
 
@@ -267,6 +323,18 @@ public class ActuatorModule {
         } else {
         }
         return result;
+    }
+
+    ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values) {
+        ArrayList<ChannelData> fixedList = new ArrayList<>();
+        if (values != null && values.size() > 0) {
+            for (ChannelData value : values) {
+                if (device.getChannels().containsKey(value.getName())) {
+                    fixedList.add(value);
+                }
+            }
+        }
+        return fixedList;
     }
 
 }

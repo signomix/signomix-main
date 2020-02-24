@@ -3,7 +3,7 @@
         <div class="panel-body">
             <form onsubmit={ submitLoginForm }>
                 <div class="text-center">
-                    <img class="text-center mb-4" src="/images/signomix-logo.svg" alt="" width="90" height="90">
+                    <img class="text-center mb-4" src="/images/logo.svg" alt="" width="90" height="90">
                     <p class="module-title h3 text-center mb-4">{app.texts.login.l_title[app.language]}</p>
                 </div>
                 <div class="form-group">

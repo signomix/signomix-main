@@ -15,6 +15,14 @@
             "pl": "Regulamin i prywatność"
         }
     }
+    app.texts.documentation= {
+        "TOC": {
+            "en": "Table of contents",
+            "it": "Sommario",
+            "pl": "Spis treści",
+            "fr": "Table des matières"
+        }
+    }
     
     app.texts.alerts = {
         "title": {
@@ -162,6 +170,18 @@
             "it": "Indirizzo e-mail",
             "fr": "Adresse e-mail",
             "pl": "Adres e-mail"
+        },
+        "name": {
+            "en": "Name",
+            "it": "Name",
+            "fr": "Name",
+            "pl": "Imię"
+        },
+        "surname": {
+            "en": "Surname",
+            "it": "Surname",
+            "fr": "Surname",
+            "pl": "Nazwisko"
         },
         "generalNotifications": {
             "en": "GENERAL Notification Channel",
@@ -442,6 +462,12 @@
             "fr": "LED",
             "pl": "LED"
         },
+        "type_plan": {
+            "en": "Plan/Scheme",
+            "it": "Plan/Scheme",
+            "fr": "Plan/Scheme",
+            "pl": "Plan/Schemat"
+        },
         "type_report": {
             "en": "Group report",
             "it": "Rapporto di gruppo",
@@ -459,6 +485,24 @@
             "it": "Grafico a gradini",
             "fr": "Stepped line chart",
             "pl": "Wykres schodkowy"
+        },
+        "type_stopwatch": {
+            "en": "Stopwatch",
+            "it": "Stopwatch",
+            "fr": "Stopwatch",
+            "pl": "Stoper"
+        },
+        "type_time": {
+            "en": "Time",
+            "it": "Time",
+            "fr": "Time",
+            "pl": "Czas"
+        },
+        "type_devinfo": {
+            "en": "Device info",
+            "it": "Deice info",
+            "fr": "Device info",
+            "pl": "Informacje o urządzeniu"
         },
         "f_remove_question": {
             "en": "Do you want to remove this widget?",
@@ -621,6 +665,12 @@
             "it": "Descrizione",
             "fr": "Description",
             "pl": "Opis"
+        },
+        "f_widget_svg": {
+            "en": "Plan/Scheme SVG",
+            "it": "Plan/Scheme SVG",
+            "fr": "Plan/Scheme SVG",
+            "pl": "Plan/Scheme SVG"
         },
         "f_widget_description_hint": {
             "en": "Widget description. In case of 'info box' widget it will be displayed inside the box.",
@@ -1043,13 +1093,13 @@
             "pl": "Konto"
         },
         "login": {
-            "en": "Sign In",
+            "en": "Log in",
             "it": "Accedi",
             "fr": "Connexion",
             "pl": "Zaloguj się"
         },
         "logout": {
-            "en": "Sign Out",
+            "en": "Log out",
             "it": "Esci",
             "fr": "Déconnexion",
             "pl": "Wyloguj się"
@@ -1395,13 +1445,13 @@
             "fr": "Attention",
             "pl": "Uwaga!"
         }, 
-        "l_name": {
+        "l_login": {
             "en": "Login (user name)",
             "it": "Utente (nome utente)",
             "fr": "Login (nom d'utilisateur)",
             "pl": "Login (nazwa użytkownika)"
         }, 
-        "l_nameHint": {
+        "l_loginHint": {
             "en": "Login must be between 2 and 20 characters, starting with a letter. In addition to letters and numbers, it may contain characters: -.@_",
             "it": "Il nome utente deve essere compreso tra 2 e 20 caratteri, iniziare con una lettera. Oltre a lettere e numeri, può contenere i caratteri: -.@_",
             "fr": "Login doit comporter entre 2 et 20 caractères, en commençant par une lettre. En plus des lettres et des chiffres, il peut contenir des caractères:",
@@ -1424,6 +1474,18 @@
             "it": "E-mail",
             "fr": "E-mail",
             "pl": "E-mail"
+        },
+        "l_name": {
+            "en": "Name",
+            "it": "Nome",
+            "fr": "Nom",
+            "pl": "Imię"
+        },
+        "l_surname": {
+            "en": "Surname",
+            "it": "Cognome",
+            "fr": "Prenom",
+            "pl": "Nazwisko"
         },
         "l_register": {
             "en": "Register",
@@ -1508,6 +1570,18 @@
             "it": "Per favore inserisci un indirizzo email",
             "fr": "Entrez une adresse mail s'il vous plaît",
             "pl": "Proszę podać adres email"
+        },
+        "l_nameHint": {
+            "en": "Please enter your name",
+            "it": "Please enter your name",
+            "fr": "Please enter your name",
+            "pl": "Proszę podać imię"
+        },
+        "l_surnameHint": {
+            "en": "Please enter your family name",
+            "it": "Please enter your family name",
+            "fr": "Please enter your family name",
+            "pl": "Proszę podać nazwisko"
         },
         "l_passwordHint": {
             "en": "Password must be 8 characters long, containing upper and lower letters, numbers and special characters",
@@ -1726,6 +1800,18 @@
                 "fr": "* adresse e-mail ",
                 "pl": "* adres e-mail"
             },
+            "name": {
+                "en": "* Name",
+                "it": "* Name",
+                "fr": "* Name",
+                "pl": "* Imię"
+            },
+            "surname": {
+                "en": "* Surname",
+                "it": "* Surname",
+                "fr": "* Surname",
+                "pl": "* Nazwisko"
+            },
             "generalNotifications": {
                 "en": "Definition",
                 "it": "Definizione",
@@ -1809,6 +1895,18 @@
                 "it": "SIGNOMIX",
                 "fr": "SIGNOMIX",
                 "pl": "SIGNOMIX"
+            },
+            "prefix": {
+                "en": "Prefix",
+                "it": "Prefix",
+                "fr": "Prefix",
+                "pl": "Prefiks"
+            },
+            "phoneprefix": {
+                "en": "Phone prefix",
+                "it": "Phone prefix",
+                "fr": "Phone prefix",
+                "pl": "Prefiks numeru tel."
             }
         }
     
