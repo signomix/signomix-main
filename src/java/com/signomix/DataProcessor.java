@@ -40,14 +40,6 @@ public class DataProcessor {
         if (scriptResult == null) {
             throw new Exception("preprocessor script returns null result");
         }
-        /*
-        if(device.getState()!=scriptResult.getDeviceState()){
-            //TODO: fire event
-            System.out.println("DEVICE STATE "+device.getState()+" "+scriptResult.getDeviceState());
-            Kernel.getInstance().dispatchEvent(Event.logInfo("DataProcessor", "device state changed"));
-        }
-        */
-        //ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
         ArrayList<ArrayList> finalValues=scriptResult.getOutput();
         ArrayList<Event> events = scriptResult.getEvents();
         HashMap<String, String> recipients;

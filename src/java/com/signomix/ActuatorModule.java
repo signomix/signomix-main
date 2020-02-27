@@ -16,8 +16,6 @@ import org.cricketmsf.in.http.StandardResult;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.script.ScriptAdapterException;
-import com.signomix.out.script.ScriptResult;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -111,28 +109,6 @@ public class ActuatorModule {
             ScriptingAdapterIface scriptingAdapter) {
         StandardResult result = new StandardResult();
 
-        // dla virtual device obsługa powinna być inna
-        //TODO: channel name other than "counter"?
-        /*
-        if (device.getType().equals(Device.VIRTUAL)) {
-            try {
-                JsonObject o = (JsonObject) JsonReader.jsonToJava(request.body);
-                String newValue = (String) o.get("counter");
-                VirtualDevice vd = new VirtualDevice(device.getEUI());
-                Double value;
-                value = Double.parseDouble(newValue); //to obcina część ułamkową.
-                virtualStack.get(vd).resetAndSet(value.longValue());
-                //DeviceManagementModule.getInstance().writeVirtualState(vd, device, userID, thingsAdapter, virtualStack, scriptingAdapter, true, value);
-                DeviceIntegrationModule.getInstance().writeVirtualState(vd, device, userID, thingsAdapter, virtualStack, scriptingAdapter, true, value);
-            } catch (ThingsDataException | ClassCastException | NumberFormatException | NullPointerException e) {
-                //TODO:
-                result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                result.setMessage(e.getMessage());
-            }
-            //store new channel data for the device
-            return result;
-        }
-         */
         String cmdType = (String) request.parameters.get("hex");
         IotEvent event = new IotEvent();
         event.setOrigin("@" + device.getEUI());
@@ -215,25 +191,6 @@ public class ActuatorModule {
      * @return
      */
     private boolean sendToVirtual(Device device, String command, ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter) {
-        /*ScriptResult scriptResult = null;
-        try {
-            //TODO: sendToVirtual
-            String cmd=new String(Base64.getDecoder().decode(command));
-            scriptResult = scriptingAdapter.processData(
-                    new ArrayList(), device,
-                    System.currentTimeMillis(), null, null, null, null, 0, cmd, "");
-            
-            if (device.getState().compareTo(scriptResult.getDeviceState()) != 0) {
-                thingsAdapter.updateDeviceState(device.getEUI(), scriptResult.getDeviceState());
-            }
-        } catch (ScriptAdapterException | ThingsDataException ex) {
-            ex.printStackTrace();
-            //Logger.getLogger(ActuatorModule.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         */
-        //TODO: refactoring?
-        //the code below is the copy of DeviceIntegrationModule.writeVirtualData()
-        //start
         try {
             String cmd = new String(Base64.getDecoder().decode(command));
             long now = System.currentTimeMillis();
@@ -247,7 +204,7 @@ public class ActuatorModule {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
                 if (device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double)processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));

@@ -89,21 +89,22 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
             query = query2;
             overwriteMode = true;
         }
-            try (Connection conn = getConnection()) {
-                PreparedStatement pst;
-                pst = conn.prepareStatement(query);
-                pst.setLong(1, commandEvent.getId());
-                pst.setString(2, commandEvent.getCategory());
-                pst.setString(3, commandEvent.getType());
-                pst.setString(4, deviceEUI);
-                pst.setString(5, (String) commandEvent.getPayload());
-                pst.setLong(6, commandEvent.getCreatedAt());
-                pst.executeUpdate();
-                pst.close();
-                conn.close();
-            } catch (SQLException e) {
-                throw new ThingsDataException(e.getErrorCode(), e.getMessage());
-            }
+        command = command.substring(1);
+        try (Connection conn = getConnection()) {
+            PreparedStatement pst;
+            pst = conn.prepareStatement(query);
+            pst.setLong(1, commandEvent.getId());
+            pst.setString(2, commandEvent.getCategory());
+            pst.setString(3, commandEvent.getType());
+            pst.setString(4, deviceEUI);
+            pst.setString(5, command);
+            pst.setLong(6, commandEvent.getCreatedAt());
+            pst.executeUpdate();
+            pst.close();
+            conn.close();
+        } catch (SQLException e) {
+            throw new ThingsDataException(e.getErrorCode(), e.getMessage());
+        }
         /*if (!overwriteMode) {
             try (Connection conn = getConnection()) {
                 PreparedStatement pst;
@@ -137,16 +138,16 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
                 throw new ThingsDataException(e.getErrorCode(), e.getMessage());
             }
         }*/
-        }
+    }
 
     @Override
     public Event getFirstCommand(String deviceEUI) throws ThingsDataException {
-        String query = "select id,category,type,payload,createdat from commands where origin=? order by createdat limit 1";
+        String query = "select id,category,type,payload,createdat from commands where origin like ? order by createdat limit 1";
         Event result = null;
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 result = new Event(deviceEUI, rs.getString(2), rs.getString(3), null, rs.getString(4));
@@ -168,11 +169,11 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException {
-        String query = "delete from commands where origin=? and createdat<?";
+        String query = "delete from commands where origin like ? and createdat<?";
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             pst.setLong(2, checkPoint);
             //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
@@ -185,11 +186,11 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public void removeAllCommands(String deviceEUI) throws ThingsDataException {
-        String query = "delete from commands where origin=?";
+        String query = "delete from commands where origin like ?";
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             pst.executeUpdate();
             pst.close();
             conn.close();
@@ -200,12 +201,12 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public List<Event> getAllCommands(String deviceEUI) throws ThingsDataException {
-        String query = "select id,category,type,payload,createdat from commands where origin=? order by createdat";
+        String query = "select id,category,type,payload,createdat from commands where origin like ? order by createdat";
         ArrayList<Event> result = new ArrayList<>();
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             Event ev;
             while (rs.next()) {
@@ -225,6 +226,10 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
     @Override
     public void putCommandLog(String deviceEUI, Event commandEvent) throws ThingsDataException {
         String query = "insert into commandslog (id,category,type,origin,payload,createdat) values (?,?,?,?,?,?);";
+        String command=(String) commandEvent.getPayload();
+        if(command.startsWith("#")||command.startsWith("&")){
+            command=command.substring(1);
+        }
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
@@ -232,7 +237,7 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
             pst.setString(2, commandEvent.getCategory());
             pst.setString(3, commandEvent.getType());
             pst.setString(4, deviceEUI);
-            pst.setString(5, (String) commandEvent.getPayload());
+            pst.setString(5, command);
             pst.setLong(6, commandEvent.getCreatedAt());
             pst.executeUpdate();
             pst.close();
@@ -244,11 +249,11 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public void clearAllLogs(String deviceEUI, long checkPoint) throws ThingsDataException {
-        String query = "delete from commandslog where origin=? and createdat<?";
+        String query = "delete from commandslog where origin like ? and createdat<?";
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             pst.setLong(2, checkPoint);
             //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
@@ -261,11 +266,11 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public void removeAllLogs(String deviceEUI) throws ThingsDataException {
-        String query = "delete from commandslog where origin=?";
+        String query = "delete from commandslog where origin like ?";
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             pst.executeUpdate();
             pst.close();
             conn.close();
@@ -276,12 +281,12 @@ public class H2CommandsDB extends H2EmbededDB implements SqlDBIface, ActuatorCom
 
     @Override
     public List<Event> getAllLogs(String deviceEUI) throws ThingsDataException {
-        String query = "select id,category,type,payload,createdat from commandslog where origin=? order by createdat";
+        String query = "select id,category,type,payload,createdat from commandslog where origin like ? order by createdat";
         ArrayList<Event> result = new ArrayList<>();
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
-            pst.setString(1, deviceEUI);
+            pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             Event ev;
             while (rs.next()) {
