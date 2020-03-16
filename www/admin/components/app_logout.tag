@@ -18,6 +18,8 @@
             app.log("LOGOUT!");
             app.user.name=null;
             app.user.token=null;
+            app.user.number=null;
+            app.user.autologin=null;
             app.user.status='logged-out';
             route('main')
         }

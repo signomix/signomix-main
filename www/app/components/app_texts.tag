@@ -248,6 +248,18 @@
             "it": "Esci",
             "fr": "déconnecter",
             "pl": "wylogować"
+        },
+        "prefix": {
+            "en": "Phone prefix",
+            "it": "Phone prefix",
+            "fr": "Phone prefix",
+            "pl": "Prefiks telefonu"
+        },
+        "autologin": {
+            "en": "Automatic login",
+            "it": "Automatic login",
+            "fr": "Automatic login",
+            "pl": "Automatyczne logowanie"
         }
     }
     
@@ -1161,6 +1173,24 @@
             "fr": "Annuler",
             "pl": "Porzuć"
         },
+        "l_warning": {
+            "en": "You are currently logged in as",
+            "it": "You are currently logged in as",
+            "fr": "You are currently logged in as",
+            "pl": "Jesteś aktualnie zalogowany jako"
+        },
+        "l_warning2": {
+            "en": "You can log in to another account or continue your current session",
+            "it": "You can log in to another account or continue your current session",
+            "fr": "You can log in to another account or continue your current session",
+            "pl": "Możesz się zalogować na inne konto lub kontynuować aktualną sesję"
+        },
+        "l_keep_session": {
+            "en": "Keep current login",
+            "it": "Keep current login",
+            "fr": "Keep current login",
+            "pl": "Zachowaj bieżący login"
+        },
         "l_signup": {
             "en": "Sign Up",
             "it": "Registrati",
@@ -1853,6 +1883,12 @@
                 "it": "è confermato?",
                 "fr": "Est confirmé?",
                 "pl": "Czy potwierdzone?"
+            },
+            "autologin": {
+                "en": "Automatic Login",
+                "it": "Automatic Login",
+                "fr": "Automatic Login",
+                "pl": "Automatyczne logowanie"
             },
             "unregisterRequested": {
                 "en": "* Unregistration requested?",

@@ -1,0 +1,14 @@
+{
+    "hello": "Hello PL!!",
+    "brand": "Signomix",
+    "title": "Signomix Blog",
+    "navigation":{
+        "signin": "Zaloguj się"
+    },
+    "list": {
+        "details": "Details"
+    },
+    "article": {
+        "title": "Tytuł"
+    }
+}

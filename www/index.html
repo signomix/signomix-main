@@ -34,10 +34,13 @@
     <link rel="icon" href="resources/signomix-icon.png">
     <!-- Bootstrap core CSS  -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="/resources/local.css" rel="stylesheet">
+    <link href="/resources/flag-icon.css" rel="stylesheet">
   </head>
   <body>
+    <app_texts></app_texts>
     <app_header></app_header>  
     <app_messagebox></app_messagebox>
     <app_mainarticle></app_mainarticle>
@@ -51,8 +54,10 @@
     <script src="/js/holder.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/riot-route@3.1.4/dist/route.min.js"></script>
+    <script src="/js/routing.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/data-api.js"></script>
+    <script data-src="/components/app_texts.tag" type="riot/tag"></script>    
     <script data-src="/tags/cs_article.tag" type="riot/tag"></script>
     <script data-src="/components/app_header.tag" type="riot/tag"></script>
     <script data-src="/components/app_messagebox.tag" type="riot/tag"></script>
@@ -69,13 +74,17 @@
         <!-- end Google Analytics ID config -->
         app.csAPI = "$serviceurl"+"/api/cs";
         app.language = "en";
+        app.languages=['en','pl'];
         app.caseSelected = 1
         riot.mount('*');
+        route.base('#!');
+        route.start(true);
         Holder.addTheme('thumb', {
           bg: '#55595c',
           fg: '#eceeef',
           text: 'Thumbnail'
         });
+        riot.update()
     </script>
   </body>
 </html>

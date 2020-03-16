@@ -10,7 +10,7 @@ route(function (id) {
         riot.update()
         return
     }
-    app.currentPage = 'blog'
+    //app.currentPage = 'blog'
     if (app.docPath) {
         app.previousPath = app.docPath
     }

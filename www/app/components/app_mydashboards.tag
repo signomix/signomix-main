@@ -60,7 +60,7 @@
         })
 
         self.listener.on('*', function (eventName) {
-            app.log('MY DASHBOARDS: ' + eventName)
+            app.log('MY DASHBOARDS3: ' + eventName)
             switch (eventName){
                 case 'submitted':
                     //app.log('after submit device')

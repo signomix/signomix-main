@@ -408,7 +408,7 @@
                 {
                     "name": "userDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteUserDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteUserDB",
                     "properties": {
                         "path": "./data",
                         "file": "user",

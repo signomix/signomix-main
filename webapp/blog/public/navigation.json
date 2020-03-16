@@ -1,0 +1,44 @@
+[
+    {
+        "url": "/",
+        "label": 
+                {
+                    "en": "Home", 
+                    "pl": "Home"
+                },
+        "target": ""
+    },
+    {
+        "url": "/blog",
+        "label": 
+                {
+                    "en": "Blog",
+                    "pl": "Blog"
+                },
+        "target": ""
+    },
+    {
+        "url": "/status",
+        "label": {
+            "en": "State",
+            "pl": "Status"
+        },
+        "target": ""
+    },
+    {
+        "url": "/app/#!doc,toc",
+        "label": {
+            "en": "Documentation",
+            "pl": "Dokumentacja"
+        },
+        "target": ""
+    },
+    {
+        "url": "/app/#!register",
+        "label": {
+            "en": "Register",
+            "pl": "Zarejestruj się"
+        },
+        "target": ""
+    }
+]

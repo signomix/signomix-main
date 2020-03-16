@@ -194,6 +194,10 @@
                     <input class="form-control" id="confirmString" name="confirmString" type="text" value={ user.confirmString } readonly={ true }>
                 </div>
                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="autologin" disabled={ !allowEdit } checked={ user.autologin }>
+                    <label class="form-check-label" for="autologin">{ app.texts.user_form.autologin[app.language] }</label>
+                </div>
+                <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="confirmed" disabled={ !allowEdit || !adminMode } checked={ user.confirmed }>
                     <label class="form-check-label" for="confirmed">{ app.texts.user_form.confirmed[app.language] }</label>
                 </div>
@@ -224,6 +228,7 @@
         self.smsInfo = false
         self.smsWarning = false
         self.smsAlert = false
+        self.autologi=false
         self.user = {
             'uid': '',
             'email': '',
@@ -241,11 +246,15 @@
             'unregisterRequested': false,
             'services':0,
             'phonePrefix':'',
-            'credits':0
+            'credits':0,
+            'autologin':false
         }
 
         globalEvents.on('data:submitted', function(event){
             //
+            //if(!self.adminMode){
+            app.user.autologin=self.autologin
+            //}
         });
 
         init(eventListener, uid, editable, isAdmin){
@@ -397,12 +406,13 @@
                 formData.password = generatePassword()
             }
             if (e.target.elements['unregisterRequested'].checked) {formData.unregisterRequested = e.target.elements['unregisterRequested'].value}
-
+            if (e.target.elements['autologin'].checked) {formData.autologin = 'true'}else{formData.autologin = 'false'}
             app.log(JSON.stringify(formData))
             urlPath = ''
             if (self.method == 'PUT'){
                 urlPath = formData.uid
             }
+            self.autologin=formData.autologin
             sendData(formData,self.method,app.userAPI + '/'+urlPath,app.user.token,self.close,globalEvents)
         }
 

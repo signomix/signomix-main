@@ -77,6 +77,7 @@ public class User {
     private int services;
     private String phonePrefix;
     private long credits;
+    private boolean autologin;
 
     public User() {
         confirmed = false;
@@ -85,6 +86,7 @@ public class User {
         createdAt = System.currentTimeMillis();
         services = 0b0;
         credits=0;
+        autologin=false;
     }
 
     /**
@@ -383,5 +385,19 @@ public class User {
         if(this.credits<0){
             this.credits=0;
         }
+    }
+
+    /**
+     * @return the autologin
+     */
+    public boolean isAutologin() {
+        return autologin;
+    }
+
+    /**
+     * @param autologin the autologin to set
+     */
+    public void setAutologin(boolean autologin) {
+        this.autologin = autologin;
     }
 }

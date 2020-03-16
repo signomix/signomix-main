@@ -43,16 +43,6 @@
                         <span class="flag-icon flag-icon-pl border border-secondary rounded"></span>
                         </a>
                     </li>
-                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='fr'}>
-                        <a href="#!fr" class="nav-link text-signo" onclick={ goto('#!fr') } data-toggle="collapse" data-target="#navbarNavDropdown">
-                        <span class="flag-icon flag-icon-fr border border-secondary rounded"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='it'}>
-                        <a href="#!it" class="nav-link text-signo" onclick={ goto('#!it') } data-toggle="collapse" data-target="#navbarNavDropdown">
-                        <span class="flag-icon flag-icon-it border border-secondary rounded"></span>
-                        </a>
-                    </li>
                     </ul>
                 </div>
         </nav>

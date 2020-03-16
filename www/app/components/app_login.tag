@@ -1,11 +1,23 @@
 <app_login> 
     <div class="panel panel-default signomix-form">
         <div class="panel-body">
-            <form onsubmit={ submitLoginForm }>
-                <div class="text-center">
-                    <img class="text-center mb-4" src="/images/logo.svg" alt="" width="90" height="90">
-                    <p class="module-title h3 text-center mb-4">{app.texts.login.l_title[app.language]}</p>
+        <div class="row">
+            <div class="col">
+            <p class="module-title h3 text-center mb-4">{app.texts.login.l_title[app.language]}</p>
+            </div>
+        </div>
+            <div class="row text-center" if={app.user.status=='logged-in'}>
+            <div class="col">
+                <div class="alert alert-warning" role="alert">
+                    <p>{app.texts.login.l_warning[app.language]} {app.user.uid}<br>
+                    {app.texts.login.l_warning2[app.language]}</p>
+                    <button type="button" class="btn btn-light" onClick="document.location='/app'">{app.texts.login.l_keep_session[app.language]}</button>
                 </div>
+            </div>
+        </div>
+            <div class="row">
+            <div class="col">
+            <form onsubmit={ submitLoginForm }>
                 <div class="form-group">
                     <form_input 
                         id="login"
@@ -34,7 +46,9 @@
                 <button type="submit" class="btn btn-primary">{ app.texts.login.l_save[app.language] }</button>
                 <button type="button" class="btn btn-secondary" onclick={ close }>{ app.texts.login.l_cancel[app.language] }</button>
             </form>
+            </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -49,7 +63,8 @@
         globalEvents.on('auth:loggedin', function (event) {
             app.log("Login success!")
             setCookie('signomixToken',app.user.token, 365)
-            setCookie('signomixUser',app.user.name, 365)
+            //setCookie('signomixUser',app.user.name, 365)
+            //setCookie('signomixUser',app.user.number, 365)
             app.currentPage = 'main'
             getData(app.userAPI+'/'+app.user.name, null, app.user.token, saveUserData, globalEvents, 'user:ok', 'user.error', app.debug)
             getData(app.alertAPI, null, app.user.token, saveResponse, globalEvents, 'data:ok', 'data.error', app.debug)
@@ -60,6 +75,13 @@
             tmpUser = JSON.parse(text);
             app.user.role = tmpUser.role
             app.user.roles = tmpUser.role.split(",")
+            app.user.number=tmpUser.number
+            app.user.autologin = tmpUser.autologin
+            if(app.user.autologin) {
+                setCookie('signomixUser',app.user.number, 365)
+            }else{
+                deleteCookie('signomixUser')
+            }
             riot.update()
         }
         saveResponse = function(text){
@@ -76,7 +98,7 @@
         
             //callback function
         var saveDashboards = function(data){
-            app.log('MY DASHBOARDS: '+data)
+            app.log('MY DASHBOARDS2: '+data)
             app.user.dashboards = JSON.parse(data)
             if(app.user.dashboards.length>0) {
                 //app.user.dashboardID = app.user.dashboards[0].id

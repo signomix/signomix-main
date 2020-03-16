@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,8 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
                 .append("services int,")
                 .append("phoneprefix varchar,")
                 .append("credits bigint,")
-                .append("user_number bigint default user_number_seq.nextval )");
+                .append("user_number bigint default user_number_seq.nextval,")
+                .append("autologin boolean)");
         query = sb.toString();
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
@@ -89,7 +91,8 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
 
     private void putUser(String tableName, String key, User user) throws KeyValueDBException {
         try (Connection conn = getConnection()) {
-            String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,services,phoneprefix,credits) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                         //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+            String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,            services,phoneprefix,credits,autologin) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             query = query.replaceFirst("\\?\\?", tableName);
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, user.getUid());
@@ -111,6 +114,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             pstmt.setInt(17, user.getServices());
             pstmt.setString(18, user.getPhonePrefix());
             pstmt.setLong(19, user.getCredits());
+            pstmt.setBoolean(20, user.isAutologin());
             int updated = pstmt.executeUpdate();
             //check?
         } catch (SQLException e) {
@@ -139,7 +143,8 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         HashMap<String, User> map = new HashMap<>();
         //TODO: nie używać, zastąpić konkretnymi search'ami
         if (tableName.equals("users")) {
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits from users";
+                                 //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from users";
             try (Connection conn = getConnection()) {
                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ResultSet rs = pstmt.executeQuery();
@@ -197,40 +202,30 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
     }
 
     @Override
-    public List search(String tableName, String statement, String[] parameters) throws KeyValueDBException {
-        //TODO
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List search(String tableName, String statement, Object[] parameters) throws KeyValueDBException {
+        ArrayList<User> result = new ArrayList<>();
+        try (Connection conn = getConnection()) {
+                                 //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from " + tableName + " where user_number=?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, (Long) parameters[0]);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                result.add(buildUser(rs));
+            }
+        } catch (SQLException e) {
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
+        return result;
     }
 
     @Override
     public List search(String tableName, ComparatorIface ci, Object o) throws KeyValueDBException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        /*
-        if (ci instanceof UserComparator) {
-            String path = ((Document) o).getPath();
-            String query = "select uid,author,type,title,summary,content,tags,language,mimetype,status,createdby,size,commentable,created,modified,published from ?? where path = ?";
-            query = query.replaceFirst("\\?\\?", tableName);
-            ArrayList list = new ArrayList();
-            try (Connection conn = getConnection()) {
-                PreparedStatement pstmt = conn.prepareStatement(query);
-                pstmt.setString(1, path);
-                ResultSet rs = pstmt.executeQuery();
-                while (rs.next()) {
-                    list.add(buildDocument(rs));
-                }
-                conn.close();
-            } catch (SQLException | CmsException e) {
-                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
-            }
-            return list;
-        } else {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-        */
     }
 
     User buildUser(ResultSet rs) throws SQLException {
-        //uid,type,email,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created
+        //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,number,services,phoneprefix,credits,autologin
         User user = new User();
         user.setUid(rs.getString(1));
         user.setType(rs.getInt(2));
@@ -252,13 +247,15 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         user.setServices(rs.getInt(18));
         user.setPhonePrefix(rs.getString(19));
         user.setCredits(rs.getLong(20));
+        user.setAutologin(rs.getBoolean(21));
         return user;
     }
 
     private Object getUser(String tableName, String key, Object defaultResult) throws KeyValueDBException {
         User user = null;
         try (Connection conn = getConnection()) {
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits from " + tableName + " where uid=?";
+                                 //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from " + tableName + " where uid=?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();

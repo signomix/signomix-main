@@ -31,8 +31,11 @@
         });
         
         saveUserData = function(text){
+            console.log("SAVE USER DATA")
             tmpUser = JSON.parse(text);
+            console.log(tmpUser)
             app.user.role = tmpUser.role
+            app.user.number=tmpUser.number
             riot.update()
         }
 
