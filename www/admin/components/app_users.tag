@@ -186,6 +186,9 @@
 
 self.userTypeAsLetter = function(type){
         switch (type){
+            case 100:
+                return 'S'
+                break
             case 7:
                 return 'E'
                 break

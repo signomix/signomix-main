@@ -341,6 +341,12 @@
                 "it": "Credits",
                 "fr": "Credits",
                 "pl": "Liczba kredytów"
+            },
+            "autologin": {
+                "en": "Automatic Login",
+                "it": "Automatic Login",
+                "fr": "Automatic Login",
+                "pl": "Automatyczne logowanie"
             }
         }
     

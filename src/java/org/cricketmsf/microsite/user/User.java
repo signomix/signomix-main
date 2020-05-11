@@ -48,6 +48,7 @@ public class User {
     public static final int PRIMARY = 5; // primary account
     public static final int READONLY = 6;
     public static final int EXTENDED = 7; // students, scientists, nonprofits
+    public static final int SUBSCRIBER = 100;
 
     public static final int IS_REGISTERING = 0;
     public static final int IS_ACTIVE = 1;
@@ -78,6 +79,7 @@ public class User {
     private String phonePrefix;
     private long credits;
     private boolean autologin;
+    private String preferredLanguage;
 
     public User() {
         confirmed = false;
@@ -399,5 +401,19 @@ public class User {
      */
     public void setAutologin(boolean autologin) {
         this.autologin = autologin;
+    }
+
+    /**
+     * @return the preferredLanguage
+     */
+    public String getPreferredLanguage() {
+        return preferredLanguage;
+    }
+
+    /**
+     * @param preferredLanguage the preferredLanguage to set
+     */
+    public void setPreferredLanguage(String preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
     }
 }

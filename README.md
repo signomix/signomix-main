@@ -8,17 +8,17 @@
 
 Signomix project uses Apache Ant as a build tool. You can get the most recent version from [https://ant.apache.org/bindownload](https://ant.apache.org/bindownload)
 
-To build Signomix we need the Cricket Microservices platform and tha Java Mail libraries. We can get required libraries by running Ant target:
+First of all download required libraries by running Ant target:
 
     ant get-dependencies
 
-To build Signomix run:
+Then to build Signomix run:
 
     ant dist
 
 The build script asks for release type (select 'standard') and the environment name (select 'dev').
 
-As the result we will get: 
+As the result you will get: 
 
 * the selected environment structure (inside the `dist` folder)
 * the platform distribution package - `signomix.zip`

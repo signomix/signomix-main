@@ -265,8 +265,12 @@ public class Service extends Kernel {
         return super.handleEvent(event);
     }
 
-    @HttpAdapterHook(adapterName = "goto", requestMethod = "*")
-    public Object goTo(Event event) {
+    @HttpAdapterHook(adapterName = "goto", requestMethod = "GET")
+    public Object goToShortcut(Event event) {
+        return UrlShortener.getInstance().processRequest(event, shortenerDB);
+    }
+    @HttpAdapterHook(adapterName = "goto", requestMethod = "POST")
+    public Object updateShortcut(Event event) {
         return UrlShortener.getInstance().processRequest(event, shortenerDB);
     }
 
@@ -407,14 +411,40 @@ public class Service extends Kernel {
     }
 
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")
-    public Object dashboardCors(Event requestEvent) {
+    public Object dashboardServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_OK);
         return result;
     }
-
-    @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "*")
-    public Object dashboardServiceHandle(Event event) {
+    @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "GET")
+    public Object dashboardServiceGet(Event event) {
+        try {
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "POST")
+    public Object dashboardServicePost(Event event) {
+        try {
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "PUT")
+    public Object dashboardServicePut(Event event) {
+        try {
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "DELETE")
+    public Object dashboardServiceDelete(Event event) {
         try {
             return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
         } catch (Exception e) {
@@ -424,27 +454,52 @@ public class Service extends Kernel {
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "OPTIONS")
-    public Object deviceServiceCors(Event requestEvent) {
+    public Object deviceServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_OK);
         return result;
     }
-
-    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "*")
-    public Object deviceServiceHandle(Event event) {
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "GET")
+    public Object deviceServiceGet(Event event) {
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return result;
+    }
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "POST")
+    public Object deviceServicePost(Event event) {
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return result;
+    }
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "PUT")
+    public Object deviceServicePut(Event event) {
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return result;
+    }
+    @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "DELETE")
+    public Object deviceServiceDelete(Event event) {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "OPTIONS")
-    public Object groupServiceCors(Event requestEvent) {
+    public Object groupServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_OK);
         return result;
     }
-
-    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "*")
-    public Object groupServiceHandle(Event event) {
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "GET")
+    public Object groupServiceGet(Event event) {
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    }
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "POST")
+    public Object groupServicePost(Event event) {
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    }
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "PUT")
+    public Object groupServicePut(Event event) {
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    }
+    @HttpAdapterHook(adapterName = "GroupService", requestMethod = "DELETE")
+    public Object groupServiceDelete(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
 
@@ -454,7 +509,6 @@ public class Service extends Kernel {
         result.setCode(HttpAdapter.SC_OK);
         return result;
     }
-
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "*")
     public Object templateServiceHandle(Event event) {
         return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
@@ -608,7 +662,13 @@ public class Service extends Kernel {
         boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, telegramNotification);
     }
-
+    
+    @HttpAdapterHook(adapterName = "SubscriberService", requestMethod = "POST")
+    public Object subscriberAdd(Event event) {
+        boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
+        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, withConfirmation, telegramNotification);
+    }
+    
     /**
      * Modify user data or sends password reset link
      *
@@ -683,12 +743,7 @@ public class Service extends Kernel {
         try {
             String key = event.getRequestParameter("key");
             try {
-                //Token token = (Token) database.get("tokens", key);
                 if (authAdapter.checkToken(key)) {
-                    //if (token != null) {
-                    //if (token.isValid()) {
-                    //Token token=authAdapter.getUser(key)
-                    //User user = userAdapter.get(token.getUid());
                     User user = authAdapter.getUser(key);
                     if (user.getStatus() == User.IS_REGISTERING && user.getConfirmString().equals(key)) {
                         user.setConfirmed(true);
@@ -696,31 +751,20 @@ public class Service extends Kernel {
                         result.setCode(200);
                         //TODO: build default html page or redirect
                         String pageContent
-                                = "Registration confirmed.<br>You can go to <a href=/#login>login page</a> and sign in.";
+                                = "Registration confirmed.<br>You can go to <a href=/#!login>login page</a> and sign in.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
                         //result.setData(pageContent);
                         result.setPayload(pageContent.getBytes());
                     }
-                    //}
-                    //TODO: remove token?
-                    //if (!database.remove("tokens", key)) {
-                    //    Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "unable to remove token: " + key));
-                    //}
                 } else {
                     result.setCode(401);
                     String pageContent
-                            = "Oops, something has gone wrong: confirmation token not found . We cannot confirm your <a href=/#>Signomix</a> registration. Please contact support.";
+                            = "Oops, something has gone wrong: confirmation token not found . We cannot confirm your <a href=/>Signomix</a> registration. Please contact support.";
                     result.setFileExtension("html");
                     result.setHeader("Content-type", "text/html");
-                    //result.setData(pageContent);
                     result.setPayload(pageContent.getBytes());
                 }
-                //} catch (KeyValueDBException ex) {
-                //    Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "confirmation error: " + ex.getMessage()));
-                //    if (ex.getCode() == AuthException.EXPIRED) {
-                //        result.setCode(401);
-                //    }
             } catch (UserException ex) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
             }
@@ -730,6 +774,44 @@ public class Service extends Kernel {
         return result;
     }
 
+    @HttpAdapterHook(adapterName = "SubscriptionConfirmationService", requestMethod = "GET")
+    public Object subscriptionConfirm(Event event) {
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_FORBIDDEN);
+        try {
+            String key = event.getRequestParameter("key");
+            try {
+                if (authAdapter.checkToken(key)) {
+                    User user = authAdapter.getUser(key);
+                    if (user.getStatus() == User.IS_REGISTERING && user.getConfirmString().equals(key)) {
+                        user.setConfirmed(true);
+                        userAdapter.modify(user);
+                        result.setCode(200);
+                        //TODO: build default html page or redirect
+                        String pageContent
+                                = "Subscription confirmed.<br>Thank you for using <a href='/'>Signomix</a>.";
+                        result.setFileExtension("html");
+                        result.setHeader("Content-type", "text/html");
+                        //result.setData(pageContent);
+                        result.setPayload(pageContent.getBytes());
+                    }
+                } else {
+                    result.setCode(401);
+                    String pageContent
+                            = "Oops, something has gone wrong: confirmation token not found . Your subscription cannot be confirmed.";
+                    result.setFileExtension("html");
+                    result.setHeader("Content-type", "text/html");
+                    result.setPayload(pageContent.getBytes());
+                }
+            } catch (UserException ex) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }    
+    
     @HttpAdapterHook(adapterName = "echo", requestMethod = "*")
     public Object doGetEcho(Event requestEvent) {
         return sendEcho(requestEvent.getRequest());
@@ -777,7 +859,7 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ContentManager", requestMethod = "*")
     public Object contentServiceHandle(Event event) {
-        return new ContentRequestProcessor().processRequest(event, cms);
+        return new ContentRequestProcessor().processRequest(event, cms, null);
     }
 
     @HttpAdapterHook(adapterName = "SystemService", requestMethod = "*")

@@ -186,21 +186,15 @@ public class DeviceIntegrationModule {
      *
      */
     public Object processIotRequest(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, IntegrationApi iotApi, ActuatorCommandsDBIface actuatorCommandsDB) {
-        //TODO: Authorization
         RequestObject request = event.getRequest();
-
+        boolean htmlClient=false;
+        
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("");
         result.setHeader("Content-type", "text/plain");
         try {
             String authKey = request.headers.getFirst("Authorization");
-
-            if (authKey == null || authKey.isEmpty()) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
-                result.setCode(HttpAdapter.SC_UNAUTHORIZED);
-                return result;
-            }
 
             String dataString = request.body;
             String jsonString;
@@ -210,7 +204,7 @@ public class DeviceIntegrationModule {
             IotData2 data = null;
             if (dataString.isEmpty()) {
                 data = parseIotData(request.parameters);
-                dataString=buildParamString(request.parameters);
+                dataString = buildParamString(request.parameters);
             } else {
                 jsonString
                         = "{\"@type\":\"com.signomix.iot.IotData2\","
@@ -227,10 +221,27 @@ public class DeviceIntegrationModule {
                     }
                 }
             }
+            String clientAppTitle = (String) request.parameters.getOrDefault("clienttitle", "");
+            if (!clientAppTitle.isEmpty()) {
+                result.setHeader("Content-type", "text/html");
+                htmlClient=true;
+            }
+
             if (data == null) {
                 //TODO: send warning to the service admin about deserialization error
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                result.setData("deserialization problem, the data format is not compatible with Signomix integration API");
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Deserialization problem, the data format is not compatible with Signomix integration API").getBytes());
+                return result;
+            }
+
+            // authorization can be send as request parameter "authkey"
+            if (authKey == null || authKey.isEmpty()) {
+                authKey = data.getAuthKey();
+            }
+            if (authKey == null || authKey.isEmpty()) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+                result.setCode(HttpAdapter.SC_UNAUTHORIZED);
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Not authorized").getBytes());
                 return result;
             }
 
@@ -246,26 +257,26 @@ public class DeviceIntegrationModule {
                 if (!isRegistered) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " is not registered"));
                     result.setCode(HttpAdapter.SC_NOT_FOUND);
-                    result.setData("device not found");
+                    result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Device not found").getBytes());
                     return result;
                 }
                 if ("VIRTUAL".equals(device.getType()) || device.getType().startsWith("TTN")) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.dev_eui + " type is not valid"));
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                    result.setData("device type not valid");
+                    result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Invalid device type").getBytes());
                     return result;
                 }
 
             } catch (ThingsDataException ex) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
-                result.setData("device not found");
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Device not found").getBytes());
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
                 Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
-                result.setData("exception");
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Bad request").getBytes());
                 return result;
             }
 
@@ -296,13 +307,13 @@ public class DeviceIntegrationModule {
             if (!authorized) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Data request from device " + device.getEUI() + " not authorized"));
                 result.setCode(HttpAdapter.SC_FORBIDDEN);
-                result.setData("not authorized");
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Not authorized").getBytes());
                 return result;
             }
 
             if (!device.isActive()) {
                 result.setCode(HttpAdapter.SC_UNAVAILABLE);
-                result.setData("device is not active");
+                result.setPayload(buildResultData(htmlClient,false,clientAppTitle,"Device is inactive").getBytes());
                 return result;
             }
 
@@ -336,11 +347,17 @@ public class DeviceIntegrationModule {
                     if (IotEvent.ACTUATOR_HEXCMD.equals(command.getType())) {
                         String rawCmd = new String(Base64.getEncoder().encode(HexTool.hexStringToByteArray(commandPayload)));
                         result.setPayload(rawCmd.getBytes());
+                        //TODO: odpowiedź jeśli dane z formularza
                     } else {
                         result.setPayload(commandPayload.getBytes());
+                        //TODO: odpowiedź jeśli dane z formularza
                     }
                     ActuatorModule.getInstance().archiveCommand(command, actuatorCommandsDB);
                 }
+            }
+            if(htmlClient){
+                result.setCode(HttpAdapter.SC_OK);
+                result.setPayload(buildResultData(htmlClient,true,clientAppTitle,"Data saved.").getBytes());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -558,7 +575,7 @@ public class DeviceIntegrationModule {
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList, device, scriptingAdapter,
                         data.getReceivedPackageTimestamp(), data.getLatitude(),
-                        data.getLongitude(), data.getAltitude(),request.body, "");
+                        data.getLongitude(), data.getAltitude(), request.body, "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
@@ -677,7 +694,7 @@ public class DeviceIntegrationModule {
         } else {
             TtnData processedData = new TtnData(data);
             // handling Cayenne LPP
-            ArrayList<String> toExpand=new ArrayList<>();
+            ArrayList<String> toExpand = new ArrayList<>();
             Iterator it = data.getPayloadFields().keySet().iterator();
             Object payloadField;
             String fieldName;
@@ -695,21 +712,21 @@ public class DeviceIntegrationModule {
                         processedData.putField(fieldName + "_" + key, j.get(key));
                     }
                     processedData.removeField(fieldName);
-                    */
+                     */
                 } else {
                     // nothing to do
                 }
             }
-            toExpand.forEach(name->{
+            toExpand.forEach(name -> {
                 com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) data.getPayloadFields().get(name);
                 Iterator it2 = j.keySet().iterator();
-                    String key;
-                    while (it2.hasNext()) {
-                        key = (String) it2.next();
-                        processedData.putField(name + "_" + key, j.get(key));
-                    }
+                String key;
+                while (it2.hasNext()) {
+                    key = (String) it2.next();
+                    processedData.putField(name + "_" + key, j.get(key));
+                }
             });
-            toExpand.forEach(name->{
+            toExpand.forEach(name -> {
                 processedData.removeField(name);
             });
             // Cayenne LPP - end
@@ -791,7 +808,7 @@ public class DeviceIntegrationModule {
             thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
             ArrayList<ArrayList> outputList;
             try {
-                Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter, 
+                Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter,
                         now, device.getLatitude(), device.getLongitude(), device.getAltitude(), "", "");
                 outputList = (ArrayList<ArrayList>) processingResult[0];
                 for (int i = 0; i < outputList.size(); i++) {
@@ -825,6 +842,8 @@ public class DeviceIntegrationModule {
                 data.dev_eui = pair[1];
             } else if ("timestamp".equalsIgnoreCase(pair[0])) {
                 data.timestamp = pair[1];
+            } else if ("authkey".equalsIgnoreCase(pair[0])) {
+                data.authKey = pair[1];
             } else {
                 map = new HashMap<>();
                 map.put("name", pair[0]);
@@ -841,9 +860,9 @@ public class DeviceIntegrationModule {
         data.normalize();
         return data;
     }
-    
-    private String buildParamString(Map<String, Object> parameters){
-        StringBuilder result=new StringBuilder();
+
+    private String buildParamString(Map<String, Object> parameters) {
+        StringBuilder result = new StringBuilder();
         for (Map.Entry<String, Object> entry : parameters.entrySet()) {
             String key = entry.getKey();
             String value = (String) entry.getValue();
@@ -866,6 +885,10 @@ public class DeviceIntegrationModule {
                 System.out.println("dev_eui:" + data.dev_eui);
             } else if ("timestamp".equalsIgnoreCase(key)) {
                 data.timestamp = value;
+            } else if ("authkey".equalsIgnoreCase(key)) {
+                data.authKey = value;
+                //} else if ("callbackurl".equalsIgnoreCase(key)) {
+                //    data.callbackurl = value;
             } else {
                 map = new HashMap<>();
                 map.put("name", key);
@@ -899,4 +922,21 @@ public class DeviceIntegrationModule {
         Kernel.getInstance().dispatchEvent(ev);
     }
     
+    String buildResultData(boolean html, boolean isSuccess, String title, String text){
+        if(!html){
+            return text;
+        }
+        String err=isSuccess?"":"ERROR<br>";
+        StringBuilder sb=new StringBuilder();
+        sb.append("<html><body style='text-align: center;'><h1>")
+                .append(title)
+                .append("</h1><p>")
+                .append(err)
+                .append(text)
+                .append("</p><button type='button' onclick='window.history.go(-1); return false;'>")
+                .append("OK")
+                .append("</button></body></html>");
+                return sb.toString();
+    }
+
 }

@@ -35,8 +35,14 @@
         console.log(window.location.search)
         if (window.location.search.startsWith('?doc=')) {
             var langPos=(window.location.search.lastIndexOf('&'));
-            let lang=window.location.search.substring(langPos+1);
-            docuid = window.location.search.substring(5,langPos)+'?'+lang;
+            let lang=window.location.search.substring(langPos+10);
+            if(lang.endsWith('/')){
+                lang=lang.slice(0,-1);
+            }
+            if(lang.length===2){
+                language=lang;
+            }
+            docuid = window.location.search.substring(5,langPos);
         } else {
             docuid = '';
         }
@@ -53,7 +59,6 @@
     function handleSetLocation(event) {
         console.log(event)
         location = event.detail.text
-        alert(location)
         console.log(location)
     }
 
@@ -81,9 +86,9 @@
         } else if (event.detail.text === 'en') {
             language = 'en';
         } else {
-            return
+            return;
         }
-        if(typeof article !== undefined) {
+        if(typeof article !== 'undefined') {
             article.languageChanged(language);
         }
         getData(`texts_` + language + '.json', null, updateTexts);

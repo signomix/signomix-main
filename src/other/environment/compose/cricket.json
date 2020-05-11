@@ -10,8 +10,8 @@
                 "host": "0.0.0.0",
                 "port": "8080",
                 "ssl": "false",
-                "keystore": "./data/cricket_publickeystore.jks",
-                "keystore-password": "cricket15$#17",
+                "keystore": "",
+                "keystore-password": "",
                 "threads": 0,
                 "shutdown-delay": "2",
                 "filter": "org.cricketmsf.microsite.auth.SecurityFilter",
@@ -539,10 +539,10 @@
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
                     "properties": {
-                        "from": "test@signocom.com",
-                        "mailhost": "85.128.192.150",
-                        "user": "test@signocom.com",
-                        "password": "Ypsylon#2017#",
+                        "from": "",
+                        "mailhost": "",
+                        "user": "",
+                        "password": "",
                         "debug-session": "false"
                     }
                 }

@@ -10,8 +10,8 @@
                 "host": "0.0.0.0",
                 "port": "8080",
                 "ssl": "false",
-                "keystore": "./data/cricket_publickeystore.jks",
-                "keystore-password": "cricket15$#17",
+                "keystore": "",
+                "keystore-password": "",
                 "threads": 0,
                 "shutdown-delay": "2",
                 "filter": "org.cricketmsf.microsite.auth.SecurityFilter",
@@ -19,9 +19,9 @@
                 "time-zone": "GMT",
                 "default-language": "en",
                 "user-confirm": "true",
-                "initial-admin-email": "admin@experiot.com.pl",
+                "initial-admin-email": "admi@host",
                 "initial-admin-secret": "test123",
-                "admin-notification-email": "admin@experiot.com.pl",
+                "admin-notification-email": "",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
@@ -87,6 +87,15 @@
                     "classFullName": "com.signomix.in.http.ConfirmationApi",
                     "properties": {
                         "context": "/api/confirm",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "SubscriptionConfirmationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ConfirmationApi",
+                    "properties": {
+                        "context": "/api/subsconfirm",
                         "silent-mode": "false"
                     }
                 },
@@ -514,6 +523,7 @@
                     "properties": {
                         "from": "name@host",
                         "mailhost": "",
+                        "localhost": "",
                         "user": "name@host",
                         "password": "mypassword",
                         "debug-session": "false"
@@ -572,10 +582,12 @@
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
                     "properties": {
-                        "from": "signomix@experiot.com.pl",
-                        "mailhost": "experiot.com.pl",
-                        "user": "signomix@experiot.com.pl",
-                        "password": "k[Hm70m^Mo7=",
+                        "from": "",
+                        "mailhost": "",
+                        "localhost": "",
+                        "user": "",
+                        "password": "",
+                        "startttls":"false",
                         "debug-session": "false"
                     }
                 },
@@ -593,6 +605,15 @@
                         "name": "user",
                         "user": "sa",
                         "password": ""
+                    }
+                },
+                {
+                    "name": "SubscriberService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.SubscriberApi",
+                    "properties": {
+                        "context": "/api/subscribe",
+                        "silent-mode": "false"
                     }
                 }
             ]

@@ -62,7 +62,7 @@
         goto(address){
             return function(e){
                 app.log(address)
-                document.location = address
+                document.location = '/app/'+address
             }
         }
         getDistroType(){

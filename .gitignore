@@ -12,3 +12,8 @@
 /architecture.adoc
 /glossary.md
 /local.build.properties
+/src/other/environment/localdev/readme.txt
+/src/other/environment/localdev/cricket.json
+/src/other/environment/localdev/run.sh
+/src/other/environment/localdev/Dockerfile.template
+/src/other/environment/localdev/

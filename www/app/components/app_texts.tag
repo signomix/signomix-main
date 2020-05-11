@@ -707,6 +707,12 @@
              "it": "Larghezza del widget (numero di colonne)",
             "fr": "Larger du widget (nombre de colonnes)",
             "pl": "Szerokość kontrolki (liczba kolumn)"
+        },
+        "f_widget_select_device": {
+            "en": "SELECT DEVICE",
+             "it": "SELECT DEVICE",
+            "fr": "SELECT DEVICE",
+            "pl": "WYBIERZ URZĄDZENIE"
         }
     }    
     
@@ -1000,10 +1006,10 @@
             "pl": "Status"
         },
         "generic_desc": {
-            "en": "Generic IoT node with Internet connection,  sending a data directly to Signomix using REST API",
+            "en": "Generic IoT node or data source with Internet connection,  sending a data directly to Signomix using REST API",
             "it": "Nodo IoT generico con connessione Internet, invia dati direttamente a Signomix utilizzando REST API",
             "fr": "Generic IoT node with Internet connection, sending a data directly to Signomix using REST API",
-            "pl": "Bazowe urządzenie IoT połączone z Internetem, wysyłające dane bezpośrednio do Signomiksa z użyciem REST API"
+            "pl": "Bazowe urządzenie IoT lub źródło danych połączone z Internetem, wysyłające dane bezpośrednio do Signomiksa z użyciem REST API"
         },
         "ttn_desc": {
             "en": "IoT node registered in the The Things Network infrastructure",
@@ -1575,7 +1581,7 @@
             "en": "This name is already used. Choose different name.",
             "it": "Questo nome è già in uso. Scegli un nome differente.",
             "fr": "Ce nom est deja utilise. Merci de choisir un autre nom",
-            "pl": "Tan nazwa użytkownika jest już używana"
+            "pl": "Ta nazwa użytkownika jest już używana"
         },
         "l_alertMalformedName": {
             "en": "The login contains invalid characters..",
@@ -1624,6 +1630,117 @@
             "it": "Nota: Registrare un account gratuito ti permette successivamente di effettuare l'upgrade ad un'opzione a pagamento",
             "fr": "Note: L'enregistrement d'un compte gratuit vous permet d'acheter une option payante plus tard.",
             "pl": "Uwaga: Zarejestrowanie darmowego konta pozwala później na wykupienie opcji płatnej."
+        }
+    }
+    
+    app.texts.subscribe = {
+        "l_title": {
+            "en": "Newsletter subscription",
+            "it": "Newsletter subscription",
+            "fr": "Newsletter subscription",
+            "pl": "Subskrypcja newslettera"
+        }, 
+        "l_warning": {
+            "en": "Warning!",
+            "it": "Attenzione!",
+            "fr": "Attention",
+            "pl": "Uwaga!"
+        },
+        "l_email": {
+            "en": "E-mail",
+            "it": "E-mail",
+            "fr": "E-mail",
+            "pl": "E-mail"
+        },
+        "l_name": {
+            "en": "Name",
+            "it": "Nome",
+            "fr": "Nom",
+            "pl": "Imię"
+        },
+        "l_surname": {
+            "en": "Surname",
+            "it": "Cognome",
+            "fr": "Prenom",
+            "pl": "Nazwisko"
+        },
+        "l_register": {
+            "en": "Subscribe",
+            "it": "Subscribe",
+            "fr": "Subscribe",
+            "pl": "Subskrybuj"
+        },
+        "l_cancel": {
+            "en": "Cancel",
+            "it": "Annulla",
+            "fr": "Annuler",
+            "pl": "Porzuć"
+        },
+        "l_OK": {
+            "en": "OK",
+            "it": "OK",
+            "fr": "OK",
+            "pl": "OK"
+        },
+        "l_successText1": {
+            "en": "Thank you for registering.",
+            "it": "Grazie per esserti registrato",
+            "fr": "Merci de vous etre enregistre",
+            "pl": "Dziękujemy za rejestrację"
+        },
+        "l_successText2": {
+            "en": "To finish subscription process please follow instruction sent to your e-mail box",
+            "it": "Per terminare il processo di registrazione ti preghiamo di seguire le istruzioni inviate alla tua casella mail.",
+            "fr": "Afin de terminer l'enregistrement correctement, merci de suivre les instructions qui vous ont ete envoyees sur votre adresse e-mail",
+            "pl": "W celu dokończenia procesu subskrypcji prosimy o postępowanie zgodnie z instrukcją przesłaną na skrzynkę e-mail"
+        },
+        "l_legalText1": {
+            "en": "I am accepting ",
+            "it": "Accetto",
+            "fr": "J'accepte ",
+            "pl": "Wyrażam zgodę na "
+        },
+        "l_legalText2": {
+            "en": "the Terms of Service and Privacy Policy",
+            "it": "Termini di Servizio e Politiche di Privacy",
+            "fr": "Conditions d'utilisation et politique de confidentialité",
+            "pl": "Regulamin Serwisu oraz Politykę Prywatności"
+        },
+        "l_alertError": {
+            "en": "Registration error occured. Please contact our support.",
+            "it": "Errore durante la registrazione. Per favore contatta il nostro supporto.",
+            "fr": "L'enregistrement a genere une erreur. Merci de prendre contact avec notre equipe technique",
+            "pl": "Wystąpił błąd rejestracji. Prosimy o kontakt z serwisem."
+        },
+        "l_invalidAccept": {
+            "en": "You must accept Terms of Service and Privacy Policy to proceed",
+            "it": "Devi accettare i Termini di Servizio e Politiche di Privacy prima di procedere",
+            "fr": "Vous devez accepter les conditions d'utilisation et la politique de confidentialité pour continuer.",
+            "pl": "Musisz zaakceptować Regulamin Serwisu oraz Politykę Prywatności, żeby się zarejesteować"
+        },
+        "l_emailHint": {
+            "en": "Please enter an email address",
+            "it": "Per favore inserisci un indirizzo email",
+            "fr": "Entrez une adresse mail s'il vous plaît",
+            "pl": "Proszę podać adres email"
+        },
+        "l_nameHint": {
+            "en": "Please enter your name",
+            "it": "Please enter your name",
+            "fr": "Please enter your name",
+            "pl": "Proszę podać imię"
+        },
+        "l_surnameHint": {
+            "en": "Please enter your family name",
+            "it": "Please enter your family name",
+            "fr": "Please enter your family name",
+            "pl": "Proszę podać nazwisko"
+        },
+        "l_comment1": {
+            "en": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
+            "it": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
+            "fr": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
+            "pl": "Subskrybując newsletter zgadzasz się na otrzymywanie e-maili z najnowszymi informacjami o Signomiksie oraz IoT."
         }
     }
     

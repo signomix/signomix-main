@@ -85,7 +85,8 @@
                         <div class="form-group col-md-12">
                             <div class="input-field">
                                 <label for="w_dev_id">{ app.texts.dashboard_form.f_widget_deviceid[app.language] }</label>
-                                    <select class="form-control" id="w_dev_id" name="w_dev_id" disabled={!allowEdit}>
+                                    <select class="form-control" id="w_dev_id" name="w_dev_id" disabled={!allowEdit} required>
+                                        <option value="">{ app.texts.dashboard_form.f_widget_select_device[app.language] }</option>
                                         <option each="{d in myDevices}" value="{d.EUI}" selected="{d.EUI==self.editedWidget.dev_id}">{ d.EUI+': '+d.name}</option>
                                     </select>
                             </div>

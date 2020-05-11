@@ -247,7 +247,8 @@
             'services':0,
             'phonePrefix':'',
             'credits':0,
-            'autologin':false
+            'autologin':false,
+            'preferredLanguage':'en'
         }
 
         globalEvents.on('data:submitted', function(event){
@@ -280,6 +281,9 @@
 
         userTypeAsString(type){
             switch (type){
+                case 100:
+                    return 'SUBSCRIBER'
+                    break
                 case 7:
                     return 'EXTENDED'
                     break
@@ -310,6 +314,10 @@
         
         userTypeAsNumber(type){
             switch (type.toUpperCase()){
+                case 'SUBSCRIBER':
+                case '100':
+                    return '100'
+                    break
                 case 'EXTENDED':
                 case '7':
                     return '7'

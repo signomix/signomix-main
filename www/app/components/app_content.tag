@@ -25,6 +25,7 @@
         <div  class="container-fluid topspacing white" if={ app.currentPage=='mydevices'}><app_mydevices></app_mydevices></div>
         <div  class="container-fluid topspacing white" if={ app.currentPage=='mydashboards'}><app_mydashboards></app_mydashboards></div>
         <div  class="container-fluid topspacing white" if={ app.currentPage=='alerts'}><app_alerts></app_alerts></div>
+        <div  class="container-fluid topspacing white" if={ app.currentPage=='subscribe'}><app_subscribe></app_subscribe></div>
     </main>
     <script>
         var self = this

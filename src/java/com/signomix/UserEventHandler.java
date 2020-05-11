@@ -40,11 +40,6 @@ public class UserEventHandler {
                 User user = userAdapter.get(uid);
                 long timeout = 1800 * 1000; //30 minut
                 gdprLogger.log(Event.logInfo(event.getId(), "REGISTERED USER " + user.getNumber()));
-                /*
-                    Token token = new Token(user.getUid(), timeout, false); //TODO: this token is probably not used
-                    token.setToken(user.getConfirmString());
-                    database.put("tokens", user.getConfirmString(), token);
-                 */
                 authAdapter.createConfirmationToken(uid, user.getConfirmString(), timeout);
                 emailSender.send(
                         user.getEmail(),
@@ -56,6 +51,30 @@ public class UserEventHandler {
                         + "Otrzymaliśmy prośbę założenia konta na platformie Signomix z tym adresem email.<br>"
                         + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/confirm?key=" + user.getConfirmString() + "'>Kliknij tu w celu potwierdzenia swojej rejestracji</a><br>"
                         + "Jeżeli otrzymałeś ten email przez pomyłkę, po prostu go skasuj. Nie zostaniesz zarejestrowany jeśli nie klikniesz powyższego odnośnika."
+                );
+                emailSender.send((String) kernel.getProperties().getOrDefault("admin-notification-email", ""), "Signomix - registration", uid);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Kernel.handle(Event.logSevere(UserEventHandler.class.getSimpleName(), e.getMessage() + " while sending confirmation emai"));
+            }
+            break;
+            case SignomixUserEvent.SUBSCRIBER_REGISTERED:     //send confirmation email
+                try {
+                String uid = (String) event.getPayload();
+                User user = userAdapter.get(uid);
+                long timeout = 1800 * 1000; //30 minut
+                gdprLogger.log(Event.logInfo(event.getId(), "SUBSCRIBTION FOR USER " + user.getNumber()));
+                authAdapter.createConfirmationToken(uid, user.getConfirmString(), timeout);
+                emailSender.send(
+                        user.getEmail(),
+                        "Newsletter subscription confirmation",
+                        "<p>Confirm subscription by clicking on the link below.<br>"
+                        + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/subsconfirm?key=" + user.getConfirmString() + "'>I confirm my subscription</a><br>"
+                        + "If your subscription is not from you, simply delete this e-mail. An unconfirmed subscription will be deleted."
+                        + "</p>"
+                        + "<p>Potwierdź subskrybcję klikając na link poniżej.<br>"
+                        + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/subsconfirm?key=" + user.getConfirmString() + "'>Potwierdzam subskrypcję</a><br>"
+                        + "Jeżeli zgłoszenie nie pochodzi od Ciebie, po prostu skasuj ten e-mail. Niepotwierdzona subskrypcja zostanie usunięta.</p>"
                 );
                 emailSender.send((String) kernel.getProperties().getOrDefault("admin-notification-email", ""), "Signomix - registration", uid);
             } catch (Exception e) {
@@ -116,19 +135,22 @@ public class UserEventHandler {
             case UserEvent.USER_REG_CONFIRMED:  //TODO: update user
                 gdprLogger.log(Event.logInfo(event.getId(), "REGISTRATION CONFIRMED FOR " + event.getPayload()));
                 break;
+            case UserEvent.SUBSCRIBER_REG_CONFIRMED:  //TODO: update user
+                gdprLogger.log(Event.logInfo(event.getId(), "SUBSCRIPTION CONFIRMED FOR " + event.getPayload()));
+                break;
             case UserEvent.USER_UPDATED:
                 gdprLogger.log(Event.logInfo(event.getId(), "USER DATA UPDATED FOR " + event.getPayload()));
                 break;
             case SignomixUserEvent.USER_SMS_SENT:
                 try {
-                    String userid = (String) event.getPayload();
-                    User user = userAdapter.get(userid);
-                    user.setCredits(user.getCredits() - 1);
-                    userAdapter.modify(user);
-                } catch (UserException e) {
-                    Kernel.getInstance().dispatchEvent(Event.logWarning("UserEvent.USER_SMS_SENT", e.getMessage()));
-                }
-                break;
+                String userid = (String) event.getPayload();
+                User user = userAdapter.get(userid);
+                user.setCredits(user.getCredits() - 1);
+                userAdapter.modify(user);
+            } catch (UserException e) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning("UserEvent.USER_SMS_SENT", e.getMessage()));
+            }
+            break;
             default:
                 kernel.handleEvent(Event.logInfo(UserEventHandler.class.getSimpleName(), "Event recived: " + event.getType()));
                 break;

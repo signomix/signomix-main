@@ -30,9 +30,15 @@
     }
 
 </script>
-
-<footer class="footer border-top bg-white text-signo text-right mt-4">
-    <div class="container">
-        {@html article.content}
-    </div>
+<footer>
+    <footer class="footer border-top bg-white text-signo text-right mt-4">
+        <div class="container">
+            <article>
+                <header><h1></h1><p></p></header>
+                <section>
+                    {@html article.content}
+                </section>
+            </article>
+        </div>
+    </footer>
 </footer>

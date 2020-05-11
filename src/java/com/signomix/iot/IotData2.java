@@ -18,6 +18,8 @@ public class IotData2 implements IotDataIface {
 
     public String applicationID;
     public String dev_eui;
+    public String authKey;
+    //public String callbackurl;
     public String gateway_eui;
     public String time;
     public ArrayList<Map> payload_fields;
@@ -132,5 +134,12 @@ public class IotData2 implements IotDataIface {
     @Override
     public Double getAltitude() {
         return null;
+    }
+
+    /**
+     * @return the authKey
+     */
+    public String getAuthKey() {
+        return authKey;
     }
 }

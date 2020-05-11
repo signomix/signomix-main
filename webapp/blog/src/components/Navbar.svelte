@@ -6,11 +6,11 @@
     export let navlist =
             [
                 {url: "/", label: {en: "Home", pl: "Home"}, target: ""}
-                
+
             ];
     export let language;
     export let texts;
-    
+
     onMount(async () => {
         getData('navigation.json', null, updateNav);
     });
@@ -35,7 +35,7 @@
             text: 'en'
         });
     }
-    
+
     function updateNav(code, text) {
         if (code === 404) {
             return;

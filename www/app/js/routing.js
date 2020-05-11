@@ -54,6 +54,9 @@ route(function (id) {
         case "register":
             app.currentPage = "register";
             break;
+        case "subscribe":
+            app.currentPage = "subscribe";
+            break;
         case "resetpass":
             app.currentPage = "resetPassword";
             break;

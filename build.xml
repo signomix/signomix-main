@@ -11,8 +11,8 @@
     <!--                                                                     -->
     <description>Signomix</description>
     <property file="local.build.properties"/>
-    <property name="version" value="1.2.4"/> <!-- service version           -->
-    <property name="cricket-version" value="1.3.12" /> 
+    <property name="version" value="1.2.5"/> <!-- service version           -->
+    <property name="cricket-version" value="1.3.16" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="JDK-location" value=""/>
@@ -205,7 +205,7 @@
         <mkdir dir="${dist}/www/assets"/>
         <mkdir dir="${dist}/var"/>
         <mkdir dir="${dist}/log"/>
-        <input message="Please enter environment name:" validargs="dev,compose" addproperty="environment.name" defaultvalue="dev"/>
+        <input message="Please enter environment name:" validargs="dev,compose,localdev" addproperty="environment.name" defaultvalue="dev"/>
         <echo message="Building archive for environment: ${environment.name}"/>
         <copy todir="${dist}/config" file="${src-js}/device-script-template.js"/>
         <copy todir="${dist}/config" file="${src-js}/payload-decoder-envelope.js"/>

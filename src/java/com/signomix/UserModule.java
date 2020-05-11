@@ -4,6 +4,7 @@
  */
 package com.signomix;
 
+import com.signomix.event.SignomixUserEvent;
 import com.signomix.iot.IotEvent;
 import com.signomix.out.notification.NotificationIface;
 import java.util.List;
@@ -65,16 +66,16 @@ public class UserModule extends UserBusinessLogic {
             } else if (uid.equals(requesterID) || "admin".equals(requesterRole)) {
                 User u = (User) userAdapter.get(uid);
                 result.setData(u);
-            } else if (userNumber>-1) {
-                try{
-                User u = (User) userAdapter.getByNumber(userNumber);
-                if(null!=u && u.getNumber()==userNumber && u.getUid().equals(requesterID)){
-                    result.setData(u);
-                }else{
-                    System.out.println("Forbidden for: "+userNumber+" "+requesterID);
-                    result.setCode(HttpAdapter.SC_FORBIDDEN);
-                }
-                }catch(Exception e){
+            } else if (userNumber > -1) {
+                try {
+                    User u = (User) userAdapter.getByNumber(userNumber);
+                    if (null != u && u.getNumber() == userNumber && u.getUid().equals(requesterID)) {
+                        result.setData(u);
+                    } else {
+                        System.out.println("Forbidden for: " + userNumber + " " + requesterID);
+                        result.setCode(HttpAdapter.SC_FORBIDDEN);
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
@@ -157,6 +158,66 @@ public class UserModule extends UserBusinessLogic {
                 result.setCode(HttpAdapter.SC_CREATED);
                 //fire event to send "welcome" email
                 Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, newUser.getNumber()));
+            }
+            result.setData(newUser.getUid());
+        } catch (UserException e) {
+            if (e.getCode() == UserException.USER_ALREADY_EXISTS) {
+                result.setCode(HttpAdapter.SC_CONFLICT);
+            } else {
+                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            }
+            result.setMessage(e.getMessage());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            result.setMessage(e.getMessage());
+        }
+        return result;
+    }
+
+    public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
+        //TODO: check requester rights
+        //only admin can set: role or type differ than default (plus APPLICATION type)
+        RequestObject request = event.getRequest();
+        StandardResult result = new StandardResult();
+        String uid = request.pathExt;
+        if (uid != null && !uid.isEmpty()) {
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            return result;
+        }
+        try {
+            User newUser = new User();
+            newUser.setUid("" + Kernel.getEventId());
+            newUser.setEmail(event.getRequestParameter("email"));
+            newUser.setName(event.getRequestParameter("name"));
+            newUser.setType(User.SUBSCRIBER);
+            newUser.setRole("guest");
+            // validate
+            boolean valid = true;
+            if (null == newUser.getEmail() || newUser.getEmail().isBlank()) {
+                valid = false;
+            }
+            if (null == newUser.getName() || newUser.getName().isBlank()) {
+                valid = false;
+            }
+
+            if (!valid) {
+                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                result.setMessage("lack of required parameters");
+                return result;
+            }
+            newUser = userAdapter.register(newUser);
+            if (withConfirmation) {
+                result.setCode(HttpAdapter.SC_ACCEPTED);
+                //fire event to send "need confirmation" email
+                UserEvent ev = new UserEvent(UserEvent.SUBSCRIBER_REGISTERED, newUser.getUid());
+                ev.setTimePoint("+5s");
+                Kernel.getInstance().dispatchEvent(ev);
+            } else {
+                userAdapter.confirmRegistration(newUser.getUid());
+                result.setCode(HttpAdapter.SC_CREATED);
+                //fire event to send "welcome" email
+                Kernel.getInstance().dispatchEvent(new UserEvent(SignomixUserEvent.SUBSCRIBER_REG_CONFIRMED, newUser.getNumber()));
             }
             result.setData(newUser.getUid());
         } catch (UserException e) {

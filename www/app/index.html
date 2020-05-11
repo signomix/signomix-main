@@ -109,6 +109,7 @@
     <script data-src="components/widget_stopwatch.tag" type="riot/tag"></script>
     <script data-src="components/widget_time.tag" type="riot/tag"></script>
     <script data-src="components/widget_devinfo.tag" type="riot/tag"></script>
+    <script data-src="components/app_subscribe.tag" type="riot/tag"></script>
     <script> 
         // dynamic configuration. Look at cricket.json - service propertises
         app.authAPI = "$serviceurl"+"/api/auth";
@@ -121,6 +122,7 @@
         app.dashboardAPI = "$serviceurl"+"/api/dashboard";
         app.recoveryAPI = "$serviceurl"+"/api/recover";
         app.actuatorAPI = "$serviceurl"+"/api/actuator";
+        app.subscribeAPI = "$serviceurl"+"/api/subscribe";
         
         // authomatic login with token (request 'tid' parameter
         // see: Service.wwwGet()
