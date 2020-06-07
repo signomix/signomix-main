@@ -193,6 +193,17 @@
                     <label for="confirmString">{ app.texts.user_form.confirmString[app.language] }</label>
                     <input class="form-control" id="confirmString" name="confirmString" type="text" value={ user.confirmString } readonly={ true }>
                 </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">{ app.texts.user_form.preferredLanguage[app.language] }</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage1" value="pl" checked={user.preferredLanguage=='pl'}>
+                    <label class="form-check-label" for="preferredLanguage1">Polski</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage2" value="en" checked={user.preferredLanguage=='en'}>
+                    <label class="form-check-label" for="preferredLanguage2">English</label>
+                </div>  
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="autologin" disabled={ !allowEdit } checked={ user.autologin }>
                     <label class="form-check-label" for="autologin">{ app.texts.user_form.autologin[app.language] }</label>
@@ -413,6 +424,7 @@
             if (self.mode == 'create') {
                 formData.password = generatePassword()
             }
+            formData.preferredLanguage = e.target.elements['preferredLanguage'].value
             if (e.target.elements['unregisterRequested'].checked) {formData.unregisterRequested = e.target.elements['unregisterRequested'].value}
             if (e.target.elements['autologin'].checked) {formData.autologin = 'true'}else{formData.autologin = 'false'}
             app.log(JSON.stringify(formData))
@@ -456,7 +468,7 @@
         })
 
         var readUser = function (uid) {
-            getData(app.userAPI+uid,null,app.user.token,update,self.listener)
+            getData(app.userAPI+"/"+uid,null,app.user.token,update,self.listener)
         }
 
         var generatePassword = function(){

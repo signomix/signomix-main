@@ -17,3 +17,4 @@
 /src/other/environment/localdev/run.sh
 /src/other/environment/localdev/Dockerfile.template
 /src/other/environment/localdev/
+/webapp/blog/public/build/

@@ -17,6 +17,7 @@ import javax.mail.internet.MimeMessage;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.out.OutboundAdapter;
 
 /**
@@ -38,6 +39,7 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
     String debugSession = null;
     boolean ready = true;
     boolean usingTls = false;
+    Integer port = null;
 
     protected HashMap<String, String> statusMap = null;
 
@@ -56,6 +58,10 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
         debugSession = properties.getOrDefault("debug-session", "false");
         startTls = properties.getOrDefault("starttls", "false");
         usingTls = Boolean.getBoolean(startTls);
+        try {
+            port = Integer.parseInt(properties.get("port"));
+        } catch (Exception e) {
+        }
         if (from.isEmpty() || mailhost.isEmpty() || user.isEmpty() || password.isEmpty()) {
             ready = false;
         }
@@ -66,12 +72,13 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
         Kernel.getInstance().getLogger().print("\tlocalhost: " + localhost);
         Kernel.getInstance().getLogger().print("\tprotocol: " + protocol);
         Kernel.getInstance().getLogger().print("\tmailer: " + mailer);
-        Kernel.getInstance().getLogger().print("\tuser: " + user);
         Kernel.getInstance().getLogger().print("\tstarttls: " + startTls);
+        Kernel.getInstance().getLogger().print("\tport: " + port);
+        Kernel.getInstance().getLogger().print("\tuser: " + user);
         Kernel.getInstance().getLogger().print("\tpassword: " + (password.isEmpty() ? "" : "******"));
         Kernel.getInstance().getLogger().print("\tdebug-session: " + debugSession);
     }
-    
+
     @Override
     public String send(String recipient, String topic, String content) {
         String result = "OK";
@@ -84,8 +91,13 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
         props.put("mail.smtp.user", from);
         props.put("mail.smtp.password", password);
         if (usingTls) {
-            props.put("mail.smtp.port", "587");
-            props.put("mail.smtp.socketFactory.port", "587");
+            if (null == port) {
+                props.put("mail.smtp.port", "587");
+                props.put("mail.smtp.socketFactory.port", "587");
+            } else {
+                props.put("mail.smtp.port", "" + port);
+                props.put("mail.smtp.socketFactory.port", "" + port);
+            }
             props.setProperty("mail.smtp.ssl.enable", "true");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.put("mail.smtps.auth", "true");
@@ -109,10 +121,10 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
             mime.setSentDate(new Date());
             mime.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             if (cc != null) {
-                mime.setRecipients(Message.RecipientType.CC,cc);
+                mime.setRecipients(Message.RecipientType.CC, cc);
             }
             if (bcc != null) {
-                mime.setRecipients(Message.RecipientType.BCC,bcc);
+                mime.setRecipients(Message.RecipientType.BCC, bcc);
             }
 
             Transport transport = session.getTransport("smtps");
@@ -141,5 +153,15 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
             statusMap.put("class", getClass().getName());
         }
         return statusMap;
+    }
+
+    @Override
+    public String send(String to, String cc, String bcc, String subject, String text) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String send(String[] recipients, String[] names, String subject, String text) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

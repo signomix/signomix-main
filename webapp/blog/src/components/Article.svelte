@@ -9,7 +9,7 @@
     export let uid;
     export let csAPI
 
-    let pageArticle = {}
+    let pageArticle = {published:"2020-06-06T"}
 
     onMount(async () => {
         getData(csAPI + uid + '?language=' + language, null, updatePage);
@@ -47,12 +47,29 @@
                     <h1>{pageArticle.title} 
                     {#if pageArticle.title!=='404'}<a href={'?doc='+uid+'&language='+language} style="text-decoration: none; color: black;"><i data-feather="link"></i></a>{/if}
                     </h1>
+                    <p><i>{pageArticle.published.substring(0,10)}</i></p>
+                    <hr>
                 </header>
                 <section>{@html pageArticle.content}</section>
                 <p>
-                    <a class="btn btn-outline-primary btn-sm" role="button" on:click={handleBack}>&laquo; Back</a>
+                    <a class="btn btn-outline-primary btn-sm" role="button" on:click={handleBack}>&laquo; {texts.article.back}</a>
                 </p>
             </article>
         </div>
     </div>
 </div>
+<style>
+    article.main {
+        margin-top: 2rem;
+    }
+    article>header {
+        margin-bottom: 1rem;
+    }
+    article>header>p {
+        color: gray;
+        font-size: smaller;
+    }
+    a.btn{
+        margin-top: 1rem;
+    }
+</style>

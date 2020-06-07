@@ -260,6 +260,12 @@
             "it": "Automatic login",
             "fr": "Automatic login",
             "pl": "Automatyczne logowanie"
+        },
+        "preferredLanguage": {
+            "en": "Preferred language",
+            "it": "Preferred language",
+            "fr": "Preferred language",
+            "pl": "Preferowany język"
         }
     }
     
@@ -2006,6 +2012,12 @@
                 "it": "Automatic Login",
                 "fr": "Automatic Login",
                 "pl": "Automatyczne logowanie"
+            },
+            "preferredLanguage": {
+                "en": "Preferred language",
+                "it": "Preferred language",
+                "fr": "Preferred language",
+                "pl": "Preferowany język"
             },
             "unregisterRequested": {
                 "en": "* Unregistration requested?",

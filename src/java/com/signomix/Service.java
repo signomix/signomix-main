@@ -38,7 +38,7 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
-import com.signomix.out.notification.EmailSenderIface;
+//import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.List;
@@ -48,6 +48,7 @@ import org.cricketmsf.exception.EventException;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
 import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
+import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.queue.QueueException;
 import org.cricketmsf.microsite.user.UserEvent;
 

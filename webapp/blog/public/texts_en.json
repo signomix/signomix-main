@@ -6,9 +6,10 @@
         "signin": "Log-in"
     },
     "list": {
-        "details": "Details"
+        "details": "Details ..."
     },
     "article": {
-        "title": "Title"
+        "title": "Title",
+        "back": "Back"
     }
 }

@@ -4,7 +4,7 @@
 */
 package com.signomix;
 
-import com.signomix.out.notification.EmailSenderIface;
+//import com.signomix.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.user.*;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -14,6 +14,7 @@ import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
 import org.cricketmsf.microsite.out.auth.AuthException;
 import org.cricketmsf.microsite.out.auth.Token;
+import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 

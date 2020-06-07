@@ -6,9 +6,10 @@
         "signin": "Zaloguj się"
     },
     "list": {
-        "details": "Details"
+        "details": "Więcej ..."
     },
     "article": {
-        "title": "Tytuł"
+        "title": "Tytuł",
+        "back": "Wróć"
     }
 }

@@ -106,6 +106,7 @@ public class UserModule extends UserBusinessLogic {
             newUser.setEmail(event.getRequestParameter("email"));
             newUser.setName(event.getRequestParameter("name"));
             newUser.setSurname(event.getRequestParameter("surname"));
+            newUser.setPreferredLanguage(event.getRequestParameter("preferredLanguage"));
             newUser.setType(User.FREE);
             newUser.setRole("");
             newUser.setPassword(HashMaker.md5Java(event.getRequestParameter("password")));
@@ -190,6 +191,7 @@ public class UserModule extends UserBusinessLogic {
             newUser.setUid("" + Kernel.getEventId());
             newUser.setEmail(event.getRequestParameter("email"));
             newUser.setName(event.getRequestParameter("name"));
+            newUser.setPreferredLanguage(event.getRequestParameter("preferredLanguage"));
             newUser.setType(User.SUBSCRIBER);
             newUser.setRole("guest");
             // validate
@@ -210,7 +212,7 @@ public class UserModule extends UserBusinessLogic {
             if (withConfirmation) {
                 result.setCode(HttpAdapter.SC_ACCEPTED);
                 //fire event to send "need confirmation" email
-                UserEvent ev = new UserEvent(UserEvent.SUBSCRIBER_REGISTERED, newUser.getUid());
+                UserEvent ev = new UserEvent(SignomixUserEvent.SUBSCRIBER_REGISTERED, newUser.getUid());
                 ev.setTimePoint("+5s");
                 Kernel.getInstance().dispatchEvent(ev);
             } else {
@@ -292,6 +294,7 @@ public class UserModule extends UserBusinessLogic {
             String phonePrefix = event.getRequestParameter("phoneprefix");
             String credits = event.getRequestParameter("credits");
             String autologin = event.getRequestParameter("autologin");
+            String preferredLanguage = event.getRequestParameter("preferredLanguage");
             if (email != null) {
                 user.setEmail(email);
             }
@@ -327,6 +330,9 @@ public class UserModule extends UserBusinessLogic {
             }
             if (autologin != null) {
                 user.setAutologin(Boolean.parseBoolean(autologin));
+            }
+            if (preferredLanguage != null) {
+                user.setPreferredLanguage(preferredLanguage);
             }
             if (password != null) {
                 user.setPassword(HashMaker.md5Java(event.getRequestParameter("password")));

@@ -1,44 +1,50 @@
-[
-    {
-        "url": "/",
-        "label": 
-                {
-                    "en": "Home", 
-                    "pl": "Home"
-                },
-        "target": ""
+{
+    "title": "Signomix Blog",
+    "logo": "resources/blog-logo.png",
+    "signin": {
+        "pl": "Zaloguj się",
+        "en": "Sign in"
     },
-    {
-        "url": "/blog",
-        "label": 
-                {
-                    "en": "Blog",
-                    "pl": "Blog"
-                },
-        "target": ""
-    },
-    {
-        "url": "/status",
-        "label": {
-            "en": "State",
-            "pl": "Status"
+    "elements": [
+        {
+            "url": "/",
+            "label": {
+                "pl": "Home",
+                "en": "Home"
+            },
+            "target": ""
         },
-        "target": ""
-    },
-    {
-        "url": "/app/#!doc,toc",
-        "label": {
-            "en": "Documentation",
-            "pl": "Dokumentacja"
+        {
+            "url": "/blog",
+            "label": {
+                "pl": "Blog",
+                "en": "Blog"
+            },
+            "target": ""
         },
-        "target": ""
-    },
-    {
-        "url": "/app/#!register",
-        "label": {
-            "en": "Register",
-            "pl": "Zarejestruj się"
+        {
+            "url": "/status",
+            "label": {
+                "pl": "Status",
+                "en": "Status"
+            },
+            "target": ""
         },
-        "target": ""
-    }
-]
+        {
+            "url": "/app/#!doc,toc",
+            "label": {
+                "pl": "Dokumentacja",
+                "en": "Documentation"
+            },
+            "target": ""
+        },
+        {
+            "url": "/app/#!register",
+            "label": {
+                "pl": "Załóż konto",
+                "en": "Register"
+            },
+            "target": ""
+        }
+    ]
+}

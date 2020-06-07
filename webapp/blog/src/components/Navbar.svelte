@@ -3,60 +3,63 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let navlist =
-            [
-                {url: "/", label: {en: "Home", pl: "Home"}, target: ""}
-
-            ];
+    export let path;
+    export let homePath;
+    export let languages;
     export let language;
-    export let texts;
+    export let defaultLanguage;
 
+    let navlist =
+    {
+        "title": "",
+        "logo": "",
+        "signin":{},
+        "elements": [
+            { url: "/", label: { en: "Home", pl: "Home" }, target: "" }
+
+        ]
+    };
     onMount(async () => {
-        getData('navigation.json', null, updateNav);
+        navlist =  await contentClient.getJsonFile(homePath+`navigation.json`);
+        document.title = navlist.title;
     });
-
-    export function languageChanged(name) {
-        //alert('language changed to ' + name)
-    }
-
-    function handleNav() {
-        dispatch('setLocation', {
-            text: event.target.href
+    function handleLang(x) {
+        dispatch('setLanguage', {
+            language: x
         })
-    }
-
-    function handlePL() {
-        dispatch('setLanguage', {
-            text: 'pl'
-        });
-    }
-    function handleEN() {
-        dispatch('setLanguage', {
-            text: 'en'
-        });
-    }
-
-    function updateNav(code, text) {
-        if (code === 404) {
-            return;
-        }
-        navlist = JSON.parse(text);
     }
 
 </script>
 
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-    <h5 class="my-0 mr-md-auto font-weight-normal"><img class="mb-2" src="/resources/logo.png" alt="" height="40">&nbsp;</h5>
+    <h5 class="my-0 mr-md-auto font-weight-normal"><img class="mb-2" src={navlist.logo} alt="" height="40">&nbsp;</h5>
     <nav class="my-2 my-md-0 mr-md-3">
-        {#each navlist as list}
-        <a class="p-2 text-dark" href={list.url} on:click={handleNav} target={list.target}>{list.label[language]}</a>
+        {#each navlist.elements as element}
+        <a class="p-2 text-dark" href={element.url} target={element.target}>{element.label[language]}</a>
         {/each}
-        {#if language!='en'}
-        <a class="p-2 text-dark" href="#!en" on:click={handleEN}><span class="flag-icon flag-icon-gb border border-secondary rounded"></span></a>
+        {#if languages.length>1}
+        {#each languages as lang}
+        {#if lang!==language}
+        <a class="p-2 text-dark" 
+            on:click={() => handleLang(lang)}><img class="flag" alt={lang} src={'resources/flags/4x3/'+lang+'.svg'}></a>
         {/if}
-        {#if language!='pl'}
-        <a class="p-2 text-dark" href="#!pl" on:click={handlePL}><span class="flag-icon flag-icon-pl border border-secondary rounded"></span></a>
+        {/each}
         {/if}
     </nav>
-    <a class="btn btn-outline-primary" href="/app/#!login">{texts.navigation.signin}</a>
+    <a class="btn btn-outline-primary" href="/app/#!login">{navlist.signin[language]}</a>
 </div>
+<style>
+    nav img{
+        
+        height: 40px;
+    }
+    a.nav-item{
+        font-size: large;
+    }
+    .flag{
+        width: 1.6rem; 
+        border-width: 0px; 
+        border-color: lightgray;
+        border-style: solid;
+    }
+</style>

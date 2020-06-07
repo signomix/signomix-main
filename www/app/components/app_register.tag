@@ -74,8 +74,19 @@
                 oninvalid={ app.texts.register.l_passwordHint[app.language] }
                 />
                     </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">{ app.texts.user_form.preferredLanguage[app.language] }</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage1" value="pl" checked>
+                    <label class="form-check-label" for="preferredLanguage1">Polski</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage2" value="en">
+                    <label class="form-check-label" for="preferredLanguage2">English</label>
+                </div>
                     <div class="form-check" style="margin-bottom: 20px;">
-                        <input class="form-check-input" type="checkbox" value="" id="accept" name="accept" required>
+                        <input class="form-check-input" type="checkbox" value="y" id="accept" name="accept" required>
                         <label class="form-check-label" for="accept">
                         { app.texts.register.l_legalText1[app.language] } <a href="#!doc,legal">{ app.texts.register.l_legalText2[app.language] }</a>.
                         </label>
@@ -120,6 +131,7 @@
         formData.email = e.target.elements['email'].value
         formData.name = e.target.elements['name'].value
         formData.surname = e.target.elements['surname'].value
+        formData.preferredLanguage = e.target.elements['preferredLanguage'].value
         formData.accept = e.target.elements['accept'].value
         self.registeredEmail = formData.email
         if (self.validate(formData,e.target.elements['password2'].value) == 0) {

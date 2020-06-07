@@ -5,11 +5,14 @@
     import Footer from "./components/Footer.svelte";
 
     export let texts;
+    export let languages;
     export let language;
+    export let defaultLanguage;
     export let csAPI;
     export let docuid;
     export let devModePort;
     export let devMode = false;
+    export let cmsMode;
 
     // child components which must be binded
     let navbar;
@@ -17,7 +20,9 @@
     let footer;
 
     let selected = '';
-
+    let path
+    let homePath
+    let prefix
     let pageArticle =
             {
                 title: '',
@@ -26,28 +31,39 @@
             }
 
     let articles = []
+    let tmpLang = window.localStorage.getItem("language")
+    if (languages.length > 1 && null !== tmpLang && "" !== tmpLang && "undefined" !== tmpLang) {
+        language = tmpLang
+    } else {
+        language = defaultLanguage
+    }
+    prefix = language === defaultLanguage ? '' : language + '_';
+    console.log("language:[" + language + "]")
+    path = window.location.pathname
+    homePath = getRoot(path)
+    console.log(window.location.search)
+    console.log()
+    if (window.location.search.startsWith('?doc=')) {
+        var langPos = (window.location.search.lastIndexOf('&'));
+        let lang = window.location.search.substring(langPos + 10);
+        if (lang.endsWith('/')) {
+            lang = lang.slice(0, -1);
+        }
+        if (lang.length === 2) {
+            language = lang;
+        }
+        docuid = window.location.search.substring(5, langPos);
+    } else {
+        docuid = '';
+    }
 
     /**
      * Load default language version of the application texts on mount
      * @return {undefined}
      */
     onMount(async () => {
-        console.log(window.location.search)
-        if (window.location.search.startsWith('?doc=')) {
-            var langPos=(window.location.search.lastIndexOf('&'));
-            let lang=window.location.search.substring(langPos+10);
-            if(lang.endsWith('/')){
-                lang=lang.slice(0,-1);
-            }
-            if(lang.length===2){
-                language=lang;
-            }
-            docuid = window.location.search.substring(5,langPos);
-        } else {
-            docuid = '';
-        }
         devMode = window.origin.endsWith(':' + devModePort);
-        getData(`texts_` + language + '.json', null, updateTexts);
+        getData(homePath + `texts_` + language + '.json', null, updateTexts);
         getData(csAPI + '/posts?language=' + language, null, updatePage);
     });
 
@@ -69,7 +85,7 @@
      */
     function handleGoBack(event) {
         if (window.location.search.startsWith('?doc=')) {
-            window.location.search='';
+            window.location.search = '';
         } else {
             docuid = '';
         }
@@ -81,14 +97,10 @@
      * @return {undefined}
      */
     function handleSetLanguage(event) {
-        if (event.detail.text === 'pl') {
-            language = 'pl';
-        } else if (event.detail.text === 'en') {
-            language = 'en';
-        } else {
-            return;
-        }
-        if(typeof article !== 'undefined') {
+        language = event.detail.language
+        prefix = language === defaultLanguage ? '' : language + '_';
+        window.localStorage.setItem("language", language);
+        if (typeof article !== 'undefined') {
             article.languageChanged(language);
         }
         getData(`texts_` + language + '.json', null, updateTexts);
@@ -123,19 +135,38 @@
             return;
         }
         let l = JSON.parse(text);
-        articles = l.reverse();
-        for(var i=0; i<articles.length; i++){
-            articles[i]=decodeDocument(articles[i]);
+        //articles = l.reverse();
+        articles = l.sort(function (a, b) {
+            return b.extra - a.extra
+        })
+        for (var i = 0; i < articles.length; i++) {
+            articles[i] = decodeDocument(articles[i]);
         }
     }
     function viewArticle(event) {
         event.preventDefault()
         docuid = event.target.pathname;
     }
+
+    function getRoot(pathName) {
+        let pos;
+        if (pathName.startsWith('/')) {
+            pos = pathName.indexOf('/', 1);
+        } else {
+            pos = pathName.indexOf('/', 0);
+        }
+        if (pos > -1) {
+            return pathName.substring(0, pos + 1);
+        }
+        return '/';
+    }
 </script>
 
 <main>
-    <Navbar language={language} texts={texts} on:setLanguage={handleSetLanguage} on:setLocation={handleSetLocation} bind:this={navbar}/>
+    <Navbar path='/blog' homePath={homePath} bind:this={navbar} languages={languages} language={language}
+            defaultLanguage={defaultLanguage} on:setLanguage={handleSetLanguage} />
+    <!--
+    <Navbar language={language} texts={texts} on:setLanguage={handleSetLanguage} on:setLocation={handleSetLocation} bind:this={navbar}/>-->
     {#if docuid!==''}
     <Article language={language} texts={texts} on:goBack={handleGoBack} bind:this={article} devmode={devMode} csAPI={csAPI} uid={docuid}/>
     {:else}
@@ -159,7 +190,7 @@
                         <h1>{listArticle.title}</h1>
                         <div>{@html listArticle.summary}</div>
                     </header>
-                    <p><a href={listArticle.uid} on:click={viewArticle}>{texts.list.details} &raquo;</a></p>                  
+                    <a class="btn btn-outline-primary btn-sm" role="button" style="margin-top: 1rem;" href={listArticle.uid} on:click={viewArticle}>{texts.list.details} &raquo;</a>                 
                 </article>
             </div>
         </div>
@@ -168,3 +199,11 @@
     {/if}
     <Footer csAPI={csAPI} language={language} texts={texts} on:setLanguage={handleSetLanguage} bind:this={footer}/>
 </main>
+<style>
+    article.list{
+        margin-top: 2rem;
+    }
+    article.folder{
+        margin-top: 2rem;
+    }
+</style>

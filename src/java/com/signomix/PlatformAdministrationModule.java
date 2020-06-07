@@ -287,6 +287,7 @@ public class PlatformAdministrationModule {
                 newUser.setEmail(initialAdminEmail);
                 newUser.setType(User.OWNER);
                 newUser.setRole("admin,redactor");
+                newUser.setPreferredLanguage("en");
                 newUser.setPassword(HashMaker.md5Java(initialAdminPassword));
                 Random r = new Random(System.currentTimeMillis());
                 newUser.setConfirmString(Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
@@ -303,6 +304,7 @@ public class PlatformAdministrationModule {
                 newUser.setEmail(initialAdminEmail);
                 newUser.setType(User.FREE);
                 newUser.setRole("user");
+                newUser.setPreferredLanguage("en");
                 newUser.setPassword(HashMaker.md5Java("signomix"));
                 newUser.setConfirmString("6022140857");
                 // no confirmation necessary for test account
@@ -317,6 +319,7 @@ public class PlatformAdministrationModule {
                     newUser.setEmail(initialAdminEmail);
                     newUser.setType(User.DEMO);
                     newUser.setRole("user");
+                    newUser.setPreferredLanguage("en");
                     newUser.setPassword(HashMaker.md5Java("demo"));
                     newUser.setConfirmString("1234567890");
                     // no confirmation necessary for test account
@@ -332,6 +335,7 @@ public class PlatformAdministrationModule {
                 newUser.setEmail("");
                 newUser.setType(User.READONLY);
                 newUser.setRole("guest");
+                newUser.setPreferredLanguage("en");
                 newUser.setConfirmed(true);
                 userDB.put("users", newUser.getUid(), newUser);
             }

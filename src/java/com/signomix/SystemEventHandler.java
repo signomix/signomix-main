@@ -4,17 +4,19 @@
 */
 package com.signomix;
 
+import com.signomix.mailing.MailingModule;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.notification.EmailSenderIface;
+//import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
+import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.KeyValueDBIface;
@@ -93,6 +95,9 @@ public class SystemEventHandler {
                 } catch (KeyValueDBException ex) {
                     kernel.dispatchEvent(Event.logWarning(SystemEventHandler.class, "Problem while clearing web cache - " + ex.getMessage()));
                 }
+                break;
+            case "MAILING_SEND":
+                MailingModule.getInstance().sendMailing((Long)event.getPayload());
                 break;
             case "STATUS":
                 System.out.println(kernel.printStatus());

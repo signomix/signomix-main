@@ -7,10 +7,11 @@ package com.signomix;
 import com.signomix.event.SignomixUserEvent;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.notification.EmailSenderIface;
+//import com.signomix.out.notification.EmailSenderIface;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
+import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
@@ -135,7 +136,7 @@ public class UserEventHandler {
             case UserEvent.USER_REG_CONFIRMED:  //TODO: update user
                 gdprLogger.log(Event.logInfo(event.getId(), "REGISTRATION CONFIRMED FOR " + event.getPayload()));
                 break;
-            case UserEvent.SUBSCRIBER_REG_CONFIRMED:  //TODO: update user
+            case SignomixUserEvent.SUBSCRIBER_REG_CONFIRMED:  //TODO: update user
                 gdprLogger.log(Event.logInfo(event.getId(), "SUBSCRIPTION CONFIRMED FOR " + event.getPayload()));
                 break;
             case UserEvent.USER_UPDATED:

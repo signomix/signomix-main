@@ -94,6 +94,7 @@
                     <tr><th>{ app.texts.account.warningNotifications[app.language] }</th><td>{userProfile.warningNotificationChannel}</td></tr>
                     <tr><th>{ app.texts.account.alertNotifications[app.language] }</th><td>{userProfile.alertNotificationChannel}</td></tr>
                     <tr><th>{ app.texts.account.prefix[app.language] }</th><td>{userProfile.phonePrefix}</td></tr>
+                    <tr><th>{ app.texts.account.preferredLanguage[app.language] }</th><td>{userProfile.preferredLanguage}</td></tr>
                     <tr><th>{ app.texts.account.autologin[app.language] }</th><td>{userProfile.autologin==true?'true':'false'}</td></tr>
                     <tr if={ app.user.roles.indexOf("admin")>-1 }><th>{ app.texts.account.role[app.language] }</th><td>{userProfile.role}</td></tr>
                     <tr><th>{ app.texts.account.confirmString[app.language] }</th><td>{userProfile.confirmString}</td></tr>

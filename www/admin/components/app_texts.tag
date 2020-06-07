@@ -440,6 +440,11 @@
             "en": "Cancel",
             "fr": "Cancel",
             "pl": "Porzuć"
+        },
+        "extra": {
+            "en": "Extra",
+            "fr": "Extra",
+            "pl": "Ekstra"
         }
     }
     app.texts.cm_documents = {

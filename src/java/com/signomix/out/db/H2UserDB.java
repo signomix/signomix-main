@@ -54,7 +54,8 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
                 .append("phoneprefix varchar,")
                 .append("credits bigint,")
                 .append("user_number bigint default user_number_seq.nextval,")
-                .append("autologin boolean)");
+                .append("autologin boolean,")
+                .append("language varchar)");
         query = sb.toString();
         try (Connection conn = getConnection()) {
             PreparedStatement pst;
@@ -92,7 +93,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
     private void putUser(String tableName, String key, User user) throws KeyValueDBException {
         try (Connection conn = getConnection()) {
                                          //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
-            String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,            services,phoneprefix,credits,autologin) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,            services,phoneprefix,credits,autologin,language) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             query = query.replaceFirst("\\?\\?", tableName);
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, user.getUid());
@@ -115,6 +116,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
             pstmt.setString(18, user.getPhonePrefix());
             pstmt.setLong(19, user.getCredits());
             pstmt.setBoolean(20, user.isAutologin());
+            pstmt.setString(21, user.getPreferredLanguage());
             int updated = pstmt.executeUpdate();
             //check?
         } catch (SQLException e) {
@@ -144,7 +146,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         //TODO: nie używać, zastąpić konkretnymi search'ami
         if (tableName.equals("users")) {
                                  //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from users";
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from users";
             try (Connection conn = getConnection()) {
                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ResultSet rs = pstmt.executeQuery();
@@ -206,7 +208,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         ArrayList<User> result = new ArrayList<>();
         try (Connection conn = getConnection()) {
                                  //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from " + tableName + " where user_number=?";
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from " + tableName + " where user_number=?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setLong(1, (Long) parameters[0]);
             ResultSet rs = pstmt.executeQuery();
@@ -248,6 +250,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         user.setPhonePrefix(rs.getString(19));
         user.setCredits(rs.getLong(20));
         user.setAutologin(rs.getBoolean(21));
+        user.setPreferredLanguage(rs.getString(22));
         return user;
     }
 
@@ -255,7 +258,7 @@ public class H2UserDB extends H2EmbededDB implements SqlDBIface, Adapter {
         User user = null;
         try (Connection conn = getConnection()) {
                                  //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin from " + tableName + " where uid=?";
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from " + tableName + " where uid=?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
