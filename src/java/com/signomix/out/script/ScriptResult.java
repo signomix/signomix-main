@@ -92,7 +92,11 @@ public class ScriptResult {
         }else{
             prefix="&";
         }
-        event.setPayload(prefix+Base64.getEncoder().encodeToString(payload.getBytes()));
+        if(hexRepresentation){
+            event.setPayload(prefix+payload);
+        }else{
+            event.setPayload(prefix+Base64.getEncoder().encodeToString(payload.getBytes()));
+        }
         events.add(event);
     }
 

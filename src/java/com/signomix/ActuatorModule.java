@@ -109,7 +109,6 @@ public class ActuatorModule {
             ScriptingAdapterIface scriptingAdapter) {
         StandardResult result = new StandardResult();
 
-        String cmdType = (String) request.parameters.get("hex");
         IotEvent event = new IotEvent();
         event.setOrigin("@" + device.getEUI());
         if (hexPayload) {
@@ -117,7 +116,11 @@ public class ActuatorModule {
         } else {
             event.setType(IotEvent.ACTUATOR_CMD);
         }
-        event.setPayload(request.body.trim());
+        /*
+        leading "#" - overwrite previous command if still not send, 
+        leading "&" - send command after previously registered
+        */
+        event.setPayload("#"+request.body.trim()); 
         Kernel.getInstance().dispatchEvent(event);
         return result;
     }

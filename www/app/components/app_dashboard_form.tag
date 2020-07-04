@@ -215,6 +215,19 @@
                             ></form_input>
                         </div>
                         </div>
+                        <div class="row" if={ self.editedWidget.type=='symbol' }>
+                        <div class="form-group col-md-12">
+                            <form_input 
+                                id="w_icon"
+                                name="w_icon"
+                                label={ app.texts.dashboard_form.f_widget_icon[app.language] }
+                                type="text"
+                                content={ self.editedWidget.icon }
+                                readonly={ !allowEdit }
+                                hint={ app.texts.dashboard_form.f_widget_icon_hint[app.language] }
+                            ></form_input>
+                        </div>
+                        </div>
                         <div class="row">
                         <div class="form-group col-md-12">
                             <label for="w_width" class="active">{app.texts.dashboard_form.f_widget_width[app.language]}</label>
@@ -371,6 +384,7 @@
                 'query':'last 1',
                 'range':'',
                 'title':'',
+                'icon': '',
                 'width':1,
                 'description':'',
                 'queryvalue':'1',
@@ -495,7 +509,7 @@
                 } else{
                     self.editedWidget = {'name':'', 'dev_id':'', 'channel':'',
                     'unitName':'', 'type':'text', 'query':'last', 'range':'', 
-                    'title':'', 'width':1, 'description':'', 'queryvalue':'1',
+                    'title':'','icon':'', 'width':1, 'description':'', 'queryvalue':'1',
                     'format':'standard','chartOption':'dots', 'group':''}
                 }
                 app.log(index)
@@ -609,6 +623,11 @@
                 self.editedWidget.title = e.target.elements['w_title'].value
             }catch(err){
                 self.editedWidget.title = ''
+            }
+            try{    
+                self.editedWidget.icon = e.target.elements['w_icon'].value
+            }catch(err){
+                self.editedWidget.icon = ''
             }
             self.editedWidget.width = parseInt(e.target.elements['w_width'].value, 10)
             self.editedWidget.description = e.target.elements['w_description'].value

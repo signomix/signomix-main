@@ -1,22 +1,22 @@
 <widget_a1>
-    <div id={opts.ref} if={type == 'symbol'} class="card topspacing p-0">
-        <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
+    <div id={opts.ref} if={type == 'symbol'} class="widget rounded p-0">
+        <div class="widget widget-header rounded h6 text-left p-1"  onclick={ switchCard() }>
             <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
             <i class="material-icons red" style="margin-right: 10px; font-size: smaller" if={alertLevel==2}>error_outline</i>
             {title}<span class="float-right">&#x2699;</span>
         </div>
-        <div class="card-body">
+        <div class="widget widget-body rounded">
             <div class="row">
-                <div class="col-4">
-                    <h3>
-                        <i class="las {icon} text-primary" style="height: 1em;" if={alertLevel<1}></i>
-                        <i class="las {icon} text-warning" style="height: 1em;" if={alertLevel==1}></i>
-                        <i class="las {icon} text-danger" style="height: 1em;" if={alertLevel==2}></i>
-                    </h3>
+                <div class="col-4 text-left">
+                    <img src="/app/resources/iconmonstr/{icon}.svg" class="h-100 inline-block filter-blue img-fluid" if={alertLevel<1}>
+                    <img src="/app/resources/iconmonstr/{icon}.svg" class="h-100 filter-yellow img-fluid" if={alertLevel==1}>
+                    <img src="/app/resources/iconmonstr/{icon}.svg" class="h-100 filter-red img-fluid" if={alertLevel==2}>
                 </div>
-                <div class="col-8 text-right">
-                    <h3 if={front}>{value} <raw content={ unitName }></raw></h3>
-                    <h5 if={ !front }>{measureDate}</h5>
+                <div class="col-8 text-center h3" if={ front }>
+                    {value} <raw content={ unitName }></raw>
+                </div>
+                <div class="col-8 text-center h3" if={ !front }>
+                    {measureDate}
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
         self.setIconName = function(){
             if(self.iconName==''||self.iconName==undefined){
                 if (self.jsonData == null || self.jsonData.length == 0 || self.jsonData[0].length == 0){;
-                    self.icon = 'la-tachometer-alt';
+                    self.icon = 'dashboard';
                 }else{
                     self.measureType = getMeasureType(self.jsonData[0][0]['name'].toLowerCase());
                     if (self.measureType == 0) {
@@ -43,44 +43,44 @@
                     };
                     switch (self.measureType){
                         case 1:
-                            self.icon = 'la-thermometer-three-quarters'; break;
+                            self.icon = 'temperature'; break;
                         case 2:
-                            self.icon = 'la-tint'; break;
+                            self.icon = 'humidity'; break;
                         case 3:
-                            self.icon = 'la-tachometer-alt'; break;
+                            self.icon = 'pressure'; break;
                         case 4:
-                            self.icon = 'la-calendar'; break;
+                            self.icon = 'calendar'; break;
                         case 5:
-                            self.icon = 'la-tachometer-alt'; break;
+                            self.icon = 'speed'; break;
                         case 6:
-                            self.icon = 'la-ruler-horizontal'; break;
+                            self.icon = 'distance'; break;
                         case 7:
-                            self.icon = 'la-lightbulb'; break;
+                            self.icon = 'light-off,light-on'; break;
                         case 8:
-                            self.icon = 'la-battery-empty,la-battery-full'; break;
+                            self.icon = 'battery-0,battery1'; break;
                         case 9:
                         case 10:
-                            self.icon = 'la-map-marker-alt'; break;
+                            self.icon = 'location'; break;
                         case 11:
-                            self.icon = 'la-mountain'; break;
+                            self.icon = 'altitude'; break;
                         case 12:
-                            self.icon = 'la-calculator'; break;
+                            self.icon = 'calculator'; break;
                         case 13:
-                            self.icon = 'la-clock'; break;
+                            self.icon = 'timer'; break;
                         case 14:
-                            self.icon = 'la-ruler-vertical'; break;
+                            self.icon = 'height'; break;
                         case 15:
-                            self.icon = 'la-smog'; break;
+                            self.icon = 'pollution'; break;
                         case 16:
-                            self.icon = 'la-wind'; break;
+                            self.icon = 'wind'; break;
                         case 17:
-                            self.icon = 'la-cloud-showers-heavy'; break;
+                            self.icon = 'rain'; break;
                         case 18:
-                            self.icon = 'la-tint'; break;
+                            self.icon = 'water'; break;
                         case 19:
-                            self.icon = 'la-door-closed,la-door-open'; break;
+                            self.icon = 'door-0,door-1'; break;
                         default:
-                            self.icon = 'la-tachometer-alt';
+                            self.icon = 'dashboard';
                     };
                 }            
             }else{
@@ -156,9 +156,4 @@
             self.show2();
         };
     </script>
-    <style>
-        .topspacing{
-            margin-top: 10px;
-        }
-    </style>
 </widget_a1>

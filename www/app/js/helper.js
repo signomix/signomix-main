@@ -5,7 +5,7 @@
 // 
 // @param {String} definition 
 // @param {Number} v is value to check against definition
-// @returns {Number} 2==alert, 1==warning, otherwise 0
+// @returns {Number} 2==alert, 1==warning, otherwise 0 or -1 when definition not provided
 //
 // definition "{alertCondition}[:{warningConditon}][@variableName]
 // condition: [variableName]{comparator}{value}[[variableName]{comparator}{value}]
@@ -15,6 +15,9 @@
 // example 2: "<-10>40:<0>30"
 // example 3: "<-10>40:<0>30@x"
 function getAlertLevel(definition, value){
+    if(definition==''||definition==undefined){
+        return -1
+    }
     //remove whitespaces and measure name
     let def=definition.replace(/\s+/g, '');
     if(def.indexOf("@")>0){
@@ -111,11 +114,17 @@ function getMeasureType(name) {
     if (name.indexOf('temperatur') > -1) {
         return 1;
     }
-    if (name.indexOf('humidity') > -1) {
+    if (name.indexOf('humidity') > -1 || name.indexOf('moisture') > -1) {
         return 2;
     }
     if (name.indexOf('pressure') > -1) {
         return 3;
+    }
+    if (name.indexOf('times') > -1 || name.indexOf('count') > -1) {
+        return 12;
+    }
+    if (name.indexOf('duration') > -1) {
+        return 13;
     }
     if (name.indexOf('date') > -1 || name.indexOf('time') > -1) {
         return 4;
@@ -123,13 +132,13 @@ function getMeasureType(name) {
     if (name.indexOf('speed') > -1 || name.indexOf('velocity') > -1) {
         return 5;
     }
-    if (name.indexOf('distance') > -1 || name.indexOf('length') > -1 || name.indexOf('width') > -1 || name.indexOf('height') > -1) {
+    if (name.indexOf('distance') > -1 || name.indexOf('length') > -1 || name.indexOf('width') > -1) {
         return 6;
     }
     if (name.indexOf('luminance') > -1 || name.indexOf('lux') > -1 || name.indexOf('light') > -1) {
         return 7;
     }
-    if (name.indexOf('battery') > -1 || name.indexOf('voltage') > -1) {
+    if (name.indexOf('bat') > -1 || name.indexOf('voltage') > -1 || name.indexOf('battery') > -1) {
         return 8;
     }
     if (name.indexOf('latitude') > -1) {
@@ -140,6 +149,24 @@ function getMeasureType(name) {
     }
     if (name.indexOf('altitude') > -1) {
         return 11;
+    }
+    if (name.indexOf('height') > -1) {
+        return 14;
+    }
+    if (name.indexOf('pollution') > -1||name.indexOf('pm') > -1) {
+        return 15;
+    }
+    if (name.indexOf('wind') > -1) {
+        return 16;
+    }
+    if (name.indexOf('rain') > -1) {
+        return 17;
+    }
+    if (name.indexOf('water') > -1||name.indexOf('leak') > -1) {
+        return 18;
+    }
+    if (name.indexOf('door') > -1) {
+        return 19;
     }
     return 0;
 }

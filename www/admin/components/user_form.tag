@@ -68,23 +68,14 @@
                         >
                     </div>
                     <div class="form-group col-md-7 my-1">
-                            <!--
-                            <label for="generalNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
-                            <input class="form-control" id="generalNotificationChannel" 
-                                   name="generalNotificationChannel" type="text" readonly={ !allowEdit }
-                                   value={ user.generalNotificationChannel.substring(user.generalNotificationChannel.indexOf(':')+1) }
-                            >-->
-                        <form_input 
+                        <label for="generalNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
+                        <input class="form-control" 
                             id="generalNotificationChannel"
                             name="generalNotificationChannel"
-                            label={ app.texts.user_form.config[app.language] }
                             type="text"
-                            content={ user.generalNotificationChannel.substring(user.generalNotificationChannel.indexOf(':')+1) }
-                            required={!(user.generalNotificationChannel==''||user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':')))}
                             readonly={ !allowEdit }
-                            pattern=""
-                            oninvalid="not valid"
-                            hint=""/>
+                            value={ user.generalNotificationChannel.substring(user.generalNotificationChannel.indexOf(':')+1) }
+                            >
                     </div>
                 </div>
                 <div class="form-row">
@@ -146,8 +137,11 @@
                     </div>
                     <div class="form-group col-md-7 my-1">
                             <label for="warningNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
-                            <input class="form-control" id="warningNotificationChannel" 
-                                   name="warningNotificationChannel" type="text" readonly={ !allowEdit }
+                            <input class="form-control" 
+                                   id="warningNotificationChannel" 
+                                   name="warningNotificationChannel" 
+                                   type="text" 
+                                   readonly={ !allowEdit }
                                    value={ user.warningNotificationChannel.substring(user.warningNotificationChannel.indexOf(':')+1) }
                             >
                     </div>
@@ -177,8 +171,11 @@
                     </div>
                     <div class="form-group col-md-7 my-1">
                             <label for="alertNotificationChannel">{ app.texts.user_form.config[app.language] }</label>
-                            <input class="form-control" id="alertNotificationChannel" 
-                                   name="alertNotificationChannel" type="text" readonly={ !allowEdit }
+                            <input class="form-control" 
+                                   id="alertNotificationChannel" 
+                                   name="alertNotificationChannel" 
+                                   type="text" 
+                                   readonly={ !allowEdit }
                                    value={ user.alertNotificationChannel.substring(user.alertNotificationChannel.indexOf(':')+1) }
                             >
                     </div>

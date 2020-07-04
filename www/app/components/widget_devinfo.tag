@@ -1,16 +1,16 @@
 <widget_devinfo>
-    <div id={opts.ref} class="card card-block topspacing p-0">
+    <div id={opts.ref} class="card topspacing p-0">
         <div class="card-header h6 text-left p-1">
             {title}<span class="float-right">&#x2699;</span>
         </div>
         <div class="card-body" if="{visualisation=='raw'}"><pre>{rawdata}</pre></div>
         <div class="card-body" if="{visualisation=='time'||visualisation=='number'}">
             <div class="row">
-                <div class="col-2 text-center">
-                    <i class="material-icons md-48 blue">{iconName}</i>
+                <div class="col-4 text-left">
+                    <h3><i class="las {icon} text-primary" style="height: 1em;"></i></h3>
                 </div>
-                <div class="col-10 text-center h3">
-                    {dt}
+                <div class="col-8 text-center">
+                    <h3>{dt}</h3>
                 </div>
             </div>
         </div>
@@ -25,7 +25,6 @@
     self.unitName = opts.unitName
     self.description = opts.description
     self.range = opts.range
-    self.iconName = 'data_usage'
     // opts
     
     self.color = 'bg-white'
@@ -37,6 +36,7 @@
     self.visualisation='raw'
     
     self.show2 = function(){
+        self.icon = 'la-tachometer-alt'
         app.log('SHOW2 '+self.type)
         self.jsonData = JSON.parse(self.rawdata)
         if(self.channel=='latitude'||self.channel=='longitude'||self.channel=='altitude'){

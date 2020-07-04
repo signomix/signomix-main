@@ -1,14 +1,14 @@
 <widget_stopwatch>
-    <div id={ opts.ref } class="card widget topspacing p-0">
+    <div id={ opts.ref } class="card topspacing p-0">
         <div class="card-header h6 text-left p-1">
             {title}<span class="float-right">&#x2699;</span>
         </div>
-        <div class="card-body">
+        <div class="card-body rounded">
             <div class="row">
-                <div class="col-2 text-center">
-                    <i class="material-icons md-48 blue">{iconName}</i>
+                <div class="col-4 text-left">
+                    <h3><i class="las {icon} text-primary" style="height: 1em;"></i></h3>
                 </div>
-                <div class="col-10 text-center h3">
+                <div class="col-8 text-right">
                     {dt}
                 </div>
             </div>
@@ -21,9 +21,9 @@
         self.h=0
         self.m=0
         self.s=0
-        self.iconName = 'hourglass_empty'
         
         self.show2 = function(){
+            self.icon = 'la-clock'
             self.jsonData = JSON.parse(this.rawdata)
             if(self.jsonData.length>0 && self.jsonData[0].length>0){
                 if(parseFloat(self.jsonData[0][0]['value'])<=0){

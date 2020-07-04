@@ -708,6 +708,18 @@
             "fr": "Indiquez s'il est différent du nom du widget",
             "pl": "Podaj jeśli ma być inny niż nazwa kontrolki"
         },
+        "f_widget_icon": {
+            "en": "Icon",
+            "it": "Icon",
+            "fr": "Icon",
+            "pl": "Ikona"
+        },
+        "f_widget_icon_hint": {
+            "en": "Force use of icon",
+            "it": "Force use of icon",
+            "fr": "Force use of icon",
+            "pl": "Wymuś użycie ikony"
+        },
         "f_widget_width": {
             "en": "Widget width (number of columns)",
              "it": "Larghezza del widget (numero di colonne)",
