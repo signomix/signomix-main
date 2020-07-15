@@ -1,9 +1,9 @@
 <app_case>
     <div class="modal-header">
-        <img class="card-img-top close" src="https://signomix.com/landingpage/case1top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==1}>
-        <img class="card-img-top close" src="https://signomix.com/landingpage/case2top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==2}>
-        <img class="card-img-top close" src="https://signomix.com/landingpage/case3top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==3}>
-        <img class="card-img-top close" src="https://signomix.com/landingpage/case4top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==4}>
+        <img class="card-img-top close" src="/landingpage/case1top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==1}>
+        <img class="card-img-top close" src="/landingpage/case2top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==2}>
+        <img class="card-img-top close" src="/landingpage/case3top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==3}>
+        <img class="card-img-top close" src="/landingpage/case4top.png" data-dismiss="modal" alt="Card image" show={app.caseSelected==4}>
     </div>
     <div class="modal-body">
         <div class="container">
