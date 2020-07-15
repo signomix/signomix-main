@@ -138,7 +138,7 @@
         "unregister_question": {
             "en": "Do you want to remove your account?",
             "it": "Vuoi eliminare il tuo profilo?",
-            "fr": "Voulez vous supprimer votre compte Signomix?",
+            "fr": "Voulez vous supprimer votre compte?",
             "pl": "Czy chcesz usunąć swoje konto?"
         },
         "unregister_info": {
@@ -304,10 +304,10 @@
             "pl": "Skopiuj ten kod jesli chcesz wyświetlić raport na swojej stronie"
         },
         "line1": {
-            "en": "You can use the link below to access this dashboard without signing to Signomix",
-            "it": "Puoi utilizzare il link sottostante per visualizzare questa dashboard senza accedere a Signomix",
-            "fr": "Vous pouvez utiliser ce lien pour acceder a votre Tableau de bord sans vous connecter a Signomix",
-            "pl": "Możesz użyć tego odnośnika żeby wyświetlić raport bez logowania się do Signomix"
+            "en": "You can use the link below to access this dashboard without signing in",
+            "it": "You can use the link below to access this dashboard without signing in",
+            "fr": "You can use the link below to access this dashboard without signing in",
+            "pl": "Możesz użyć tego odnośnika żeby wyświetlić raport bez logowania się"
         },
         "line3": {
             "en": "Remember that anyone having this link will be able to display the dashboard",
@@ -1024,10 +1024,10 @@
             "pl": "Status"
         },
         "generic_desc": {
-            "en": "Generic IoT node or data source with Internet connection,  sending a data directly to Signomix using REST API",
-            "it": "Nodo IoT generico con connessione Internet, invia dati direttamente a Signomix utilizzando REST API",
-            "fr": "Generic IoT node with Internet connection, sending a data directly to Signomix using REST API",
-            "pl": "Bazowe urządzenie IoT lub źródło danych połączone z Internetem, wysyłające dane bezpośrednio do Signomiksa z użyciem REST API"
+            "en": "Generic IoT node or data source with Internet connection,  sending a data directly to the service using REST API",
+            "it": "Generic IoT node or data source with Internet connection,  sending a data directly to the service using REST API",
+            "fr": "Generic IoT node or data source with Internet connection,  sending a data directly to the service using REST API",
+            "pl": "Bazowe urządzenie IoT lub źródło danych połączone z Internetem, wysyłające dane bezpośrednio do serwisu z użyciem REST API"
         },
         "ttn_desc": {
             "en": "IoT node registered in the The Things Network infrastructure",
@@ -1054,10 +1054,10 @@
             "pl": "Home Gateway"
         },
         "virtual_desc": {
-            "en": "Virtual device - a component of the Signomix platform",
-            "it": "Dispositivo virtuale - un componente della piattaforma Signomix",
-            "fr": "Virtual device - a component of the Signomix platform",
-            "pl": "Urządzenie wirtualne - komponent platformy Signomix"
+            "en": "Virtual device",
+            "it": "Dispositivo virtuale",
+            "fr": "Virtual device",
+            "pl": "Urządzenie wirtualne"
         },
         "default_desc": {
             "en": "Select device type first",
@@ -1066,10 +1066,10 @@
             "pl": "Najpierw wybierz typ urządzenia"
         },
         "channels_alert": {
-            "en": "The definition of data channels has been changed. The historical data will be erased automatically. You can download them first using Signomix API.",
-            "it": "La definizione dei canali dati è stata cambiata. Lo storico dei dati sarà cancellato automaticamente. Puoi scaricarlo prima, utilizzando le API Signomix",
-            "fr": "La définition des canaux de données a été modifiée. Les données historiques sont effacées automatiquement. Vous pouvez d'abord les télécharger en utilisant Signomix API.",
-            "pl": "Definicja kanałów danych została zmieniona. Historyczne dane zostaną automatycznie usunięte. Możesz je wcześniej pobrać korzystając z Signomix API."
+            "en": "The definition of data channels has been changed. The historical data will be erased automatically. You can download them first using the REST API.",
+            "it": "The definition of data channels has been changed. The historical data will be erased automatically. You can download them first using the REST API.",
+            "fr": "The definition of data channels has been changed. The historical data will be erased automatically. You can download them first using the REST API.",
+            "pl": "Definicja kanałów danych została zmieniona. Historyczne dane zostaną automatycznie usunięte. Możesz je wcześniej pobrać korzystając z REST API."
         },
         "err400": {
             "en": "Device with the same EUI is already registered.",
@@ -1222,10 +1222,10 @@
             "pl": "Zarejestrować"
         },
         "l_noaccountyet": {
-            "en": "If you do not have a Signomix account yet please",
-            "it": "Se non hai ancora un account Signomix. Clicca qui",
-            "fr": "Si vous n'avez pas encore de compte Signomix, clickez ici",
-            "pl": "Jeśli nie masz jeszcze konta w Signomix możesz się"
+            "en": "If you do not have an account yet please",
+            "it": "Se non hai ancora un account. Clicca qui",
+            "fr": "Si vous n'avez pas encore de compte, clickez ici",
+            "pl": "Jeśli nie masz jeszcze konta możesz się"
         },
         "l_resetpass": {
             "en": "Recover password?",
@@ -1267,10 +1267,10 @@
             "pl": "Musisz się zalogować lub zarejestrować żeby używać tego serwisu"
         },
         "mainpage": {
-            "en": "Signomix Homepage",
-            "it": "Signomix Homepage",
-            "fr": "Signomix Homepage",
-            "pl": "Główna strona Signomix"
+            "en": "Home",
+            "it": "Home",
+            "fr": "Home",
+            "pl": "Strona główna"
         }
     }
         
@@ -1440,10 +1440,10 @@
             "pl": "Rozpocznij pobieranie"
         },
         "download_comment": {
-            "en": "You will start downloading all data of the selected device currently stored in the Signomix database",
-            "it": "Inizierai a scaricare tutti i dati del dispositivo selezionato attualmente memorizzati nel database Signomix",
-            "fr": "Vous commencerez à télécharger toutes les données du périphérique sélectionné actuellement stockées dans la base de données Signomix.",
-            "pl": "Rozpoczniesz pobieranie wszystkich danych wybranego urządzenia przechowywanych aktualnie w bazie Signomksa"
+            "en": "You will start downloading all data of the selected device currently stored in the database",
+            "it": "Inizierai a scaricare tutti i dati del dispositivo selezionato attualmente memorizzati nel database",
+            "fr": "Vous commencerez à télécharger toutes les données du périphérique sélectionné actuellement stockées dans la base de données",
+            "pl": "Rozpoczniesz pobieranie wszystkich danych wybranego urządzenia przechowywanych aktualnie w bazie danych"
         },
         "download_open": {
             "en": "Open downloaded file",
@@ -1560,10 +1560,10 @@
             "pl": "OK"
         },
         "l_gotosignin": {
-            "en": "If you already have a Signomix account, click",
-            "it": "Se hai già un account Signomix, clicca qui",
-            "fr": "Si vous possedez deja un compte Signomix clickez ici",
-            "pl": "Jeśli masz już konto w Signomix, kliknij"
+            "en": "If you already have an account, click",
+            "it": "Se hai già un account, clicca qui",
+            "fr": "Si vous possedez deja un compte clickez ici",
+            "pl": "Jeśli masz już konto, kliknij"
         },
         "l_successText1": {
             "en": "Thank you for registering.",
@@ -1755,10 +1755,10 @@
             "pl": "Proszę podać nazwisko"
         },
         "l_comment1": {
-            "en": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
-            "it": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
-            "fr": "By subscribing to the newsletter you agree to receive e-mails with the latest news about Signomix and IoT.",
-            "pl": "Subskrybując newsletter zgadzasz się na otrzymywanie e-maili z najnowszymi informacjami o Signomiksie oraz IoT."
+            "en": "By subscribing to the newsletter you agree to receive e-mails with the latest news about the service and IoT.",
+            "it": "By subscribing to the newsletter you agree to receive e-mails with the latest news about the service and IoT.",
+            "fr": "By subscribing to the newsletter you agree to receive e-mails with the latest news about the service and IoT.",
+            "pl": "Subskrybując newsletter zgadzasz się na otrzymywanie e-maili z najnowszymi informacjami o serwisie oraz IoT."
         }
     }
     

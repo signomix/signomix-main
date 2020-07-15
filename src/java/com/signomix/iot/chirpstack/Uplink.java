@@ -1,28 +1,33 @@
     /**
- * Copyright (C) Grzegorz Skorupa 2018.
+ * Copyright (C) Grzegorz Skorupa 2020.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot.lora;
+package com.signomix.iot.chirpstack;
 
+import com.signomix.iot.lora.*;
 import com.signomix.iot.IotDataIface;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class LoRaData implements IotDataIface {
+public class Uplink implements IotDataIface {
 
     private String applicationID;
     private String applicationName;
-    private String nodeName;
+    private String deviceName;
     private String devEUI;
-    private List<LoRaRxInfo> rxInfo;
+    private List<RxInfo> rxInfo;
     private LoRaTxInfo txInfo;
+    private boolean adr;
     private long fCnt;
-    private int port;
+    private int fPort;
     private String data;
+    public Map<String,String> tags;
+    public Map<String,Value> object;
 
     /*
     
@@ -63,15 +68,15 @@ public class LoRaData implements IotDataIface {
     /**
      * @return the nodeName
      */
-    public String getNodeName() {
-        return nodeName;
+    public String getDeviceName() {
+        return deviceName;
     }
 
     /**
      * @param nodeName the nodeName to set
      */
-    public void setNodeName(String nodeName) {
-        this.nodeName = nodeName;
+    public void setDeviceName(String nodeName) {
+        this.deviceName = nodeName;
     }
 
     /**
@@ -91,14 +96,14 @@ public class LoRaData implements IotDataIface {
     /**
      * @return the rxInfo
      */
-    public List<LoRaRxInfo> getRxInfo() {
+    public List<RxInfo> getRxInfo() {
         return rxInfo;
     }
 
     /**
      * @param rxInfo the rxInfo to set
      */
-    public void setRxInfo(List<LoRaRxInfo> rxInfo) {
+    public void setRxInfo(List<RxInfo> rxInfo) {
         this.rxInfo = rxInfo;
     }
 
@@ -131,17 +136,17 @@ public class LoRaData implements IotDataIface {
     }
 
     /**
-     * @return the port
+     * @return the fPort
      */
-    public int getPort() {
-        return port;
+    public int getfPort() {
+        return fPort;
     }
 
     /**
-     * @param port the port to set
+     * @param fPort the fPort to set
      */
-    public void setPort(int port) {
-        this.port = port;
+    public void setfPort(int fPort) {
+        this.fPort = fPort;
     }
 
     /**
@@ -225,6 +230,34 @@ public class LoRaData implements IotDataIface {
     @Override
     public Double getAltitude() {
         return null;
+    }
+
+    /**
+     * @return the tags
+     */
+    public Map<String,String> getTags() {
+        return tags;
+    }
+
+    /**
+     * @param tags the tags to set
+     */
+    public void setTags(Map<String,String> tags) {
+        this.tags = tags;
+    }
+
+    /**
+     * @return the object
+     */
+    public Map<String,Value> getObject() {
+        return object;
+    }
+
+    /**
+     * @param object the object to set
+     */
+    public void setObject(Map<String,Value> object) {
+        this.object = object;
     }
 
 }
