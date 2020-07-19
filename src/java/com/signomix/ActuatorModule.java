@@ -16,11 +16,13 @@ import org.cricketmsf.in.http.StandardResult;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
+import com.signomix.out.notification.CommandWebHookIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.Result;
 import org.cricketmsf.out.http.HttpClient;
@@ -119,8 +121,8 @@ public class ActuatorModule {
         /*
         leading "#" - overwrite previous command if still not send, 
         leading "&" - send command after previously registered
-        */
-        event.setPayload("#"+request.body.trim()); 
+         */
+        event.setPayload("#" + request.body.trim());
         Kernel.getInstance().dispatchEvent(event);
         return result;
     }
@@ -151,13 +153,13 @@ public class ActuatorModule {
             if (device.getType().equals(Device.VIRTUAL)) {
                 if (null != sourceDevice && !sourceDevice.getType().equals(Device.VIRTUAL)) {
                     done = sendToVirtual(device, payload.substring(1), thingsAdapter, scriptingAdapter);
-                }else if(null!=sourceDevice){
+                } else if (null != sourceDevice) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this, "blocked command from virtual to virtual device"));
-                    done=true;
-                }else{
-                    done=true;
+                    done = true;
+                } else {
+                    done = true;
                 }
-                
+
             } else if (device.getType().equals(Device.TTN)) {
                 done = sendToTtn(device, payload.substring(1), hexagonalRepresentation);
             } else if (device.getType().equals(Device.LORA)) {
@@ -169,6 +171,8 @@ public class ActuatorModule {
             } else if (device.getType().equals(Device.GENERIC) || device.getType().equals(Device.GATEWAY)) {
                 // Nothing to do. Command will be included in the response for the next device data transfer.
                 done = false;
+            } else if (device.getType().equals(Device.EXTERNAL)) {
+                done = sendToWebhook(device, payload.substring(1), hexagonalRepresentation);
             }
             if (done) {
                 actuatorCommandsDB.putCommandLog(event.getOrigin(), event);
@@ -207,7 +211,7 @@ public class ActuatorModule {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
                 if (device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    thingsAdapter.updateDeviceState(device.getEUI(), (Double)processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
@@ -254,8 +258,23 @@ public class ActuatorModule {
                 .setUrl(downlink)
                 .setMethod("POST").setProperty("Content-Type", "application/json")
                 .setData(requestBody);
-        Result result = client.send(request);
+        Result result;
+        try {
+            result = client.send(request);
+        } catch (AdapterException ex) {
+            return false;
+        }
         return 200 == result.getCode();
+    }
+
+    private boolean sendToWebhook(Device device, String payload, boolean hexRepresentation) {
+        CommandWebHookIface webhookSender = (CommandWebHookIface) Kernel.getInstance().getAdaptersMap().get("CommandWebHook");
+        if (null == webhookSender) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, "CommandWebHook adaper not configured"));
+            return false;
+        } else {
+            return webhookSender.send(device.getEUI(), device.getKey(), payload, hexRepresentation);
+        }
     }
 
     public Event getCommand(String deviceEUI, ActuatorCommandsDBIface actuatorCommandsDB) {

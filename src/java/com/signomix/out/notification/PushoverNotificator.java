@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.out.http.OutboundHttpAdapter;
 import org.cricketmsf.out.http.Request;
@@ -60,7 +61,7 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
             sb.append("message=").append(URLEncoder.encode(nodeName+": "+message, "UTF-8"));
             r.setData(sb.toString());
             result = (StandardResult) send(r, false);
-        } catch (UnsupportedEncodingException e) {
+        } catch (AdapterException|UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         if (result.getCode() == 200) {

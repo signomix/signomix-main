@@ -81,6 +81,10 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
 
     @Override
     public String send(String recipient, String topic, String content) {
+        if(!ready){
+            Kernel.handle(Event.logWarning(this, "not configured"));
+            return "";
+        }
         String result = "OK";
         Properties props = System.getProperties();
         final String USERNAME = from;

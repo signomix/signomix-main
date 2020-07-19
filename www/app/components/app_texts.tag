@@ -1059,6 +1059,12 @@
             "fr": "Virtual device",
             "pl": "Urządzenie wirtualne"
         },
+        "external_desc": {
+            "en": "External system connector",
+            "it": "External system connector",
+            "fr": "External system connector",
+            "pl": "Konektor zewnęteznego systemu"
+        },
         "default_desc": {
             "en": "Select device type first",
             "it": "Seleziona per primo il tipo di dispositivo",

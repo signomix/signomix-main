@@ -13,6 +13,7 @@ import java.util.HashMap;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.user.UserEvent;
 import org.cricketmsf.out.http.HttpClient;
@@ -96,7 +97,7 @@ public class ServerSmsNotificator extends HttpClient implements NotificationIfac
 
             System.out.println("SENDING SMS USING " + sb.toString());
             result = (StandardResult) send(req, false);
-        } catch (UnsupportedEncodingException e) {
+        } catch (AdapterException|UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         String response = new String(result.getPayload());
@@ -151,7 +152,7 @@ public class ServerSmsNotificator extends HttpClient implements NotificationIfac
 
             System.out.println("SENDING SMS USING " + sb.toString());
             result = (StandardResult) send(req);
-        } catch (UnsupportedEncodingException e) {
+        } catch (AdapterException|UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         String response = new String(result.getPayload());

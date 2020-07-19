@@ -11,9 +11,9 @@
     <!--                                                                     -->
     <description>Signomix</description>
     <property file="local.build.properties"/>
-    <property name="version" value="1.2.5"/> <!-- service version           -->
-    <property name="cricket-version" value="1.3.20" /> 
-    <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
+    <property name="version" value="1.3.0"/> <!-- service version           -->
+    <property name="cricket-version" value="1.5.3" /> 
+    <property name="cricket-jar-location" value="lib/Cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="JDK-location" value=""/>
     <!--
@@ -58,7 +58,7 @@
     <target name="get-dependencies" description="upload Cricket MSF library">
         <mkdir dir="${lib}"/>
         <get
-            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
+            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/Cricket-${cricket-version}.jar"
             dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
@@ -99,20 +99,6 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
-        <!--
-        <get
-            src="https://search.maven.org/remotecontent?filepath=com/jayway/jsonpath/json-path/2.4.0/json-path-2.4.0.jar"
-            dest="lib/json-path-2.4.0.jar" 
-            usetimestamp="true" 
-            ignoreerrors="true"
-        />
-        <get
-            src="http://repo.maven.apache.org/maven2/net/minidev/json-smart/2.3/json-smart-2.3.jar"
-            dest="lib/json-smart-2.3.jar" 
-            usetimestamp="true" 
-            ignoreerrors="true"
-        />
-        -->
         <get
             src="https://repo1.maven.org/maven2/org/json/json/20190722/json-20190722.jar"
             dest="lib/json-org.jar" 
@@ -138,7 +124,6 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
-        
     </target>
 
     <target name="compile" depends="init" description="compile the source">
@@ -201,13 +186,6 @@
             <arg value="run"/>
             <arg value="build"/>
         </exec>
-        <exec executable="npm" dir="webapp/emulator">
-            <arg value="install"/>
-        </exec>
-        <exec executable="npm" dir="webapp/emulator">
-            <arg value="run"/>
-            <arg value="build"/>
-        </exec>
     </target>
     <target name="dist" depends="clean, compile, build-webapps"
             description="generate the distribution">
@@ -223,9 +201,6 @@
         <mkdir dir="${dist}/log"/>
         <input message="Please enter environment name:" validargs="dev,compose,localdev" addproperty="environment.name" defaultvalue="dev"/>
         <echo message="Building archive for environment: ${environment.name}"/>
-        <copy todir="${dist}/config" file="${src-js}/device-script-template.js"/>
-        <copy todir="${dist}/config" file="${src-js}/payload-decoder-envelope.js"/>
-        <!--<copy tofile="${dist}/data/readme.txt" file="${src-other}/readme-data.txt"/>-->
         <delete file="${dist}/data/cricket_publickeystore.jks" failonerror="false"></delete>
         <genkey alias="cricket" 
                 keystore="${dist}/data/cricket_publickeystore.jks" 
@@ -262,12 +237,9 @@
             <fileset dir="webapp/blog/public"/>
         </copy>
         <echo message="Building archive for environment ${environment.name}"/>
-        <copy todir="${dist}/config" file="${src-other}/environment/${environment.name}/cricket.json"/>
+        <copy todir="${dist}/config" file="${src-other}/environment/${environment.name}/settings.json"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/run.sh"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/readme.txt"/>
-        <copy todir="${dist}/lib" file="${lib}/jaxb-api-2.4.0.jar"/>
-        <copy todir="${dist}/lib" file="${lib}/jaxb-core-2.3.0.1.jar"/>
-        <copy todir="${dist}/lib" file="${lib}/jaxb-impl-2.4.0.jar"/>
         <replace file="${dist}/run.sh" token="{{distribution}}" value="${ant.project.name}-${version}"/>
         <replace file="${dist}/www/admin/components/app_main.tag" token="cricket-version" value="${cricket-version}"/>
         <replace file="${dist}/www/admin/components/app_main.tag" token="app-version" value="${version}"/>
@@ -354,7 +326,7 @@
             <arg value="${ant.project.name}-${version}.jar"/>
             <arg value="-r"/>
             <arg value="-c"/>
-            <arg value="config/cricket.json"/>
+            <arg value="config/settings.json"/>
         </exec>
     </target>
     <target name="get-signomix">
@@ -391,11 +363,6 @@
         <copy todir="backup/${environment.name}/db" overwrite="true">
             <fileset dir="dist/data"/>
         </copy>
-        <!--
-        <copy todir="backup/${environment.name}/config" overwrite="true">
-            <fileset dir="dist/config"/>
-        </copy>
-        -->
         <copy todir="backup/${environment.name}/files" overwrite="true">
             <fileset dir="dist/files"/>
         </copy>
@@ -409,11 +376,6 @@
         <copy todir="dist/data" overwrite="true">
             <fileset dir="backup/${environment.name}/db"/>
         </copy>
-        <!--
-        <copy todir="dist/config" overwrite="true">
-            <fileset dir="backup/${environment.name}/config"/>
-        </copy>
-        -->
         <copy todir="dist/files" overwrite="true">
             <fileset dir="backup/${environment.name}/files"/>
         </copy>

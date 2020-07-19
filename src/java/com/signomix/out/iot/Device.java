@@ -26,6 +26,8 @@ public class Device {
     public static String VIRTUAL = "VIRTUAL";
     public static String LORA = "LORA";
     public static String KPN = "KPN";
+    public static String EXTERNAL = "EXTERNAL";
+    
     public static int UNKNOWN = 0;
     public static int OK = 1;
     public static int FAILURE = 2;

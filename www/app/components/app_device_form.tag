@@ -37,6 +37,7 @@
                         <option value="KPN">KPN</option>
                         <option value="GATEWAY">HOME GATEWAY</option>
                         <option value="VIRTUAL">VIRTUAL</option>
+                        <option value="EXTERNAL">EXTERNAL</option>
                     </select>
                 </div>
                 <div class="card text-center col-md-6" style="margin-bottom: 10px">
@@ -203,7 +204,8 @@
             'active':'true',
             'state': 0,
             'latitude': '',
-            'longitude': ''
+            'longitude': '',
+            'project':''
         }
         self.accepted = 0
 
@@ -261,6 +263,9 @@
                 riot.update()
             } else {
                 app.log('UNKNOWN TARGET OF: ' + e)
+            }
+            if('EXTERNAL'==self.device.type){
+                self.template['pattern']=",type,eui,name,key,description,team,active,groups,"
             }
         }
         
@@ -325,6 +330,8 @@
                     return app.texts.device_form.gateway_desc[app.language]
                 case 'VIRTUAL':
                     return app.texts.device_form.virtual_desc[app.language]
+                case 'EXTERNAL':
+                    return app.texts.device_form.external_desc[app.language]
                 default:
                     return app.texts.device_form.default_desc[app.language]
             }

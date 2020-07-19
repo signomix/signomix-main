@@ -18,3 +18,4 @@
 /src/other/environment/localdev/Dockerfile.template
 /src/other/environment/localdev/
 /webapp/blog/public/build/
+/form-test.html

@@ -6,7 +6,10 @@ package com.signomix.out.notification;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cricketmsf.Adapter;
+import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.Result;
 import org.cricketmsf.out.http.HttpClient;
 import org.cricketmsf.out.http.Request;
@@ -28,13 +31,21 @@ public class SlackNotificator extends HttpClient implements NotificationIface, A
     @Override
     public String send(String recipient, String nodeName, String message) {
         String data = "{\"text\":\"" + nodeName + " " + message + "\"}";
-        Result r;
+        Result r = null;
         Request request = new Request()
                 .setMethod("POST")
                 .setUrl(endpointURL + recipient)
                 .setProperty("Content-type", "application/json")
                 .setData(data);
-        r = send(request);
+        try {
+            r = send(request);
+        } catch (AdapterException ex) {
+            if (null == r) {
+                return "ERROR " + r.getCode() + ": " + r.getMessage();
+            } else {
+                return "ERROR";
+            }
+        }
         if (r.getCode() != 200) {
             return "ERROR " + r.getCode() + ": " + r.getMessage();
         } else {

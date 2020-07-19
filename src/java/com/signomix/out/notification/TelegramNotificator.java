@@ -7,9 +7,12 @@ package com.signomix.out.notification;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.Result;
 import org.cricketmsf.out.http.HttpClient;
 import org.cricketmsf.out.http.Request;
@@ -51,7 +54,7 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
         String chatID = recipient.substring(recipient.indexOf("@") + 1);
 
         //String text = Base64.getUrlEncoder().encodeToString(message.getBytes());
-        Result r;
+        Result r = null;
         Request request;
         try {
             request = new Request()
@@ -60,7 +63,15 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
         } catch (UnsupportedEncodingException ex) {
             return "ERROR: " + ex.getMessage();
         }
-        r = send(request);
+        try {
+            r = send(request);
+        } catch (AdapterException ex) {
+            if (null == r) {
+                return "ERROR";
+            } else {
+                return "ERROR " + r.getCode() + ": " + r.getMessage();
+            }
+        }
         if (r.getCode() != 200) {
             return "ERROR " + r.getCode() + ": " + r.getMessage();
         }
@@ -69,11 +80,19 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
     }
 
     public String getChatID(String recipent) {
-        Result r;
+        Result r = null;
         Request request = new Request()
                 .setMethod("GET")
                 .setUrl(endpointURL + "bot" + token + "/getUpdates");
-        r = send(request);
+        try {
+            r = send(request);
+        } catch (AdapterException ex) {
+            if (null == r) {
+                return "ERROR";
+            } else {
+                return "ERROR " + r.getCode() + ": " + r.getMessage();
+            }
+        }
         if (r.getCode() != 200) {
             return "ERROR " + r.getCode() + ": " + r.getMessage();
         }

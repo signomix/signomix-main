@@ -26,7 +26,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-
+import org.cricketmsf.exception.AdapterException;
 
 /**
  *
@@ -46,7 +46,7 @@ public class GroupTests {
         System.out.println("@sessionToken=" + sessionToken);
         // Given
         String apiEndpoint = "http://localhost:8080/api/iot/group";
-        
+
         List<NameValuePair> docParameters = new ArrayList<NameValuePair>();
         docParameters.add(new BasicNameValuePair("name", "testGroup"));
         docParameters.add(new BasicNameValuePair("description", "test description"));
@@ -88,7 +88,7 @@ public class GroupTests {
         System.out.println("@sessionToken=" + sessionToken);
         // Given
         String apiEndpoint = "http://localhost:8080/api/iot/group";
-        
+
         List<NameValuePair> docParameters = new ArrayList<NameValuePair>();
         docParameters.add(new BasicNameValuePair("eui", "A"));
         docParameters.add(new BasicNameValuePair("name", "testGroup2"));
@@ -122,7 +122,7 @@ public class GroupTests {
         Assert.assertNotNull("empty group EUI", responseData);
         System.out.println(responseData);
     }
-    
+
     @Test
     public void c_readingGroup() {
         // Given
@@ -135,62 +135,67 @@ public class GroupTests {
                 .setProperty("Accept", "application/json")
                 .setUrl("http://localhost:8080/api/iot/group/" + eui);
         // When
-        StandardResult response = (StandardResult) client.send(req, false);
+        StandardResult response = null;
+        try {
+            response = (StandardResult) client.send(req, false);
+        } catch (AdapterException e) {
+            Assert.fail(e.getMessage());
+        }
         // Then
         Assert.assertEquals(200, response.getCode());
     }
-    
+
     @Test
-    public void d_createDevices(){
+    public void d_createDevices() {
         //griup A *2
         //group B*1
         String sessionToken = getSessionToken("admin", "test123", "http://localhost:8080/api/auth");
         System.out.println("@sessionToken=" + sessionToken);
         // Given
         String apiEndpoint = "http://localhost:8080/api/iot/device";
-        Device d1=new Device();
+        Device d1 = new Device();
         d1.setEUI("DA");
         d1.setChannels("t,h");
         d1.setName("d1");
         d1.setGroups("A");
         d1.setUserID("admin");
         d1.setKey("key1");
-        Device d2=new Device();
+        Device d2 = new Device();
         d2.setEUI("DB");
         d2.setChannels("t,h");
         d2.setName("d2");
         d2.setGroups("A");
         d2.setUserID("admin");
         d2.setKey("key2");
-        Device d3=new Device();
+        Device d3 = new Device();
         d3.setEUI("DC");
         d3.setChannels("t,h");
         d3.setName("d3");
         d3.setGroups("B");
         d3.setUserID("admin");
         d3.setKey("key3");
-        
+
         //When
-        registerDevice(apiEndpoint,sessionToken,d1);
-        registerDevice(apiEndpoint,sessionToken,d2);
-        registerDevice(apiEndpoint,sessionToken,d3);
-        
+        registerDevice(apiEndpoint, sessionToken, d1);
+        registerDevice(apiEndpoint, sessionToken, d2);
+        registerDevice(apiEndpoint, sessionToken, d3);
+
         //Then
         //Assert.fail();
     }
-    
+
     @Test
-    public void e_sendData(){
+    public void e_sendData() {
         // Given
         String apiEndpoint = "http://localhost:8080/api/i4t";
-        HashMap<String,Double> d1 = new HashMap<>();
-        HashMap<String,Double> d2 = new HashMap<>();
-        HashMap<String,Double> d3 = new HashMap<>();
-        d1.put("t",10.1);
+        HashMap<String, Double> d1 = new HashMap<>();
+        HashMap<String, Double> d2 = new HashMap<>();
+        HashMap<String, Double> d3 = new HashMap<>();
+        d1.put("t", 10.1);
         d1.put("h", 20.1);
-        d2.put("t",10.2);
+        d2.put("t", 10.2);
         d2.put("h", 20.2);
-        d3.put("t",10.3);
+        d3.put("t", 10.3);
         d3.put("h", 20.3);
 
         //When
@@ -198,9 +203,9 @@ public class GroupTests {
         sendData(apiEndpoint, "key2", "DB", d2);
         sendData(apiEndpoint, "key3", "DC", d3);
     }
-    
+
     @Test
-    public void f_readData(){
+    public void f_readData() {
         String sessionToken = getSessionToken("admin", "test123", "http://localhost:8080/api/auth");
         String eui = "DA";
         String channel = "t,h";
@@ -209,17 +214,22 @@ public class GroupTests {
                 .setMethod("GET")
                 .setProperty("Authentication", sessionToken)
                 .setProperty("Accept", "application/json")
-                .setUrl("http://localhost:8080/api/iot/device/" + eui+"/"+channel);
+                .setUrl("http://localhost:8080/api/iot/device/" + eui + "/" + channel);
         // When
-        StandardResult response = (StandardResult) client.send(req, false);
+        StandardResult response = null;
+        try {
+            response = (StandardResult) client.send(req, false);
+        } catch (AdapterException e) {
+            Assert.fail(e.getMessage());
+        }
         // Then
         //System.out.println("DATA: "+new String(response.getPayload()));
         Assert.assertEquals(200, response.getCode());
-        Assert.assertTrue( "result is probably not JSON",response.getPayload().length>4);
+        Assert.assertTrue("result is probably not JSON", response.getPayload().length > 4);
     }
-    
+
     @Test
-    public void g_readGroupData(){
+    public void g_readGroupData() {
         String sessionToken = getSessionToken("admin", "test123", "http://localhost:8080/api/auth");
         String eui = "A";
         String channel = "t,h";
@@ -228,17 +238,21 @@ public class GroupTests {
                 .setMethod("GET")
                 .setProperty("Authentication", sessionToken)
                 .setProperty("Accept", "application/json")
-                .setUrl("http://localhost:8080/api/iot/group/" + eui+"/"+channel);
+                .setUrl("http://localhost:8080/api/iot/group/" + eui + "/" + channel);
         // When
-        StandardResult response = (StandardResult) client.send(req, false);
-        // Then
-        System.out.println("DATA: "+new String(response.getPayload()));
+        StandardResult response = null;
+        try {
+            response = (StandardResult) client.send(req, false);
+        } catch (AdapterException e) {
+            Assert.fail(e.getMessage());
+        }        // Then
+        System.out.println("DATA: " + new String(response.getPayload()));
         Assert.assertEquals(200, response.getCode());
-        Assert.assertTrue( "result is probably not JSON",response.getPayload().length>4);
+        Assert.assertTrue("result is probably not JSON", response.getPayload().length > 4);
     }
-    
-    private void registerDevice(String apiEndpoint, String sessionToken, Device d){
-        int responseCode=-1;
+
+    private void registerDevice(String apiEndpoint, String sessionToken, Device d) {
+        int responseCode = -1;
         String responseData;
         List<NameValuePair> dParameters = new ArrayList<NameValuePair>();
         dParameters.add(new BasicNameValuePair("eui", d.getEUI()));
@@ -266,14 +280,14 @@ public class GroupTests {
         }
         Assert.assertEquals(201, responseCode);
     }
-    
-    private void sendData(String apiEndpoint, String deviceKey, String deviceEUI, HashMap<String,Double> values){
-        int responseCode=-1;
+
+    private void sendData(String apiEndpoint, String deviceKey, String deviceEUI, HashMap<String, Double> values) {
+        int responseCode = -1;
         String responseData;
         List<NameValuePair> dParameters = new ArrayList<NameValuePair>();
         dParameters.add(new BasicNameValuePair("eui", deviceEUI));
-        values.entrySet().forEach(entry->{
-            dParameters.add(new BasicNameValuePair(entry.getKey(), ""+entry.getValue()));
+        values.entrySet().forEach(entry -> {
+            dParameters.add(new BasicNameValuePair(entry.getKey(), "" + entry.getValue()));
         });
         try {
             CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -295,7 +309,7 @@ public class GroupTests {
         }
         Assert.assertEquals(201, responseCode);
     }
-    
+
     @BeforeClass
     public static void setup() {
         ServiceWrapper.setup();
@@ -316,7 +330,12 @@ public class GroupTests {
                 .setProperty("Authentication", "Basic " + credentials)
                 .setData("p=ignotethis") /*data must be added to POST or PUT requests */
                 .setUrl(authEndpoint);
-        StandardResult response = (StandardResult) client.send(req);
+        StandardResult response = null;
+        try {
+            response = (StandardResult) client.send(req, false);
+        } catch (AdapterException e) {
+            Assert.fail(e.getMessage());
+        }
         String token;
         try {
             token = new String(response.getPayload(), "UTF-8");

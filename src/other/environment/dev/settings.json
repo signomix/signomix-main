@@ -615,6 +615,15 @@
                         "context": "/api/subscribe",
                         "silent-mode": "false"
                     }
+                },
+                {
+                    "name": "CommandWebHook",
+                    "interfaceName": "CommandWebHookIface",
+                    "classFullName": "com.signomix.out.notification.CommandWebHookClient",
+                    "properties": {
+                        "url":"http://httpbin.org/post",
+                        "print-response":"true"
+                    }
                 }
             ]
         }
