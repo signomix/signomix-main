@@ -2,9 +2,8 @@
 * Copyright (C) Grzegorz Skorupa 2020.
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 */
-package com.signomix.iot.chirpstack;
+package com.signomix.iot.chirpstack.uplink;
 
-import com.signomix.iot.lora.*;
 
 /**
  *
@@ -13,10 +12,11 @@ import com.signomix.iot.lora.*;
 public class RxInfo {
     
     private String gatewayID;
+    private String uplinkID;
     private String name;
     private String time;
-    private int rssi;
-    private int loRaSNR;
+    private long rssi;
+    private long loRaSNR;
     public Location location;
 
     /**
@@ -36,28 +36,28 @@ public class RxInfo {
     /**
      * @return the rssi
      */
-    public int getRssi() {
+    public long getRssi() {
         return rssi;
     }
 
     /**
      * @param rssi the rssi to set
      */
-    public void setRssi(int rssi) {
+    public void setRssi(long rssi) {
         this.rssi = rssi;
     }
 
     /**
      * @return the loRaSNR
      */
-    public int getLoRaSNR() {
+    public long getLoRaSNR() {
         return loRaSNR;
     }
 
     /**
      * @param loRaSNR the loRaSNR to set
      */
-    public void setLoRaSNR(int loRaSNR) {
+    public void setLoRaSNR(long loRaSNR) {
         this.loRaSNR = loRaSNR;
     }
 
@@ -101,6 +101,20 @@ public class RxInfo {
      */
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    /**
+     * @return the uplinkID
+     */
+    public String getUplinkID() {
+        return uplinkID;
+    }
+
+    /**
+     * @param uplinkID the uplinkID to set
+     */
+    public void setUplinkID(String uplinkID) {
+        this.uplinkID = uplinkID;
     }
     
 }

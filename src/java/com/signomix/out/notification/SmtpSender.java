@@ -41,7 +41,7 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
     boolean usingTls = false;
     Integer port = null;
 
-    protected HashMap<String, String> statusMap = null;
+    protected HashMap<String, Object> statusMap = null;
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -150,9 +150,9 @@ public class SmtpSender extends OutboundAdapter implements EmailSenderIface, Ada
     }
 
     @Override
-    public Map<String, String> getStatus(String name) {
+    public Map<String, Object> getStatus(String name) {
         if (statusMap == null) {
-            statusMap = new HashMap();
+            statusMap = new HashMap<>();
             statusMap.put("name", name);
             statusMap.put("class", getClass().getName());
         }

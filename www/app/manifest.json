@@ -1,0 +1,21 @@
+{
+  "name": "Signomix IoT Toolbox",
+  "short_name": "Signomix",
+  "icons": [
+    {
+      "src": "/app/resources/signomix-icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/app/resources/signomix-icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/app/index.html",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#3f51b5"
+}

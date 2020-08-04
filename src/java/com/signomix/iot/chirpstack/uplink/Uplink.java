@@ -1,12 +1,13 @@
-    /**
+/**
  * Copyright (C) Grzegorz Skorupa 2020.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot.chirpstack;
+package com.signomix.iot.chirpstack.uplink;
 
-import com.signomix.iot.lora.*;
 import com.signomix.iot.IotDataIface;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,27 +15,29 @@ import java.util.Map;
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class Uplink implements IotDataIface {
+public class Uplink implements IotDataIface{
 
     private String applicationID;
     private String applicationName;
     private String deviceName;
     private String devEUI;
     private List<RxInfo> rxInfo;
-    private LoRaTxInfo txInfo;
+    private TxInfo txInfo;
     private boolean adr;
     private long fCnt;
-    private int fPort;
+    private long fPort;
     private String data;
-    public Map<String,String> tags;
-    public Map<String,Value> object;
-
-    /*
+    private Map<String, Map<String,Object>> object;
+    private HashMap<String, Double> paylodFields=new HashMap<>();
     
-    */
-    @Override
-    public String getDeviceEUI() {
-        return getDevEUI();
+    //private boolean authRequired;
+    //private String authKey;
+    
+    public Uplink(){
+    }
+    
+    public void addField(String name, Double value){
+        getPaylodFields().put(name, value);
     }
 
     /**
@@ -66,17 +69,17 @@ public class Uplink implements IotDataIface {
     }
 
     /**
-     * @return the nodeName
+     * @return the deviceName
      */
     public String getDeviceName() {
         return deviceName;
     }
 
     /**
-     * @param nodeName the nodeName to set
+     * @param deviceName the deviceName to set
      */
-    public void setDeviceName(String nodeName) {
-        this.deviceName = nodeName;
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     /**
@@ -110,15 +113,29 @@ public class Uplink implements IotDataIface {
     /**
      * @return the txInfo
      */
-    public LoRaTxInfo getTxInfo() {
+    public TxInfo getTxInfo() {
         return txInfo;
     }
 
     /**
      * @param txInfo the txInfo to set
      */
-    public void setTxInfo(LoRaTxInfo txInfo) {
+    public void setTxInfo(TxInfo txInfo) {
         this.txInfo = txInfo;
+    }
+
+    /**
+     * @return the adr
+     */
+    public boolean isAdr() {
+        return adr;
+    }
+
+    /**
+     * @param adr the adr to set
+     */
+    public void setAdr(boolean adr) {
+        this.adr = adr;
     }
 
     /**
@@ -138,14 +155,14 @@ public class Uplink implements IotDataIface {
     /**
      * @return the fPort
      */
-    public int getfPort() {
+    public long getfPort() {
         return fPort;
     }
 
     /**
      * @param fPort the fPort to set
      */
-    public void setfPort(int fPort) {
+    public void setfPort(long fPort) {
         this.fPort = fPort;
     }
 
@@ -163,48 +180,47 @@ public class Uplink implements IotDataIface {
         this.data = data;
     }
 
+    /**
+     * @return the object
+     */
+    public Map<String, Map<String,Object>> getObject() {
+        return object;
+    }
+
+    /**
+     * @param object the object to set
+     */
+    public void setObject(Map<String, Map<String,Object>> object) {
+        this.object = object;
+    }
+
+    @Override
+    public String getDeviceEUI() {
+        return devEUI;
+    }
+
     @Override
     public String getPayload() {
-        return getData();
+        return data;
     }
 
     @Override
     public String[] getPayloadFieldNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<String> arr=new ArrayList<>();
+        getPaylodFields().keySet().forEach(key->{
+            arr.add(key);
+        });
+        return arr.toArray(new String[arr.size()]);
     }
 
     @Override
     public Instant getTimeField() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Instant.now();
     }
 
     @Override
     public long getTimestamp() {
-        long timestamp;
-        try {
-            timestamp = Long.parseLong(((LoRaRxInfo) getRxInfo()).getTime());
-        } catch (NumberFormatException e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-        return timestamp;
-    }
-
-    @Override
-    public Double getDoubleValue(String fieldName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String getStringValue(String fieldName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    @Override
-    public void normalize() {
-        if (this.devEUI != null) {
-            this.devEUI = this.devEUI.toUpperCase();
-        }
-        //TODO: gateways?
+        return System.currentTimeMillis();
     }
 
     @Override
@@ -213,51 +229,51 @@ public class Uplink implements IotDataIface {
     }
 
     @Override
-    public String getDeviceID() {
-        return "";
+    public Double getDoubleValue(String fieldName) {
+        return getPaylodFields().get(fieldName);
+    }
+
+    @Override
+    public String getStringValue(String fieldName) {
+        return null;
     }
 
     @Override
     public Double getLatitude() {
-        return null;
+        return rxInfo.get(0).getLocation().latitude;
     }
 
     @Override
     public Double getLongitude() {
-        return null;
+        return rxInfo.get(0).getLocation().longitude;
     }
 
     @Override
     public Double getAltitude() {
-        return null;
+        return Double.valueOf(rxInfo.get(0).getLocation().altitude);
+    }
+
+    @Override
+    public void normalize() {
+    }
+
+    @Override
+    public String getDeviceID() {
+        return deviceName;
     }
 
     /**
-     * @return the tags
+     * @return the paylodFields
      */
-    public Map<String,String> getTags() {
-        return tags;
+    public HashMap<String, Double> getPaylodFields() {
+        return paylodFields;
     }
 
     /**
-     * @param tags the tags to set
+     * @param paylodFields the paylodFields to set
      */
-    public void setTags(Map<String,String> tags) {
-        this.tags = tags;
-    }
-
-    /**
-     * @return the object
-     */
-    public Map<String,Value> getObject() {
-        return object;
-    }
-
-    /**
-     * @param object the object to set
-     */
-    public void setObject(Map<String,Value> object) {
-        this.object = object;
+    public void setPaylodFields(HashMap<String, Double> paylodFields) {
+        this.paylodFields = paylodFields;
     }
 
 }

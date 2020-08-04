@@ -1,10 +1,8 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
+* Copyright (C) Grzegorz Skorupa 2020.
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 */
-package com.signomix.iot.chirpstack;
-
-import com.signomix.iot.lora.*;
+package com.signomix.iot.chirpstack.uplink;
 
 /**
  *

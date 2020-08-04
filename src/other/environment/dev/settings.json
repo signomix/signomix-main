@@ -251,6 +251,17 @@
                     }
                 },
                 {
+                    "name": "ChirpstackUplinkService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ChirpstackUplinkApi",
+                    "properties": {
+                        "context": "/api/chirpstack/uplink",
+                        "serialization-type": "JSONv3",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
                     "name": "KpnUplinkService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.KpnApi",
@@ -273,14 +284,8 @@
                 {
                     "name": "logger",
                     "interfaceName": "LoggerAdapterIface",
-                    "classFullName": "org.cricketmsf.out.log.StandardLogger",
+                    "classFullName": "org.cricketmsf.out.log.Slf4jLogger",
                     "properties": {
-                        "name": "Signomix",
-                        "level": "FINEST",
-                        "log-file-name": "./log/cricket%g.log",
-                        "max-size": "1000000",
-                        "count": "10",
-                        "console": "true"
                     }
                 },
                 {
@@ -289,7 +294,7 @@
                     "classFullName": "org.cricketmsf.out.log.FileLogger",
                     "properties": {
                         "name": "Signomix",
-                        "log-file-name": "./log/gdpr.log"
+                        "log-file-name": "./logs/gdpr.log"
                     }
                 },
                 {

@@ -200,7 +200,7 @@ public class NashornScriptingAdapter extends OutboundAdapter implements Adapter,
              */
 
         } catch (Exception e) {
-            Kernel.getInstance().getLogger().print("WARNING: " + e.getClass().getName() + " " + e.getMessage());
+            Kernel.getInstance().getLogger().print("WARNING: " + e.getClass().getName() + " " + e.getMessage()+". Reading from the classpath.");
             if (path.lastIndexOf("/") > -1) {
                 path = path.substring(path.lastIndexOf("/") + 1);
             }

@@ -12,8 +12,8 @@
     <description>Signomix</description>
     <property file="local.build.properties"/>
     <property name="version" value="1.3.0"/> <!-- service version           -->
-    <property name="cricket-version" value="1.5.3" /> 
-    <property name="cricket-jar-location" value="lib/Cricket-${cricket-version}.jar"/>
+    <property name="cricket-version" value="1.5.11" /> 
+    <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="JDK-location" value=""/>
     <!--
@@ -26,6 +26,11 @@
     <property name="json-org-jar-location" value="lib/json-org.jar"/>
     <!-- Doclet -->
     <property name="livingdocumentation-lib" value="lib/LivingDocumentation.jar"/>
+    
+    <!-- libraries used by local extension -->
+    <property name="locallib-1" value="false"/>
+    <property name="locallib-1-location" value="lib/locallib-1.jar"/>
+    
     <!--                                                                     -->
     <!-- END OF CONFIGURATION                                                -->
     <!-- ################################################################### -->
@@ -46,6 +51,7 @@
         <pathelement location="${cricket-jar-location}"/>
         <pathelement location="${json-org-jar-location}"/>
         <pathelement location="${livingdocumentation-lib}"/>
+        <pathelement location="${locallib-1-location}"/>
     </path>
 
     <target name="init">
@@ -58,13 +64,13 @@
     <target name="get-dependencies" description="upload Cricket MSF library">
         <mkdir dir="${lib}"/>
         <get
-            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/Cricket-${cricket-version}.jar"
+            src="https://github.com/gskorupa/cricket/releases/download/${cricket-version}/cricket-${cricket-version}.jar"
             dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
         />
         <get
-            src="https://github.com/gskorupa/Cricket/releases/download/${cricket-version}/cricket-${cricket-version}-javadoc.jar"
+            src="https://github.com/gskorupa/cricket/releases/download/${cricket-version}/cricket-${cricket-version}-javadoc.jar"
             dest="lib" 
             usetimestamp="true" 
             ignoreerrors="true"
@@ -105,7 +111,7 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
-        
+        <!--        
         <get
             src="https://search.maven.org/remotecontent?filepath=com/sun/xml/bind/jaxb-impl/2.4.0-b180830.0438/jaxb-impl-2.4.0-b180830.0438.jar"
             dest="lib/jaxb-impl-2.4.0.jar" 
@@ -124,6 +130,7 @@
             usetimestamp="true" 
             ignoreerrors="true"
         />
+        -->
     </target>
 
     <target name="compile" depends="init" description="compile the source">
@@ -198,20 +205,19 @@
         <mkdir dir="${dist}/www"/>
         <mkdir dir="${dist}/www/assets"/>
         <mkdir dir="${dist}/var"/>
-        <mkdir dir="${dist}/log"/>
         <input message="Please enter environment name:" validargs="dev,compose,localdev" addproperty="environment.name" defaultvalue="dev"/>
         <echo message="Building archive for environment: ${environment.name}"/>
         <delete file="${dist}/data/cricket_publickeystore.jks" failonerror="false"></delete>
         <genkey alias="cricket" 
                 keystore="${dist}/data/cricket_publickeystore.jks" 
-                storepass="cricket15$#17" 
-                keypass="cricket15$#17" 
+                storepass="storepass" 
+                keypass="keypass" 
                 keyalg="RSA" 
                 keysize="2048" 
                 validity="720">
             <dname>
-                <param name="CN" value="signomix.signocom.com"/>
-                <param name="O" value="SIGNOCOM Sp. z o.o."/>
+                <param name="CN" value="test.com"/>
+                <param name="O" value="test company"/>
             </dname>
         </genkey>
         <copy todir="${dist}/www">
@@ -265,6 +271,8 @@
             <fileset dir="${build}" />
             <!-- optional libraries -->
             <zipfileset if:true="${module-jsonpath}" src="${json-org-jar-location}" includes="org/**/*"/>
+            <!-- libraries used by local extension -->
+            <zipfileset if:true="${locallib-1}" src="${locallib-1-location}" includes="**/*"/>
         </jar>
     </target>
     

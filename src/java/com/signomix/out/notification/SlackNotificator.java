@@ -6,8 +6,6 @@ package com.signomix.out.notification;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.Result;
@@ -16,7 +14,7 @@ import org.cricketmsf.out.http.Request;
 
 public class SlackNotificator extends HttpClient implements NotificationIface, Adapter {
 
-    protected HashMap<String, String> statusMap = null;
+    protected HashMap<String, Object> statusMap = null;
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -59,9 +57,9 @@ public class SlackNotificator extends HttpClient implements NotificationIface, A
     }
 
     @Override
-    public Map<String, String> getStatus(String name) {
+    public Map<String, Object> getStatus(String name) {
         if (statusMap == null) {
-            statusMap = new HashMap();
+            statusMap = new HashMap<>();
             statusMap.put("name", name);
             statusMap.put("class", getClass().getName());
         }

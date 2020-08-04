@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -40,7 +39,7 @@ public class SmtpNotificator extends OutboundAdapter implements NotificationIfac
     boolean ready = true;
     boolean usingTls = false;
 
-    protected HashMap<String, String> statusMap = null;
+    protected HashMap<String, Object> statusMap = null;
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -148,9 +147,9 @@ public class SmtpNotificator extends OutboundAdapter implements NotificationIfac
     }
 
     @Override
-    public Map<String, String> getStatus(String name) {
+    public Map<String, Object> getStatus(String name) {
         if (statusMap == null) {
-            statusMap = new HashMap();
+            statusMap = new HashMap<>();
             statusMap.put("name", name);
             statusMap.put("class", getClass().getName());
         }

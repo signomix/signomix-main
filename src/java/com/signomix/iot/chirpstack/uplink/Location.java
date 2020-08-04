@@ -2,7 +2,7 @@
 * Copyright (C) Grzegorz Skorupa 2020.
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 */
-package com.signomix.iot.chirpstack;
+package com.signomix.iot.chirpstack.uplink;
 
 /**
  *
@@ -12,7 +12,7 @@ public class Location {
 
     public Double latitude;
     public Double longitude;
-    public Double altitude;
+    public long altitude;
 
     /**
      * @return the latitude
@@ -45,14 +45,14 @@ public class Location {
     /**
      * @return the altitude
      */
-    public Double getAltitude() {
+    public long getAltitude() {
         return altitude;
     }
 
     /**
      * @param altitude the altitude to set
      */
-    public void setAltitude(Double altitude) {
+    public void setAltitude(long altitude) {
         this.altitude = altitude;
     }
 

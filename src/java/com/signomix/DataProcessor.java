@@ -24,15 +24,35 @@ public class DataProcessor {
 
 //    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
 //            Double latitude, Double longitude, Double altitude) throws Exception {
-    public static Object[] processValues(ArrayList<ChannelData> listOfValues, Device device, 
-            ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
-            Double latitude, Double longitude, Double altitude, String requestData, String command) throws Exception {
+    public static Object[] processValues(
+            ArrayList<ChannelData> listOfValues, 
+            Device device, 
+            ScriptingAdapterIface scriptingAdapter, 
+            long dataTimestamp,
+            Double latitude, 
+            Double longitude, 
+            Double altitude, 
+            String requestData, 
+            String command
+    ) throws Exception {
         ScriptResult scriptResult = null;
         try {
-            scriptResult = scriptingAdapter.processData(listOfValues, device.getCodeUnescaped(), 
-                    device.getEUI(), device.getUserID(), dataTimestamp,
-                    latitude, longitude, altitude, device.getState(),
-                    device.getAlertStatus(), device.getLatitude(), device.getLongitude(), device.getAltitude(), command, requestData);
+            scriptResult = scriptingAdapter.processData(
+                    listOfValues, 
+                    device.getCodeUnescaped(), 
+                    device.getEUI(), 
+                    device.getUserID(), 
+                    dataTimestamp,
+                    latitude, 
+                    longitude, 
+                    altitude, 
+                    device.getState(),
+                    device.getAlertStatus(), 
+                    device.getLatitude(), 
+                    device.getLongitude(), 
+                    device.getAltitude(), 
+                    command, 
+                    requestData);
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());

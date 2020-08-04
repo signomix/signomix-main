@@ -4,12 +4,17 @@
  */
 package com.signomix;
 
+import com.cedarsoftware.util.io.JsonObject;
+import com.signomix.event.UplinkEvent;
 import com.signomix.in.http.ActuatorApi;
 import com.signomix.in.http.IntegrationApi;
 import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
+import com.signomix.iot.IotData;
 import com.signomix.iot.IotEvent;
+import com.signomix.iot.chirpstack.uplink.Uplink;
+import com.signomix.iot.chirpstack.uplink.Value;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
@@ -42,9 +47,12 @@ import com.signomix.out.iot.Alert;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.List;
+import java.util.Map;
 import org.cricketmsf.annotation.EventHook;
+import org.cricketmsf.annotation.PortEventClassHook;
 import org.cricketmsf.event.EventMaster;
 import org.cricketmsf.exception.EventException;
+import org.cricketmsf.in.http.Result;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
 import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
@@ -530,6 +538,28 @@ public class Service extends Kernel {
             e.printStackTrace();
             return null;
         }
+    }
+    
+    @PortEventClassHook(className = "UplinkEvent", procedureName = "processData")
+    public Object handleChirpstackUplink(UplinkEvent requestEvent) {
+        IotData data= (IotData) requestEvent.getOriginalEvent().getPayload();
+        String info="RECEIVED: application=%1$s, devEUI=%2$s, data=%3$s";
+/*
+        System.out.format(info, uplink.getApplicationID(), uplink.getDevEUI(), uplink.getData());
+        System.out.println("");
+        System.out.println("RECEIVED JSON:"+uplink.getObject());
+        String[] fields=uplink.getPayloadFieldNames();
+        for(int i=0; i<fields.length; i++){
+            System.out.println(fields[i]+"="+uplink.getDoubleValue(fields[i]));
+        }
+*/        
+        try {
+            return DeviceIntegrationModule.getInstance().processChirpstackRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "OPTIONS")
