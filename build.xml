@@ -11,8 +11,8 @@
     <!--                                                                     -->
     <description>Signomix</description>
     <property file="local.build.properties"/>
-    <property name="version" value="1.3.1"/> <!-- service version           -->
-    <property name="cricket-version" value="1.5.14" /> 
+    <property name="version" value="1.3.2"/> <!-- service version           -->
+    <property name="cricket-version" value="1.5.15" /> 
     <property name="cricket-jar-location" value="lib/cricket-${cricket-version}.jar"/>
     <property name="docker-repository" value="" />
     <property name="JDK-location" value=""/>
@@ -204,7 +204,7 @@
         <mkdir dir="${dist}/data"/>
         <mkdir dir="${dist}/www"/>
         <mkdir dir="${dist}/www/assets"/>
-        <mkdir dir="${dist}/var"/>
+        <mkdir dir="${dist}/ext-lib"/>
         <input message="Please enter environment name:" validargs="dev,compose,localdev" addproperty="environment.name" defaultvalue="dev"/>
         <echo message="Building archive for environment: ${environment.name}"/>
         <delete file="${dist}/data/cricket_publickeystore.jks" failonerror="false"></delete>
@@ -243,6 +243,7 @@
             <fileset dir="webapp/blog/public"/>
         </copy>
         <echo message="Building archive for environment ${environment.name}"/>
+        <copy todir="${dist}/ext-lib" file="ext-lib/readme.txt"/>
         <copy todir="${dist}/config" file="${src-other}/environment/${environment.name}/settings.json"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/run.sh"/>
         <copy todir="${dist}" file="${src-other}/environment/${environment.name}/readme.txt"/>

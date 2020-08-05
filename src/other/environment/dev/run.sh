@@ -1,4 +1,8 @@
 #!/bin/sh
-#java --add-modules java.activation -jar {{distribution}}.jar -r -c config/cricket.json
-#-Djavax.net.ssl.trustStore=$JAVA_HOME/jre/lib/security/cacerts -Djavax.net.ssl.trustStorePassword=changeit 
+# 
+# To run Signomiks with your extension, comment out the last line and uncomment the penultimate line. 
+# Change extension.jar to the name of your library.
+#
+
+#java -cp {{distribution}}.jar:lib/extension.jar com.signomix.Runner -r -c config/settings.json
 java -jar {{distribution}}.jar -r -c config/settings.json
