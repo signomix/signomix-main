@@ -239,9 +239,11 @@
         <copy todir="${dist}/www">
             <fileset dir="www" includes="**/*.svg,**/*.png,**/*.gif,**/*.jpg,**/*.jpeg,**/*.otf,,**/*.eot,**/*.ttf,**/*.woff,**/*.woff2"/>
         </copy>
+        <!--
         <copy todir="${dist}/www/blog" overwrite="true">
             <fileset dir="webapp/blog/public"/>
         </copy>
+        -->
         <echo message="Building archive for environment ${environment.name}"/>
         <copy todir="${dist}/ext-lib" file="ext-lib/readme.txt"/>
         <copy todir="${dist}/config" file="${src-other}/environment/${environment.name}/settings.json"/>
