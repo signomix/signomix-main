@@ -66,7 +66,7 @@
                 <div class="alert alert-light border-dark h3 text-justify">
                     <div class="d-flex">
                         <div>{getTariffName()}</div>
-                        <div class="ml-auto">
+                        <div class="ml-auto" if={app.paid}>
                             <button type="button" class="btn btn-secondary ml-auto" 
                                     data-toggle="modal" data-target="#upgradeDialog">{ app.texts.account.changetariff[app.language] }</button>
                         </div>

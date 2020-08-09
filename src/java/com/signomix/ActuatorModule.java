@@ -6,7 +6,7 @@ package com.signomix;
 
 import com.cedarsoftware.util.io.*;
 import com.signomix.in.http.ActuatorApi;
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.iot.TtnDownlinkMessage;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.iot.ChannelData;

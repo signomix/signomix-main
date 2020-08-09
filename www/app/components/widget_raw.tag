@@ -1,10 +1,18 @@
 <widget_raw>
-    <div id={opts.ref} if={type == 'raw'} class="card card-block topspacing p-0">
-        <div class="card-header h6 text-left p-1">{title}</div>
-        <div class="card-body"><pre>{rawdata}</pre></div>
+    <div id={opts.ref} if={type == 'raw'} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div> 
+        <div class="row px-3 py-1">
+                <div class="col-12">
+                    <pre>{rawdata}</pre>
+                </div>
+        </div>
     </div>
-    <div id={opts.ref} if={type == 'text' && description.trim() != ''} class="card card-block topspacing p-1">
-        <raw content={ description }></raw>
+    <div id={opts.ref} if={type == 'text' && description.trim() != ''} class="container bg-white border border-light rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <raw content={ description }></raw>
+        </div> 
     </div>
     <div id={opts.ref} if={type == 'text' && description.trim() == ''} class="topspacing p-1">
     &nbsp;

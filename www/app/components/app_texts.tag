@@ -1819,6 +1819,21 @@
             "it": "timestamp",
             "fr": "torodatage",
             "pl": "znacznik czasu"
+        },
+        "nodata": {
+            "en": "No data found",
+            "it": "Nessun dato trovato",
+            "fr": "Aucune donnée trouvée",
+            "pl": "Brak danych"
+        }
+    }
+    
+    app.texts.widget_map = {
+        "nodata": {
+            "en": "No data found",
+            "it": "Nessun dato trovato",
+            "fr": "Aucune donnée trouvée",
+            "pl": "Brak danych"
         }
     }
         

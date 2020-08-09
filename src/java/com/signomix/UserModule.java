@@ -5,7 +5,7 @@
 package com.signomix;
 
 import com.signomix.event.SignomixUserEvent;
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.out.notification.NotificationIface;
 import java.util.List;
 import org.cricketmsf.microsite.user.*;

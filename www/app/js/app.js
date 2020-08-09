@@ -4,6 +4,7 @@
  */
 var globalEvents = riot.observable();
 var app = {
+    "paid":false,
     "user": {
         "number": "",
         "name": "",

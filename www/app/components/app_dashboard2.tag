@@ -45,7 +45,7 @@
     </div>
 
     <virtual each={name, i in rowArr }>
-        <div class="row" if={w_line[i] && w_line[i].length>0}>
+        <div class="row my-n1" if={w_line[i] && w_line[i].length>0}>
             <virtual each={colname, j in colArr }>
                 <div class={ getColumnClass(w_line[i][j]) } if={w_line[i].length>j}>
                     <widget_a1 ref={ getRefName(i,j) } icon={w_line[i][j]['icon']} if={w_line[i][j]['type']=='symbol'}></widget_a1>
@@ -66,9 +66,6 @@
         </div>
     </virtual>
 
-    <div class="row">
-        <div class="col-md-12"><span>&nbsp;</span></div>
-    </div>
     <script charset="UTF-8">
     var self = this
     self.rowArr = [0,1,2,3,4,5,6]
@@ -283,7 +280,7 @@
                 return 'col-md-6'
             case 3:
                 return 'col-md-9'
-            case 4:
+            case 4: 
                 return 'col-md-12'
             default:
                 return 'col-md-3'

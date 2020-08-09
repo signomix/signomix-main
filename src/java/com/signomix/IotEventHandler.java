@@ -4,7 +4,7 @@
  */
 package com.signomix;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ChannelData;

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 
 /**
  *

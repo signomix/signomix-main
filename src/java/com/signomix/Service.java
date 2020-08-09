@@ -4,7 +4,6 @@
  */
 package com.signomix;
 
-import com.cedarsoftware.util.io.JsonObject;
 import com.signomix.event.UplinkEvent;
 import com.signomix.in.http.ActuatorApi;
 import com.signomix.in.http.IntegrationApi;
@@ -12,9 +11,8 @@ import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData;
-import com.signomix.iot.IotEvent;
-import com.signomix.iot.chirpstack.uplink.Uplink;
-import com.signomix.iot.chirpstack.uplink.Value;
+import com.signomix.event.IotEvent;
+import com.signomix.event.NewDataEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
@@ -47,12 +45,10 @@ import com.signomix.out.iot.Alert;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.List;
-import java.util.Map;
 import org.cricketmsf.annotation.EventHook;
 import org.cricketmsf.annotation.PortEventClassHook;
 import org.cricketmsf.event.EventMaster;
 import org.cricketmsf.exception.EventException;
-import org.cricketmsf.in.http.Result;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
 import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
@@ -116,8 +112,6 @@ public class Service extends Kernel {
     EmailSenderIface emailSender = null;
 
     //Integration services
-    IntegrationApi integrationService = null;
-    IntegrationApi rawIntegrationService = null;
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
     KpnApi kpnUplinkService = null;
@@ -167,8 +161,6 @@ public class Service extends Kernel {
         webhookNotification = (NotificationIface) getRegistered("webhookNotification");
         emailSender = (EmailSenderIface) getRegistered("emailSender");
 
-        integrationService = (IntegrationApi) getRegistered("IntegrationService");
-        rawIntegrationService = (IntegrationApi) getRegistered("RawIntegrationService");
         loraUplinkService = (LoRaApi) getRegistered("LoRaUplinkService");
         ttnIntegrationService = (TtnApi) getRegistered("TtnIntegrationService");
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
@@ -562,6 +554,21 @@ public class Service extends Kernel {
 
     }
 
+    @PortEventClassHook(className = "NewDataEvent", procedureName = "processData")
+    public Object handleIotData(NewDataEvent requestEvent) {
+        System.out.println("@@@@@@@");
+        IotData data= (IotData) requestEvent.getOriginalEvent().getPayload();
+        try {
+            return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+    
+    /*
+
     @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "OPTIONS")
     public Object iotDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -619,6 +626,8 @@ public class Service extends Kernel {
         return result;
     }
 
+    */
+    
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "OPTIONS")
     public Object actuatorCors(Event requestEvent) {
         StandardResult result = new StandardResult();

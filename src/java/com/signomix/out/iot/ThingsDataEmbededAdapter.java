@@ -4,7 +4,7 @@
  */
 package com.signomix.out.iot;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
 import java.util.ArrayList;

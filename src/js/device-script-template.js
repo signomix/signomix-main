@@ -128,7 +128,7 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
     latitude, longitude, altitude, state, alert,
     devLatitude, devLongitude, devAltitude, newCommand, requestData) {
     var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
-    var IotEvent = Java.type("com.signomix.iot.IotEvent");
+    var IotEvent = Java.type("com.signomix.event.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
     var channelData={};
 
@@ -164,7 +164,7 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
 
 var processRawData = function (eui, requestBody, channelReader, userID, dataTimestamp) {
     var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
-    var IotEvent = Java.type("com.signomix.iot.IotEvent");
+    var IotEvent = Java.type("com.signomix.event.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
     var channelData={};
 

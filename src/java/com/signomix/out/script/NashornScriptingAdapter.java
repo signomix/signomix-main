@@ -4,7 +4,7 @@
  */
 package com.signomix.out.script;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataIface;

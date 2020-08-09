@@ -16,9 +16,9 @@ public class Invariants extends HashMap {
 
     /* 
     Configuration parameters:
-    demo: [true|false]
-    release: [standard|mini]
-    webCacheSize: rozmiar cache (lczba dokumentów/plików w cache)
+    demo: [true|false] //
+    release: [standard|commercial|mini]
+    webCacheSize: the cache size (maximum number of documents/files)
     
     maxUsers:
     maxDevices:
@@ -107,7 +107,7 @@ public class Invariants extends HashMap {
             put("primaryDataRetention", 1); // 1 day
             put("primaryDevicesLimit", 3); // user devices
             put("primaryNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
-        } else {
+        } else if ("commercial".equalsIgnoreCase(releaseType)){
             put("maxUsers", 1000);
             put("maxDevices", 0); // no limit for total number of registered devices
 
@@ -130,6 +130,34 @@ public class Invariants extends HashMap {
             put("standardDataRetention", 30); // days
             put("standardDevicesLimit", 15); // user devices
             put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
+
+            put("primaryCollectionLimit", 4320);
+            put("primaryDataRetention", 30); 
+            put("primaryDevicesLimit", 50); // user devices
+            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+        } else {
+            put("maxUsers", 1000);
+            put("maxDevices", 0); // no limit for total number of registered devices
+
+            put("demoCollectionLimit", 144);
+            put("demoDataRetention", 1); // 1 day
+            put("demoDevicesLimit", 1); // user devices
+            put("demoNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
+
+            put("freeCollectionLimit", 4320); // 6 transmission/hour * 30 days
+            put("freeDataRetention", 30); // 1 day
+            put("freeDevicesLimit", 50); // user devices
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
+
+            put("extendedCollectionLimit", 4320); // 6 transmission/hour * 30 days
+            put("extendedDataRetention", 30); // days
+            put("extendedDevicesLimit", 50); // user devices
+            put("extendedNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
+
+            put("standardCollectionLimit", 4320);
+            put("standardDataRetention", 30); // days
+            put("standardDevicesLimit", 50); // user devices
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
 
             put("primaryCollectionLimit", 4320);
             put("primaryDataRetention", 30); 

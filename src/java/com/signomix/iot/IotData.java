@@ -4,7 +4,10 @@
  */
 package com.signomix.iot;
 
+import com.signomix.iot.generic.IotData2;
 import com.signomix.iot.chirpstack.uplink.Uplink;
+import com.signomix.out.iot.ChannelData;
+import java.util.ArrayList;
 
 /**
  *
@@ -12,30 +15,49 @@ import com.signomix.iot.chirpstack.uplink.Uplink;
  */
 public class IotData {
 
-    private static int CHIRPSTACK = 0;
-    
+    public static final int CHIRPSTACK = 0;
+    public static final int GENERIC = 1;
+    public static final int TTN = 2;
+    public static final int KPN = 3;
+
     private int type;
     private Uplink chirpstackData;
+    private IotData2 iotData;
+    private TtnData ttnData;
     private boolean authRequired;
     private String authKey;
     private String serializedData;
-    
-    public IotData(Uplink data){
-        chirpstackData=data;
-        type=CHIRPSTACK;
+    private String deviceEUI;
+    private String gatewayEUI;
+    private String clientName;
+
+    public IotData(Uplink data) {
+        chirpstackData = data;
+        type = CHIRPSTACK;
+        deviceEUI=data.getDevEUI();
+        gatewayEUI=null;
+        clientName=null;
     }
     
-    public IotData authRequired(boolean required){
+    public IotData(IotData2 data) {
+        iotData = data;
+        type = GENERIC;
+        deviceEUI=data.getDeviceEUI();
+        gatewayEUI=data.gateway_eui;
+        clientName=data.clientname;
+    }
+
+    public IotData authRequired(boolean required) {
         this.setAuthRequired(required);
         return this;
     }
-    
-    public IotData authKey(String key){
+
+    public IotData authKey(String key) {
         this.setAuthKey(key);
         return this;
     }
 
-    public IotData serializedData(String data){
+    public IotData serializedData(String data) {
         this.setSerializedData(data);
         return this;
     }
@@ -66,6 +88,14 @@ public class IotData {
      */
     public void setChirpstackData(Uplink chirpstackData) {
         this.chirpstackData = chirpstackData;
+    }
+
+    public IotData2 getIotData() {
+        return iotData;
+    }
+
+    public void setIotData(IotData2 iotData) {
+        this.iotData=iotData;
     }
 
     /**
@@ -109,5 +139,48 @@ public class IotData {
     public void setSerializedData(String serializedData) {
         this.serializedData = serializedData;
     }
-    
+
+
+    /**
+     * @return the deviceEUI
+     */
+    public String getDeviceEUI() {
+        return deviceEUI;
+    }
+
+    /**
+     * @param deviceEUI the deviceEUI to set
+     */
+    public void setDeviceEUI(String deviceEUI) {
+        this.deviceEUI = deviceEUI;
+    }
+
+    /**
+     * @return the gatewayEUI
+     */
+    public String getGatewayEUI() {
+        return gatewayEUI;
+    }
+
+    /**
+     * @param gatewayEUI the gatewayEUI to set
+     */
+    public void setGatewayEUI(String gatewayEUI) {
+        this.gatewayEUI = gatewayEUI;
+    }
+
+    /**
+     * @return the clientName
+     */
+    public String getClientName() {
+        return clientName;
+    }
+
+    /**
+     * @param clientName the clientName to set
+     */
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
 }

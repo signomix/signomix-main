@@ -4,7 +4,7 @@
 */
 package org.cricketmsf.microsite.user;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 
 /**
  *

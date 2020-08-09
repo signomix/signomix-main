@@ -1,36 +1,39 @@
 <widget_button>
-    <div if={ type == 'button' } class="card text-center topspacing p-0">
-        <div class="card-body text-center" if={ !app.user.guest }>
-            <button type="button" class="btn btn-danger btn-block" onclick={ fillDesc() } data-toggle="modal" data-target="#{name}">{ title }</button>
+    <div if={ type == 'button' } class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div if={ !app.user.guest } class="col-12 text-center">
+                <button type="button" class="btn btn-danger btn-block" onclick={ fillDesc() } data-toggle="modal" data-target="#{name}">{ title }</button>
+            </div>
+            <div if={ app.user.guest } class="col-12 text-center">
+                <p>---</p>
+            </div>
         </div>
-        <div class="card-body text-center" if={ app.user.guest }>
-             <p>---</p>
+    </div> 
+    <div id="{name+'2'}" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{ app.texts.widget_button.title[app.language] }</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{ app.texts.widget_button.line1[app.language] } {dev_id}</p>
+                    <p>{dataToSend}</p>
+                    <p class="text-danger">
+                        { app.texts.widget_button.line2[app.language] }<br>
+                        { app.texts.widget_button.line3[app.language] }
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" if={dataToSend!=''} onclick={ sendCommand() }>{ app.texts.widget_button.confirm[app.language] }</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{ app.texts.widget_button.cancel[app.language] }</button>
+                </div>
+            </div>
         </div>
     </div>
-  <div id="{name+'2'}" class="modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{ app.texts.widget_button.title[app.language] }</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>{ app.texts.widget_button.line1[app.language] } {dev_id}</p>
-        <p>{dataToSend}</p>
-        <p class="text-danger">
-            { app.texts.widget_button.line2[app.language] }<br>
-            { app.texts.widget_button.line3[app.language] }
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal" if={dataToSend!=''} onclick={ sendCommand() }>{ app.texts.widget_button.confirm[app.language] }</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{ app.texts.widget_button.cancel[app.language] }</button>
-      </div>
-    </div>
-  </div>
-  </div>
+    
     <div id="{name}" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">

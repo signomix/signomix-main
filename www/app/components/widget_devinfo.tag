@@ -1,20 +1,24 @@
 <widget_devinfo>
-    <div id={opts.ref} class="card topspacing p-0">
-        <div class="card-header h6 text-left p-1">
-            {title}<span class="float-right">&#x2699;</span>
-        </div>
-        <div class="card-body" if="{visualisation=='raw'}"><pre>{rawdata}</pre></div>
-        <div class="card-body" if="{visualisation=='time'||visualisation=='number'}">
-            <div class="row">
-                <div class="col-4 text-left">
-                    <h3><i class="las {icon} text-primary" style="height: 1em;"></i></h3>
+    <div id={opts.ref} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div>    
+        <div class="row px-3 py-1" if="{visualisation=='time'||visualisation=='number'}">
+                <div class="col-4">
+                    <h1>
+                        <i class="las {icon} text-primary" style="height: 1em;"></i>
+                    </h1>
                 </div>
-                <div class="col-8 text-center">
-                    <h3>{dt}</h3>
+                <div class="col-8 text-right">
+                    <h2>{dt}</h2>
                 </div>
-            </div>
         </div>
-    </div>
+        <div class="row px-3 py-1" if="{visualisation=='raw'}">
+                <div class="col-12">
+                    <pre>{rawdata}</pre>
+                </div>
+        </div>
+    </div> 
     <script>
     var self = this
     // opts: poniższe przypisanie nie jest używane

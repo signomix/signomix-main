@@ -2,7 +2,7 @@
 * Copyright (C) Grzegorz Skorupa 2018.
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 */
-package com.signomix.iot;
+package com.signomix.event;
 
 import org.cricketmsf.Event;
 import static org.cricketmsf.microsite.user.UserEvent.CATEGORY_USER;

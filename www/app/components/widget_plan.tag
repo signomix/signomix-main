@@ -1,10 +1,10 @@
 <widget_plan>
-    <div id={opts.ref} if={type == 'plan'} class="card card-block topspacing p-0">
-        <div class="card-header h6 text-left p-1">{title}</div>
-        <div class="card-body">
-            <div class="row">
-                 <div id="asdfg" class="col text-center"></div>
-            </div>
+    <div id={opts.ref} if={type == 'plan'} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div>    
+        <div class="row px-3 py-1">
+            <div id="{planID}" class="col-12 text-center"></div>
         </div>
     </div>
     <script>
@@ -19,6 +19,7 @@
     self.measureNames = []
     self.groups = []
     self.scaling=1
+    self.planID='plan_'+opts.ref
     
     self.show2 = function(){
         self.planDefinition=this.description
@@ -30,7 +31,7 @@
         app.log('SHOW2 '+self.type)
         self.jsonData = JSON.parse(this.rawdata)
         self.verify()
-        if(self.jsonData[0]) self.noData = false
+        if(self.jsondata && self.jsonData[0]) self.noData = false
         self.calcAlert=(self.range!='' && self.range.indexOf('@')>0)
         if(self.calcAlert){
             self.rangeName=self.range.substring(self.range.indexOf('@')+1)
@@ -76,6 +77,7 @@
     }
     
     self.verify=function(){
+        if(!self.jsondata) return;
         var i=0
         var valuesOK=true
         var j
@@ -105,16 +107,18 @@
         var cTemplate='<circle cx="_x" cy="_y" r="'+radius+'" stroke="black" stroke-width="2" fill="_c"/>'
         var oneDev
         var deviceLocation
-        for(let i=0;i<deviceData.length; i++){
-            oneDev=cTemplate
-            deviceLocation=self.getDeviceLocation(deviceData[i][0].deviceEUI)
-            oneDev=oneDev.replace('_x',deviceLocation.x)
-            oneDev=oneDev.replace('_y',deviceLocation.y)
-            oneDev=oneDev.replace('_c',self.getMarkerColor(deviceData[i]))
-            devs=devs+oneDev+self.getNameplate(deviceLocation.x+radius+10,deviceLocation.y,self.scaling,self.groups[i].name,deviceData[i])
+        if(!self.noData){
+            for(let i=0;i<deviceData.length; i++){
+                oneDev=cTemplate
+                deviceLocation=self.getDeviceLocation(deviceData[i][0].deviceEUI)
+                oneDev=oneDev.replace('_x',deviceLocation.x)
+                oneDev=oneDev.replace('_y',deviceLocation.y)
+                oneDev=oneDev.replace('_c',self.getMarkerColor(deviceData[i]))
+                devs=devs+oneDev+self.getNameplate(deviceLocation.x+radius+10,deviceLocation.y,self.scaling,self.groups[i].name,deviceData[i])
+            }
         }
         pd=pd+devs+'</svg>'
-        document.getElementById("asdfg").innerHTML=pd
+        document.getElementById(self.planID).innerHTML=pd
     }
     
     self.getNameplate = function(x,y,scaling,name,data){

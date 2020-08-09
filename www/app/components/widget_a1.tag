@@ -1,24 +1,20 @@
 <widget_a1>
-    <div id={opts.ref} if={type == 'symbol'} class="card topspacing p-0">
-        <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
-            <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
-            <i class="material-icons red" style="margin-right: 10px; font-size: smaller" if={alertLevel==2}>error_outline</i>
-            {title}<span class="float-right">&#x2699;</span>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <div id={opts.ref} if={type == 'symbol'} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center" onclick={ switchCard()}>{title}</div>
+        </div>    
+        <div class="row px-3 py-1">
                 <div class="col-4">
-                    <h3>
-                        <i class="las {icon} text-primary" style="height: 1em;" if={alertLevel<1}></i>
-                        <i class="las {icon} text-warning" style="height: 1em;" if={alertLevel==1}></i>
-                        <i class="las {icon} text-danger" style="height: 1em;" if={alertLevel==2}></i>
-                    </h3>
+                    <h1>
+                        <i class="las {icon} text-primary" if={alertLevel<1}></i>
+                        <i class="las {icon} text-warning" if={alertLevel==1}></i>
+                        <i class="las {icon} text-danger" if={alertLevel==2}></i>
+                    </h1>
                 </div>
                 <div class="col-8 text-right">
-                    <h3 if={front}>{value} <raw content={ unitName }></raw></h3>
+                    <h1 if={front}>{value} <raw content={ unitName }></raw></h1>
                     <h5 if={ !front }>{measureDate}</h5>
                 </div>
-            </div>
         </div>
     </div> 
     <script>

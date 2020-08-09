@@ -4,7 +4,7 @@
 */
 package com.signomix.out.gui;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.iot.ThingsDataException;
 import java.util.HashMap;

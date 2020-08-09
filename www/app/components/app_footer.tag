@@ -1,8 +1,6 @@
 <app_footer>
-    <footer class="footer border-top text-signo text-right mt-4">
-        <div class="container">
+    <footer class="footer container-fluid border-top text-signo text-right mt-4">
             <cs_article class="container" ref="homeart" path="/landingpage/app_footer.html" eventname="appMainArticleOK" erroreventname="appMainArticleErr" language={ app.language }></cs_article>
-        </div>
     </footer>
     <script charset="UTF-8">
         var self = this;

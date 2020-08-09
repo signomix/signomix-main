@@ -2,7 +2,7 @@
     <div id={ref} class="card widget topspacing p-0">
         <div class="card-header h6 text-left p-1">{title}<span class="float-right">&#x2699;</span></div>
         <div class="card-body p-0 m-0" style={ heightStr } id={ref+'_m'}>
-no data received
+{ app.texts.widget_map.nodata[app.language] }
         </div>
     </div>
     <script>

@@ -1,23 +1,14 @@
 <widget_led>
-    <div id={ opts.ref } class="card topspacing p-0">
-        <div class="card-header h6 text-left p-1"  onclick={ switchCard() }>
-            <i class="material-icons yellow" style="margin-right: 10px; font-size: smaller" if={alertLevel==1}>notifications_active</i>
-            <i class="material-icons red" style="margin-right: 10px; font-size: smaller" if={alertLevel==2}>error_outline</i>
-             {title}<span class="float-right">&#x2699;</span>
+    <div id={ opts.ref } class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center" onclick={ switchCard()}>{title}</div>
         </div>
-        <div class="card-body">
-             <div class="row" if={ front }>
-                 <div class="col-4"></div>
-                 <div class="col-4 text-center" if={ front } style="padding: 0px 0px 0px 0px;">
-                    <img width="40%" style="margin-right: 10px;" src={ getLedImgUrl(alertLevel) }>
-                    <!--<img src={ getLedImgUrl(alertLevel) } class="inline-block img-fluid" style="height: 1.1em; width: auto;">-->
-                 </div>
-                 <div class="col-4"></div>
+        <div class="row px-3 py-1">
+            <div class="col-12 text-center" if={ front }>
+                <img width="20%" src={ getLedImgUrl(alertLevel) }>
             </div>
-            <div class="row" if={ !front }>
-                 <div class="col text-righr h5">
-                     {measureDate}<br>{value}
-                 </div>
+            <div class="col-12 text-right" if={ !front }>
+                <h5>{measureDate}</h5>
             </div>
         </div>
     </div>

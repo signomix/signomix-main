@@ -1,8 +1,18 @@
 <widget_chart>
-    <div id="{opts.ref}" if="{type == 'line' || type == 'stepped'}" class="card widget topspacing p-0">
-        <div class="card-header h6 text-left p-1" onclick={ switchCard() }>{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body"  if={ front }><canvas ref="line0" id="line0"></canvas></div>
-        <div class="card-body table-responsive" if={ !front } >
+    <div id="{opts.ref}" if="{type == 'line' || type == 'stepped'}" class="container-fluid bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center" onclick={ switchCard()}>{title}</div>
+        </div> 
+        <div class="row px-3 py-1" if={ front }>
+                <div class="col-12">
+                    <canvas ref="line0" id="line0"></canvas>
+                </div>
+        </div>
+        <div class="row px-3 py-1" if={ !front }>
+            <div if={ ! dataAvailable} class="col-12">
+                <p>{ app.texts.widget_chart.nodata[app.language] }</p>
+            </div>
+            <div if={dataAvailable} class="col-12 table-responsive">
             <table id="devices" class="table table-condensed">
                 <thead>
                     <tr>
@@ -27,6 +37,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     <script>
@@ -46,13 +57,16 @@
         self.width = 100
         self.heightStr = 'height:100px;'
         self.multiLine = false
+        self.dataAvailable=false;
 
         self.show2 = function(){
             self.jsonData = JSON.parse(this.rawdata)
             app.log(self.jsonData)
             if (self.jsonData.length == 0 || self.jsonData[0].length == 0){
+                self.dataAvailable=false;
                 return;
             }
+            self.dataAvailable=true;
             getWidth()
             self.multiLine = self.jsonData[0].length > 1 && self.jsonData[0][1]['name'] != self.jsonData[0][0]['name']
             self.showMultiLineGraph(self.type,false,self.chartOption)

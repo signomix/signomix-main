@@ -1,9 +1,15 @@
 <widget_report>
-    <div id={opts.ref} if={type == 'report'} class="card card-block topspacing p-0">
-        <div class="card-header h6 text-left p-1">{title}</div>
-        <div class="card-body" if="{ !noData }">
-            <div class="table-responsive">
-            <table class="table table-sm">
+    <div id={opts.ref} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div>    
+        <div class="row px-3 py-1">
+            <div class="col-12" if="{ noData }">
+                { app.texts.widget_report.NO_DATA[app.language] }
+            </div>
+            <div class="col-12" if="{ !noData }">
+                <div class="table-responsive">
+                <table class="table table-sm">
                 <thead>
                     <tr class="table-active">
                         <td class="text-uppercase text-left" scope="col">{ app.texts.widget_report.EUI[app.language] }</td>
@@ -22,13 +28,11 @@
                         <!--<td class="text-right"><a href="{'#!dashboard,'+device[0].deviceEUI}">{ app.texts.widget_report.MORE[app.language] }</a></td>-->
                     </tr>
                 </tbody>
-            </table>
+                </table>
+                </div>    
             </div>
         </div>
-        <div class="card-body" if="{ noData }">
-            { app.texts.widget_report.NO_DATA[app.language] }
-        </div>
-    </div>
+    </div> 
     <script>
     var self = this
     // opts: poniższe przypisanie nie jest używane

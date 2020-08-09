@@ -4,7 +4,7 @@
  */
 package com.signomix;
 
-import com.signomix.iot.IotEvent;
+import com.signomix.event.IotEvent;
 import java.util.ArrayList;
 import java.util.List;
 import org.cricketmsf.Event;

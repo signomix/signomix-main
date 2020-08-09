@@ -134,7 +134,7 @@
     </target>
 
     <target name="compile" depends="init" description="compile the source">
-        <input message="Please enter release type:" validargs="standard,mini" addproperty="releaseType" defaultvalue="standard"/>
+        <input message="Please enter release type:" validargs="standard,commercial,mini" addproperty="releaseType" defaultvalue="standard"/>
         <echo message="Compiling release type: ${releaseType}"/>
         <copy overwrite="true" file="${src}/com/signomix/Invariants.template" tofile="${src}/com/signomix/Invariants.java"/>
         <replace file="${src}/com/signomix/Invariants.java" token="{{type}}" value="${releaseType}"/>

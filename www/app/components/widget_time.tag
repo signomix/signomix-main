@@ -1,19 +1,19 @@
 <widget_time>
-    <div id={ opts.ref } class="card topspacing p-0">
-        <div class="card-header h6 text-left p-1">
-            {title}<span class="float-right">&#x2699;</span>
-        </div>
-        <div class="card-body rounded">
-            <div class="row">
-                <div class="col-4 text-left">
-                    <h3><i class="las {icon} text-primary" style="height: 1em;"></i></h3>
+    <div id={opts.ref} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div>    
+        <div class="row px-3 py-1">
+                <div class="col-4">
+                    <h1>
+                        <i class="las {icon} text-primary" style="height: 1em;"></i>
+                    </h1>
                 </div>
                 <div class="col-8 text-right">
-                    {dt}
+                    <h1>{dt}</h1>
                 </div>
-            </div>
         </div>
-    </div>
+    </div> 
     <script>
         var self = this
         self.rawdata = "[]"

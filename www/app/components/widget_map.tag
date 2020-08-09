@@ -1,10 +1,14 @@
 <widget_map>
-    <div id={ref} class="card widget topspacing p-0">
-        <div class="card-header h6 text-left p-1">{title}<span class="float-right">&#x2699;</span></div>
-        <div class="card-body p-0 m-0" style={ heightStr } id={ ref+'_m' }>
-no data received
+    <div id={ref} class="container bg-white border border-info rounded topspacing p-0">
+        <div class="row px-3 pt-1 pb-0">
+            <div class="col-12 text-center">{title}</div>
+        </div>    
+        <div class="row px-3 py-1">
+                <div class="col-12"><div style={ heightStr } id={ ref+'_m' }>
+{ app.texts.widget_map.nodata[app.language] }
+        </div></div>
         </div>
-    </div>
+    </div> 
     <script>
     var self = this
     //self.refs = this.refs
@@ -50,7 +54,14 @@ no data received
     }
     
     self.verify=function(){
-        var i=0
+        try{
+            if(self.jsonData==null || jsonData.length==0){
+                self.noData=true
+            }
+        }catch(err){
+            self.nodaData=true
+        }
+        let i=0
         while(i<self.jsonData.length){
             if(self.jsonData[i]==null || self.jsonData[i].length<2 || self.jsonData[i][0]==null || self.jsonData[i][1]==null 
                     || (self.jsonData[i][0]['value']==0.0 && self.jsonData[i][1]['value']==0.0)){
@@ -59,6 +70,7 @@ no data received
                 i=i+1
             }
         }
+        self.noData=false
     }
     
     self.showMap = function(){
