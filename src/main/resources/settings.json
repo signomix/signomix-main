@@ -1,0 +1,625 @@
+{
+    "@type": "org.cricketmsf.config.ConfigSet",
+    "description": "This is sample configuration",
+    "services": [
+        {
+            "@type": "org.cricketmsf.config.Configuration",
+            "id": "SignomixService",
+            "service": "com.signomix.Service",
+            "properties": {
+                "host": "0.0.0.0",
+                "port": "8080",
+                "ssl": "false",
+                "keystore": "",
+                "keystore-password": "",
+                "threads": 0,
+                "shutdown-delay": "2",
+                "filter": "org.cricketmsf.microsite.auth.SecurityFilter",
+                "cors": "Access-Control-Allow-Origin:*|Access-Control-Allow-Credentials:true|Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT|Access-Control-Allow-Headers: Authentication, Authorization, Origin, X-Requested-With, Content-Type, Accept, Accept-Language, Content-Language|Access-Control-Max-Age: 1728000",
+                "time-zone": "GMT",
+                "default-language": "en",
+                "user-confirm": "true",
+                "initial-admin-email": "admi@host",
+                "initial-admin-secret": "test123",
+                "admin-notification-email": "",
+                "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
+                "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
+                "file.upload.maxsize": "5000000",
+                "backup-folder": "./data/backup",
+                "backup-strategy": "day",
+                "serviceurl": "http://localhost:8080",
+                "SRVC_NAME_ENV_VARIABLE": "SIGNOMIX_ENVIRONMENT_NAME",
+                "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL",
+                "ga-tracking-id": "",
+                "monitoring_device": "signomix_int_monitor"
+            },
+            "ports": [
+                {
+                    "name": "goto",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.in.http.StandardHttpAdapter",
+                    "properties": {
+                        "context": "/gt",
+                        "dump-request": "true",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "UserService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.UserApi",
+                    "properties": {
+                        "context": "/api/user",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "RecoveryService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.UserApi",
+                    "properties": {
+                        "context": "/api/recover",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "AuthService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.AuthApi",
+                    "properties": {
+                        "context": "/api/auth",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "ConfirmationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ConfirmationApi",
+                    "properties": {
+                        "context": "/api/confirm",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "SubscriptionConfirmationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ConfirmationApi",
+                    "properties": {
+                        "context": "/api/subsconfirm",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "ContentManager",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.ContentApi",
+                    "properties": {
+                        "context": "/api/cm",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "ContentService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.ContentApi",
+                    "properties": {
+                        "context": "/api/cs",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "DeviceService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ThingsApi",
+                    "properties": {
+                        "context": "/api/iot/device",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "GroupService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ThingsApi",
+                    "properties": {
+                        "context": "/api/iot/group",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "TemplateService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ThingsApi",
+                    "properties": {
+                        "context": "/api/iot/template",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "DataIntegrationApi",
+                    "interfaceName": "HttpPortedAdapterIface",
+                    "classFullName": "com.signomix.in.http.IotApi",
+                    "properties": {
+                        "context": "/api/integration",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "IotAPI",
+                    "interfaceName": "HttpPortedAdapterIface",
+                    "classFullName": "com.signomix.in.http.IotApi",
+                    "properties": {
+                        "context": "/api/i4t",
+                        "authorization-required":"true",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "TtnIntegrationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.TtnApi",
+                    "properties": {
+                        "context": "/api/ttn",
+                        "silent-mode": "false",
+                        "dump-request": "true",
+                        "authorization-required": "true"
+                    }
+                },
+                {
+                    "name": "DashboardService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.DashboardApi",
+                    "properties": {
+                        "context": "/api/dashboard",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "AlertService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.AlertApi2",
+                    "properties": {
+                        "context": "/api/alert",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "SystemService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.SystemApi",
+                    "properties": {
+                        "context": "/api/system",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "LoRaUplinkService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.LoRaApi",
+                    "properties": {
+                        "context": "/api/lora/uplink",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "LoRaJoinService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.LoRaApi",
+                    "properties": {
+                        "context": "/api/lora/join",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "LoRaAckService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.LoRaApi",
+                    "properties": {
+                        "context": "/api/lora/ack",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "LoRaErrorService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.LoRaApi",
+                    "properties": {
+                        "context": "/api/lora/error",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "ChirpstackUplinkService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ChirpstackUplinkApi",
+                    "properties": {
+                        "context": "/api/chirpstack/uplink",
+                        "serialization-type": "JSONv3",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "KpnUplinkService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.KpnApi",
+                    "properties": {
+                        "context": "/api/kpn/uplink",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "ActuatorService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.ActuatorApi",
+                    "properties": {
+                        "context": "/api/actuator",
+                        "dump-request": "true",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "logger",
+                    "interfaceName": "LoggerAdapterIface",
+                    "classFullName": "org.cricketmsf.out.log.Slf4jLogger",
+                    "properties": {
+                    }
+                },
+                {
+                    "name": "GdprLogger",
+                    "interfaceName": "LoggerAdapterIface",
+                    "classFullName": "org.cricketmsf.out.log.FileLogger",
+                    "properties": {
+                        "name": "Signomix",
+                        "log-file-name": "./logs/gdpr.log"
+                    }
+                },
+                {
+                    "name": "database",
+                    "interfaceName": "KeyValueDBIface",
+                    "classFullName": "org.cricketmsf.out.db.KeyValueDB",
+                    "description": "DB storing users, web cache, platform config/limits, tokens",
+                    "properties": {
+                        "path": "./data",
+                        "name": "local"
+                    }
+                },
+                {
+                    "name": "queueDB",
+                    "interfaceName": "KeyValueDBIface",
+                    "classFullName": "org.cricketmsf.out.db.KeyValueDB",
+                    "properties": {
+                        "path": "./data",
+                        "name": "queue"
+                    }
+                },
+                {
+                    "name": "iotDB",
+                    "interfaceName": "IotDatabaseIface",
+                    "classFullName": "com.signomix.out.db.H2IotDB",
+                    "properties": {
+                        "path": "./data",
+                        "name": "iot",
+                        "file": "iot",
+                        "test-query": "select * from serviceversion",
+                        "version": "8",
+                        "user": "sa",
+                        "password": "",
+                        "time-offset": "7200"
+                    }
+                },
+                {
+                    "name": "iotDataDB",
+                    "interfaceName": "IotDataStorageIface",
+                    "classFullName": "com.signomix.out.db.H2DataStorageDB",
+                    "properties": {
+                        "path": "./data",
+                        "name": "data",
+                        "file": "data",
+                        "test-query": "select * from serviceversion",
+                        "version": "3",
+                        "user": "sa",
+                        "password": "",
+                        "requestLimit": "200"
+                    }
+                },
+                {
+                    "name": "actuatorCommandsDB",
+                    "interfaceName": "ActuatorCommandsDBIface",
+                    "classFullName": "com.signomix.out.db.H2CommandsDB",
+                    "properties": {
+                        "path": "./data",
+                        "file": "actuator",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "name": "auth",
+                        "user": "sa",
+                        "password": ""
+                    }
+                },
+                {
+                    "name": "scheduler",
+                    "interfaceName": "SchedulerIface",
+                    "classFullName": "org.cricketmsf.in.scheduler.Scheduler",
+                    "properties": {
+                        "path": "./data",
+                        "envVariable": "SCHEDULER_DB_PATH",
+                        "file": "scheduler.xml",
+                        "init": "Data2,SYSTEM,EVENT,CHECK_DEVICES,*1m,_|_;Data1,SYSTEM,EVENT,CLEAR_DATA,*1m,_|_;EV2,EC1COUNTER,EVENT,COMMAND,17:40:00 GMT|*24h,{\"value\":\"0\"};EV3,EC1,EVENT,BACKUP,21:40:00 GMT|*24h,_"
+                    }
+                },
+                {
+                    "name": "FileReader",
+                    "interfaceName": "FileReaderAdapterIface",
+                    "classFullName": "org.cricketmsf.out.file.FileReaderAdapter",
+                    "properties": {
+                        "root": "./www/",
+                        "index-file": "index.html"
+                    }
+                },
+                {
+                    "name": "CMS",
+                    "interfaceName": "HtmlGenAdapterIface",
+                    "classFullName": "org.cricketmsf.in.http.HtmlGenAdapter",
+                    "properties": {
+                        "context": "/cms",
+                        "use-cache": "true",
+                        "page-processor": "true"
+                    }
+                },
+                {
+                    "name": "WwwService",
+                    "interfaceName": "HtmlGenAdapterIface",
+                    "classFullName": "org.cricketmsf.in.http.HtmlGenAdapter",
+                    "properties": {
+                        "context": "/",
+                        "use-cache": "true",
+                        "page-processor": "true"
+                    }
+                },
+                {
+                    "name": "userAdapter",
+                    "interfaceName": "UserAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.out.user.UserEmbededAdapter",
+                    "properties": {
+                        "helper-name": "userDB"
+                    }
+                },
+                {
+                    "name": "authAdapter",
+                    "interfaceName": "AuthAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.out.auth.AuthEmbededAdapter",
+                    "properties": {
+                        "helper-name": "authDB",
+                        "helper-name-2": "userAdapter",
+                        "token-timeout": "600"
+                    }
+                },
+                {
+                    "name": "cmsDB",
+                    "interfaceName": "SqlDBIface",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2CmsDB",
+                    "properties": {
+                        "path": "./data",
+                        "file": "cms",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "name": "content",
+                        "user": "sa",
+                        "password": ""
+                    }
+                },
+                {
+                    "name": "userDB",
+                    "interfaceName": "SqlDBIface",
+                    "classFullName": "com.signomix.out.db.H2UserDB",
+                    "properties": {
+                        "path": "./data",
+                        "file": "user",
+                        "test-query": "select * from serviceversion",
+                        "version": "2",
+                        "encrypted": "false",
+                        "filePassword": "",
+                        "name": "user",
+                        "user": "sa",
+                        "password": ""
+                    }
+                },
+                {
+                    "name": "authDB",
+                    "interfaceName": "SqlDBIface",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2AuthDB",
+                    "properties": {
+                        "path": "./data",
+                        "file": "auth",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "name": "auth",
+                        "user": "sa",
+                        "password": ""
+                    }
+                },
+                {
+                    "name": "cms",
+                    "interfaceName": "CmsIface",
+                    "classFullName": "org.cricketmsf.microsite.cms.CmsEmbededAdapter",
+                    "properties": {
+                        "helper-name": "cmsDB",
+                        "root-path": "./www/",
+                        "file-path": "./files/",
+                        "file-path-published": "./www/assets/",
+                        "index-file": "index.html",
+                        "default-language": "en"
+                    }
+                },
+                {
+                    "name": "queueAdapter",
+                    "interfaceName": "QueueAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.out.queue.QueueEmbededAdapter",
+                    "properties": {
+                        "helper-name": "queueDB",
+                        "categories": "-",
+                        "ignoring": "-"
+                    }
+                },
+                {
+                    "name": "iotAdapter",
+                    "interfaceName": "ThingsDataIface",
+                    "classFullName": "com.signomix.out.iot.ThingsDataEmbededAdapter",
+                    "properties": {
+                        "helper-name": "iotDB",
+                        "helper-name2": "iotDataDB"
+                    }
+                },
+                {
+                    "name": "dashboardAdapter",
+                    "interfaceName": "DashboardIface",
+                    "classFullName": "com.signomix.out.gui.DashboardEmbededAdapter",
+                    "properties": {
+                        "helper-name": "iotDB",
+                        "helper-name2": "userAdapter"
+                    }
+                },
+                {
+                    "name": "scriptingAdapter",
+                    "interfaceName": "ScriptingAdapterIface",
+                    "classFullName": "com.signomix.out.script.NashornScriptingAdapter",
+                    "properties": {
+                        "script-file": "./config/device-script-template.js",
+                        "decoder-envelope-location": "./config/payload-decoder-envelope.js",
+                        "helper-name": "iotAdapter"
+                    }
+                },
+                {
+                    "name": "actuatorAdapter",
+                    "interfaceName": "ActuatorDataIface",
+                    "classFullName": "com.signomix.out.iot.ActuatorDataEmbededAdapter",
+                    "properties": {
+                        "helper-name": "actuatorCommandsDB"
+                    }
+                },
+                {
+                    "name": "smtpNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.SmtpNotificator",
+                    "properties": {
+                        "from": "name@host",
+                        "mailhost": "",
+                        "localhost": "",
+                        "user": "name@host",
+                        "password": "mypassword",
+                        "debug-session": "false"
+                    }
+                },
+                {
+                    "name": "pushoverNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.PushoverNotificator",
+                    "properties": {
+                        "url": "https://api.pushover.net/1/messages.json",
+                        "token": "pushovertoken",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "telegramNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.TelegramNotificator",
+                    "properties": {
+                        "url": "https://api.telegram.org/",
+                        "token": "935476658:AAH7lNOEiGCPAXuKbSd103Xo-LVtM-UH3mw",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "slackNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.SlackNotificator",
+                    "properties": {
+                        "url": "https://hooks.slack.com/services/",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "webhookNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.WebhookNotificator",
+                    "properties": {
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "smsNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.ServerSmsNotificator",
+                    "properties": {
+                        "url": "https://api2.serwersms.pl/messages/send_sms",
+                        "login":"webapi_experiottest",
+                        "password":"haslotest",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "emailSender",
+                    "interfaceName": "EmailSenderIface",
+                    "classFullName": "com.signomix.out.notification.SmtpSender",
+                    "properties": {
+                        "from": "",
+                        "mailhost": "",
+                        "localhost": "",
+                        "user": "",
+                        "password": "",
+                        "startttls":"false",
+                        "debug-session": "false"
+                    }
+                },
+                {
+                    "name": "ShortenerDB",
+                    "interfaceName": "ShortenerDBIface",
+                    "classFullName": "com.signomix.out.db.H2ShortenerDB",
+                    "properties": {
+                        "path": "./data",
+                        "file": "urls",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "encrypted": "false",
+                        "filePassword": "",
+                        "name": "user",
+                        "user": "sa",
+                        "password": ""
+                    }
+                },
+                {
+                    "name": "SubscriberService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.SubscriberApi",
+                    "properties": {
+                        "context": "/api/subscribe",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "CommandWebHook",
+                    "interfaceName": "CommandWebHookIface",
+                    "classFullName": "com.signomix.out.notification.CommandWebHookClient",
+                    "properties": {
+                        "url":"http://httpbin.org/post",
+                        "print-response":"true"
+                    }
+                },
+                {
+                    "name": "OpenApi",
+                    "interfaceName": "OpenApiIface",
+                    "classFullName": "org.cricketmsf.in.openapi.OpenApi",
+                    "description": "",
+                    "properties": {
+                        "context": "/api"
+                    }
+                }
+            ]
+        }
+    ]
+}

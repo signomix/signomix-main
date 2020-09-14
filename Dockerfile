@@ -7,6 +7,9 @@
 # The file is used by Ant build to cereate Dockerfile.
 # 1.2.4 parameter will be replaced automatically with the actual project version configured in build.xml
 #
+
+// THIS DOCKERFILE IS OUTDATED
+
 FROM azul/zulu-openjdk-alpine:13.0.1
 
 WORKDIR /usr/signomix

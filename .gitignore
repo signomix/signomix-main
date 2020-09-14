@@ -19,3 +19,9 @@
 /src/other/environment/localdev/
 /webapp/blog/public/build/
 /form-test.html
+/target/
+/tmp3/
+/dependency-reduced-pom.xml
+/anbproject/
+/signomix-distribution.zip
+/src/main/webapp/blog/public/build/
