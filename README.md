@@ -6,44 +6,39 @@
 
 ### Building the platform
 
-Signomix project uses Apache Ant as a build tool. You can get the most recent version from [https://ant.apache.org/bindownload](https://ant.apache.org/bindownload)
+Signomix project uses [Apache Maven](https://maven.apache.org/) as a build tool. You also need [npm](https://www.npmjs.com/) 
+to build Signomix web applications.
 
-First of all download required libraries by running Ant target:
+Before building included web application for the first time, 
+you need to install required node packages:
 
-    ant get-dependencies
+```
+   $ cd src/main/webapp/blog
+   $ npm install
+```
 
-Then to build Signomix run:
+Then you can build Signomix:
 
-    ant dist
+```
+   $ mvn package
+   $ mvn assembly:single
+```
 
-The build script asks for release type (select 'standard') and the environment name (select 'dev').
+As the result you will get the platform distribution package `signomix-distribution.zip`
+located in the `target` folder. 
 
-As the result you will get: 
+### Running your local distribution
 
-* the selected environment structure (inside the `dist` folder)
-* the platform distribution package - `signomix.zip`
+Unpack the distribution archive in target location and run:
 
-### Running the platform locally
+```
+   $ mkdir tmp
+   $ unzip signomix.zip -d tmp
+   $ cd tmp
+   $ sh run.sh
+```
 
-There are 2 options how to start the platform:
-
-1. With the `run.sh` script directly in the 'dist' folder
-
-    ```
-    cd dist
-    sh run.sh
-    ```
-
-2. By unpacking the distribution archive in target location.
-
-    ```
-    mkdir tmp
-    unzip signomix.zip -d tmp
-    cd tmp
-    sh run.sh
-    ```
-
-The service can be stopped by pressing Ctrl-C.
+The service can be stopped by pressing `Ctrl-C`.
 
 ### Preconfigured accounts
 
