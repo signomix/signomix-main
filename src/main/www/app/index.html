@@ -31,7 +31,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <title>Signomix CE</title>
+        <title>Signomix</title>
         <link rel="icon" href="resources/signomix-icon.png">
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -151,6 +151,11 @@
         if(app.GA_TRACKING_ID.startsWith('$')){
             app.GA_TRACKING_ID=''
         }
+        app.title = "$signomixTitle";
+        if(app.title.startsWith('$')){
+            app.title='Signomix CE'
+        }
+        document.title=app.title;
         <!-- end Google Analytics ID config -->
         app.shared = "$shared";
         if(app.shared.startsWith('$')){

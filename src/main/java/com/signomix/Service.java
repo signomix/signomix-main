@@ -326,12 +326,16 @@ public class Service extends Kernel {
                         && ("".equals(event.getRequest().pathExt) || event.getRequest().pathExt.endsWith("/") || event.getRequest().pathExt.endsWith(".html"))) {
                     //((HashMap) result.getData()).put("serviceurl", getProperties().get("serviceurl"));
                     HashMap rd = (HashMap) result.getData();
+                    
                     rd.put("serviceurl", getProperties().get("serviceurl"));
                     rd.put("defaultLanguage", getProperties().get("default-language"));
                     rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
+                    rd.put("signomixTitle", getProperties().get("servicetitle"));
+                    
                     rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
                     rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
                     rd.put("user", event.getRequest().headers.getFirst("X-user-id"));
+                    
                     rd.put("environmentName", getName());
                     rd.put("distroType", (String) invariants.get("release"));
                     rd.put("javaversion", System.getProperty("java.version"));

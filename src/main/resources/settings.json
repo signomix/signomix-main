@@ -31,6 +31,7 @@
                 "SRVC_NAME_ENV_VARIABLE": "SIGNOMIX_ENVIRONMENT_NAME",
                 "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL",
                 "ga-tracking-id": "",
+                "servicetitle": "Signomix CE",
                 "monitoring_device": "signomix_int_monitor"
             },
             "ports": [

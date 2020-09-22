@@ -30,7 +30,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Signomix CE</title>
+    <title>Signomix</title>
     <link rel="icon" href="resources/signomix-icon.png">
     <!-- Bootstrap core CSS  -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -44,7 +44,17 @@
     <app_header></app_header>  
     <app_messagebox></app_messagebox>
     <app_mainarticle></app_mainarticle>
+    <app_partnerbox></app_partnerbox>
     <app_footer></app_footer>
+    <!-- Modal -->
+    <div class="modal fade" id="caseview" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <app_case></app_case>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -61,7 +71,9 @@
     <script data-src="/tags/cs_article.tag" type="riot/tag"></script>
     <script data-src="/components/app_header.tag" type="riot/tag"></script>
     <script data-src="/components/app_messagebox.tag" type="riot/tag"></script>
+    <script data-src="/components/app_partnerbox.tag" type="riot/tag"></script>
     <script data-src="/components/app_mainarticle.tag" type="riot/tag"></script>
+    <script data-src="/components/app_case.tag" type="riot/tag"></script>
     <script data-src="/components/app_footer.tag" type="riot/tag"></script>
     <script data-src="components/app_404.tag" type="riot/tag"></script>
     <script data-src="components/app_articles.tag" type="riot/tag"></script>
@@ -71,7 +83,13 @@
         if(app.GA_TRACKING_ID.startsWith('$')){
             app.GA_TRACKING_ID=''
         }
+        app.title = "$signomixTitle";
+        if(app.title.startsWith('$')){
+            app.title='Signomix CE'
+        }
+        document.title=app.title;
         <!-- end Google Analytics ID config -->
+        app.serviceUrl = "$serviceurl";
         app.csAPI = "$serviceurl"+"/api/cs";
         app.language = "pl";
         app.languages=['en','pl'];

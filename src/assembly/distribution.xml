@@ -45,6 +45,7 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
+                <include>run-debug.sh</include>
                 <include>readme.txt</include>
             </includes>
         </fileSet>

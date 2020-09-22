@@ -104,7 +104,7 @@
                 e.preventDefault()
                 deleteConditional(
                     {'user':app.user.name}, 
-                    app.alertAPI,  // url
+                    app.alertAPI+'/*',  // url
                     app.user.token,      // token
                     null,        // callback
                     self.listener,       // event listener

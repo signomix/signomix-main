@@ -257,6 +257,9 @@
                 case 7:
                     resp="Free Ext."
                     break
+                case 8:
+                    resp="Superuser"
+                    break
             }
             return resp
         }

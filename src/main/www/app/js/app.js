@@ -15,6 +15,8 @@ var app = {
         "dashboardID": '',
         "dashboards": []
     },
+    "title": "Signomix CE",
+    "serviceUrl": "http://localhost:8080",
     "offline": false,
     "authAPI": "http://localhost:8080/api/auth",
     "alertAPI": "http://localhost:8080/api/alert",

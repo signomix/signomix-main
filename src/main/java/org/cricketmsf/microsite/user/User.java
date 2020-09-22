@@ -48,6 +48,7 @@ public class User {
     public static final int PRIMARY = 5; // primary account
     public static final int READONLY = 6;
     public static final int EXTENDED = 7; // students, scientists, nonprofits
+    public static final int SUPERUSER = 8;
     public static final int SUBSCRIBER = 100;
 
     public static final int IS_REGISTERING = 0;

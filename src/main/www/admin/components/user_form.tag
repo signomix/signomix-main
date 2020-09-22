@@ -292,6 +292,9 @@
                 case 100:
                     return 'SUBSCRIBER'
                     break
+                case 8:
+                    return 'SUPERUSER'
+                    break
                 case 7:
                     return 'EXTENDED'
                     break
@@ -325,6 +328,10 @@
                 case 'SUBSCRIBER':
                 case '100':
                     return '100'
+                    break
+                case 'SUPERUSER':
+                case '8':
+                    return '8'
                     break
                 case 'EXTENDED':
                 case '7':
