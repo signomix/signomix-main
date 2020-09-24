@@ -35,13 +35,16 @@ public class Invariants extends HashMap {
     primaryCollectionLimit:
     primaryDataRetention:
     primaryDevicesLimit:
-    primaryNotifications: 
+    primaryNotifications:
+    superDataRetention:
+    superDevicesLimit:
+    superNotifications: 
     */
 
     public Invariants() {
         super();
 
-        put("release", "ce"); //this parameter is changed by the build script
+        put("release", "{{type}}"); //this parameter is changed by the build script
         String releaseType = null;
         try {
             releaseType = (String) get("release");
@@ -118,6 +121,12 @@ public class Invariants extends HashMap {
             put("primaryDataRetention", 30); 
             put("primaryDevicesLimit", 50); // user devices
             put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+
+            put("superCollectionLimit", 7200);
+            put("superCollectionLimitMonthly", 216000);
+            put("superDataRetention", 365); 
+            put("superDevicesLimit", 50); // user devices
+            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
         } else { // CE type
             put("maxUsers", 0);
             put("maxDevices", 0); // no limit for total number of registered devices
@@ -151,6 +160,12 @@ public class Invariants extends HashMap {
             put("primaryDataRetention", 30); 
             put("primaryDevicesLimit", 50); // user devices
             put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+
+            put("superCollectionLimit", 7200);
+            put("superCollectionLimitMonthly", 216000);
+            put("superDataRetention", 365); 
+            put("superDevicesLimit", 50); // user devices
+            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
         }
     }
 

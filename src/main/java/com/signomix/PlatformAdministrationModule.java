@@ -684,6 +684,9 @@ public class PlatformAdministrationModule {
             case User.EXTENDED:
                 limit = (int)getPlatformConfig().get("extendedDevicesLimit");
                 break;
+            case User.SUPERUSER:
+                limit = (int)getPlatformConfig().get("superDevicesLimit");
+                break;
             case User.OWNER:
             case User.PRIMARY:
                 limit = (int)getPlatformConfig().get("primaryDevicesLimit");
@@ -887,6 +890,8 @@ public class PlatformAdministrationModule {
             long extendedRetention = ONE_DAY * (int) getPlatformConfig().get("extendedDataRetention");
             long standardRetention = ONE_DAY * (int) getPlatformConfig().get("standardDataRetention");
             long primaryRetention = ONE_DAY * (int) getPlatformConfig().get("primaryDataRetention");
+            long superRetention = ONE_DAY * (int) getPlatformConfig().get("superDataRetention");
+            
             Map users = userAdapter.getAll();
             List<Device> devices;
             Iterator it = users.keySet().iterator();
@@ -897,6 +902,7 @@ public class PlatformAdministrationModule {
             long tooOldPointExtended = now - extendedRetention;
             long tooOldPointStandard = now - standardRetention;
             long tooOldPointPrimary = now - primaryRetention;
+            long tooOldPointSuper = now - superRetention;
             while (it.hasNext()) {
                 uid = (String) it.next();
                 if (!demoMode) {
@@ -910,6 +916,9 @@ public class PlatformAdministrationModule {
                             break;
                         case User.EXTENDED:
                             tooOldPoint = tooOldPointExtended;
+                            break;
+                        case User.SUPERUSER:
+                            tooOldPoint = tooOldPointSuper;
                             break;
                         default:
                             tooOldPoint = tooOldPointFree;
@@ -951,6 +960,7 @@ public class PlatformAdministrationModule {
             long limitExtended = (int) getPlatformConfig().get("extendedCollectionLimit");
             long limitStandard = (int) getPlatformConfig().get("standardCollectionLimit");
             long limitPrimary = (int) getPlatformConfig().get("primaryCollectionLimit");
+            long limitSuper = (int) getPlatformConfig().get("superCollectionLimit");
             
             while (it.hasNext()) {
                 uid = (String) it.next();
@@ -965,6 +975,9 @@ public class PlatformAdministrationModule {
                             break;
                         case User.EXTENDED:
                             limit = limitExtended;
+                            break;
+                        case User.SUPERUSER:
+                            limit = limitSuper;
                             break;
                         default:
                             limit = limitFree;

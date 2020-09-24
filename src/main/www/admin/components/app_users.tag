@@ -210,7 +210,7 @@ self.userTypeAsLetter = function(type){
             case 2:
                 return 'A'
                 break
-            case 1:Extended
+            case 1:
                 return 'O'
                 break
             case 0:

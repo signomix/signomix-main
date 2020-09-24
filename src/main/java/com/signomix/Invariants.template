@@ -88,6 +88,12 @@ public class Invariants extends HashMap {
             put("primaryDataRetention", 1); // days
             put("primaryDevicesLimit", 1); // user devices
             put("primaryNotifications", "SMTP");
+
+            put("superCollectionLimit", 144);
+            put("superCollectionLimitMonthly", 4320);
+            put("superDataRetention", 1); // days
+            put("superDevicesLimit", 1); // user devices
+            put("superNotifications", "SMTP");
         } else if ("commercial".equalsIgnoreCase(releaseType)){
             put("maxUsers", 0);
             put("maxDevices", 0); // no limit for total number of registered devices
