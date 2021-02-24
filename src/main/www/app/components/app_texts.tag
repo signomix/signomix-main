@@ -522,6 +522,12 @@
             "fr": "Device info",
             "pl": "Informacje o urządzeniu"
         },
+        "type_openweather": {
+            "en": "OpenWeatherMap",
+            "it": "OpenWeatherMap",
+            "fr": "OpenWeatherMap",
+            "pl": "OpenWeatherMap"
+        },
         "f_remove_question": {
             "en": "Do you want to remove this widget?",
             "it": "Vuoi eliminare questo widget?",
@@ -848,6 +854,18 @@
             "it": "Il simbolo con cui verranno taggati i dati dal dispositivo",
             "fr": "Le symbole avec lequel les données de l'appareil seront étiquetées",
             "pl": "Symbol, którym będą tagowane dane z urządzenia"
+        },
+        "downlink": {
+            "en": "Downlink URL",
+            "it": "Downlink URL",
+            "fr": "Downlink URL",
+            "pl": "Downlink URL"
+        },
+        "downlink_hint": {
+            "en": "URL where commands for this device will be sent",
+            "it": "URL where commands for this device will be sent",
+            "fr": "URL where commands for this device will be sent",
+            "pl": "URL, na który będą wysyłane polecenia dla tego urządzenia"
         },
         "active": {
             "en": "Active",
@@ -1287,10 +1305,10 @@
             "fr": "mon tableau de bord",
             "pl": "moje pulpity"
         },"title": {
-            "en": "NAME",
-            "it": "NOME",
-            "fr": "NOM",
-            "pl": "NAZWA"
+            "en": "TITLE",
+            "it": "TITLE",
+            "fr": "TITLE",
+            "pl": "TYTUŁ"
         },
         "action": {
             "en": "ACTION",

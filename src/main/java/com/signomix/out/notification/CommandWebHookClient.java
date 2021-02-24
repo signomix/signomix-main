@@ -4,6 +4,7 @@
  */
 package com.signomix.out.notification;
 
+import com.signomix.out.iot.Device;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -47,9 +48,29 @@ public class CommandWebHookClient extends OutboundAdapter implements CommandWebH
     }
 
     @Override
-    public boolean send(String deviceEUI, String deviceKey, String payload, boolean hexRepresentation) {
+    public boolean send(Device device, String payload, boolean hexRepresentation) {
+        boolean isGlobalWebhook = false;
+        String deviceEUI = device.getEUI();
+        String url = device.getDownlink();
+        String deviceKey = device.getKey();
+
+        if (null == url || url.isBlank()) {
+            url = endpointUrl;
+
+        }
+
         if (printResponse) {
+            if (isGlobalWebhook) {
+                System.out.println("SENDING TO DEVICE WEBHOOK: " + deviceEUI + " " + url);
+            } else {
+                System.out.println("SENDING TO GLOBAL WEBHOOK: " + deviceEUI + " " + url);
+            }
             System.out.println("REQUEST PAYLOAD:" + payload);
+            System.out.println("HEX: " + hexRepresentation);
+        }
+        if (null == url || url.isBlank()) {
+            return false;
+
         }
         String data;
         if (hexRepresentation) {
@@ -58,13 +79,13 @@ public class CommandWebHookClient extends OutboundAdapter implements CommandWebH
             data = new String(Base64.getDecoder().decode(payload)).trim();
         }
         if (data.startsWith("{")) {
-            return sendJson(data);
+            return sendJson(url, deviceEUI, deviceKey, data);
         } else {
-            return sendForm(data);
+            return sendForm(url, deviceEUI, deviceKey, data);
         }
     }
 
-    private boolean sendForm(String payload) {
+    private boolean sendForm(String downlink, String deviceEUI, String deviceKey, String payload) {
         if (!ready) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "not configured"));
             return false;
@@ -80,8 +101,10 @@ public class CommandWebHookClient extends OutboundAdapter implements CommandWebH
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(ofFormData(data))
-                .uri(URI.create(endpointUrl))
+                .uri(URI.create(downlink))
                 .setHeader("User-Agent", "Signomix CE") // add request header
+                .setHeader("X-device-eui", deviceEUI)
+                .setHeader("Authorization", deviceKey)
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
 
@@ -101,7 +124,7 @@ public class CommandWebHookClient extends OutboundAdapter implements CommandWebH
 
     }
 
-    private boolean sendJson(String json) {
+    private boolean sendJson(String downlink, String deviceEUI, String deviceKey, String json) {
         HttpClient httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .connectTimeout(Duration.ofSeconds(10))
@@ -110,8 +133,10 @@ public class CommandWebHookClient extends OutboundAdapter implements CommandWebH
         // add json header
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(json))
-                .uri(URI.create(endpointUrl))
+                .uri(URI.create(downlink))
                 .setHeader("User-Agent", "Signomix CE") // add request header
+                .setHeader("X-device-eui", deviceEUI)
+                .setHeader("Authorization", deviceKey)
                 .header("Content-Type", "application/json")
                 .build();
 

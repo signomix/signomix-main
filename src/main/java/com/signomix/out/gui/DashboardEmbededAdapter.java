@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.gui;
 
 import com.signomix.event.IotEvent;
@@ -44,7 +44,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         }
         return database;
     }
-    
+
     private IotDatabaseIface getIotDB() {
         return (IotDatabaseIface) Kernel.getInstance().getAdaptersMap().get(helperAdapterName);
     }
@@ -87,15 +87,15 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
             }
             if (original.isShared() && !dashboard.isShared()) {
-                Kernel.getInstance().handle((Event)new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));
+                Kernel.getInstance().handle((Event) new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));
             } else if (dashboard.isShared() && !original.isShared()) {
                 dashboard.setSharedToken(createSharedToken(userID, dashboard.getId(), authAdapter));
-                Kernel.getInstance().handle((Event)new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
-            } else if(dashboard.isShared() && original.isShared()){
+                Kernel.getInstance().handle((Event) new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
+            } else if (dashboard.isShared() && original.isShared()) {
                 dashboard.setSharedToken(original.getSharedToken());
             }
             getIotDB().updateDashboard(dashboard);
-        } catch (ThingsDataException |ClassCastException | NullPointerException ex) {
+        } catch (ThingsDataException | ClassCastException | NullPointerException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
     }
@@ -105,7 +105,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         try {
             Dashboard d = getIotDB().getDashboard(userID, dashboardID);
             getIotDB().removeDashboard(userID, dashboardID);
-            if (d!=null && d.isShared()) {
+            if (d != null && d.isShared()) {
                 Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.DASHBOARD_REMOVED, this, d.getSharedToken()));
             }
         } catch (NullPointerException | ThingsDataException ex) {
@@ -117,6 +117,15 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     public Dashboard getDashboard(String userId, String dashboardID) throws DashboardException {
         try {
             return getIotDB().getDashboard(userId, dashboardID);
+        } catch (ThingsDataException ex) {
+            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
+        }
+    }
+
+    @Override
+    public Dashboard getDashboardByName(String userId, String dashboardName) throws DashboardException {
+        try {
+            return getIotDB().getDashboardByName(userId, dashboardName);
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -154,8 +163,8 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         //TODO: team allowed to use dashboard
         HashMap<String, Dashboard> map = new HashMap();
         List<Dashboard> list = getUserDashboards(userID);
-        for(int i =0;i<list.size();i++){
-            map.put(list.get(i).getId(),list.get(i));
+        for (int i = 0; i < list.size(); i++) {
+            map.put(list.get(i).getId(), list.get(i));
         }
         return map;
     }

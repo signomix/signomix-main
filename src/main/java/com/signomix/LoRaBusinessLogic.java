@@ -6,7 +6,8 @@ package com.signomix;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
-import org.cricketmsf.in.http.HttpAdapter;
+import org.cricketmsf.in.http.HttpPortedAdapter;
+import org.cricketmsf.in.http.ResponseCode;
 import org.cricketmsf.in.http.StandardResult;
 
 /**
@@ -27,9 +28,9 @@ public class LoRaBusinessLogic {
     public Object processLoRaRequest(Event event){
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_CREATED);
+        result.setCode(ResponseCode.CREATED);
         result.setData("OK");
-        System.out.println(HttpAdapter.dumpRequest(request));
+        System.out.println(HttpPortedAdapter.dumpRequest(request));
         return result;
     }
     

@@ -93,11 +93,19 @@ public class TtnData extends HashMap implements Map, IotDataIface {
         Double value = null;
         try {
             value = new Double((Long) getPayloadFields().get(fieldName));
+            return value;
         } catch (Exception e) {
         }
         try {
             value = (Double) getPayloadFields().get(fieldName);
+            return value;
         } catch (Exception e) {
+        }
+        try{
+            // when the field is received as String
+            value=Double.parseDouble((String)getPayloadFields().get(fieldName));
+            return value;
+        }catch(Exception e){
         }
         return value;
     }

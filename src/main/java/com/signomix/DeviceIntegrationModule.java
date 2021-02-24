@@ -12,7 +12,6 @@ import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData;
 import com.signomix.iot.generic.IotData2;
 import com.signomix.event.IotEvent;
-import com.signomix.iot.IotDataIface;
 import com.signomix.iot.lora.LoRaData;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -30,21 +29,22 @@ import com.signomix.out.script.ScriptingAdapterIface;
 import com.signomix.util.HexTool;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class DeviceIntegrationModule {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DeviceIntegrationModule.class);
 
     private static DeviceIntegrationModule logic;
 
@@ -371,8 +371,7 @@ public class DeviceIntegrationModule {
         }
         return result;
     }
-    */
-
+     */
     /**
      *
      */
@@ -620,9 +619,9 @@ public class DeviceIntegrationModule {
         StandardResult result = new StandardResult();
         result.setCode(HttpAdapter.SC_CREATED);
         result.setData("OK");
-        boolean htmlClient = false; 
+        boolean htmlClient = false;
         String clientAppTitle = data.getClientName();
-        if (null!=clientAppTitle && !clientAppTitle.isEmpty()) {
+        if (null != clientAppTitle && !clientAppTitle.isEmpty()) {
             result.setHeader("Content-type", "text/html");
             htmlClient = true;
         }
@@ -638,7 +637,7 @@ public class DeviceIntegrationModule {
         } catch (ThingsDataException ex) {
             Logger.getLogger(DeviceIntegrationModule.class.getName()).log(Level.SEVERE, null, ex);
         }
-        ArrayList<ChannelData> inputList = decodePayload(iotData,scriptingAdapter, clientAppTitle, clientAppTitle, clientAppTitle);
+        ArrayList<ChannelData> inputList = decodePayload(iotData, scriptingAdapter, clientAppTitle, clientAppTitle, clientAppTitle);
         ArrayList<ArrayList> outputList;
         String dataString = data.getSerializedData();
         try {
@@ -972,11 +971,11 @@ public class DeviceIntegrationModule {
         return values;
     }
 
-    private ArrayList<ChannelData> decodePayload(IotData2 data,ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
-        if (!data.getDataList().isEmpty()){
+    private ArrayList<ChannelData> decodePayload(IotData2 data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
+        if (!data.getDataList().isEmpty()) {
             return data.getDataList();
         }
-        ArrayList<ChannelData>values = new ArrayList<>();
+        ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
             if (null != data.getPayload()) {
                 byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
@@ -1022,7 +1021,10 @@ public class DeviceIntegrationModule {
     public void writeVirtualData(ThingsDataIface thingsAdapter, ScriptingAdapterIface scriptingAdapter, Device device, ArrayList<ChannelData> values) {
         try {
             long now = System.currentTimeMillis();
-            thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
+            if (!device.getEUI().equalsIgnoreCase((String) Kernel.getInstance().getProperties().get("monitoring_device"))) {
+                logger.debug("virtual data to {} {}",device.getEUI(),(String) Kernel.getInstance().getProperties().get("monitoring_device"));
+                thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
+            }
             ArrayList<ArrayList> outputList;
             try {
                 Object[] processingResult = DataProcessor.processValues(values, device, scriptingAdapter,
@@ -1123,7 +1125,7 @@ public class DeviceIntegrationModule {
         data.normalize();
         return data;
     }
-*/
+     */
     private void fireEvent(int source, Device device, String message) {
         fireEvent(source, device.getUserID(), device.getEUI(), message);
     }

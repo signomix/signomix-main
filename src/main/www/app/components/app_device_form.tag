@@ -133,6 +133,11 @@
                     <form_input id="longitude" name="longitude" label={ app.texts.device_form.longitude[app.language] } type="text" content={ device.longitude } readonly={ !allowEdit } hint={ app.texts.device_form.longitude_hint[app.language] }></form_input>
                 </div>
             </div>
+            <div class="form-row" if="{isVisible('downlink')}">
+                <div class="form-group col-md-12">
+                    <form_input id="downlink" name="downlink" label={ app.texts.device_form.downlink[app.language] } type="text" content={ device.downlink } readonly={ !allowEdit } hint={ app.texts.device_form.downlink_hint[app.language] }></form_input>
+                </div>
+            </div>
             <div class="form-row" if="{isVisible('active')}">  
                 <div class="form-group form-check">
                     <input type="checkbox" class="form-check-input" id="active" value={device.active} readonly={ !allowEdit } checked="{device.active}">
@@ -205,7 +210,8 @@
             'state': 0,
             'latitude': '',
             'longitude': '',
-            'project':''
+            'project':'',
+            'downlink':''
         }
         self.accepted = 0
 
@@ -265,7 +271,7 @@
                 app.log('UNKNOWN TARGET OF: ' + e)
             }
             if('EXTERNAL'==self.device.type){
-                self.template['pattern']=",type,eui,name,key,description,team,active,groups,"
+                self.template['pattern']=",type,eui,name,key,description,team,active,groups,downlink"
             }
         }
         
@@ -302,9 +308,9 @@
 
         getStatus(lastSeen, interval) {
             if (self.now - lastSeen > interval) {
-                return '/images/KO.svg'
+                return 'images/KO.svg'
             } else {
-                return '/images/OK.svg'
+                return 'images/OK.svg'
             }
         }
 
@@ -361,6 +367,7 @@
             self.device.template=self.template.eui
             self.device.active='true'
             self.device.project=''
+            self.device.downlink=''
             self.device.applicationEUI = ''
             self.device.applicationID=''
             self.device.state=''
@@ -400,7 +407,8 @@
                 active: '',
                 state:'',
                 latitude:'',
-                longitude:''
+                longitude:'',
+                downlink:''
             }
             if(e.target.elements['eui']) formData.eui = e.target.elements['eui'].value
             if (self.device.type == 'TTN') {
@@ -495,6 +503,11 @@
                 formData.longitude = e.target.elements['longitude'].value
             }else{
                 formData.longitude = self.device.longitude
+            }
+            if(e.target.elements['downlink']) {
+                formData.downlink = e.target.elements['downlink'].value
+            }else{
+                formData.downlink = self.device.downlink
             }
             app.log(JSON.stringify(formData))
             sendData(

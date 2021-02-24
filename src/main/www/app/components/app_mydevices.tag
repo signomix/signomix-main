@@ -24,7 +24,7 @@
                     <a class="nav-link { active: activeTab=='groups' }" onclick="{ selectGroups() }">{app.texts.mydevices.tab_groups[app.language]}</a>
                 </li>
             </ul>
-            <table id="devices" class="table table-condensed" if="{activeTab=='devices'}">
+            <table id="devices" class="table table-condensed table-striped" if="{activeTab=='devices'}">
                 <thead>
                     <tr>
                         <th>{app.texts.mydevices.header_eui[app.language]}</th>
@@ -49,7 +49,7 @@
                     </tr>
                 </tbody>
             </table>
-            <table id="devices" class="table table-condensed" if="{activeTab=='groups'}">
+            <table id="devices" class="table table-condensed table-striped" if="{activeTab=='groups'}">
                 <thead>
                     <tr>
                         <th>{app.texts.mydevices.header_eui[app.language]}</th>
@@ -201,9 +201,9 @@
         
         getStatus(lastSeen, interval){
             if(self.now-lastSeen>interval){
-                return '/images/KO.svg'
+                return 'images/KO.svg'
             }else{
-                return '/images/OK.svg'
+                return 'images/OK.svg'
             }
         }
         
@@ -376,8 +376,18 @@
         }
 
         var updateMyDevices = function (text) {
-            app.log("ACCOUNT: " + text)
             self.myDevices = JSON.parse(text);
+            self.myDevices.sort((a,b)=>{
+                let fa = a.name.toLowerCase(),
+                fb = b.name.toLowerCase();
+                if (fa < fb) {
+                    return -1;
+                }
+                if (fa > fb) {
+                    return 1;
+                }
+                return 0;
+            })
             riot.update();
         }
 

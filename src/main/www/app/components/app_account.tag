@@ -258,7 +258,7 @@
                     resp="Free Ext."
                     break
                 case 8:
-                    resp="Superuser"
+                    resp="Special"
                     break
             }
             return resp

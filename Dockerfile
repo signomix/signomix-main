@@ -8,24 +8,22 @@
 # 1.2.4 parameter will be replaced automatically with the actual project version configured in build.xml
 #
 
-// THIS DOCKERFILE IS OUTDATED
-
-FROM azul/zulu-openjdk-alpine:13.0.1
+FROM azul/zulu-openjdk-alpine:13
 
 WORKDIR /usr/signomix
-RUN mkdir /usr/signomix/data
-RUN mkdir /usr/signomix/log
+RUN mkdir /usr/signomix/dbdata
+RUN mkdir /usr/signomix/dbdata/db
+RUN mkdir /usr/signomix/dbdata/logs
+RUN mkdir /usr/signomix/dbdata/files
+RUN mkdir /usr/signomix/dbdata/assets
+RUN mkdir /usr/signomix/dbdata/backup
+#VOLUME /usr/signomix/dbdata
 
-#VOLUME /usr/signomix/data
-#VOLUME /usr/signomix/www
-#VOLUME /usr/signomix/config
-VOLUME /dbdata
+COPY target/signomix-ce.jar /usr/signomix/
+COPY src/main/resources/settings.json /usr/signomix/config/
+COPY src/main/resources/device-script-template.js /usr/signomix/config/
+COPY src/main/resources/payload-decoder-envelope.js /usr/signomix/config/
+COPY src/main/www /usr/signomix/www
 
-COPY dist/data/cricket_publickeystore.jks /usr/signomix/data
-COPY dist/signomix-ce-1.2.4.jar /usr/signomix/
-COPY dist/config/cricket.json /usr/signomix/config/
-COPY src/js/device-script-template.js /usr/signomix/config/
-COPY src/js/payload-decoder-envelope.js /usr/signomix/config/
-COPY www /usr/signomix/www
-
-CMD ["java", "-Xms50m", "-Xmx100m", "-jar", "signomix-ce-1.2.4.jar", "-r", "-c", "config/cricket.json"]
+#CMD ["java", "-Xms100m",  "-Xmx1g", "--illegal-access=deny", "-cp", "signomix.jar:jboss-client.jar:javax.activation-1.2.0.jar:jaxb-api-2.4.0.jar:jaxb-core-2.3.0.1.jar:jaxb-impl-2.4.0.jar", "org.cricketmsf.Runner", "-r", "-c", "config/settings.json"]
+CMD ["java", "-Xms100m",  "-Xmx1g", "-jar", "./signomix-ce.jar", "-r", "-c", "config/settings.json"]

@@ -71,10 +71,12 @@ public class DeviceManagementModule {
                                     new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.DEVICE_REGISTERED, null, device.getEUI())
                             );
                         } catch (NullPointerException ex) {
+                            ex.printStackTrace();
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                             result.setData("wrong parameters");
                         } catch (ThingsDataException ex) {
+                            ex.printStackTrace();
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                             result.setData(ex.getMessage());
@@ -464,6 +466,10 @@ public class DeviceManagementModule {
         String newGroup = (String) request.parameters.getOrDefault("groups", "");
         if (newGroup != null && !newGroup.isEmpty()) {
             device.setGroups(newGroup);
+        }
+        String newDownlink = (String) request.parameters.getOrDefault("downlink", "");
+        if (newDownlink != null && !newDownlink.isEmpty()) {
+            device.setDownlink(newDownlink);
         }
         if (original != null) {
             original.getChannels().forEach((k, v) -> {

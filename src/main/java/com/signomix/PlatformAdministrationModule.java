@@ -684,12 +684,12 @@ public class PlatformAdministrationModule {
             case User.EXTENDED:
                 limit = (int)getPlatformConfig().get("extendedDevicesLimit");
                 break;
-            case User.SUPERUSER:
-                limit = (int)getPlatformConfig().get("superDevicesLimit");
-                break;
             case User.OWNER:
             case User.PRIMARY:
                 limit = (int)getPlatformConfig().get("primaryDevicesLimit");
+                break;
+            case User.SUPERUSER:
+                limit = (int)getPlatformConfig().get("superDevicesLimit");
                 break;
             case User.READONLY:
                 limit = 0;
@@ -811,6 +811,9 @@ public class PlatformAdministrationModule {
             case "EXTENDED":
                 userTypeToRemove = User.EXTENDED;
                 break;
+            case "SUPERUSER":
+                userTypeToRemove = User.SUPERUSER;
+                break;
             case "APPLICATION":
                 userTypeToRemove = User.APPLICATION;
                 break;
@@ -890,8 +893,7 @@ public class PlatformAdministrationModule {
             long extendedRetention = ONE_DAY * (int) getPlatformConfig().get("extendedDataRetention");
             long standardRetention = ONE_DAY * (int) getPlatformConfig().get("standardDataRetention");
             long primaryRetention = ONE_DAY * (int) getPlatformConfig().get("primaryDataRetention");
-            long superRetention = ONE_DAY * (int) getPlatformConfig().get("superDataRetention");
-            
+            long superuserRetention = ONE_DAY * (int) getPlatformConfig().get("superDataRetention");
             Map users = userAdapter.getAll();
             List<Device> devices;
             Iterator it = users.keySet().iterator();
@@ -902,7 +904,7 @@ public class PlatformAdministrationModule {
             long tooOldPointExtended = now - extendedRetention;
             long tooOldPointStandard = now - standardRetention;
             long tooOldPointPrimary = now - primaryRetention;
-            long tooOldPointSuper = now - superRetention;
+            long tooOldPointSuperuser = now - superuserRetention;
             while (it.hasNext()) {
                 uid = (String) it.next();
                 if (!demoMode) {
@@ -918,7 +920,7 @@ public class PlatformAdministrationModule {
                             tooOldPoint = tooOldPointExtended;
                             break;
                         case User.SUPERUSER:
-                            tooOldPoint = tooOldPointSuper;
+                            tooOldPoint = tooOldPointSuperuser;
                             break;
                         default:
                             tooOldPoint = tooOldPointFree;
@@ -960,7 +962,7 @@ public class PlatformAdministrationModule {
             long limitExtended = (int) getPlatformConfig().get("extendedCollectionLimit");
             long limitStandard = (int) getPlatformConfig().get("standardCollectionLimit");
             long limitPrimary = (int) getPlatformConfig().get("primaryCollectionLimit");
-            long limitSuper = (int) getPlatformConfig().get("superCollectionLimit");
+            long limitSuperuser = (int) getPlatformConfig().get("superCollectionLimit");
             
             while (it.hasNext()) {
                 uid = (String) it.next();
@@ -977,7 +979,7 @@ public class PlatformAdministrationModule {
                             limit = limitExtended;
                             break;
                         case User.SUPERUSER:
-                            limit = limitSuper;
+                            limit = limitSuperuser;
                             break;
                         default:
                             limit = limitFree;

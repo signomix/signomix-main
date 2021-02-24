@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.db;
 
 import com.signomix.out.gui.Dashboard;
@@ -34,7 +34,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
             Device d;
             while (itr.hasNext()) {
                 d = (Device) itr.next();
-                if (d.getUserID().equals(userID) || d.getTeam().contains(","+userID+",")) {
+                if (d.getUserID().equals(userID) || d.getTeam().contains("," + userID + ",")) {
                     list.add(d);
                 }
             }
@@ -47,7 +47,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     @Override
     public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException {
         Device device = getDevice(deviceEUI);
-        if (device != null && !(device.getUserID().equals(userID) || device.getTeam().contains(","+userID+","))) {
+        if (device != null && !(device.getUserID().equals(userID) || device.getTeam().contains("," + userID + ","))) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return device;
@@ -57,7 +57,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     public void putDevice(Device device) throws ThingsDataException {
         try {
             if (containsKey("devices", device.getEUI())) {
-                throw new ThingsDataException(ThingsDataException.CONFLICT, "device "+device.getEUI()+"is already defined");
+                throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + "is already defined");
             }
             device.setEUI(device.getEUI());
             put("devices", device.getEUI(), device);
@@ -129,13 +129,13 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     public List getAlerts(String userID, boolean descending) throws ThingsDataException {
         try {
             List l = search("alerts", new AlertOwnerComparator(), userID);
-            if(descending){
+            if (descending) {
                 ArrayList l2 = new ArrayList();
-                for(int i=l.size()-1;i>=0;i--){
+                for (int i = l.size() - 1; i >= 0; i--) {
                     l2.add(l.get(i));
                 }
                 return l2;
-            }else{
+            } else {
                 return l;
             }
         } catch (KeyValueDBException ex) {
@@ -154,7 +154,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeAlerts(String userID) throws ThingsDataException {
-        List<Event> l = getAlerts(userID,false);
+        List<Event> l = getAlerts(userID, false);
         try {
             for (int i = 0; i < l.size(); i++) {
                 remove("alerts", "" + l.get(i).getId());
@@ -166,7 +166,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeAlerts(String userID, long checkpoint) throws ThingsDataException {
-        List<Event> alerts = getAlerts(userID,false);
+        List<Event> alerts = getAlerts(userID, false);
         for (int i = 0; i < alerts.size(); i++) {
             if (alerts.get(i).getCreatedAt() < checkpoint) {
                 removeAlert(alerts.get(i).getId());
@@ -200,7 +200,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeAllDevices(String userID) throws ThingsDataException {
-        List devices = getUserDevices(userID,false);
+        List devices = getUserDevices(userID, false);
         Device d;
         for (int i = 0; i < devices.size(); i++) {
             d = (Device) devices.get(i);
@@ -301,6 +301,11 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
+    public Dashboard getDashboardByName(String userID, String dashboardName) throws ThingsDataException {
+        throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, "not implemented");
+    }
+
+    @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
         try {
             put("dashboards", dashboard.getId(), dashboard);
@@ -326,8 +331,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
         }
     }
-    */
-
+     */
     @Override
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

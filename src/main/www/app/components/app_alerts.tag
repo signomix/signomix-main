@@ -5,7 +5,7 @@
                 <i class="material-icons clickable" onclick={ refresh() }>refresh</i>&nbsp;
                 <i class="material-icons clickable" data-toggle="modal" data-target="#myModal">delete</i>
             </h2>
-            <table id="alertlist" class="table table-condensed">
+            <table id="alertlist" class="table table-condensed table-striped">
                 <tr>
                     <th>{ app.texts.alerts.type[app.language] }</th>
                     <th>{ app.texts.alerts.message[app.language] }</th>

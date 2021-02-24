@@ -15,15 +15,17 @@
             <excludes>
             </excludes>
         </fileSet>
-        <fileSet>
-            <directory>${basedir}/src/main/webapp/blog/public</directory>
-            <outputDirectory>www/blog</outputDirectory>
-            <includes>
-                <include>*/**</include>
-            </includes>
-            <excludes>
-            </excludes>
-        </fileSet>
+        <!--
+<fileSet>
+    <directory>${basedir}/src/main/webapp/blog/public</directory>
+    <outputDirectory>www/blog</outputDirectory>
+    <includes>
+        <include>*/**</include>
+    </includes>
+    <excludes>
+    </excludes>
+</fileSet>
+        -->
         <fileSet>
             <directory>${basedir}/src/main/www</directory>
             <outputDirectory>www</outputDirectory>

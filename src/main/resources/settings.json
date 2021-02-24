@@ -10,8 +10,6 @@
                 "host": "0.0.0.0",
                 "port": "8080",
                 "ssl": "false",
-                "keystore": "",
-                "keystore-password": "",
                 "threads": 0,
                 "shutdown-delay": "2",
                 "filter": "org.cricketmsf.microsite.auth.SecurityFilter",
@@ -19,19 +17,17 @@
                 "time-zone": "GMT",
                 "default-language": "en",
                 "user-confirm": "true",
-                "initial-admin-email": "admi@host",
-                "initial-admin-secret": "test123",
+                "initial-admin-email": "$SIGNOMIX_INITIAL_ADMIN_EMAIL",
+                "initial-admin-secret": "$SIGNOMIX_INITIAL_ADMIN_SECRET",
                 "admin-notification-email": "",
-                "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator",
+                "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator *@/api/mailing",
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
                 "backup-folder": "./data/backup",
-                "backup-strategy": "day",
-                "serviceurl": "http://localhost:8080",
-                "SRVC_NAME_ENV_VARIABLE": "SIGNOMIX_ENVIRONMENT_NAME",
-                "SRVC_URL_ENV_VARIABLE": "SIGNOMIX_URL",
-                "ga-tracking-id": "",
-                "servicetitle": "Signomix CE",
+                "backup-strategy": "daily",
+                "serviceurl": "$SIGNOMIX_URL",
+                "servicetitle": "$SIGNOMIX_TITLE",
+                "ga-tracking-id": "$GATRACKINGID",
                 "monitoring_device": "signomix_int_monitor"
             },
             "ports": [
@@ -41,6 +37,16 @@
                     "classFullName": "org.cricketmsf.in.http.StandardHttpAdapter",
                     "properties": {
                         "context": "/gt",
+                        "dump-request": "true",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "echo",
+                    "interfaceName": "EchoHttpAdapterIface",
+                    "classFullName": "org.cricketmsf.in.http.EchoHttpAdapter",
+                    "properties": {
+                        "context": "/api/echo",
                         "dump-request": "true",
                         "silent-mode": "false"
                     }
@@ -151,7 +157,18 @@
                     "classFullName": "com.signomix.in.http.IotApi",
                     "properties": {
                         "context": "/api/i4t",
-                        "authorization-required":"true",
+                        "authorization-required": "true",
+                        "silent-mode": "false",
+                        "dump-request": "true"
+                    }
+                },
+                {
+                    "name": "RawIntegrationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.IntegrationApi",
+                    "properties": {
+                        "context": "/api/raw",
+                        "header-name": "HTTP_SENSOR",
                         "silent-mode": "false",
                         "dump-request": "true"
                     }
@@ -306,7 +323,7 @@
                         "name": "iot",
                         "file": "iot",
                         "test-query": "select * from serviceversion",
-                        "version": "8",
+                        "version": "9",
                         "user": "sa",
                         "password": "",
                         "time-offset": "7200"
@@ -324,7 +341,7 @@
                         "version": "3",
                         "user": "sa",
                         "password": "",
-                        "requestLimit": "200"
+                        "requestLimit": "250"
                     }
                 },
                 {
@@ -453,7 +470,8 @@
                         "file-path": "./files/",
                         "file-path-published": "./www/assets/",
                         "index-file": "index.html",
-                        "default-language": "en"
+                        "default-language": "en",
+                        "pwa-prefix": "pwa/"
                     }
                 },
                 {
@@ -507,11 +525,11 @@
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SmtpNotificator",
                     "properties": {
-                        "from": "name@host",
-                        "mailhost": "",
+                        "from": "$SIGNOMIX_SMTP_FROM",
+                        "mailhost": "$SIGNOMIX_SMTP_HOST",
                         "localhost": "",
-                        "user": "name@host",
-                        "password": "mypassword",
+                        "user": "$SIGNOMIX_SMTP_USER",
+                        "password": "$SIGNOMIX_SMTP_PASSWORD",
                         "debug-session": "false"
                     }
                 },
@@ -521,7 +539,7 @@
                     "classFullName": "com.signomix.out.notification.PushoverNotificator",
                     "properties": {
                         "url": "https://api.pushover.net/1/messages.json",
-                        "token": "pushovertoken",
+                        "token": "$SIGNOMIX_PUSHOVER_TOKEN",
                         "ignore-certificate-check": "true"
                     }
                 },
@@ -531,7 +549,16 @@
                     "classFullName": "com.signomix.out.notification.TelegramNotificator",
                     "properties": {
                         "url": "https://api.telegram.org/",
-                        "token": "935476658:AAH7lNOEiGCPAXuKbSd103Xo-LVtM-UH3mw",
+                        "token": "$SIGNOMIX_TELEGRAM_TOKEN",
+                        "token-2": "935476658:AAH7lNOEiGCPAXuKbSd103Xo-LVtM-UH3mw",
+                        "ignore-certificate-check": "true"
+                    }
+                },
+                {
+                    "name": "discordNotification",
+                    "interfaceName": "NotificationIface",
+                    "classFullName": "com.signomix.out.notification.DiscordNotificator",
+                    "properties": {
                         "ignore-certificate-check": "true"
                     }
                 },
@@ -558,8 +585,8 @@
                     "classFullName": "com.signomix.out.notification.ServerSmsNotificator",
                     "properties": {
                         "url": "https://api2.serwersms.pl/messages/send_sms",
-                        "login":"webapi_experiottest",
-                        "password":"haslotest",
+                        "login": "$SIGNOMIX_SMS_LOGIN",
+                        "password": "$SIGNOMIX_SMS_PASSWORD",
                         "ignore-certificate-check": "true"
                     }
                 },
@@ -568,12 +595,12 @@
                     "interfaceName": "EmailSenderIface",
                     "classFullName": "com.signomix.out.notification.SmtpSender",
                     "properties": {
-                        "from": "",
-                        "mailhost": "",
+                        "from": "$SIGNOMIX_EMAIL_FROM",
+                        "mailhost": "$SIGNOMIX_EMAIL_HOST",
                         "localhost": "",
-                        "user": "",
-                        "password": "",
-                        "startttls":"false",
+                        "user": "$SIGNOMIX_EMAIL_USER",
+                        "password": "$SIGNOMIX_EMAIL_PASSWORD",
+                        "startttls": "false",
                         "debug-session": "false"
                     }
                 },
@@ -603,12 +630,30 @@
                     }
                 },
                 {
+                    "name": "MailingServiceApi",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.MailingApi",
+                    "properties": {
+                        "context": "/api/mailing",
+                        "authorized": "admin",
+                        "silent-mode": "false"
+                    }
+                },
+                {
+                    "name": "MailingService",
+                    "interfaceName": "MailingIface",
+                    "classFullName": "com.signomix.out.mailing.MailingAdapter",
+                    "properties": {
+                        "reports-path": "/reports"
+                    }
+                },
+                {
                     "name": "CommandWebHook",
                     "interfaceName": "CommandWebHookIface",
                     "classFullName": "com.signomix.out.notification.CommandWebHookClient",
                     "properties": {
-                        "url":"http://httpbin.org/post",
-                        "print-response":"true"
+                        "url": "http://httpbin.org/post",
+                        "print-response": "true"
                     }
                 },
                 {

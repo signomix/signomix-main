@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix.out.notification;
 
 import java.io.UnsupportedEncodingException;
@@ -30,6 +30,10 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
         super.loadProperties(properties, adapterName);
         //url = properties.getOrDefault("url", "");  //https://api.pushover.net/1/messages.json
         token = properties.getOrDefault("token", ""); // application token
+        if (token.startsWith("$")) {
+            token = System.getenv(token.substring(1));
+        }
+
         if (endpointURL.isEmpty() || token.isEmpty()) {
             ready = false;
         } else {
@@ -43,13 +47,13 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
     public String send(String userID, String recipient, String nodeName, String message) {
         return send(recipient, nodeName, message);
     }
-    
+
     public String send(String recipient, String nodeName, String message) {
-        if(!ready){
+        if (!ready) {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "not configured"));
             return "ERROR: not configured";
         }
-                
+
         StandardResult result = new StandardResult();
         Request r = new Request();
         r.properties.put("Content-Type", "application/x-www-form-urlencoded");
@@ -58,16 +62,16 @@ public class PushoverNotificator extends OutboundHttpAdapter implements Notifica
             StringBuilder sb = new StringBuilder();
             sb.append("token=").append(token).append("&");
             sb.append("user=").append(recipient).append("&");
-            sb.append("message=").append(URLEncoder.encode(nodeName+": "+message, "UTF-8"));
+            sb.append("message=").append(URLEncoder.encode(nodeName + ": " + message, "UTF-8"));
             r.setData(sb.toString());
             result = (StandardResult) send(r, false);
-        } catch (AdapterException|UnsupportedEncodingException e) {
+        } catch (AdapterException | UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         if (result.getCode() == 200) {
             return new String(result.getPayload());
         } else {
-            return "ERROR: "+result.getCode()+" "+result.getPayload();
+            return "ERROR: " + result.getCode() + " " + result.getPayload();
         }
     }
 

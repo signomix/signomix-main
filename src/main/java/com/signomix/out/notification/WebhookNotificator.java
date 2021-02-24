@@ -4,6 +4,7 @@
  */
 package com.signomix.out.notification;
 
+import com.cedarsoftware.util.io.JsonWriter;
 import java.util.HashMap;
 import java.util.Map;
 import org.cricketmsf.Adapter;
@@ -28,14 +29,18 @@ public class WebhookNotificator extends HttpClient implements NotificationIface,
 
     @Override
     public String send(String webhookUrl, String deviceEUI, String jsonObject) {
-        String data = jsonObject.trim();
-        data = "{" + "\"eui\":\"" + deviceEUI + "\"," + jsonObject.substring(1);
-        Result r=null;
+        Map args = new HashMap();
+        args.put(JsonWriter.TYPE, false);
+        HashMap<String, String> data = new HashMap<>();
+        data.put("eui", deviceEUI);
+        data.put("message", jsonObject.trim());
+        String json = JsonWriter.objectToJson(data, args);
+        Result r = null;
         Request request = new Request()
                 .setMethod("POST")
                 .setUrl(webhookUrl)
                 .setProperty("Content-type", "application/json")
-                .setData(data);
+                .setData(json);
         try {
             r = send(request);
         } catch (AdapterException ex) {

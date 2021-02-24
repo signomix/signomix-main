@@ -5,6 +5,7 @@
 package com.signomix;
 
 import com.signomix.event.IotEvent;
+import com.signomix.in.http.AlertApi2;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ChannelData;
@@ -23,12 +24,15 @@ import org.cricketmsf.microsite.out.auth.AuthException;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class IotEventHandler {
+    private static final Logger logger = LoggerFactory.getLogger(IotEventHandler.class);
 
     public static void handleEvent(
             Kernel kernel,
@@ -41,6 +45,7 @@ public class IotEventHandler {
             NotificationIface pushoverNotification,
             NotificationIface slackNotification,
             NotificationIface telegramNotification,
+            NotificationIface discordNotification,
             NotificationIface webhookNotification,
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
@@ -73,6 +78,7 @@ public class IotEventHandler {
                         user = userAdapter.get(origin[0]);
                         if (user == null) {
                             //TODO: this shouldn't happen - log error?
+                            logger.warn("user is null");
                             break;
                         }
                         String nodeName = origin[1];
@@ -86,11 +92,20 @@ public class IotEventHandler {
                             // DeviceManagementModule.checkStatus()
                         }
                         String[] channelConfig = user.getChannelConfig(event.getType());
-                        if (!(channelConfig != null && channelConfig.length == 2)) {
+                        if (channelConfig == null || channelConfig.length < 2) {
                             break; // OK its normal behaviour
                         }
                         String messageChannel = channelConfig[0];
-                        String address = channelConfig[1];
+                        String address;
+                        if(channelConfig.length==2){
+                            address= channelConfig[1];
+                        }else{
+                            address="";
+                            for(int i=1; i<channelConfig.length-1; i++){
+                                address=address+channelConfig[i]+":";
+                            }
+                            address=address+channelConfig[channelConfig.length-1];
+                        }
                         String message = (String) event.getPayload();
                         String response = "";
                         switch (messageChannel.toUpperCase()) {
@@ -114,6 +129,9 @@ public class IotEventHandler {
                             case "TELEGRAM":
                                 response = telegramNotification.send(address, nodeName, message);
                                 break;
+                            case "DISCORD":
+                                response = discordNotification.send(address, nodeName, message);
+                                break;
                             case "WEBHOOK":
                                 response = webhookNotification.send(address, nodeName, message);
                                 break;
@@ -121,7 +139,7 @@ public class IotEventHandler {
                                 Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
                         }
                         if (response.startsWith("ERROR")) {
-                            Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), response));
+                            logger.warn(response);
                         }
                     } catch (UserException ex) {
                         Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
@@ -240,7 +258,7 @@ public class IotEventHandler {
                         } catch (ThingsDataException ex) {
                         }
                         if (null != d) {
-                            event.setOrigin(eui);
+                            event.setOrigin("@"+eui); //source@target
                             ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
                         }
                     }

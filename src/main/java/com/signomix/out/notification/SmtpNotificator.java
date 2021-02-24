@@ -56,6 +56,20 @@ public class SmtpNotificator extends OutboundAdapter implements NotificationIfac
         debugSession = properties.getOrDefault("debug-session", "false");
         startTls = properties.getOrDefault("starttls", "false");
         usingTls = Boolean.getBoolean(startTls);
+        
+        if(from.startsWith("$")){
+            from=System.getenv(from.substring(1));
+        }
+        if(mailhost.startsWith("$")){
+            mailhost=System.getenv(mailhost.substring(1));
+        }
+        if(user.startsWith("$")){
+            user=System.getenv(user.substring(1));
+        }
+        if(password.startsWith("$")){
+            password=System.getenv(password.substring(1));
+        }
+
         if (from.isEmpty() || mailhost.isEmpty() || user.isEmpty() || password.isEmpty()) {
             ready = false;
         }

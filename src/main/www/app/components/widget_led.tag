@@ -52,13 +52,13 @@
         getLedImgUrl(level){
             switch(level){
                 case 0:
-                    return '/images/led-green.svg'
+                    return 'images/led-green.svg'
                 case 1:
-                    return '/images/led-yellow.svg'
+                    return 'images/led-yellow.svg'
                 case 2:
-                    return '/images/led-red.svg'
+                    return 'images/led-red.svg'
                 default:
-                    return '/images/KO.svg'
+                    return 'images/KO.svg'
             }
         }
 

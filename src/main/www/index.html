@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
+    <head>
     <!-- start Google Analytics -->
         <script type="text/javascript">
             var gtsrc = "https://www.googletagmanager.com/gtag/js?id=$gaTrackingID";
@@ -17,31 +17,31 @@
         <script>
             //console.log('gtsrc:'+gtsrc);
             if(gtsrc.indexOf('$')==-1){
-                window.dataLayer = window.dataLayer || [];
-                function gtag() {
-                    dataLayer.push(arguments);
-                }
-                gtag('js', new Date());
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
                 gtag('config', '$gaTrackingID', {'anonymize_ip': true});
             }
         </script>
         <!-- end Google Analytics -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Signomix</title>
-    <link rel="icon" href="resources/signomix-icon.png">
-    <!-- Bootstrap core CSS  -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Signomix</title>
+        <link rel="icon" href="resources/signomix-icon.png">
+        <!-- Bootstrap core CSS  -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Custom styles for this template -->
+        <!-- Custom styles for this template -->
     <link href="/resources/local.css" rel="stylesheet">
     <link href="/resources/flag-icon.css" rel="stylesheet">
-  </head>
-  <body>
+    </head>
+    <body>
     <app_texts></app_texts>
-    <app_header></app_header>  
+    <app_header></app_header>
     <app_messagebox></app_messagebox>
     <app_mainarticle></app_mainarticle>
     <app_partnerbox></app_partnerbox>
@@ -61,20 +61,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script src="/js/holder.min.js"></script>
+    <script src="js/holder.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/riot-route@3.1.4/dist/route.min.js"></script>
-    <script src="/js/routing.js"></script>
-    <script src="/js/app.js"></script>
-    <script src="/js/data-api.js"></script>
-    <script data-src="/components/app_texts.tag" type="riot/tag"></script>    
-    <script data-src="/tags/cs_article.tag" type="riot/tag"></script>
-    <script data-src="/components/app_header.tag" type="riot/tag"></script>
-    <script data-src="/components/app_messagebox.tag" type="riot/tag"></script>
-    <script data-src="/components/app_partnerbox.tag" type="riot/tag"></script>
-    <script data-src="/components/app_mainarticle.tag" type="riot/tag"></script>
-    <script data-src="/components/app_case.tag" type="riot/tag"></script>
-    <script data-src="/components/app_footer.tag" type="riot/tag"></script>
+    <script src="js/routing.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/data-api.js"></script>
+    <script data-src="components/app_texts.tag" type="riot/tag"></script>    
+    <script data-src="tags/cs_article.tag" type="riot/tag"></script>
+    <script data-src="components/app_header.tag" type="riot/tag"></script>
+    <script data-src="components/app_messagebox.tag" type="riot/tag"></script>
+    <script data-src="components/app_partnerbox.tag" type="riot/tag"></script>
+    <script data-src="components/app_mainarticle.tag" type="riot/tag"></script>
+    <script data-src="components/app_case.tag" type="riot/tag"></script>
+    <script data-src="components/app_footer.tag" type="riot/tag"></script>
     <script data-src="components/app_404.tag" type="riot/tag"></script>
     <script data-src="components/app_articles.tag" type="riot/tag"></script>
     <script>
@@ -83,13 +83,7 @@
         if(app.GA_TRACKING_ID.startsWith('$')){
             app.GA_TRACKING_ID=''
         }
-        app.title = "$signomixTitle";
-        if(app.title.startsWith('$')){
-            app.title='Signomix CE'
-        }
-        document.title=app.title;
         <!-- end Google Analytics ID config -->
-        app.serviceUrl = "$serviceurl";
         app.csAPI = "$serviceurl"+"/api/cs";
         app.language = "pl";
         app.languages=['en','pl'];
@@ -98,11 +92,11 @@
         route.base('#!');
         route.start(true);
         Holder.addTheme('thumb', {
-          bg: '#55595c',
-          fg: '#eceeef',
-          text: 'Thumbnail'
+            bg: '#55595c',
+            fg: '#eceeef',
+            text: 'Thumbnail'
         });
         riot.update()
     </script>
-  </body>
+</body>
 </html>

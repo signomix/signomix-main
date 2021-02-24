@@ -821,6 +821,32 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         }
     }
 
+        @Override
+    public Dashboard getDashboardByName(String userID, String dashboardName) throws ThingsDataException {
+        boolean publicUser = "public".equalsIgnoreCase(userID);
+        String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where name=? and (userid=? or team like ? ";
+        if (publicUser) {
+            query = query.concat("or shared=true)");
+        } else {
+            query = query.concat(")");
+        }
+        try (Connection conn = getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, dashboardName);
+            pstmt.setString(2, userID);
+            pstmt.setString(3, "%," + userID + ",%");
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return buildDashboard(rs);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
     @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=? where id=?";

@@ -28,10 +28,9 @@
         }else{
             self.measureNames=self.channel.split(",")
         }
-        app.log('SHOW2 '+self.type)
         self.jsonData = JSON.parse(this.rawdata)
         self.verify()
-        if(self.jsondata && self.jsonData[0]) self.noData = false
+        //if(self.jsondata && self.jsonData[0]) self.noData = false
         self.calcAlert=(self.range!='' && self.range.indexOf('@')>0)
         if(self.calcAlert){
             self.rangeName=self.range.substring(self.range.indexOf('@')+1)
@@ -98,16 +97,21 @@
         }
     }
     
+    self.getRemValue = function(){
+        return parseFloat(getComputedStyle(document.body).fontSize)/self.scaling;
+    }
+    
     function setPlanDef(deviceData){
         //svg will be scaled and moved properly only if starting svg width equals 1000
         var pd=self.planDefinition.trim()
-        var radius=10
+        //var radius=10
+        var radius=self.getRemValue()/2;
         pd=pd.substring(0,pd.length-6);
         var devs='';
         var cTemplate='<circle cx="_x" cy="_y" r="'+radius+'" stroke="black" stroke-width="2" fill="_c"/>'
         var oneDev
         var deviceLocation
-        if(!self.noData){
+        if(deviceData){
             for(let i=0;i<deviceData.length; i++){
                 oneDev=cTemplate
                 deviceLocation=self.getDeviceLocation(deviceData[i][0].deviceEUI)
@@ -127,8 +131,8 @@
         }
         var line='<tspan x="_x" y="_y">_label: _v</tspan>'
         var fontSize=1/scaling
-        var remValue=parseFloat(getComputedStyle(document.body).fontSize)/scaling;
-        var text='<text x="'+x+'" y="'+y+'" style="fill:darkblue;font-size:'+fontSize+'em;">'+name+':'
+        var remValue=self.getRemValue();
+        var text='<text x="'+x+'" y="'+y+'" style="fill:darkblue;font-size:'+fontSize+'em;">[ '+name+' ]'
         for(i=0;i<data.length;i++){
             if (typeof self.measureNames[i] !== "undefined") {
                 var l=line

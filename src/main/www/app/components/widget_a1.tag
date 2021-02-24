@@ -6,9 +6,9 @@
         <div class="row px-3 py-1">
                 <div class="col-4">
                     <h1>
-                        <i class="las {icon} text-primary" if={alertLevel<1}></i>
-                        <i class="las {icon} text-warning" if={alertLevel==1}></i>
-                        <i class="las {icon} text-danger" if={alertLevel==2}></i>
+                        <i class="{icon} text-primary" if={alertLevel<1}></i>
+                        <i class="{icon} text-warning" if={alertLevel==1}></i>
+                        <i class="{icon} text-danger" if={alertLevel==2}></i>
                     </h1>
                 </div>
                 <div class="col-8 text-right">
@@ -31,55 +31,56 @@
         self.setIconName = function(){
             if(self.iconName==''||self.iconName==undefined){
                 if (self.jsonData == null || self.jsonData.length == 0 || self.jsonData[0].length == 0){;
-                    self.icon = 'la-tachometer-alt';
+                    self.icon = 'dashboard';
                 }else{
                     self.measureType = getMeasureType(self.jsonData[0][0]['name'].toLowerCase());
                     if (self.measureType == 0) {
                         self.measureType = getMeasureType(self.title.toLowerCase());
                     };
                     switch (self.measureType){
-                        case 1:
-                            self.icon = 'la-thermometer-three-quarters'; break;
+                        case 1: 
+                            self.icon = 'thermometer'; break;
                         case 2:
-                            self.icon = 'la-tint'; break;
+                            self.icon = 'water-drop'; break;
                         case 3:
-                            self.icon = 'la-tachometer-alt'; break;
+                            self.icon = 'dashboard'; break;
                         case 4:
-                            self.icon = 'la-calendar'; break;
+                            self.icon = 'calendar'; break;
                         case 5:
-                            self.icon = 'la-tachometer-alt'; break;
+                            self.icon = 'speed-meter'; break;
                         case 6:
-                            self.icon = 'la-ruler-horizontal'; break;
+                            self.icon = 'ruler'; break;
                         case 7:
-                            self.icon = 'la-lightbulb'; break;
+                            self.icon = 'light-bulb'; break;
                         case 8:
-                            self.icon = 'la-battery-empty,la-battery-full'; break;
+                            self.icon = 'battery-full,battery-low,battery-empty'; break;
                         case 9:
                         case 10:
-                            self.icon = 'la-map-marker-alt'; break;
+                            self.icon = 'location-pin'; break;
                         case 11:
-                            self.icon = 'la-mountain'; break;
+                            self.icon = 'hill'; break;
                         case 12:
-                            self.icon = 'la-calculator'; break;
+                            self.icon = 'calculator'; break;
                         case 13:
-                            self.icon = 'la-clock'; break;
+                            self.icon = 'clock-time'; break;
                         case 14:
-                            self.icon = 'la-ruler-vertical'; break;
+                            self.icon = 'ruler'; break;
                         case 15:
-                            self.icon = 'la-smog'; break;
+                            self.icon = 'pollution'; break;
                         case 16:
-                            self.icon = 'la-wind'; break;
+                            self.icon = 'wind'; break;
                         case 17:
-                            self.icon = 'la-cloud-showers-heavy'; break;
+                            self.icon = 'rainy'; break;
                         case 18:
-                            self.icon = 'la-tint'; break;
+                            self.icon = 'water-drop'; break;
                         case 19:
-                            self.icon = 'la-door-closed,la-door-open'; break;
+                            self.icon = 'lock,unlocked'; break;
                         default:
-                            self.icon = 'la-tachometer-alt';
+                            self.icon = 'speed-meter';
                     };
                 }            
             }else{
+                // thumbs-up,thumbs-down,car,simple-smile,sound-wave-alt
                 self.icon=self.iconName;
             }
             var iconIdx = 0;
@@ -94,7 +95,7 @@
             if (iconIdx > iconArr.length - 1){
                 iconIdx = iconArr.length - 1;
             }
-            self.icon = iconArr[iconIdx];
+            self.icon = 'icofont-'+iconArr[iconIdx];
         }
 
 

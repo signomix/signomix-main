@@ -43,8 +43,9 @@ public class DashboardBusinessLogic {
         String userID = request.headers.getFirst("X-user-id");
         //request.headers.keySet().forEach(key -> Kernel.handle(Event.logFine(this,key + ":" + request.headers.getFirst(key))));
         String dashboardId = request.pathExt; //
-        //System.out.println("PATHEXT=" + dashboardId);
-
+        boolean byName = Boolean.parseBoolean((String) request.parameters.getOrDefault("name", ""));
+        System.out.println("PATHEXT=" + dashboardId);
+        System.out.println("BYNAME="+byName);
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             result.setData("user not recognized");
@@ -59,7 +60,12 @@ public class DashboardBusinessLogic {
                         //result.setData(dashboardAdapter.getUserDashboards(userID));
                         result.setData(dashboardAdapter.getUserDashboardsMap(userID));
                     } else {
-                        result.setData(dashboardAdapter.getDashboard(userID, dashboardId));
+                        if (byName) {
+                            dashboardId=dashboardId.substring(0, dashboardId.length()-1);
+                            result.setData(dashboardAdapter.getDashboardByName(userID, dashboardId));
+                        } else {
+                            result.setData(dashboardAdapter.getDashboard(userID, dashboardId));
+                        }
                     }
                     break;
                 case "POST":
@@ -113,7 +119,7 @@ public class DashboardBusinessLogic {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "deserialization problem - check @type declaration"));
             e.printStackTrace();
         }
-        if(null==dashboard.getId() || dashboard.getId().isEmpty()){
+        if (null == dashboard.getId() || dashboard.getId().isEmpty()) {
             dashboard.setId(PlatformAdministrationModule.getInstance().createEui("S-"));
         }
         //System.out.println("DASHBOARD:" + dashboard.getId());

@@ -35,7 +35,7 @@ public class Invariants extends HashMap {
     primaryCollectionLimit:
     primaryDataRetention:
     primaryDevicesLimit:
-    primaryNotifications:
+    primaryNotifications: 
     superDataRetention:
     superDevicesLimit:
     superNotifications: 
@@ -88,7 +88,13 @@ public class Invariants extends HashMap {
             put("primaryDataRetention", 1); // days
             put("primaryDevicesLimit", 1); // user devices
             put("primaryNotifications", "SMTP");
-        } else if ("commercial".equalsIgnoreCase(releaseType)){
+
+            put("superCollectionLimit", 144);
+            put("superCollectionLimitMonthly", 4320);
+            put("superDataRetention", 1); // days
+            put("superDevicesLimit", 1); // user devices
+            put("superNotifications", "SMTP");
+        } else if ("standard".equalsIgnoreCase(releaseType)){ //commercial
             put("maxUsers", 0);
             put("maxDevices", 0); // no limit for total number of registered devices
 
@@ -98,35 +104,35 @@ public class Invariants extends HashMap {
             put("demoDevicesLimit", 1); // user devices
             put("demoNotifications", "SMTP");
 
-            put("freeCollectionLimit", 288); // 6 transmission/hour * 7 days
-            put("freeCollectionLimitMonthly", 8640);
-            put("freeDataRetention", 7); // 1 day
+            put("freeCollectionLimit", 144); // 24h X 6 transmission/hour
+            put("freeCollectionLimitMonthly", 4464);
+            put("freeDataRetention", 14); // days
             put("freeDevicesLimit", 5); // user devices
-            put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,DISCORD,WEBHOOK");
 
-            put("extendedCollectionLimit", 288); // 6 transmission/hour * 7 days
-            put("extendedCollectionLimitMonthly", 8640);
-            put("extendedDataRetention", 30); // 1 day
-            put("extendedDevicesLimit", 10); // user devices
-            put("extendedNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
+            put("extendedCollectionLimit", 144); // 24 * 6 transmission/hour
+            put("extendedCollectionLimitMonthly", 4464);
+            put("extendedDataRetention", 61); // days
+            put("extendedDevicesLimit", 20); // user devices
+            put("extendedNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,DISCORD,WEBHOOK");
 
             put("standardCollectionLimit", 2160);
             put("standardCollectionLimitMonthly", 64800);
-            put("standardDataRetention", 30); // days
-            put("standardDevicesLimit", 15); // user devices
-            put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,WEBHOOK");
+            put("standardDataRetention", 61); // days
+            put("standardDevicesLimit", 20); // user devices
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,TELEGRAM,DISCORD,WEBHOOK");
 
             put("primaryCollectionLimit", 7200);
             put("primaryCollectionLimitMonthly", 216000);
-            put("primaryDataRetention", 30); 
+            put("primaryDataRetention", 61); 
             put("primaryDevicesLimit", 50); // user devices
-            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,DISCORD,WEBHOOK");
 
             put("superCollectionLimit", 7200);
             put("superCollectionLimitMonthly", 216000);
             put("superDataRetention", 365); 
             put("superDevicesLimit", 50); // user devices
-            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,DISCORD,WEBHOOK");
         } else { // CE type
             put("maxUsers", 0);
             put("maxDevices", 0); // no limit for total number of registered devices
@@ -138,34 +144,34 @@ public class Invariants extends HashMap {
             put("demoNotifications", "SMTP");
 
             put("freeCollectionLimit", 7200); // 6 transmission/hour * 30 days
-            put("demoCollectionLimitMonthly", 216000);
+            put("freeCollectionLimitMonthly", 216000);
             put("freeDataRetention", 30); // 1 day
             put("freeDevicesLimit", 50); // user devices
-            put("freeNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
+            put("freeNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,DISCORD,WEBHOOK");
 
             put("extendedCollectionLimit", 7200); // 6 transmission/hour * 30 days
             put("extendedCollectionLimitMonthly", 216000);
             put("extendedDataRetention", 30); // days
             put("extendedDevicesLimit", 50); // user devices
-            put("extendedNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
+            put("extendedNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,DISCORD,WEBHOOK");
 
             put("standardCollectionLimit", 7200);
             put("standardCollectionLimitMonthly", 216000);
             put("standardDataRetention", 30); // days
             put("standardDevicesLimit", 50); // user devices
-            put("standardNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,WEBHOOK");
+            put("standardNotifications", "SMTP,SLACK,PUSHOVER,SMS,TELEGRAM,DISCORD,WEBHOOK");
 
             put("primaryCollectionLimit", 7200);
             put("primaryCollectionLimitMonthly", 216000);
             put("primaryDataRetention", 30); 
             put("primaryDevicesLimit", 50); // user devices
-            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+            put("primaryNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,DISCORD,WEBHOOK");
 
             put("superCollectionLimit", 7200);
             put("superCollectionLimitMonthly", 216000);
             put("superDataRetention", 365); 
             put("superDevicesLimit", 50); // user devices
-            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,WEBHOOK");
+            put("superNotifications", "SMTP,PUSHOVER,SMS,SLACK,TELEGRAM,DISCORD,WEBHOOK");
         }
     }
 

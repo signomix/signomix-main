@@ -15,7 +15,6 @@ import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.exception.AdapterException;
 import org.cricketmsf.in.http.StandardResult;
-import org.cricketmsf.microsite.user.UserEvent;
 import org.cricketmsf.out.http.HttpClient;
 import org.cricketmsf.out.http.Request;
 
@@ -34,6 +33,14 @@ public class ServerSmsNotificator extends HttpClient implements NotificationIfac
         super.loadProperties(properties, adapterName);
         login = properties.getOrDefault("login", ""); //
         password = properties.getOrDefault("password", ""); //
+        if (login.startsWith("$")) {
+            login = System.getenv(login.substring(1));
+        }
+
+        if (password.startsWith("$")) {
+            password = System.getenv(password.substring(1));
+        }
+
         if (endpointURL.isEmpty() || login.isEmpty() || password.isEmpty()) {
             ready = false;
         } else {
@@ -97,7 +104,7 @@ public class ServerSmsNotificator extends HttpClient implements NotificationIfac
 
             System.out.println("SENDING SMS USING " + sb.toString());
             result = (StandardResult) send(req, false);
-        } catch (AdapterException|UnsupportedEncodingException e) {
+        } catch (AdapterException | UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         String response = new String(result.getPayload());
@@ -152,7 +159,7 @@ public class ServerSmsNotificator extends HttpClient implements NotificationIfac
 
             System.out.println("SENDING SMS USING " + sb.toString());
             result = (StandardResult) send(req);
-        } catch (AdapterException|UnsupportedEncodingException e) {
+        } catch (AdapterException | UnsupportedEncodingException e) {
             return "ERROR: " + e.getMessage();
         }
         String response = new String(result.getPayload());

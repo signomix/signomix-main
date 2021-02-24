@@ -8,22 +8,26 @@ import com.signomix.event.IotEvent;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.out.OutboundAdapter;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter, ThingsDataIface {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ThingsDataEmbededAdapter.class);
 
     private String helperAdapterName; // IoT DB
     private String helperAdapterName2; // IoT data DB
     private boolean initialized = false;
+    String monitoringDeviceEui;
 
     @Override
     public void init(String helperName, String helperName2) throws ThingsDataException {
@@ -49,6 +53,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             e.printStackTrace();
             Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
         }
+        monitoringDeviceEui=(String) Kernel.getInstance().getProperties().get("monitoring_device");
     }
 
     @Override
@@ -79,8 +84,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         }
         return getDataStorage().getAllValues(userID, deviceEUI, channel);
     }
-    */
-    
+     */
     @Override
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -118,6 +122,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         Device dev = getDevice(EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
+        } else if(null!=monitoringDeviceEui){
+            logger.debug("virtual data to {} {}",EUI,monitoringDeviceEui);
+            if (!EUI.equalsIgnoreCase(monitoringDeviceEui)) {
+                String cmd = Base64.getEncoder().encodeToString("datareceived".getBytes());
+                Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, cmd));
+            }
         }
         dev.setLastSeen(lastSeen);
         dev.setLastFrame(frameCounter);
@@ -126,7 +136,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setDeviceID(deviceID);
         getIotDB().updateDevice(dev); //TODO
     }
-    
+
     @Override
     public void updateAlertStatus(String EUI, int newAlertStatus) throws ThingsDataException {
         Device dev = getDevice(EUI);
@@ -136,7 +146,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setAlertStatus(newAlertStatus);
         getIotDB().updateDevice(dev);
     }
-    
+
     @Override
     public void updateDeviceState(String EUI, Double newState) throws ThingsDataException {
         Device dev = getDevice(EUI);
@@ -161,7 +171,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         return getIotDB().getUserDevices(userID, withShared);
     }
-    
+
     @Override
     public List<Device> getGroupDevices(String userID, String group) throws ThingsDataException {
         return getIotDB().getGroupDevices(userID, group);
@@ -176,7 +186,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List<DeviceTemplate> getTemplates() throws ThingsDataException {
         return getIotDB().getDeviceTemplates();
     }
-    
+
     @Override
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException {
         if (!isAuthorized(userID, deviceEUI)) {
@@ -197,32 +207,31 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
      * @return
      * @throws ThingsDataException
      *
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, String channel, String query) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
-            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
-        }
-        //TODO: if we query more than 1 channel (channels sepatated with "," then resulting channel data could be unsynchronized
-        //TODO: there should be additional option to synchdonize data lists
-        return getDataStorage().getValues(userID, deviceEUI, channel, query);
-    }
-    */
-
+     * @Override public List<List> getValues(String userID, String deviceEUI,
+     * String channel, String query) throws ThingsDataException { if
+     * (!isAuthorized(userID, deviceEUI)) { throw new
+     * ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not
+     * authorized"); } //TODO: if we query more than 1 channel (channels
+     * sepatated with "," then resulting channel data could be unsynchronized
+     * //TODO: there should be additional option to synchdonize data lists
+     * return getDataStorage().getValues(userID, deviceEUI, channel, query); }
+     */
     @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, query);
     }
-/*
+
+    /*
     @Override
     public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
         return getDataStorage().getValues(userID, deviceEUI, limit);
     }
-*/
+     */
     @Override
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         return getIotDB().isAuthorized(userID, deviceEUI);
     }
-    
+
     @Override
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
         return getIotDB().isGroupAuthorized(userID, groupEUI);
@@ -294,12 +303,11 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         return getIotDB().getUserGroups(userID);
     }
 
-    
     @Override
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
         return getIotDB().getGroup(groupEUI);
     }
-    
+
     @Override
     public DeviceGroup getGroup(String userId, String groupEUI) throws ThingsDataException {
         return getIotDB().getGroup(userId, groupEUI);
@@ -336,7 +344,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
-        System.out.println(userID+" "+groupEUI);
+        System.out.println(userID + " " + groupEUI);
         if (!isGroupAuthorized(userID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }

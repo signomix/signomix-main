@@ -6,7 +6,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <a class="navbar-brand text-signo" href={ (app.user.roles.indexOf("guest")>-1)?'/':'#!' }>
-                <img src="/resources/logo.png" height="32px" style="margin-right:0.5em;"><strong>{ getDistroType()}</strong>
+                <img src="resources/logo.png" height="32px" style="margin-right:0.5em;"><strong>{ getDistroType()}</strong>
             </a>
             <span hidden={ app.requests<=0 }><spinner/></span>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">

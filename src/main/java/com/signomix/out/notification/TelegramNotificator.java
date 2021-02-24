@@ -17,7 +17,6 @@ import org.cricketmsf.out.http.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 /**
  *
  * @author greg
@@ -31,6 +30,10 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
         token = properties.getOrDefault("token", ""); // application token
+        if (token.startsWith("$")) {
+            token = System.getenv(token.substring(1));
+        }
+
         if (endpointURL.isEmpty() || token.isEmpty()) {
             ready = false;
         } else {
@@ -52,13 +55,14 @@ public class TelegramNotificator extends HttpClient implements NotificationIface
         }
         String chatID = recipient.substring(recipient.indexOf("@") + 1);
 
-        //String text = Base64.getUrlEncoder().encodeToString(message.getBytes());
+        
         Result r = null;
         Request request;
         try {
+            String text = URLEncoder.encode(""+message, "UTF-8");
             request = new Request()
                     .setMethod("GET")
-                    .setUrl(endpointURL + "bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + nodeName + " " + URLEncoder.encode(message, "UTF-8"));
+                    .setUrl(endpointURL + "bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + nodeName + " " + text);
         } catch (UnsupportedEncodingException ex) {
             return "ERROR: " + ex.getMessage();
         }

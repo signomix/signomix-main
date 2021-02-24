@@ -136,7 +136,10 @@ public class ActuatorModule {
     ) {
         String[] devices = event.getOrigin().split("@");
         String sourceEUI = devices[0];
-        String deviceEUI = devices[1];
+        String deviceEUI = null;
+        if(devices.length>1){
+            deviceEUI=devices[1];
+        }
         String payload = (String) event.getPayload();
         boolean done = false;
         Device sourceDevice = null;
@@ -153,10 +156,10 @@ public class ActuatorModule {
             if (device.getType().equals(Device.VIRTUAL)) {
                 if (null != sourceDevice && !sourceDevice.getType().equals(Device.VIRTUAL)) {
                     done = sendToVirtual(device, payload.substring(1), thingsAdapter, scriptingAdapter);
-                } else if (null != sourceDevice) {
+                } else if (null==sourceDevice && event.getType().equals(IotEvent.PLATFORM_MONITORING)) {
+                    done = sendToVirtual(device, payload, thingsAdapter, scriptingAdapter);
+                } else{
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this, "blocked command from virtual to virtual device"));
-                    done = true;
-                } else {
                     done = true;
                 }
 
@@ -273,7 +276,7 @@ public class ActuatorModule {
             Kernel.getInstance().dispatchEvent(Event.logWarning(this, "CommandWebHook adaper not configured"));
             return false;
         } else {
-            return webhookSender.send(device.getEUI(), device.getKey(), payload, hexRepresentation);
+            return webhookSender.send(device, payload, hexRepresentation);
         }
     }
 

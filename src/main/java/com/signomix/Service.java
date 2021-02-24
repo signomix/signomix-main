@@ -12,6 +12,7 @@ import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData;
 import com.signomix.event.IotEvent;
+import com.signomix.event.MailingApiEvent;
 import com.signomix.event.NewDataEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
@@ -40,15 +41,18 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
+import com.signomix.out.mailing.MailingIface;
 //import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
+import java.util.ArrayList;
 import java.util.List;
 import org.cricketmsf.annotation.EventHook;
 import org.cricketmsf.annotation.PortEventClassHook;
 import org.cricketmsf.event.EventMaster;
 import org.cricketmsf.exception.EventException;
 import org.cricketmsf.exception.InitException;
+import org.cricketmsf.in.http.ResponseCode;
 import org.cricketmsf.in.openapi.OpenApiIface;
 import org.cricketmsf.microsite.auth.AuthBusinessLogic;
 import org.cricketmsf.microsite.cms.Document;
@@ -64,6 +68,7 @@ import org.cricketmsf.microsite.user.UserEvent;
  */
 public class Service extends Kernel {
 
+    public static String SIGNOMIX_TOKEN_NAME = "signomixToken";
     //service parameters
     Invariants invariants = null;
 
@@ -108,8 +113,10 @@ public class Service extends Kernel {
     NotificationIface pushoverNotification = null;
     NotificationIface slackNotification = null;
     NotificationIface telegramNotification = null;
+    NotificationIface discordNotification = null;
     NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
+    MailingIface mailingAdapter = null;
 
     //Integration services
     LoRaApi loraUplinkService = null;
@@ -119,8 +126,8 @@ public class Service extends Kernel {
     //Utils
     ShortenerDBIface shortenerDB = null;
     OpenApiIface apiGenerator = null;
-    
-    public Service(){
+
+    public Service() {
         super();
     }
 
@@ -162,15 +169,17 @@ public class Service extends Kernel {
         pushoverNotification = (NotificationIface) getRegistered("pushoverNotification");
         slackNotification = (NotificationIface) getRegistered("slackNotification");
         telegramNotification = (NotificationIface) getRegistered("telegramNotification");
+        discordNotification = (NotificationIface) getRegistered("discordNotification");
         webhookNotification = (NotificationIface) getRegistered("webhookNotification");
         emailSender = (EmailSenderIface) getRegistered("emailSender");
+        mailingAdapter = (MailingIface) getRegistered("MailingService");
 
         loraUplinkService = (LoRaApi) getRegistered("LoRaUplinkService");
         ttnIntegrationService = (TtnApi) getRegistered("TtnIntegrationService");
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
 
         shortenerDB = (ShortenerDBIface) getRegistered("ShortenerDB");
-        
+
         apiGenerator = (OpenApiIface) getRegistered("OpenApi");
     }
 
@@ -186,7 +195,7 @@ public class Service extends Kernel {
             EventMaster.registerEventCategories(new UserEvent().getCategories(), UserEvent.class.getName());
             EventMaster.registerEventCategories(new IotEvent().getCategories(), IotEvent.class.getName());
             EventMaster.registerEventCategories(new Alert().getCategories(), Alert.class.getName());
-        } catch (EventException|InitException ex) {
+        } catch (EventException | InitException ex) {
             ex.printStackTrace();
             shutdown();
         }
@@ -278,6 +287,7 @@ public class Service extends Kernel {
     public Object goToShortcut(Event event) {
         return UrlShortener.getInstance().processRequest(event, shortenerDB);
     }
+
     @HttpAdapterHook(adapterName = "goto", requestMethod = "POST")
     public Object updateShortcut(Event event) {
         return UrlShortener.getInstance().processRequest(event, shortenerDB);
@@ -292,7 +302,22 @@ public class Service extends Kernel {
      */
     @HttpAdapterHook(adapterName = "WwwService", requestMethod = "GET")
     public Object wwwGet(Event event) {
+        ArrayList<String> cookies = null;
+        try {
+            event.getRequest().headers.keySet().forEach(key -> {
+                if (key.equalsIgnoreCase("Cookie")) {
+                    event.getRequest().headers.get(key).forEach(value -> {
+                        cookies.add(key);
+                    });
+                }
+
+            });
+            //cookies.forEach(value -> System.out.println("Cookie: " + value));
+        } catch (Exception e) {
+        }
+
         ParameterMapResult result = new ParameterMapResult();
+        String userID = null;
         try {
             //TODO: to nie jest optymalne rozwiązanie
             Kernel.getInstance().dispatchEvent(Event.logWarning(this, "GET WWW: " + event.getRequest().pathExt));
@@ -309,7 +334,7 @@ public class Service extends Kernel {
                 result = (ParameterMapResult) cms
                         .getFile(event.getRequest(), htmlAdapter.useCache() ? database : null, cacheName, language);
 
-                if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+                if (ResponseCode.NOT_FOUND == result.getCode()) {
                     if (event.getRequest().pathExt.endsWith(".html")) {
                         //TODO: configurable index file params
                         //RequestObject request = processRequest(event.getRequest(), ".html", "index_pl.html");
@@ -319,23 +344,20 @@ public class Service extends Kernel {
                     }
                 }
 
-                if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+                if (ResponseCode.NOT_FOUND == result.getCode()) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this, "404 WWW: " + event.getRequest().pathExt));
                     return result;
-                } else if (HttpAdapter.SC_NOT_FOUND != result.getCode()
+                } else if (ResponseCode.NOT_FOUND != result.getCode()
                         && ("".equals(event.getRequest().pathExt) || event.getRequest().pathExt.endsWith("/") || event.getRequest().pathExt.endsWith(".html"))) {
                     //((HashMap) result.getData()).put("serviceurl", getProperties().get("serviceurl"));
+                    userID = event.getRequest().headers.getFirst("X-user-id");
                     HashMap rd = (HashMap) result.getData();
-                    
                     rd.put("serviceurl", getProperties().get("serviceurl"));
                     rd.put("defaultLanguage", getProperties().get("default-language"));
                     rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
-                    rd.put("signomixTitle", getProperties().get("servicetitle"));
-                    
                     rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
                     rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
-                    rd.put("user", event.getRequest().headers.getFirst("X-user-id"));
-                    
+                    rd.put("user", userID);
                     rd.put("environmentName", getName());
                     rd.put("distroType", (String) invariants.get("release"));
                     rd.put("javaversion", System.getProperty("java.version"));
@@ -355,12 +377,20 @@ public class Service extends Kernel {
                     }
                     // TODO: caching policy 
                     result.setMaxAge(120);
+                    if (null != userID && !userID.isEmpty()) {
+                        result.setHeader("X-user-id", userID);
+                    } else {
+                        result.setHeader("X-user-id", "guest");
+                    }
+                    //if (null != cookies && cookies.get(0).indexOf(SIGNOMIX_TOKEN_NAME) >= 0) {
+                    //    result.setHeader("Cookie", cookies.get(0));
+                    //}
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, "500 WWW: " + event.getRequest().pathExt));
                 e.printStackTrace();
                 result = new ParameterMapResult();
-                result.setCode(HttpAdapter.SC_INTERNAL_SERVER_ERROR);
+                result.setCode(ResponseCode.INTERNAL_SERVER_ERROR);
                 return result;
             }
             if ("HEAD".equalsIgnoreCase(event.getRequest().method)) {
@@ -369,7 +399,7 @@ public class Service extends Kernel {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            result.setCode(HttpAdapter.SC_INTERNAL_SERVER_ERROR);
+            result.setCode(ResponseCode.INTERNAL_SERVER_ERROR);
         }
         return result;
     }
@@ -400,11 +430,17 @@ public class Service extends Kernel {
         }
         return request;
     }
-    
+
+    @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
+    public Object handleMailingSend(MailingApiEvent event) {
+        return mailingAdapter.sendMailing(event.getData().get("documentId"),event.getData().get("target"), userAdapter, cms, emailSender);
+    }
+
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
     public Object handleAlertGet(AlertApiEvent event) {
         return AlertModule.getInstance().getAlerts(event.userId, thingsAdapter);
     }
+
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "delete")
     public Object handleAlertDelete(AlertApiEvent event) {
         if (!"*".equals(event.alertId)) {
@@ -418,7 +454,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "AlertService", requestMethod = "OPTIONS")
     public Object alertCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
     @HttpAdapterHook(adapterName = "AlertService", requestMethod = "GET")
@@ -434,14 +470,14 @@ public class Service extends Kernel {
             return AlertModule.getInstance().removeAll(event.getRequestParameter("user"), thingsAdapter);
         }
     }
-    */
-
+     */
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")
     public Object dashboardServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
+
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "GET")
     public Object dashboardServiceGet(Event event) {
         try {
@@ -451,6 +487,7 @@ public class Service extends Kernel {
         }
         return null;
     }
+
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "POST")
     public Object dashboardServicePost(Event event) {
         try {
@@ -460,6 +497,7 @@ public class Service extends Kernel {
         }
         return null;
     }
+
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "PUT")
     public Object dashboardServicePut(Event event) {
         try {
@@ -469,6 +507,7 @@ public class Service extends Kernel {
         }
         return null;
     }
+
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "DELETE")
     public Object dashboardServiceDelete(Event event) {
         try {
@@ -482,24 +521,28 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "OPTIONS")
     public Object deviceServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
+
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "GET")
     public Object deviceServiceGet(Event event) {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
+
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "POST")
     public Object deviceServicePost(Event event) {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
+
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "PUT")
     public Object deviceServicePut(Event event) {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
+
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "DELETE")
     public Object deviceServiceDelete(Event event) {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
@@ -509,21 +552,25 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "OPTIONS")
     public Object groupServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
+
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "GET")
     public Object groupServiceGet(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
+
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "POST")
     public Object groupServicePost(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
+
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "PUT")
     public Object groupServicePut(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
     }
+
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "DELETE")
     public Object groupServiceDelete(Event event) {
         return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
@@ -532,9 +579,10 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "OPTIONS")
     public Object templateServiceCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
+
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "*")
     public Object templateServiceHandle(Event event) {
         return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
@@ -543,7 +591,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "TtnIntegrationService", requestMethod = "OPTIONS")
     public Object ttnDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -556,11 +604,11 @@ public class Service extends Kernel {
             return null;
         }
     }
-    
+
     @PortEventClassHook(className = "UplinkEvent", procedureName = "processData")
     public Object handleChirpstackUplink(UplinkEvent requestEvent) {
-        IotData data= (IotData) requestEvent.getOriginalEvent().getPayload();
-        String info="RECEIVED: application=%1$s, devEUI=%2$s, data=%3$s";       
+        IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
+        String info = "RECEIVED: application=%1$s, devEUI=%2$s, data=%3$s";
         try {
             return DeviceIntegrationModule.getInstance().processChirpstackRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
         } catch (Exception e) {
@@ -572,7 +620,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "NewDataEvent", procedureName = "processData")
     public Object handleIotData(NewDataEvent requestEvent) {
-        IotData data= (IotData) requestEvent.getOriginalEvent().getPayload();
+        IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         try {
             return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
         } catch (Exception e) {
@@ -580,13 +628,13 @@ public class Service extends Kernel {
             return null;
         }
     }
-    
+
     /*
 
     @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "OPTIONS")
     public Object iotDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -605,7 +653,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "OPTIONS")
     public Object iotSimpleDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -624,7 +672,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "OPTIONS")
     public Object rawDataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -640,12 +688,11 @@ public class Service extends Kernel {
         return result;
     }
 
-    */
-    
+     */
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "OPTIONS")
     public Object actuatorCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -682,7 +729,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "RecoveryService", requestMethod = "OPTIONS")
     public Object recoveryCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -696,7 +743,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "OPTIONS")
     public Object userCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -716,13 +763,13 @@ public class Service extends Kernel {
         boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, telegramNotification);
     }
-    
+
     @HttpAdapterHook(adapterName = "SubscriberService", requestMethod = "POST")
     public Object subscriberAdd(Event event) {
         boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, withConfirmation, telegramNotification);
     }
-    
+
     /**
      * Modify user data or sends password reset link
      *
@@ -760,14 +807,15 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "OPTIONS")
     public Object authCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "POST")
     public Object authLogin(Event event) {
+        System.out.println("LOGIN");
         StandardResult result = (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
-        if (result.getCode() == HttpAdapter.SC_OK) {
+        if (result.getCode() == ResponseCode.OK) {
             Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
         } else {
             Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login_error"));
@@ -793,7 +841,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "ConfirmationService", requestMethod = "GET")
     public Object userConfirm(Event event) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_FORBIDDEN);
+        result.setCode(ResponseCode.FORBIDDEN);
         try {
             String key = event.getRequestParameter("key");
             try {
@@ -831,7 +879,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "SubscriptionConfirmationService", requestMethod = "GET")
     public Object subscriptionConfirm(Event event) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_FORBIDDEN);
+        result.setCode(ResponseCode.FORBIDDEN);
         try {
             String key = event.getRequestParameter("key");
             try {
@@ -864,12 +912,12 @@ public class Service extends Kernel {
             e.printStackTrace();
         }
         return result;
-    }    
+    }
 
     @HttpAdapterHook(adapterName = "ContentService", requestMethod = "OPTIONS")
     public Object contentCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -878,7 +926,7 @@ public class Service extends Kernel {
         StandardResult result = null;
         try {
             result = (StandardResult) new ContentRequestProcessor().processGetPublished(event, cms);
-            if (HttpAdapter.SC_NOT_FOUND == result.getCode()) {
+            if (ResponseCode.NOT_FOUND == result.getCode()) {
                 String path = event.getRequest().pathExt;
                 if (null != path) {
                     String filePath = fileReader.getRootPath() + path;
@@ -888,13 +936,13 @@ public class Service extends Kernel {
                     doc.setAuthor("");
                     doc.setContent(new String(fileReader.readFile(filePath)));
                     result.setData(doc);
-                    result.setCode(HttpAdapter.SC_OK);
+                    result.setCode(ResponseCode.OK);
                 }
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, "missing in CMS so read form disk " + path));
             }
         } catch (Exception e) {
             result = new StandardResult();
-            result.setCode(HttpAdapter.SC_NOT_FOUND);
+            result.setCode(ResponseCode.NOT_FOUND);
         }
         return result;
     }
@@ -902,7 +950,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "ContentManager", requestMethod = "OPTIONS")
     public Object contentServiceCors(Event requestEvent) {
         StandardResult result = new StandardResult();
-        result.setCode(HttpAdapter.SC_OK);
+        result.setCode(ResponseCode.OK);
         return result;
     }
 
@@ -918,55 +966,71 @@ public class Service extends Kernel {
 
     @EventHook(eventCategory = Event.CATEGORY_LOG)
     public void logEvent(Event event) {
-        logAdapter.log(event);
-        if (event.getType().equals(Event.LOG_SEVERE)) {
-            emailSender.send((String) getProperties().getOrDefault("admin-notification-email", ""), "Signomix - error", event.toString());
+        try {
+            logAdapter.log(event);
+            if (event.getType().equals(Event.LOG_SEVERE)) {
+                emailSender.send((String) getProperties().getOrDefault("admin-notification-email", ""), "Signomix - error", event.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @EventHook(eventCategory = Event.CATEGORY_HTTP_LOG)
     public void logHttpEvent(Event event) {
-        logAdapter.log(event);
+        try {
+            logAdapter.log(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @EventHook(eventCategory = UserEvent.CATEGORY_USER)
     public void processUserEvent(Event event) {
-        if (event.getTimePoint() != null) {
-            scheduler.handleEvent(event);
-            return;
+        try {
+            if (event.getTimePoint() != null) {
+                scheduler.handleEvent(event);
+                return;
+            }
+            UserEventHandler.handleEvent(
+                    this,
+                    event,
+                    userAdapter,
+                    gdprLogger,
+                    authAdapter,
+                    thingsAdapter,
+                    dashboardAdapter,
+                    emailSender
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        UserEventHandler.handleEvent(
-                this,
-                event,
-                userAdapter,
-                gdprLogger,
-                authAdapter,
-                thingsAdapter,
-                dashboardAdapter,
-                emailSender
-        );
     }
 
     @EventHook(eventCategory = IotEvent.CATEGORY_IOT)
     public void processIotEvent(Event event) {
-        IotEventHandler.handleEvent(
-                this,
-                event,
-                scheduler,
-                userAdapter,
-                thingsAdapter,
-                smtpNotification,
-                smsNotification,
-                pushoverNotification,
-                slackNotification,
-                telegramNotification,
-                webhookNotification,
-                dashboardAdapter,
-                authAdapter,
-                scriptingAdapter,
-                actuatorCommandsDB
-        );
-
+        try {
+            IotEventHandler.handleEvent(
+                    this,
+                    event,
+                    scheduler,
+                    userAdapter,
+                    thingsAdapter,
+                    smtpNotification,
+                    smsNotification,
+                    pushoverNotification,
+                    slackNotification,
+                    telegramNotification,
+                    discordNotification,
+                    webhookNotification,
+                    dashboardAdapter,
+                    authAdapter,
+                    scriptingAdapter,
+                    actuatorCommandsDB
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -976,24 +1040,28 @@ public class Service extends Kernel {
      */
     @EventHook(eventCategory = Event.CATEGORY_GENERIC)
     public void processSystemEvent(Event event) {
-        SystemEventHandler.handleEvent(
-                this,
-                event,
-                database,
-                cmsDatabase,
-                userAdapter,
-                userDB,
-                authAdapter,
-                authDB,
-                actuatorAdapter,
-                actuatorCommandsDB,
-                thingsAdapter,
-                thingsDB,
-                iotDataDB,
-                dashboardAdapter,
-                scriptingAdapter,
-                emailSender
-        );
+        try {
+            SystemEventHandler.handleEvent(
+                    this,
+                    event,
+                    database,
+                    cmsDatabase,
+                    userAdapter,
+                    userDB,
+                    authAdapter,
+                    authDB,
+                    actuatorAdapter,
+                    actuatorCommandsDB,
+                    thingsAdapter,
+                    thingsDB,
+                    iotDataDB,
+                    dashboardAdapter,
+                    scriptingAdapter,
+                    emailSender
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -1003,10 +1071,14 @@ public class Service extends Kernel {
      */
     @EventHook(eventCategory = "*")
     public void processEvent(Event event) {
-        if (event.getTimePoint() != null) {
-            scheduler.handleEvent(event);
-        } else {
-            handleEvent(Event.logWarning("Don't know how to handle category " + event.getCategory(), event.getPayload().toString()));
+        try {
+            if (event.getTimePoint() != null) {
+                scheduler.handleEvent(event);
+            } else {
+                handleEvent(Event.logWarning("Don't know how to handle category " + event.getCategory(), event.getPayload().toString()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

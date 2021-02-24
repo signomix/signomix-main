@@ -35,7 +35,7 @@
     <script data-src="components/app_texts.tag" type="riot/tag"></script>
     <script data-src="tags/raw.tag" type="riot/tag"></script>
     <script data-src="tags/spinner.tag" type="riot/tag"></script>
-    <script data-src="/tags/form_input.tag" type="riot/tag"></script>
+    <script data-src="tags/form_input.tag" type="riot/tag"></script>
     <script data-src="components/app_header.tag" type="riot/tag"></script>
     <script data-src="components/app_login.tag" type="riot/tag"></script>
     <script data-src="components/app_logout.tag" type="riot/tag"></script>
@@ -51,12 +51,12 @@
     <script data-src="components/app_password_form.tag" type="riot/tag"></script>
 
     <script>
-        <!-- dynamic configuration. Look at cricket.json - service propertises -->
-        app.authAPI = "$serviceurl" + "/api/auth/";
-        app.userAPI = "$serviceurl" + "/api/user/";
-        app.csAPI = "$serviceurl" + "/api/cs/";
-        app.cmAPI = "$serviceurl" + "/api/cm/";
-        app.systemAPI = "$serviceurl" + "/api/system/";
+        <!-- dynamic configuration. Look at cricket.json - service propertis -->
+        app.authAPI = "/api/auth/";
+        app.userAPI = "/api/user/";
+        app.csAPI = "/api/cs/";
+        app.cmAPI = "/api/cm/";
+        app.systemAPI = "/api/system/";
         app.jvm = "$javaversion";
         setLocalConfig();
         riot.mount('*');

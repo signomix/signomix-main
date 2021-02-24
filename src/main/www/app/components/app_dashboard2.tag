@@ -134,8 +134,16 @@
         self.dashboardConfig = {}
         self.w_line=[]
         localParams=app.shared==''?'':'?tid='+app.shared
+        var dboard
+        var byName=''
+        if(dashboardID.endsWith('@')){
+            dboard=dashboardID.substring(0, dashboardID.length - 1);
+            byName=localParams!=''?'&name=true':'?name=true'
+        }else{
+            dboard=dashboardID
+        }
         getData(
-            app.dashboardAPI + "/" + dashboardID + localParams, //url
+            app.dashboardAPI + "/" + dashboardID + localParams + byName, //url
             null,                                      //query
             (localParams!=''?null:app.user.token),                            //session token
             callback,                    //callback

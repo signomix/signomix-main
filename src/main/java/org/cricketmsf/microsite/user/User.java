@@ -5,6 +5,8 @@
 package org.cricketmsf.microsite.user;
 
 import com.signomix.event.IotEvent;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -49,6 +51,7 @@ public class User {
     public static final int READONLY = 6;
     public static final int EXTENDED = 7; // students, scientists, nonprofits
     public static final int SUPERUSER = 8;
+    
     public static final int SUBSCRIBER = 100;
 
     public static final int IS_REGISTERING = 0;
@@ -190,11 +193,19 @@ public class User {
         return role;
     }
 
+    public List getRoles(){
+        return Arrays.asList(getRole().split(","));
+    }
+    
+    public boolean hasRole(String role){
+        return getRoles().contains(role);
+    }
+
     /**
      * @param role the role to set
      */
     public void setRole(String role) {
-        this.role = role;
+        this.role = role.toLowerCase();
     }
 
     /**

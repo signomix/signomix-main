@@ -21,7 +21,7 @@
                 </thead>
                 <tbody>
                     <tr each={device in jsonData}>
-                        <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI}">{device[0].deviceEUI}</a></td>
+                        <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI+'@'}">{device[0].deviceEUI}</a></td>
                         <td class="text-left">{getDeviceName(device[0].deviceEUI)}</td>
                         <td class="text-right" each={measure in device}>{(measure?measure.value:'')}</td>
                         <td class="text-right">{getDateFormatted(new Date(device[0].timestamp))}</td>

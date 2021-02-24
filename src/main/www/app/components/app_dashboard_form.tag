@@ -64,6 +64,7 @@
                                 <option value="stopwatch" selected={self.editedWidget.type=='stopwatch'}>{self.getTypeName('stopwatch')}</option>
                                 <option value="time" selected={self.editedWidget.type=='time'}>{self.getTypeName('time')}</option>
                                 <option value="devinfo" selected={self.editedWidget.type=='devinfo'}>{self.getTypeName('devinfo')}</option>
+                                <option value="openweather" selected={self.editedWidget.type=='openweather'}>{self.getTypeName('openweather')}</option>
                             </select>
                         </div>
                         </div>
@@ -319,7 +320,7 @@
             <div class="row">
                 <div class="form-group col-md-12">
                     <h4>{ app.texts.dashboard_form.widgets[app.language] } <i class="material-icons clickable" if={allowEdit} onclick={ editWidget(-1) } title="NEW WIDGET" data-toggle="modal" data-target="#widgetEdit">add</i></h4>
-                    <table id="devices" class="table table-condensed">
+                    <table id="devices" class="table table-condensed table-striped">
                         <thead>
                             <tr>
                                 <th>{ app.texts.dashboard_form.name[app.language].toUpperCase() }</th>
@@ -329,7 +330,8 @@
                         </thead>
                         <tbody>
                             <tr each={widget,index in self.dashboard.widgets}>
-                                <td>{widget.name}</td>
+                                <td if={widget.modified}>* {widget.name}</td>
+                                <td if={!widget.modified}>{widget.name}</td>
                                 <td>{getTypeName(widget.type)}</td>
                                 <td class="text-right">
                                     <i class="material-icons clickable" if={allowEdit} onclick={ moveWidgetDown(index) } title="MOVE DOWN">arrow_downward</i>
@@ -390,7 +392,8 @@
                 'queryvalue':'1',
                 'format': 'standard',
                 'chartOption': 'dots',
-                'group': ''
+                'group': '',
+                'modified': false
             }
         }
         self.selectedForRemove = - 1
@@ -474,6 +477,9 @@
             if(self.isCopy) {
                 self.dashboard.id = ''
                 self.dashboard.name=self.dashboard.name+'_1'
+            }
+            for(i=0; i<self.dashboard.widgets.length; i++){
+                self.dashboard.widgets[i].modified=false
             }
             riot.update();
         }
@@ -637,7 +643,7 @@
             }else{
                 app.log("WIDTH:"+self.editedWidget.width)
             }
-            
+            self.editedWidget.modified=true
             delete self.editedWidget.queryvalue
             //
             if (self.selectedForEdit > - 1){
@@ -735,6 +741,9 @@
                     break
                 case 'devinfo':
                     return app.texts.dashboard_form.type_devinfo[app.language]
+                    break
+                case 'openweather':
+                    return app.texts.dashboard_form.type_openweather[app.language]
                     break
                 default:
                     return name

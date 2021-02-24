@@ -1,0 +1,244 @@
+<app-form>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <form name="target">
+                    <div class="form-group">
+                        <legend style="margin-top: 20px;">{labels.section1[props.language]}</legend>
+                        <div class="form-group">
+                            <label>Device EUI: {state.EUI}</label>
+                        </div>
+                        <div class="form-group">
+                            <label>Device Key: {state.authString}</label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio"
+                                       name="exampleRadios" id="exampleRadios1" value="local" ref="targetA" checked={stats.apiURL=='local'} onclick={ selectA }>
+                                       http://localhost:8080/api/integration
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" 
+                                       name="exampleRadios" id="exampleRadios2" value="cloud" ref="targetB" onclick={ selectB }>
+                                       https://signomix.com/api/integration
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-success" role="alert" if={ state.requestResult == 1 }>
+                    <strong>{labels.success[props.language]}</strong> {labels.successmessage[props.language]}
+                </div>
+                <div class="alert alert-warning" role="alert" if={ state.requestResult == 3 }>
+                    <strong>{labels.validation[props.language]}</strong> {labels.validationmessage[props.language]}
+                </div>
+                <div class="alert alert-danger" role="alert" if={ state.requestResult == 2 }>
+                    <strong>{labels.error[props.language]}</strong> {labels.errormessage[props.language]}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form onsubmit={ add }>
+                      <legend>{labels.section2[props.language]}</legend>
+                    <div class="form-group">
+                        <label for="temperature">{labels.temperature[props.language]}</label>
+                        <input pattern="-?\d+(\.\d+)?" id="temperature" ref="temperature" class="form-control" autofocus required>
+                    </div>
+                    <div class="form-group">
+                        <label for="humidity">{labels.humidity[props.language]}</label>
+                        <input pattern="-?\d+(\.\d+)?" id="humidity" ref="humidity" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="latitude">{labels.latitude[props.language]}</label>
+                        <input pattern="-?\d+(\.\d+)?" id="latitude" ref="latitude" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">{labels.longitude[props.language]}</label>
+                        <input pattern="-?\d+(\.\d+)?" id="longitude" ref="longitude" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="datetime">{labels.datetime[props.language]}</label>
+                        <input type="datetime" id="datetime" ref="datetime" class="form-control" value={new Date().toISOString()} required>
+                    </div>
+                    <button type="subimt" class="btn btn-primary">{labels.send[props.language]}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script charset="UTF-8">
+        export default {
+        
+        onMounted() {
+            this.update({
+                EUI:"IOT-EMULATOR",
+                authString:"6022140857",
+                apiURL:'local',
+                requestResult: 0
+            })
+        },        
+        selectA(){
+            e.preventDefault()
+            this.update({
+                apiURL:'local'
+            })
+        },
+        selectB() {
+            e.preventDefault()
+            this.update({
+                apiURL:'production'
+            })
+        },
+        processResult(e){
+            this.update({
+                requestResult: 1
+            })
+        },
+        validate(tmpData){
+            try{
+                var t = parseFloat(tmpData.payload_fields.temperature)
+                var h = parseFloat(tmpData.payload_fields.humidity)
+                if (h < 0 || h > 100){
+                    return false
+                }
+            } catch (err){
+                return false;
+            }
+            if (new Date(tmpData.time).toString().startsWith('Invalid')){
+                return false;
+            }
+            return true
+        },
+        add(e) {
+            e.preventDefault();
+            var data = {
+                dev_eui: state.EUI,
+                time: this.refs.datetime.value,
+                payload_fields: []
+            }
+            var field = {
+                name:"Temperature",
+                value:this.refs.temperature.value
+            }
+            data.payload_fields.push(field)
+            var field2 = {
+                name:"humidity",
+                value:this.refs.humidity.value
+            }
+            data.payload_fields.push(field2)
+            var field3 = {
+                name:"latitude",
+                value:this.refs.latitude.value
+            }
+            data.payload_fields.push(field3)
+            var field4 = {
+                name:"longitude",
+                value: this.refs.longitude.value
+            }
+            data.payload_fields.push(field4)
+            console.log(data)
+            if (!validate(data)){
+                return
+            }
+            // send
+            console.log('sending to ' + state.apiURL);
+            sendJsonData(
+                data,
+                "POST",
+                state.apiURL,
+                "Authorization",
+                state.authString, // auth string
+                this.processResult, // callback
+                null, // listener
+                'OK', //
+                null, //
+                app.debug, // debug switch 
+                null         //
+            )
+            // clear form
+            this.refs.temperature.value = ''
+            this.refs.humidity.value = ''
+            this.refs.datetime.value = new Date().toISOString()
+        },
+        labels = {
+            section1: {
+                en: "Target system",
+                pl: "Docelowy system"
+            },
+            section2: {
+                en: "Data to send",
+                pl: "Dane do wysłania"
+            },
+            send: {
+                en: "Send",
+                pl: "Prześlij"
+            },
+            temperature: {
+                en: "temperature",
+                pl: "temperatura"
+            },
+            humidity: {
+                en: "humidity",
+                pl: "wilgotność"
+            },
+            latitude: {
+                en: "latitude",
+                pl: "latitude"
+            },
+            longitude: {
+                en: "longitude",
+                pl: "longitude"
+            },
+            datetime: {
+                en: "date & time",
+                pl: "data i godzina"
+            },
+            error: {
+                en: "Error!",
+                pl: "Błąd!"
+            }, 
+            success: {
+                en: "Success!",
+                pl: "Sukces!"
+            }, 
+            validation: {
+                en: "Warning!",
+                pl: "Uwaga!"
+            }, 
+            errormessage: {
+                en: "A problem has been occurred while submitting your data.",
+                pl: "Podczas wysyłania danych wystąpił błąd."
+            }, 
+            successmessage: {
+                en: "Your message has been sent successfully.",
+                pl: "Twoje dane zostały pomyślnie wysłane."
+            }, 
+            validationmessage: {
+                en: "Invalid data.",
+                pl: "Niepoprawne dane."
+            }
+        }
+    }
+    /*
+        self.listener.on('*', function (eventName) {
+            console.log('ACTION: ' + eventName)
+            if (eventName == 'start'){
+                app.requestResult = 0
+                //self.refs.temperature.setCustomValidity('Wrong data format')
+                //self.refs.temperature.setCustomValidity('Wrong data format')
+            } else if (eventName.startsWith('dataerror:')){
+                app.requestResult = 2
+            } else if (eventName == 'invalid'){
+                console.log('NOT VALID')
+                app.requestResult = 3
+            }
+            riot.update();
+        })
+     */
+    </script>
+</app-form>

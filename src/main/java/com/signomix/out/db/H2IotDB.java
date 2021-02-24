@@ -335,7 +335,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setDouble(26, device.getAltitude());
             pstmt.setDouble(27, device.getState());
             pstmt.setLong(28, device.getRetentionTime());
-            
+
             pstmt.setString(29, device.getEUI());
             //TODO: last frame
             int updated = pstmt.executeUpdate();
@@ -468,7 +468,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(4, alert.getType());
             pstmt.setString(5, alert.getDeviceEUI());
             pstmt.setString(6, alert.getUserID());
-            pstmt.setString(7, (null!=alert.getPayload())?alert.getPayload().toString():"");
+            pstmt.setString(7, (null != alert.getPayload()) ? alert.getPayload().toString() : "");
             pstmt.setString(8, alert.getTimePoint());
             pstmt.setString(9, alert.getServiceId());
             pstmt.setString(10, alert.getServiceUuid().toString());
@@ -822,6 +822,32 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     }
 
     @Override
+    public Dashboard getDashboardByName(String userID, String dashboardName) throws ThingsDataException {
+        boolean publicUser = "public".equalsIgnoreCase(userID);
+        String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where name=? and (userid=? or team like ? ";
+        if (publicUser) {
+            query = query.concat("or shared=true)");
+        } else {
+            query = query.concat(")");
+        }
+        try (Connection conn = getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, dashboardName);
+            pstmt.setString(2, userID);
+            pstmt.setString(3, "%," + userID + ",%");
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return buildDashboard(rs);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=? where id=?";
         try (Connection conn = getConnection()) {
@@ -878,8 +904,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
-    */
-    
+     */
     @Override
     protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
         String query = "";
@@ -1049,7 +1074,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
-    
+
     @Override
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
         String query;

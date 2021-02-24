@@ -4,10 +4,12 @@
 */
 package com.signomix.out.notification;
 
+import com.signomix.out.iot.Device;
+
 /**
  *
  * @author greg
  */
 public interface CommandWebHookIface {
-    public boolean send(String deviceEUI, String deviceKey, String payload, boolean hexRepresentation);
+    public boolean send(Device device, String payload, boolean hexRepresentation);
 }

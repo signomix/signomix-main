@@ -10,7 +10,7 @@
                 <i class="material-icons clickable" onclick={ refresh() } title="REFRESH">refresh</i>
                 <i class="material-icons clickable" onclick={ editDefinition('NEW', true, false) } title="ADD NEW">add_circle_outline</i>
             </h2>
-            <table class="table table-condensed">
+            <table class="table table-condensed table-striped">
                 <tr>
                     <th>{app.texts.mydashboards.title[app.language]}</th>
                     <th class="text-right">{app.texts.mydashboards.action[app.language]}</th>
@@ -146,7 +146,19 @@
         }
 
         var updateMyDefinitions = function (text) {
-            self.definitions = JSON.parse(text)
+            let tmpDef=JSON.parse(text)
+            self.definitions = Object.values(tmpDef)
+            self.definitions.sort((a,b)=>{
+                let fa = a.title.toLowerCase(),
+                fb = b.title.toLowerCase();
+                if (fa < fb) {
+                    return -1;
+                }
+                if (fa > fb) {
+                    return 1;
+                }
+                return 0;
+            })
             app.user.dashboards = self.definitions
         }
         

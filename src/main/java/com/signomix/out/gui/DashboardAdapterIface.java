@@ -18,6 +18,7 @@ public interface DashboardAdapterIface {
     public void removeDashboard(String userID, String dashboardID) throws DashboardException;
     public void removeUserDashboards(String userID) throws DashboardException;
     public Dashboard getDashboard(String userId, String dashboardID) throws DashboardException;
+    public Dashboard getDashboardByName(String userId, String dashboardName) throws DashboardException;
     public List<Dashboard> getUserDashboards(String userID) throws DashboardException;
     public Map<String,Dashboard> getUserDashboardsMap(String userID) throws DashboardException;
     public boolean isAuthorized(String userIF, String dashboardID) throws DashboardException;
