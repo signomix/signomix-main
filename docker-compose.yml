@@ -3,26 +3,53 @@ version: "3.7"
 services:
 
   # nginx
-  nginx:
+  haproxy:
     #build: src/nginx-new
-    image: gskorupa/signomix-ce-nginx:latest
+    image: gskorupa/signomix-proxy:0.0.8
     depends_on:
       - signomix
+      - signomix-ps
+      - signomix-iot
     deploy:
       restart_policy:
         condition: on-failure
     ports:
-      - 80:80
-      - 443:443
+      - 8080:8080
+#      - 443:443
 
   # signomix
   signomix:
-    image: gskorupa/signomix-ce:latest
+    image: gskorupa/signomix-ce:1.4.3
     restart: always
+    environment:
+      SIGNOMIX_INITIAL_ADMIN_SECRET: test123
+    depends_on:
+      - rabbitmq
+      - dbserver
     expose:
       - 8080
     volumes:
       - mydata:/dbdata
+      
+  signomix-ps:
+    image: gskorupa/signomix-ps:1.0.0
+    restart: always
+    depends_on:
+      - rabbitmq
+      - dbserver
+    expose:
+      - 8080
+    volumes:
+      - mydata:/dbdata
+  
+  signomix-iot:
+    image: gskorupa/signomix-iot:0.0.19
+    depends_on:
+      - rabbitmq
+      - dbserver
+    restart: always
+    expose:
+      - 8080
     
   # database
   dbserver:
@@ -32,6 +59,19 @@ services:
       - 9092
     volumes:
       - mydata:/dbdata
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+#    container_name: 'rabbitmq'
+    environment: 
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker/rabbitmq/logs/:/var/log/rabbitmq
 
 volumes:
     mydata:

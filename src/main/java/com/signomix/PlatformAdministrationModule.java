@@ -358,6 +358,7 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
         }
 
+        /*
         // IoT
         //TODO: configurable number of devices
         if (thingsDB != null) {
@@ -509,6 +510,7 @@ public class PlatformAdministrationModule {
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
             }
         }
+        */
         
         if(shortenerDB!=null){
             try{

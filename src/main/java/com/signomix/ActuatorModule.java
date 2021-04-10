@@ -7,6 +7,7 @@ package com.signomix;
 import com.cedarsoftware.util.io.*;
 import com.signomix.in.http.ActuatorApi;
 import com.signomix.event.IotEvent;
+import com.signomix.event.SystemEvent;
 import com.signomix.iot.TtnDownlinkMessage;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.iot.ChannelData;
@@ -156,7 +157,7 @@ public class ActuatorModule {
             if (device.getType().equals(Device.VIRTUAL)) {
                 if (null != sourceDevice && !sourceDevice.getType().equals(Device.VIRTUAL)) {
                     done = sendToVirtual(device, payload.substring(1), thingsAdapter, scriptingAdapter);
-                } else if (null==sourceDevice && event.getType().equals(IotEvent.PLATFORM_MONITORING)) {
+                } else if (null==sourceDevice && event.getType().equals(SystemEvent.MONITORING)) {
                     done = sendToVirtual(device, payload, thingsAdapter, scriptingAdapter);
                 } else{
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this, "blocked command from virtual to virtual device"));

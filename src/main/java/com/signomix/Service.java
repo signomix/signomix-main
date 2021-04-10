@@ -14,6 +14,7 @@ import com.signomix.iot.IotData;
 import com.signomix.event.IotEvent;
 import com.signomix.event.MailingApiEvent;
 import com.signomix.event.NewDataEvent;
+import com.signomix.event.SystemEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
@@ -24,7 +25,6 @@ import org.cricketmsf.RequestObject;
 import java.util.HashMap;
 import org.cricketmsf.annotation.HttpAdapterHook;
 import org.cricketmsf.in.http.HtmlGenAdapterIface;
-import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.ParameterMapResult;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.in.scheduler.SchedulerIface;
@@ -41,6 +41,8 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.Device;
+import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.mailing.MailingIface;
 //import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
@@ -433,7 +435,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"),event.getData().get("target"), userAdapter, cms, emailSender);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -711,7 +713,7 @@ public class Service extends Kernel {
         return LoRaBusinessLogic.getInstance().processLoRaRequest(event);
     }
 
-    @HttpAdapterHook(adapterName = "LoRaAckService", requestMethod = "*")
+    @HttpAdapterHook(adapterName = "LoRaAckServDeviceice", requestMethod = "*")
     public Object LoRaAckHandle(Event event) {
         return LoRaBusinessLogic.getInstance().processLoRaRequest(event);
     }
@@ -816,9 +818,9 @@ public class Service extends Kernel {
         System.out.println("LOGIN");
         StandardResult result = (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
         if (result.getCode() == ResponseCode.OK) {
-            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
+            Kernel.getInstance().dispatchEvent(new SystemEvent(SystemEvent.USER, "login"));
         } else {
-            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login_error"));
+            Kernel.getInstance().dispatchEvent(new SystemEvent(SystemEvent.USER, "login_error"));
         }
         return result;
     }
@@ -1004,6 +1006,28 @@ public class Service extends Kernel {
             );
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @EventHook(eventCategory = SystemEvent.CATEGORY_SYSTEM)
+    public void processPlatformEvent(Event event) {
+        if (event.getTimePoint() != null) {
+            scheduler.handleEvent(event);
+        } else {
+            if (event.getType().equals(SystemEvent.MONITORING)) {
+                String eui = (String) getProperties().getOrDefault("monitoring_device", "");
+                if (!eui.isEmpty()) {
+                    Device d = null;
+                    try {
+                        d = thingsAdapter.getDevice(eui);
+                    } catch (ThingsDataException ex) {
+                    }
+                    if (null != d) {
+                        event.setOrigin("@" + eui); //source@target
+                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                    }
+                }
+            }
         }
     }
 

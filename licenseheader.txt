@@ -1,0 +1,4 @@
+/*
+* Copyright (C) Grzegorz Skorupa 2021.
+* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */

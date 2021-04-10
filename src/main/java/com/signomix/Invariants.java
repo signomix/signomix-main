@@ -18,7 +18,6 @@ public class Invariants extends HashMap {
     Configuration parameters:
     demo: [true|false] //
     release: [ce|commercial|mini]
-    
     webCacheSize: the cache size (maximum number of documents/files)
     
     maxUsers:
@@ -44,7 +43,11 @@ public class Invariants extends HashMap {
     public Invariants() {
         super();
 
-        put("release", "{{type}}"); //this parameter is changed by the build script
+        put("release", "ce");
+        
+        //put("release", "standard");
+        //put("release", "mini");
+        
         String releaseType = null;
         try {
             releaseType = (String) get("release");

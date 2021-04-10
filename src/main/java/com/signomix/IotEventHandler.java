@@ -56,10 +56,6 @@ public class IotEventHandler {
             scheduler.handleEvent(event);
         } else {
             switch (event.getType()) {
-                case IotEvent.GENERAL:
-                case IotEvent.INFO:
-                case IotEvent.WARNING:
-                case IotEvent.ALERT:
                 case IotEvent.DEVICE_LOST:
                 case IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED:
                     origin = event.getOrigin().split("\t");
@@ -249,7 +245,7 @@ public class IotEventHandler {
                 case IotEvent.ACTUATOR_HEXCMD:
                     ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
                     break;
-                case IotEvent.PLATFORM_MONITORING:
+                /*case IotEvent.PLATFORM_MONITORING:
                     String eui = (String) kernel.getProperties().getOrDefault("monitoring_device", "");
                     if (!eui.isEmpty()) {
                         Device d = null;
@@ -263,6 +259,7 @@ public class IotEventHandler {
                         }
                     }
                     break;
+                */
                 default:
                     Kernel.getInstance().dispatchEvent(
                             Event.logWarning("Don't know how to handle category/type " + event.getCategory() + "/" + event.getType(),

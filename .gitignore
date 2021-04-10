@@ -25,3 +25,5 @@
 /anbproject/
 /signomix-distribution.zip
 /src/main/webapp/blog/public/build/
+/.docker/
+/.settings/

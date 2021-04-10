@@ -317,26 +317,24 @@
                 {
                     "name": "iotDB",
                     "interfaceName": "IotDatabaseIface",
-                    "classFullName": "com.signomix.out.db.H2IotDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
-                        "path": "./data",
-                        "name": "iot",
-                        "file": "iot",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/iot",
                         "test-query": "select * from serviceversion",
                         "version": "9",
                         "user": "sa",
                         "password": "",
-                        "time-offset": "7200"
+                        "time-offset": "3600"
                     }
                 },
                 {
                     "name": "iotDataDB",
                     "interfaceName": "IotDataStorageIface",
-                    "classFullName": "com.signomix.out.db.H2DataStorageDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
-                        "path": "./data",
-                        "name": "data",
-                        "file": "data",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/data",
                         "test-query": "select * from serviceversion",
                         "version": "3",
                         "user": "sa",
@@ -347,10 +345,10 @@
                 {
                     "name": "actuatorCommandsDB",
                     "interfaceName": "ActuatorCommandsDBIface",
-                    "classFullName": "com.signomix.out.db.H2CommandsDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
-                        "path": "./data",
-                        "file": "actuator",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/actuator",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
@@ -663,6 +661,31 @@
                     "description": "",
                     "properties": {
                         "context": "/api"
+                    }
+                },
+                {
+                    "name": "EventDispatcher",
+                    "interfaceName": "DispatcherIface",
+                    "classFullName": "com.signomix.out.dispatcher.RabbitDispatcher",
+                    "description": "",
+                    "properties": {
+                        "url": "rabbitmq",
+                        "user": "admin",
+                        "password": "rabbit",
+                        "exchange": "events",
+                        "events": "IOT/*"
+                    }
+                },
+                {
+                    "name": "EventListener",
+                    "interfaceName": "",
+                    "classFullName": "com.signomix.in.dispatcher.RabbitEventListener",
+                    "description": "",
+                    "properties": {
+                        "url": "rabbitmq",
+                        "user": "admin",
+                        "password": "rabbit",
+                        "exchange": "events"
                     }
                 }
             ]

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.signomix</groupId>
     <artifactId>signomix-ce</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.49</version>
+            <version>1.5.50</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -30,6 +30,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.11.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -47,7 +52,9 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <!--
                                 <copy file="src/main/java/com/signomix/Invariants.template" tofile="src/main/java/com/signomix/Invariants.java" overwrite="true"/>
+                                            -->
                             </tasks>
                         </configuration>
                     </execution>
