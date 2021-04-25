@@ -8,7 +8,7 @@ Services forming the platform:
 
 - signomix-adm
 - signomix-iot
-- signomix-integration
+- signomix-iotdata
 - signomix-ms
 - signomix-ps
 - signomix-proxy
