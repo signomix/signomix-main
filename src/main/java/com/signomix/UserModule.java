@@ -6,6 +6,7 @@ package com.signomix;
 
 import com.signomix.event.SignomixUserEvent;
 import com.signomix.event.IotEvent;
+import com.signomix.event.SubscriptionEvent;
 import com.signomix.out.notification.NotificationIface;
 import java.util.List;
 import org.cricketmsf.microsite.user.*;
@@ -177,23 +178,18 @@ public class UserModule extends UserBusinessLogic {
     }
 
     public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
-        //TODO: check requester rights
-        //only admin can set: role or type differ than default (plus APPLICATION type)
-        RequestObject request = event.getRequest();
+        SubscriptionEvent sev=(SubscriptionEvent)event;
         StandardResult result = new StandardResult();
-        String uid = request.pathExt;
-        if (uid != null && !uid.isEmpty()) {
-            result.setCode(HttpAdapter.SC_BAD_REQUEST);
-            return result;
-        }
         try {
             User newUser = new User();
             newUser.setUid("" + Kernel.getEventId());
-            newUser.setEmail(event.getRequestParameter("email"));
-            newUser.setName(event.getRequestParameter("name"));
-            newUser.setPreferredLanguage(event.getRequestParameter("preferredLanguage"));
+            newUser.setEmail(sev.userEmail);
+            newUser.setName(sev.userName);
+            newUser.setSurname(sev.subscriptionName);
+            newUser.setPreferredLanguage(sev.language);
             newUser.setType(User.SUBSCRIBER);
             newUser.setRole("guest");
+            newUser.setConfirmed(true);
             // validate
             boolean valid = true;
             if (null == newUser.getEmail() || newUser.getEmail().isBlank()) {
@@ -231,6 +227,17 @@ public class UserModule extends UserBusinessLogic {
             result.setMessage(e.getMessage());
         } catch (NullPointerException e) {
             e.printStackTrace();
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            result.setMessage(e.getMessage());
+        }
+        return result;
+    }
+    public Object handleUnsubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
+        SubscriptionEvent sev=(SubscriptionEvent)event;
+        StandardResult result = new StandardResult();
+        try {
+            userAdapter.remove(sev.userId);
+        } catch (Exception e) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(e.getMessage());
         }

@@ -28,7 +28,6 @@ public class Device {
     public static String KPN = "KPN";
     public static String EXTERNAL = "EXTERNAL";
     
-    //statuses
     public static int UNKNOWN = 0;
     public static int OK = 1;
     public static int FAILURE = 2;

@@ -86,6 +86,7 @@ public class DeviceGroup {
         if (!this.team.endsWith(",")) {
             this.team = this.team + ",";
         }
+        setOpen(this.team.indexOf(",public,")>=0);
     }
 
     /**

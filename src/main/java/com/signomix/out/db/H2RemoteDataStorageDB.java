@@ -4,12 +4,17 @@
  */
 package com.signomix.out.db;
 
+import com.cedarsoftware.util.io.JsonWriter;
 import com.signomix.Service;
+import com.signomix.out.db.dto.DeviceChannelDto;
+import com.signomix.out.db.dto.DeviceDataDto;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DataQueryException;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,9 +23,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
@@ -96,7 +103,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
         }
         query = sb.toString();
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.executeUpdate();
@@ -116,7 +123,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     public List<String> getDeviceChannels(String deviceEUI) throws ThingsDataException {
         String query = "select channels from devicechannels where eui=?";
         ArrayList<String> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -138,7 +145,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     @Override
     public void putDeviceChannels(String deviceEUI, String channelNames) throws ThingsDataException {
         String query = "merge into devicechannels (eui,channels) key (eui) values (?,?)";
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -170,7 +177,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     @Override
     public void clearAllChannels(String deviceEUI, long checkPoint) throws ThingsDataException {
         String query = "delete from devicedata where eui=? and tstamp<?";
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -185,7 +192,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
 
     private void clearAllChannels(String deviceEUI) throws ThingsDataException {
         String query = "delete from devicedata where eui=?";
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -218,7 +225,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     public void removeAllChannels(String deviceEUI) throws ThingsDataException {
         clearAllChannels(deviceEUI);
         String query = "delete from devicechannels where eui=?";
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -246,7 +253,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         long timestamp = values.get(0).getTimestamp();
         java.sql.Date date = new java.sql.Date(timestamp);
         java.sql.Time time = new java.sql.Time(timestamp);
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -287,8 +294,109 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     }
 
     @Override
+    public Map getAll(String tableName) throws KeyValueDBException {
+        HashMap<String, DeviceDataDto> dataMap = new HashMap<>();
+        HashMap<String, DeviceChannelDto> channelMap = new HashMap<>();
+        String query;
+        String dataQuery = "select eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,project,state from devicedata";
+        String channelQuery = "select eui,channels from devicechannels";
+        if ("devicechannels".equalsIgnoreCase(tableName)) {
+            query = channelQuery;
+            DeviceChannelDto dto;
+            try ( Connection conn = getConnection()) {
+                PreparedStatement pst;
+                pst = conn.prepareStatement(query);
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    dto = new DeviceChannelDto();
+                    dto.eui = rs.getString(1);
+                    dto.channels = rs.getString(2);
+                    channelMap.put(dto.eui, dto);
+                }
+                pst.close();
+                conn.close();
+                return channelMap;
+            } catch (SQLException e) {
+                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
+            }
+        } else if ("devicedata".equalsIgnoreCase(tableName)) {
+            query = dataQuery;
+            DeviceDataDto dto;
+            try ( Connection conn = getConnection()) {
+                PreparedStatement pst;
+                pst = conn.prepareStatement(query);
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    dto = new DeviceDataDto();
+                    dto.eui = rs.getString(1);
+                    dto.userId = rs.getString(2);
+                    dto.day=rs.getDate(3);
+                    dto.dtime=rs.getTime(4);
+                    dto.timestamp=rs.getTimestamp(5);
+                    dto.d1=rs.getDouble(6);
+                    dto.d2=rs.getDouble(7);
+                    dto.d3=rs.getDouble(8);
+                    dto.d4=rs.getDouble(9);
+                    dto.d5=rs.getDouble(10);
+                    dto.d6=rs.getDouble(11);
+                    dto.d7=rs.getDouble(12);
+                    dto.d8=rs.getDouble(13);
+                    dto.d9=rs.getDouble(14);
+                    dto.d10=rs.getDouble(15);
+                    dto.d11=rs.getDouble(16);
+                    dto.d12=rs.getDouble(17);
+                    dto.d13=rs.getDouble(18);
+                    dto.d14=rs.getDouble(19);
+                    dto.d15=rs.getDouble(20);
+                    dto.d16=rs.getDouble(21);
+                    dto.d17=rs.getDouble(22);
+                    dto.d18=rs.getDouble(23);
+                    dto.d19=rs.getDouble(24);
+                    dto.d20=rs.getDouble(25);
+                    dto.d21=rs.getDouble(26);
+                    dto.d22=rs.getDouble(27);
+                    dto.d23=rs.getDouble(28);
+                    dto.d24=rs.getDouble(29);
+                    dto.project=rs.getString(30);
+                    dto.status=rs.getDouble(31);
+                    dataMap.put(dto.eui, dto);
+                }
+                pst.close();
+                conn.close();
+                return channelMap;
+            } catch (SQLException e) {
+                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
+            }
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
     public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public File getBackupFile() {
+        try {
+            ZipArchiver archiver = new ZipArchiver("data-", ".zip");
+            Map args = new HashMap();
+            args.put(JsonWriter.TYPE, true);
+            args.put(JsonWriter.PRETTY_PRINT, true);
+            Map map;
+            map = getAll("devicechannels");
+            String json = JsonWriter.objectToJson(map, args);
+            archiver.addFileContent("channels.json", json);
+            map = getAll("devicedata");
+            json = JsonWriter.objectToJson(map, args);
+            archiver.addFileContent("data.json", json);
+            return archiver.getFile();
+        } catch (KeyValueDBException | IOException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return null;
+        }
     }
 
     @Override
@@ -302,7 +410,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         String columnName = "d" + (channelIndex + 1);
         query = query.replaceFirst("\\?\\?", columnName);
         ChannelData result = null;
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -325,7 +433,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         List<String> channels = getDeviceChannels(deviceEUI);
         ArrayList<ChannelData> row = new ArrayList<>();
         ArrayList<List> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -351,7 +459,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
         ArrayList row2;
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);
@@ -491,7 +599,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         }
         String columnName = "d" + (channelIndex + 1);
         query = query.replaceFirst("\\?\\?", columnName);
-        try (Connection conn = getConnection()) {
+        try ( Connection conn = getConnection()) {
             PreparedStatement pst;
             pst = conn.prepareStatement(query);
             pst.setString(1, deviceEUI);

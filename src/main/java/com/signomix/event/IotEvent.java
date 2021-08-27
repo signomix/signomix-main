@@ -38,7 +38,7 @@ public class IotEvent extends Event {
     
     public static final String PLATFORM_DEVICE_LIMIT_EXCEEDED = "PLATFORM_DEVICE_LIMIT_EXCEEDED";
     
-    //public static final String PLATFORM_MONITORING = "PLATFORM_MONITORING";
+    public static final String PLATFORM_MONITORING = "PLATFORM_MONITORING";
     
 
     public IotEvent() {
@@ -99,10 +99,10 @@ public class IotEvent extends Event {
                 setType(DEVICE_LOST);
                 setPayload(payload);
                 break;
-            //case "PLATFORM_MONITORING":
-            //    setType(PLATFORM_MONITORING);
-            //    setPayload(payload);
-            //    break;
+            case "PLATFORM_MONITORING":
+                setType(PLATFORM_MONITORING);
+                setPayload(payload);
+                break;
             default:
                 setGeneralMessage(payload);
         }

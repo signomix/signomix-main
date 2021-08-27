@@ -4,6 +4,7 @@
  */
 package com.signomix.out.mailing;
 
+import com.signomix.out.db.MailingDBIface;
 import org.cricketmsf.microsite.cms.CmsIface;
 import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;

@@ -62,21 +62,21 @@ public class User {
     public static final int SERVICE_SMS = 0b00000001;
     public static final int SERVICE_NEW = 0b00000010; //not used
     
-    private int type = FREE;
+    private Integer type = FREE;
     private String uid;
     private String email;
     private String name;
     private String surname;
     private String role;
-    private boolean confirmed;
-    private boolean unregisterRequested;
+    private Boolean confirmed;
+    private Boolean unregisterRequested;
     private String confirmString;
     private String password;
     private String generalNotificationChannel = "";
     private String infoNotificationChannel = "";
     private String warningNotificationChannel = "";
     private String alertNotificationChannel = "";
-    private int authStatus;
+    private Integer authStatus;
     private long createdAt;
     private long number;
     private int services;
@@ -93,6 +93,13 @@ public class User {
         services = 0b0;
         credits=0;
         autologin=false;
+    }
+    
+    public void clearStatus(){
+        confirmed = null;
+        unregisterRequested = null;
+        authStatus = null;  
+        type=null;
     }
 
     /**

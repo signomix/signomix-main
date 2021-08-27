@@ -29,7 +29,10 @@ import org.cricketmsf.livingdoc.architecture.HexagonalAdapter;
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 @HexagonalAdapter
-public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter {
+public class GroupPublicationApi extends HttpAdapter implements HttpAdapterIface, Adapter {
+
+    public static final String KANAREK = "application/kanarek";
+    public static final String KANAREK2 = "kanarek";
 
     /**
      * This method is executed while adapter is instantiated during the service
@@ -56,34 +59,41 @@ public class ThingsApi extends HttpAdapter implements HttpAdapterIface, Adapter 
         byte[] r = {};
         String formattedResponse = "";
         String format = result.getHeaders().getFirst("X-Format");
-        if (null != format && ("application/kanarek".equalsIgnoreCase(format) || "kanarek".equalsIgnoreCase(format))) {
-            formattedResponse = KanarekFormatter.getInstance().format(true, result);
-        } else {
-            switch (type) {
-                case JSON:
-                    formattedResponse = JsonFormatter.getInstance().format(true, isExtendedResponse() ? result : result.getData());
-                    break;
-                case XML:
-                    //TODO: extended response is not possible because of "java.util.List is an interface, and JAXB can't handle interfaces"
-                    formattedResponse = XmlFormatter.getInstance().format(true, result.getData());
-                    break;
-                case CSV:
-                // formats only Result.getData() object.
-                // TODO: concat all list items
-                try {
-                    formattedResponse = format(result);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        if (null == format) {
+            format = "";
+        }
+        switch (format.toLowerCase()) {
+            case KANAREK:
+            case KANAREK2:
+                formattedResponse = KanarekFormatter.getInstance().format(true, result);
                 break;
-                case TEXT:
-                    // formats only Result.getData() object
-                    formattedResponse = TxtFormatter.getInstance().format(result);
+            default:
+                switch (type) {
+                    case JSON:
+                        formattedResponse = JsonFormatter.getInstance().format(true, isExtendedResponse() ? result : result.getData());
+                        break;
+                    case XML:
+                        //TODO: extended response is not possible because of "java.util.List is an interface, and JAXB can't handle interfaces"
+                        formattedResponse = XmlFormatter.getInstance().format(true, result.getData());
+                        break;
+                    case CSV:
+                /* formats only Result.getData() object.
+                 TODO: concat all list items
+                        */
+                        try {
+                        formattedResponse = format(result);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     break;
-                default:
-                    formattedResponse = JsonFormatter.getInstance().format(true, result);
-                    break;
-            }
+                    case TEXT:
+                        // formats only Result.getData() object
+                        formattedResponse = TxtFormatter.getInstance().format(result);
+                        break;
+                    default:
+                        formattedResponse = JsonFormatter.getInstance().format(true, result);
+                        break;
+                }
         }
         try {
             r = formattedResponse.getBytes("UTF-8");

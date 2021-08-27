@@ -27,3 +27,16 @@
 /src/main/webapp/blog/public/build/
 /.docker/
 /.settings/
+src/main/www/app/resources/iconmonstr/license.txt~
+.gitignore
+webapp/blog/public/build/bundle.css
+webapp/blog/public/build/bundle.css.map
+webapp/blog/public/build/bundle.js
+webapp/blog/public/build/bundle.js.map
+form-test.html~
+README.md
+webapp/blog/public/build/bundle.css
+webapp/blog/public/build/bundle.css.map
+webapp/blog/public/build/bundle.js
+webapp/blog/public/build/bundle.js.map
+www/status/index.html

@@ -186,10 +186,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, userID);
-
             pstmt.setString(1, "%," + groupID + "%,");
-
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
             while (rs.next()) {

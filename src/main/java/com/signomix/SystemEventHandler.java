@@ -96,9 +96,9 @@ public class SystemEventHandler {
                     kernel.dispatchEvent(Event.logWarning(SystemEventHandler.class, "Problem while clearing web cache - " + ex.getMessage()));
                 }
                 break;
-            case "MAILING_SEND":
-                MailingModule.getInstance().sendMailing((Long)event.getPayload());
-                break;
+            //case "MAILING_SEND":
+            //    MailingModule.getInstance().sendMailing((Long)event.getPayload());
+            //    break;
             case "STATUS":
                 System.out.println(kernel.printStatus());
                 break;

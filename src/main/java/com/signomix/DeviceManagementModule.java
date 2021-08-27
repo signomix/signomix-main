@@ -17,6 +17,7 @@ import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Random;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.user.User;
@@ -217,11 +218,11 @@ public class DeviceManagementModule {
             if (pathExt.isEmpty()) {  // user id is from request header
                 switch (request.method) {
                     case "GET":  // get list of groups
-                        if(null==request.parameters.get("group")){
+                        if (null == request.parameters.get("group")) {
                             result.setData(getUserGroups(userID, thingsAdapter));
-                        }else{
+                        } else {
                             result.setData(
-                                getGroupDevices(userID, (String)request.parameters.get("group"), thingsAdapter)
+                                    getGroupDevices(userID, (String) request.parameters.get("group"), thingsAdapter)
                             );
                         }
                         break;
@@ -258,7 +259,20 @@ public class DeviceManagementModule {
                                 String channels = params[1];
                                 String[] channelNames = channels.split(",");
                                 result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                                String format = event.getRequestParameter("format");
+                                if (null != format && !format.isBlank()) {
+                                    DeviceGroup group = getGroup(userID, groupID, thingsAdapter);
+                                    result.setHeader("X-Format", format);
+                                    result.setHeader("X-Group", groupID);
+                                    result.setHeader("X-Group-Name", group.getName());
+                                    String groupHref = group.getDescription().trim();
+                                    if (groupHref.startsWith("http")) {
+                                        groupHref = groupHref.replaceAll("[\\n\\t\\r ]", "").trim();
+                                        result.setHeader("X-Group-Dashboard-Href", groupHref);
+                                    }
+                                }
                                 break;
+
                             case 1:
                                 result.setData(getGroup(userID, pathExt, thingsAdapter));
                                 break;
@@ -293,6 +307,63 @@ public class DeviceManagementModule {
                         break;
                     default:
                         result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+        //TODO: exception handling - send 400 or 403
+        RequestObject request = event.getRequest();
+        StandardResult result = new StandardResult();
+        String userID = request.headers.getFirst("X-user-id");
+        String issuerID = request.headers.getFirst("X-issuer-id");
+        String pathExt = request.pathExt;
+        if (userID == null || userID.isEmpty()) {
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            result.setData("user not recognized");
+            return result;
+        }
+        if (pathExt.isEmpty()) {
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            result.setData("path not set");
+            return result;
+        }
+        if (!"GET".equalsIgnoreCase(request.method)) {
+            result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
+            return result;
+        }
+        String format = event.getRequestParameter("format");
+        try {
+            String groupID;
+            String channels;
+            String[] channelNames;
+            DeviceGroup group;
+            String[] params = pathExt.split("/");
+            if (params.length == 0) {
+                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            } else {
+                groupID = params[0];
+                group = getGroup(userID, groupID, thingsAdapter);
+                if (params.length > 1) {
+                    channels = params[1];
+                    channelNames = channels.split(",");
+                } else {
+                    channelNames=(String[]) group.getChannels().keySet().toArray(new String[group.getChannels().keySet().size()]);
+                }
+                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                if (null != format && !format.isBlank()) {
+                    result.setHeader("X-Format", format);
+                    result.setHeader("X-Group", groupID);
+                    result.setHeader("X-Group-Name", group.getName());
+                    String groupHref = group.getDescription().trim();
+                    if (groupHref.startsWith("http")) {
+                        groupHref = groupHref.replaceAll("[\\n\\t\\r ]", "").trim();
+                        result.setHeader("X-Group-Dashboard-Href", groupHref);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -403,7 +474,7 @@ public class DeviceManagementModule {
         device.setProject(newProject);
         String newActive = (String) request.parameters.getOrDefault("active", "true");
         device.setActive(Boolean.parseBoolean(newActive));
-        
+
         String newLatitude = (String) request.parameters.getOrDefault("latitude", "");
         if (newLatitude != null && !newLatitude.isEmpty()) {
             try {
@@ -444,7 +515,7 @@ public class DeviceManagementModule {
                 ex.printStackTrace();
             }
         }
-        
+
         String newCode = (String) request.parameters.getOrDefault("code", "");
         if (newCode != null && !newCode.isEmpty()) {
             try {
@@ -582,7 +653,7 @@ public class DeviceManagementModule {
         try {
             if (channelID != null && !"$".equals(channelID)) {
                 //Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "channelID parameter is not supported"));
-                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query+" channel "+channelID);
+                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query + " channel " + channelID);
                 return result;
             } else {
                 return (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query);
@@ -622,7 +693,7 @@ public class DeviceManagementModule {
         }
 
     }
-    
+
     private List getGroupDevices(String userID, String group, ThingsDataIface thingsAdapter) {
         try {
             return (ArrayList) thingsAdapter.getGroupDevices(userID, group);
@@ -644,7 +715,7 @@ public class DeviceManagementModule {
         }
 
     }
-    
+
     private List getTemplates(ThingsDataIface thingsAdapter) {
         try {
             return (ArrayList) thingsAdapter.getTemplates();

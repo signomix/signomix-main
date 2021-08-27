@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.signomix</groupId>
-    <artifactId>signomix-ce</artifactId>
+    <artifactId>signomix</artifactId>
     <version>1.4.1</version>
     <packaging>jar</packaging>
     <properties>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.50</version>
+            <version>1.5.53</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -38,7 +38,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>signomix-ce</finalName>
+        <finalName>signomix</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

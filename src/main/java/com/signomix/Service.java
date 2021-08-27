@@ -14,7 +14,7 @@ import com.signomix.iot.IotData;
 import com.signomix.event.IotEvent;
 import com.signomix.event.MailingApiEvent;
 import com.signomix.event.NewDataEvent;
-import com.signomix.event.SystemEvent;
+import com.signomix.event.SubscriptionEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
@@ -41,10 +41,7 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.Device;
-import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.mailing.MailingIface;
-//import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -118,8 +115,9 @@ public class Service extends Kernel {
     NotificationIface discordNotification = null;
     NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
+    
     MailingIface mailingAdapter = null;
-
+    
     //Integration services
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
@@ -435,7 +433,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"),event.getData().get("target"), userAdapter, cms, emailSender);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -550,6 +548,18 @@ public class Service extends Kernel {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
+    
+    @HttpAdapterHook(adapterName = "GroupPublicationService", requestMethod = "OPTIONS")
+    public Object groupPublicationServiceOptions(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(ResponseCode.OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "GroupPublicationService", requestMethod = "GET")
+    public Object groupPublicationServiceGet(Event event) {
+        return new DeviceManagementModule().processGroupPublicationEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+    }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "OPTIONS")
     public Object groupServiceOptions(Event requestEvent) {
@@ -601,6 +611,23 @@ public class Service extends Kernel {
     public Object ttnDataAdd(Event event) {
         try {
             return DeviceIntegrationModule.getInstance().processTtnRequest(event, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    @HttpAdapterHook(adapterName = "Ttn3IntegrationService", requestMethod = "OPTIONS")
+    public Object ttn3DataCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(ResponseCode.OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "Ttn3IntegrationService", requestMethod = "*")
+    public Object ttn3DataAdd(Event event) {
+        try {
+            return DeviceIntegrationModule.getInstance().processTtn3Request(event, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -713,7 +740,7 @@ public class Service extends Kernel {
         return LoRaBusinessLogic.getInstance().processLoRaRequest(event);
     }
 
-    @HttpAdapterHook(adapterName = "LoRaAckServDeviceice", requestMethod = "*")
+    @HttpAdapterHook(adapterName = "LoRaAckService", requestMethod = "*")
     public Object LoRaAckHandle(Event event) {
         return LoRaBusinessLogic.getInstance().processLoRaRequest(event);
     }
@@ -766,10 +793,13 @@ public class Service extends Kernel {
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, telegramNotification);
     }
 
-    @HttpAdapterHook(adapterName = "SubscriberService", requestMethod = "POST")
-    public Object subscriberAdd(Event event) {
-        boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
-        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, withConfirmation, telegramNotification);
+    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "start")
+    public Object handleSubscriptionStart(SubscriptionEvent event) {
+        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false, telegramNotification);
+    }
+    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "end")
+    public Object handleSubscriptionEnd(SubscriptionEvent event) {
+        return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false, telegramNotification);
     }
 
     /**
@@ -818,9 +848,9 @@ public class Service extends Kernel {
         System.out.println("LOGIN");
         StandardResult result = (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
         if (result.getCode() == ResponseCode.OK) {
-            Kernel.getInstance().dispatchEvent(new SystemEvent(SystemEvent.USER, "login"));
+            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
         } else {
-            Kernel.getInstance().dispatchEvent(new SystemEvent(SystemEvent.USER, "login_error"));
+            Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login_error"));
         }
         return result;
     }
@@ -1006,28 +1036,6 @@ public class Service extends Kernel {
             );
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    @EventHook(eventCategory = SystemEvent.CATEGORY_SYSTEM)
-    public void processPlatformEvent(Event event) {
-        if (event.getTimePoint() != null) {
-            scheduler.handleEvent(event);
-        } else {
-            if (event.getType().equals(SystemEvent.MONITORING)) {
-                String eui = (String) getProperties().getOrDefault("monitoring_device", "");
-                if (!eui.isEmpty()) {
-                    Device d = null;
-                    try {
-                        d = thingsAdapter.getDevice(eui);
-                    } catch (ThingsDataException ex) {
-                    }
-                    if (null != d) {
-                        event.setOrigin("@" + eui); //source@target
-                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
-                    }
-                }
-            }
         }
     }
 

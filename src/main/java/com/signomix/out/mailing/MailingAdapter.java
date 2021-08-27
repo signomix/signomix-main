@@ -4,6 +4,7 @@
  */
 package com.signomix.out.mailing;
 
+import com.signomix.out.db.MailingDBIface;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -30,18 +31,30 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MailingAdapter.class);
     private static final String MAILING_TESTER_ROLE_NAME = "mailingtester";
+    private static final String REPORT_LANGUAGE = "en";
 
     private String reportPath;
+    private String reportLanguage;
+    private String reportTesterRoleName;
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
         reportPath = (String) properties.get("reports-path");
         logger.info("\treports-path: " + reportPath);
+        reportLanguage = (String) properties.getOrDefault("reports-language",REPORT_LANGUAGE);
+        logger.info("\treports-language: " + reportLanguage);
+        reportTesterRoleName = (String) properties.getOrDefault("tester-role-name",MAILING_TESTER_ROLE_NAME);
+        logger.info("\ttester-role-name: " + reportTesterRoleName);
     }
 
     @Override
-    public Object sendMailing(String docUid, String target, UserAdapterIface userAdapter, CmsIface cmsAdapter, EmailSenderIface emailSender) {
+    public Object sendMailing(
+            String docUid, 
+            String target, 
+            UserAdapterIface userAdapter, 
+            CmsIface cmsAdapter, 
+            EmailSenderIface emailSender) {
         try {
             ArrayList<String> recipients = new ArrayList<>();
             ArrayList<String> failures = new ArrayList<>();
@@ -109,7 +122,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
                     sb.append(failures.get(i)).append(";");
                 }
                 sb.append("\r\n");
-                saveReport(cmsAdapter, sb.toString());
+                saveReport(cmsAdapter, docUid, target, sb.toString());
             } catch (UserException ex) {
                 logger.warn(ex.getMessage());
             }
@@ -120,7 +133,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         }
     }
 
-    private void saveReport(CmsIface cmsAdapter, String reportContent) {
+    private void saveReport(CmsIface cmsAdapter, String docUid, String target, String reportContent) {
         if(null==reportPath){
             logger.info("report path not configured");
             return;
@@ -138,6 +151,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             report.setTitle("mailing report " + timestamp);
             report.setSummary("");
             report.setContent(reportContent);
+            report.setExtra(docUid+";"+target);
             cmsAdapter.addDocument(report, roles);
         } catch (CmsException ex) {
             logger.warn(ex.getMessage());
@@ -148,22 +162,19 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         String userName;
         String topic;
         String content;
-        userName = user.getName();
-        if (null == userName || userName.isBlank()) {
-            userName = user.getUid();
-        }
         try {
             topic = URLDecoder.decode(doc.getTitle(), "UTF-8");
             content = URLDecoder.decode(doc.getContent(), "UTF-8");
 
-            content = content.replaceFirst("\\$user.name", userName);
+            content = content.replaceFirst("\\$user.name", user.getName());
+            content = content.replaceFirst("\\$mailing.name", user.getSurname());
+            content = content.replaceFirst("\\$user.uid", user.getUid());
             System.out.println("to: " + user.getEmail());
             System.out.println("subject: " + topic);
             System.out.println(content);
 
             String result = emailSender.send(user.getEmail(), topic, content);
-            return "OK".equals(result);
-            //return true;
+            return "OK".equalsIgnoreCase(result);
         } catch (UnsupportedEncodingException ex) {
             logger.warn(ex.getMessage());
             return false;

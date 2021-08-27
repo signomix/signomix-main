@@ -9,6 +9,7 @@ import com.signomix.event.MailingApiEvent;
 import java.util.Arrays;
 import org.cricketmsf.Adapter;
 import java.util.HashMap;
+import java.util.List;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.event.ProcedureCall;
@@ -98,11 +99,19 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
         }
         String documentId = (String) request.parameters.get("doc");
         String target = (String) request.parameters.get("target");
-        //TODO: validate parameters
-        if (documentId.isEmpty()) {
+        
+        if (null==documentId||documentId.isEmpty()) {
             HashMap<String, Object> err = new HashMap<>();
             err.put("code", 400); //code<100 || code >1000
             err.put("message", "doc parameter not found");
+            return ProcedureCall.respond(400, err);
+        }
+        String[] tList={"all","users","subscribers","test"};
+        List<String> validTargets=Arrays.asList(tList);
+        if (null==target||!validTargets.contains(target)) {
+            HashMap<String, Object> err = new HashMap<>();
+            err.put("code", 400); //code<100 || code >1000
+            err.put("message", "target parameter not found or not valid (all|users|subscribers|test)");
             return ProcedureCall.respond(400, err);
         }
         // mailing should be run in new thread (timePoint, 201 response code)

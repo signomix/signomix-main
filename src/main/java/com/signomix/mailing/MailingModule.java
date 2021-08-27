@@ -9,7 +9,7 @@ import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.cms.Document;
 
 /**
- *
+ * TODO: Use this class as a target solution for mailing 
  * @author greg
  */
 public class MailingModule {

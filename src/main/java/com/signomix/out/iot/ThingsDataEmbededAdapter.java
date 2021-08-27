@@ -5,7 +5,6 @@
 package com.signomix.out.iot;
 
 import com.signomix.event.IotEvent;
-import com.signomix.event.SystemEvent;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
 import java.util.ArrayList;
@@ -127,7 +126,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             logger.debug("virtual data to {} {}",EUI,monitoringDeviceEui);
             if (!EUI.equalsIgnoreCase(monitoringDeviceEui)) {
                 String cmd = Base64.getEncoder().encodeToString("datareceived".getBytes());
-                Kernel.getInstance().dispatchEvent(new SystemEvent(SystemEvent.MONITORING,cmd));
+                Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, cmd));
             }
         }
         dev.setLastSeen(lastSeen);

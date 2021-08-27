@@ -23,6 +23,8 @@ import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.iot.TtnData;
 import com.signomix.iot.chirpstack.uplink.Uplink;
 import com.signomix.iot.kpn.KPNData;
+import com.signomix.iot.ttn3.Decoder;
+import com.signomix.iot.ttn3.TtnData3;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.script.ScriptingAdapterIface;
@@ -458,6 +460,108 @@ public class DeviceIntegrationModule {
         }
         try {
             ArrayList<ChannelData> inputList = prepareTtnValues(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
+            ArrayList<ArrayList> outputList;
+            try {
+                Object[] processingResult = DataProcessor.processValues(inputList,
+                        device,
+                        scriptingAdapter,
+                        data.getReceivedPackageTimestamp(),
+                        data.getLatitude(),
+                        data.getLongitude(),
+                        data.getAltitude(),
+                        request.body, "");
+                outputList = (ArrayList<ArrayList>) processingResult[0];
+                for (int i = 0; i < outputList.size(); i++) {
+                    thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
+                }
+                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".processTtnRequest()", e.getMessage()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Object processTtn3Request(Event event, ThingsDataIface thingsAdapter, UserAdapterIface userAdapter, ScriptingAdapterIface scriptingAdapter, TtnApi ttnApi) {
+        //TODO: Authorization
+        RequestObject request = event.getRequest();
+        boolean authorizationRequired = !("false".equalsIgnoreCase(ttnApi.getProperty("authorization-required")));
+        StandardResult result = new StandardResult();
+        result.setCode(HttpAdapter.SC_CREATED);
+        result.setData("OK");
+        String authKey = request.headers.getFirst("Authorization");
+
+        if (authorizationRequired && (authKey == null || authKey.isEmpty())) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization is required"));
+            return result;
+        }
+
+        String path = request.pathExt;
+        Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "TTN3 path:" + path));
+        String jsonString = request.body;
+        Decoder decoder=new Decoder();
+        TtnData3 data=decoder.decode(jsonString);
+        if (data == null) {
+            //we don't send error code to TTN
+            return result;
+        }
+        data.normalize();
+        Device device;
+        try {
+            device = thingsAdapter.getDevice(data.getDeviceEUI());
+            if (null == device) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " is not registered"));
+                return result;
+            }
+        } catch (ThingsDataException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return result;
+        }
+        if (authorizationRequired) {
+            try {
+                if (!authKey.equals(device.getKey())) {
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Authorization key don't match for " + device.getEUI()));
+                    return result;
+                }
+            } catch (Exception ex) { //catch (UserException ex) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                return result;
+            }
+        }
+
+        if (!device.isActive()) {
+            result.setData("device is not active");
+            return result;
+        }
+
+        try {
+            if (!device.getType().startsWith("TTN")) {
+                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "Device " + data.getDeviceEUI() + " type is not valid"));
+                return result;
+            }
+            if (device.isCheckFrames()) {
+//                if (device.getLastFrame() == data.getFrameCounter()) {
+//                    //drop request
+//                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "duplicated frame " + data.getFrameCounter() + " for " + device.getEUI()));
+//                    result.setCode(HttpAdapter.SC_OK);
+//                    result.setData("OK");
+//                    return result;
+//                }
+            }
+            thingsAdapter.updateHealthStatus(device.getEUI(), System.currentTimeMillis(), data.getFrameCounter(), data.getDownlink(), data.getDeviceID());
+
+        } catch (ThingsDataException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return result;
+        }
+        try {
+            ArrayList<ChannelData> inputList = prepareTtn3Values(data, scriptingAdapter, device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
             ArrayList<ArrayList> outputList;
             try {
                 Object[] processingResult = DataProcessor.processValues(inputList,
@@ -940,6 +1044,66 @@ public class DeviceIntegrationModule {
         return values;
     }
 
+    private ArrayList<ChannelData> prepareTtn3Values(TtnData3 data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
+        ArrayList<ChannelData> values = new ArrayList<>();
+        if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
+            if (null != data.getPayload()) {
+                byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
+                try {
+                    values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(), userID);
+                } catch (Exception e) {
+                    Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID, e.getMessage()));
+                    fireEvent(1, deviceID, userID, e.getMessage());
+                    return null;
+                }
+            }
+        } else {
+            TtnData processedData = data;
+            // handling Cayenne LPP
+            ArrayList<String> toExpand = new ArrayList<>();
+            Iterator it = data.getPayloadFields().keySet().iterator();
+            Object payloadField;
+            String fieldName;
+            while (it.hasNext()) {
+                fieldName = (String) it.next();
+                payloadField = data.getPayloadFields().get(fieldName);
+                if (payloadField instanceof com.cedarsoftware.util.io.JsonObject) {
+                    toExpand.add(fieldName);
+                } else {
+                    // nothing to do
+                }
+            }
+            toExpand.forEach(name -> {
+                com.cedarsoftware.util.io.JsonObject j = (com.cedarsoftware.util.io.JsonObject) data.getPayloadFields().get(name);
+                Iterator it2 = j.keySet().iterator();
+                String key;
+                while (it2.hasNext()) {
+                    key = (String) it2.next();
+                    processedData.putField(name + "_" + key, j.get(key));
+                }
+            });
+            toExpand.forEach(name -> {
+                processedData.removeField(name);
+            });
+            // Cayenne LPP - end
+            Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName() + ".prepareTtn3Values for device " + deviceID, "payloadfieldnames size:"+processedData.getPayloadFieldNames().length));
+            for (String payloadFieldName : processedData.getPayloadFieldNames()) {
+                ChannelData mval = new ChannelData();
+                mval.setDeviceEUI(processedData.getDeviceEUI());
+                mval.setName(payloadFieldName.toLowerCase());
+                mval.setValue(processedData.getDoubleValue(payloadFieldName));
+                mval.setStringValue(processedData.getStringValue(payloadFieldName));
+                if (data.getTimeField() != null) {
+                    mval.setTimestamp(data.getTimeField().toEpochMilli());
+                } else {
+                    mval.setTimestamp(data.getTimestamp());
+                }
+                values.add(mval);
+            }
+        }
+        return values;
+    }
+
     private ArrayList<ChannelData> prepareChirpstackValues(Uplink data, ScriptingAdapterIface scriptingAdapter, String encoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
@@ -1022,7 +1186,7 @@ public class DeviceIntegrationModule {
         try {
             long now = System.currentTimeMillis();
             if (!device.getEUI().equalsIgnoreCase((String) Kernel.getInstance().getProperties().get("monitoring_device"))) {
-                logger.debug("virtual data to {} {}",device.getEUI(),(String) Kernel.getInstance().getProperties().get("monitoring_device"));
+                logger.debug("virtual data to {} {}", device.getEUI(), (String) Kernel.getInstance().getProperties().get("monitoring_device"));
                 thingsAdapter.updateHealthStatus(device.getEUI(), now, 0/*new frame count*/, "", "");
             }
             ArrayList<ArrayList> outputList;
