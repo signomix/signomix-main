@@ -61,7 +61,8 @@
                 </div>
                 <div class="form-group" if={doc.type == 'FILE'}>
                     <label for="content">{ app.texts.cm_document_form.content[app.language] }</label>
-                    <input class="form-control" id="content" name="content" value={ doc.content } readonly>
+                    <input class="form-control" id="content" name="content" value={ doc.content } readonly> 
+                    <a href="{ doc.uid }" target="_blank">{ app.texts.cm_document_form.open_file[app.language] }</a>
                 </div>
                 <div class="form-group">
                     <label for="doctags">{ app.texts.cm_document_form.doctags[app.language] }</label>
@@ -78,6 +79,18 @@
                 <div class="form-group" if={doc.type == 'FILE' && allowEdit}>
                     <label for="file">{ app.texts.cm_document_form.selectFile[app.language]}</label><br />
                     <input class="form-control-file" type="file" name="file" id="file">
+                </div>
+                <div class="form-group">
+                    <label for="language">{ app.texts.cm_document_form.created[app.language] }</label>
+                    <input class="form-control" id="created" name="created" type="text" value={ doc.created } readonly={ true }>
+                </div>
+                <div class="form-group">
+                    <label for="language">{ app.texts.cm_document_form.modified[app.language] }</label>
+                    <input class="form-control" id="modified" name="modified" type="text" value={ doc.modified } readonly={ true }>
+                </div>
+                <div class="form-group">
+                    <label for="language">{ app.texts.cm_document_form.published[app.language] }</label>
+                    <input class="form-control" id="published" name="published" type="text" value={ doc.published } readonly={ true }>
                 </div>
                 <button type="submit" class="btn btn-primary" disabled={ !allowEdit }>{ app.texts.cm_document_form.save[app.language] }</button>
                 <button type="button" onclick={ close } class="btn btn-secondary">{ app.texts.cm_document_form.cancel[app.language] }</button>

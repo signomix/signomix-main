@@ -451,6 +451,26 @@
             "en": "Extra",
             "fr": "Extra",
             "pl": "Ekstra"
+        },
+        "created": {
+            "en": "Created",
+            "fr": "Created",
+            "pl": "Utworzony"
+        },
+        "modified": {
+            "en": "Modified",
+            "fr": "Modified",
+            "pl": "Zmodyfikowany"
+        },
+        "published": {
+            "en": "Published",
+            "fr": "Published",
+            "pl": "Opublikowany"
+        },
+        "open_file": {
+            "en": "Open file",
+            "fr": "Open file",
+            "pl": "Otwórz plik"
         }
     }
     app.texts.cm_documents = {
