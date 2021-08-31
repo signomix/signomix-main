@@ -45,11 +45,11 @@ services:
     expose:
       - 8080
     volumes:
-      - /home/signomix/volume-service/db:/usr/signomix/dbdata/db:rw
-      - /home/signomix/volume-service/logs:/usr/signomix/dbdata/logs:rw
-      - /home/signomix/volume-service/files:/usr/signomix/dbdata/files:rw
-      - /home/signomix/volume-service/assets:/usr/signomix/dbdata/assets:rw
-      - /home/signomix/volume-service/backup:/usr/signomix/dbdata/backup:rw
+      - ~/tests/signomix/volume-service/db:/usr/signomix/dbdata/db:rw
+      - ~/tests/signomix/volume-service/logs:/usr/signomix/dbdata/logs:rw
+      - ~/tests/signomix/volume-service/files:/usr/signomix/dbdata/files:rw
+      - ~/tests/signomix/volume-service/assets:/usr/signomix/dbdata/assets:rw
+      - ~/tests/signomix/volume-service/backup:/usr/signomix/dbdata/backup:rw
     
   # signomix publication service
   signomix-ta-ps:
@@ -63,9 +63,9 @@ services:
     expose:
       - 8080
     volumes:
-      - /home/signomix/volume-ps:/usr/signomix/dbdata:rw
-      - /home/signomix/volume-ps/logs:/usr/signomix/dbdata/logs:rw
-      - /home/signomix/volume-ps/assets:/usr/signomix/dbdata/assets:rw
+      - ~/tests/signomix/volume-ps:/usr/signomix/dbdata:rw
+      - ~/tests/signomix/volume-ps/logs:/usr/signomix/dbdata/logs:rw
+      - ~/tests/signomix/volume-ps/assets:/usr/signomix/dbdata/assets:rw
     
   # database
   dbserver:
@@ -74,4 +74,4 @@ services:
     expose:
       - 9092
     volumes:
-      - /home/signomix/volume-db:/h2data:rw
+      - ~/tests/signomix/volume-db:/data:rw
