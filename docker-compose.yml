@@ -2,9 +2,9 @@ version: "3.7"
 
 services:
 
-  # nginx
+  # Proxy & API Gateway
   nginx:
-    image: signomix-proxy:latest
+    image: ghcr.io/signomix/signomix-proxy:latest
     depends_on:
       - signomix-main
       - signomix-ta-ps
@@ -17,7 +17,7 @@ services:
 
   # signomix
   signomix-main:
-    image: signomix-main:latest
+    image: ghcr.io/signomix/signomix:latest
     depends_on:
       - signomix-database
     restart: always
@@ -53,7 +53,7 @@ services:
     
   # signomix publication service
   signomix-ta-ps:
-    image: signomix-ta-ps:latest
+    image: ghcr.io/signomix/signomix-ta-ps:latest
     depends_on:
       - signomix-database    
     restart: always
@@ -68,7 +68,7 @@ services:
     
   # database
   signomix-database:
-    image: signomix-database:latest
+    image: ghcr.io/signomix/signomix-database:latest
     restart: always
     expose:
       - 9092
