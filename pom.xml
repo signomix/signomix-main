@@ -101,86 +101,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <!-- Remove existing docker image from local repository -->
-                    <execution>
-                        <id>docker-clean</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>docker</executable>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <arguments>
-                                <argument>rmi</argument>
-                                <argument>gskorupa/${project.artifactId}:${project.version}</argument>
-                            </arguments>
-                            <successCodes>0,1</successCodes>
-                        </configuration>
-                    </execution>
-                    <!-- 
-                      Create new docker image using Dockerfile which must be present in current working directory.
-                      Tag the image using maven project version information.
-                    -->
-                    <execution>
-                        <id>docker-build</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>docker</executable>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <arguments>
-                                <argument>build</argument>
-                                <argument>-t</argument>
-                                <argument>gskorupa/${project.artifactId}:${project.version}</argument>
-                                <argument>.</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Login and Push the image to a docker repository. -->
-                    <execution>
-                        <id>docker-login</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>docker</executable>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <arguments>
-                                <argument>login</argument>
-                                <argument>-u</argument>
-                                <argument>${docker.user}</argument>
-                                <argument>-p</argument>
-                                <argument>${docker.password}</argument>
-                                <argument>${docker.url}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>docker-push</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>docker</executable>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <arguments>
-                                <argument>push</argument>
-                                <argument>gskorupa/signomix-ce:${project.version}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
@@ -192,36 +112,6 @@
                     </descriptors>
                 </configuration>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>exec-npm-build</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <workingDirectory>./src/main/webapp/blog</workingDirectory>
-                            <executable>npm</executable>
-                            <commandlineArgs>run build</commandlineArgs>
-                        </configuration>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>npm</executable>
-                    <arguments>
-                        <argument></argument>
-                    </arguments>
-                    <environmentVariables>
-                        <LANG>en_US</LANG>
-                    </environmentVariables>
-                </configuration>
-            </plugin>
-            -->
         </plugins>
     </build>
 </project>
