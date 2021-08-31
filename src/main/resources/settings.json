@@ -320,7 +320,7 @@
                     "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/h2data/iot",
+                        "dbfile": "/data/iot",
                         "test-query": "select * from serviceversion",
                         "version": "9",
                         "user": "sa",
@@ -334,7 +334,7 @@
                     "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/h2data/data",
+                        "dbfile": "/data/data",
                         "test-query": "select * from serviceversion",
                         "version": "3",
                         "user": "sa",
@@ -348,7 +348,7 @@
                     "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/h2data/actuator",
+                        "dbfile": "/data/actuator",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",

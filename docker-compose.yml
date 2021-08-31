@@ -19,7 +19,7 @@ services:
   signomix-main:
     image: ghcr.io/signomix/signomix:latest
     depends_on:
-      - signomix-database
+      - dbserver
     restart: always
     environment:
     # CHANGE CONFIG BELOW
@@ -55,8 +55,8 @@ services:
   signomix-ta-ps:
     image: ghcr.io/signomix/signomix-ta-ps:latest
     depends_on:
-      - signomix-database
-      - signomix   
+      - dbserver
+      - signomix-main   
     restart: always
     environment:
       - SIGNOMIX_TITLE='Signomix'
@@ -68,7 +68,7 @@ services:
       - /home/signomix/volume-ps/assets:/usr/signomix/dbdata/assets:rw
     
   # database
-  signomix-database:
+  dbserver:
     image: ghcr.io/signomix/signomix-database:latest
     restart: always
     expose:
