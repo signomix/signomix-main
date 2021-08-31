@@ -55,7 +55,8 @@ services:
   signomix-ta-ps:
     image: ghcr.io/signomix/signomix-ta-ps:latest
     depends_on:
-      - signomix-database    
+      - signomix-database
+      - signomix   
     restart: always
     environment:
       - SIGNOMIX_TITLE='Signomix'
