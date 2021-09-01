@@ -2,7 +2,7 @@
 
 **IoT & data management platform**
 
-The next versions and the target architecture of Signomix will be available in a separate repository: signomix-ta
+A hosted, cloud-based Signomix is available at https://signomix.com
 
 Services forming the platform:
 
@@ -46,4 +46,6 @@ To stop the platform:
 ```
 $ docker-compose -f docker-compose-local.yml down
 ```
+
+> The next versions and the target architecture of Signomix will be available in a separate repository: `signomix-ta`.
 
