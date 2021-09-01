@@ -11,7 +11,17 @@ Services forming the platform:
 - [signomix-database](https://github.com/signomix/signomix-database)
 - [signomix-proxy](https://github.com/signomix/signomix-proxy)
 
-## Building
+## Quickstart
+
+Signomix demo instance can be started using [Docker Compose](https://docs.docker.com/compose/). The configuration file `docker-compose.yml` creates multi-container Signomix application using packages from GitHub repositories.
+
+```shell
+$ docker-compose -f docker-compose.yml up
+```
+
+Then browse to http://localhost:8080
+
+## Building local images
 
 - Build `signomix-ta-ps`
 - Build `signomix-database`
@@ -20,20 +30,20 @@ Services forming the platform:
 
 ```
 $ mvn package
-$ docker build -t signomix-main:latest .
+$ docker build -t signomix:local .
 ```
 
-## Running
+## Running local images
 
 The services that make up the platform are launched using [Docker Compose](https://docs.docker.com/compose/):
 
 ```
-$ docker-compose up -d
+$ docker-compose -f docker-compose-local.yml up -d
 ```
 
 To stop the platform:
 
 ```
-$ docker-compose down
+$ docker-compose -f docker-compose-local.yml down
 ```
 

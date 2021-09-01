@@ -42,3 +42,5 @@ webapp/blog/public/build/bundle.js.map
 www/status/index.html
 licenseheader.txt
 .vscode/settings.json
+.classpath
+.project
