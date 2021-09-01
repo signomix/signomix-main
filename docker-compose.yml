@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
 
-  # Proxy & API Gateway
+  # API Gateway
   nginx:
     image: ghcr.io/signomix/signomix-proxy:latest
     depends_on:
@@ -45,11 +45,11 @@ services:
     expose:
       - 8080
     volumes:
-      - ~/tests/signomix/volume-service/db:/usr/signomix/dbdata/db:rw
-      - ~/tests/signomix/volume-service/logs:/usr/signomix/dbdata/logs:rw
-      - ~/tests/signomix/volume-service/files:/usr/signomix/dbdata/files:rw
-      - ~/tests/signomix/volume-service/assets:/usr/signomix/dbdata/assets:rw
-      - ~/tests/signomix/volume-service/backup:/usr/signomix/dbdata/backup:rw
+      - ~/tests/signomix/volume-service/db:/usr/signomix/data/db:rw
+      - ~/tests/signomix/volume-service/logs:/usr/signomix/data/logs:rw
+      - ~/tests/signomix/volume-service/files:/usr/signomix/data/files:rw
+      - ~/tests/signomix/volume-service/assets:/usr/signomix/data/assets:rw
+      - ~/tests/signomix/volume-service/backup:/usr/signomix/data/backup:rw
     
   # signomix publication service
   signomix-ta-ps:

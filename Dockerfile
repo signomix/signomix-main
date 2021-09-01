@@ -11,13 +11,13 @@
 FROM azul/zulu-openjdk-alpine:13
 
 WORKDIR /usr/signomix
-RUN mkdir /usr/signomix/dbdata
-RUN mkdir /usr/signomix/dbdata/db
-RUN mkdir /usr/signomix/dbdata/logs
-RUN mkdir /usr/signomix/dbdata/files
-RUN mkdir /usr/signomix/dbdata/assets
-RUN mkdir /usr/signomix/dbdata/backup
-VOLUME /usr/signomix/dbdata
+RUN mkdir /usr/signomix/data
+RUN mkdir /usr/signomix/data/db
+RUN mkdir /usr/signomix/data/logs
+RUN mkdir /usr/signomix/data/files
+RUN mkdir /usr/signomix/data/assets
+RUN mkdir /usr/signomix/data/backup
+VOLUME /usr/signomix/data
 
 COPY target/signomix.jar /usr/signomix/
 COPY src/main/resources/settings.json /usr/signomix/config/

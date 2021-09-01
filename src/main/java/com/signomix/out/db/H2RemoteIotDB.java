@@ -59,7 +59,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                         .append("code varchar,")
                         .append("decoder varchar,")
                         .append("description varchar,")
-                        .append("interval bigint,")
+                        .append("tinterval bigint,")
                         .append("pattern varchar,")
                         .append("commandscript varchar,")
                         .append("producer varchar)");
@@ -154,9 +154,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid, active, project, latitude,longitude,altitude,state,retention from devices where userid = ? or team like ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid, active, project, latitude,longitude,altitude,state,retention from devices where userid = ? or team like ?";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention from devices where userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention from devices where userid = ?";
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -203,9 +203,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and (userid = ? or team like ?)";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and (userid = ? or team like ?)";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and userid = ?";
         }
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -300,7 +300,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
-        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,interval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=? where eui=?";
+        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=? where eui=?";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(true);
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -604,7 +604,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public void addDeviceTemplate(DeviceTemplate device) throws ThingsDataException {
-        String query = "insert into devicetemplates (eui,appid,appeui,type,channels,code,decoder,description,interval,pattern,commandscript,producer) values(?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into devicetemplates (eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer) values(?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(true);
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -670,7 +670,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     DeviceTemplate buildDeviceTemplate(ResultSet rs) throws SQLException {
-        //eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,interval
+        //eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval
         DeviceTemplate d = new DeviceTemplate();
         d.setEui(rs.getString(1));
         d.setAppid(rs.getString(2));
@@ -931,7 +931,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                         .append("code varchar,")
                         .append("decoder varchar,")
                         .append("description varchar,")
-                        .append("interval bigint,")
+                        .append("tinterval bigint,")
                         .append("pattern varchar,")
                         .append("commandscript varchar,")
                         .append("producer varchar)");
@@ -1001,7 +1001,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public List<DeviceTemplate> getDeviceTemplates() throws ThingsDataException {
-        String query = "select eui,appid,appeui,type,channels,code,decoder,description,interval,pattern,commandscript,producer from devicetemplates";
+        String query = "select eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer from devicetemplates";
         try (Connection conn = getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
