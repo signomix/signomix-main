@@ -44,3 +44,6 @@ licenseheader.txt
 .vscode/settings.json
 .classpath
 .project
+/docker-compose.dev-gs.yml
+/docker-compose.local-gs.yml
+/docker-compose.overlay.yml

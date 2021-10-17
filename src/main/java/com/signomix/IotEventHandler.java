@@ -13,6 +13,8 @@ import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.iot.VirtualDevice;
+import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageWrapper;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class IotEventHandler {
+
     private static final Logger logger = LoggerFactory.getLogger(IotEventHandler.class);
 
     public static void handleEvent(
@@ -50,7 +53,8 @@ public class IotEventHandler {
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             ScriptingAdapterIface scriptingAdapter,
-            ActuatorCommandsDBIface actuatorCommandsDB) {
+            ActuatorCommandsDBIface actuatorCommandsDB,
+            ExternalNotificatorIface externalNotificator) {
         String[] origin;
         if (event.getTimePoint() != null) {
             scheduler.handleEvent(event);
@@ -91,52 +95,65 @@ public class IotEventHandler {
                             // ThingsDataIface.updateHealthStatus()
                             // DeviceManagementModule.checkStatus()
                         }
-                        String[] channelConfig = user.getChannelConfig(event.getType());
-                        if (channelConfig == null || channelConfig.length < 2) {
-                            break; // OK its normal behaviour
-                        }
-                        String messageChannel = channelConfig[0];
-                        String address;
-                        if(channelConfig.length==2){
-                            address= channelConfig[1];
-                        }else{
-                            address="";
-                            for(int i=1; i<channelConfig.length-1; i++){
-                                address=address+channelConfig[i]+":";
-                            }
-                            address=address+channelConfig[channelConfig.length-1];
-                        }
+
                         String message = (String) event.getPayload();
                         String response = "";
-                        switch (messageChannel.toUpperCase()) {
-                            case "SMTP":
-                                response = smtpNotification.send(address, nodeName, message);
-                                break;
-                            case "SMS":
-                                if (user.getCredits() > 0) {
-                                    response = smsNotification.send(user.getUid(), user.getPhonePrefix() + address, nodeName, message);
+
+                        if (null != externalNotificator
+                                && null != externalNotificator.getEndpoint()
+                                && !externalNotificator.getEndpoint().isEmpty()) {
+                            MessageWrapper wrapper = new MessageWrapper();
+                            wrapper.type = event.getType();
+                            wrapper.eui = nodeName;
+                            wrapper.message = message;
+                            wrapper.user = user;
+                            response = externalNotificator.send(wrapper);
+                        } else {
+                            String[] channelConfig = user.getChannelConfig(event.getType());
+                            if (channelConfig == null || channelConfig.length < 2) {
+                                break; // OK its normal behaviour
+                            }
+                            String messageChannel = channelConfig[0];
+                            String address;
+                            if (channelConfig.length == 2) {
+                                address = channelConfig[1];
+                            } else {
+                                address = "";
+                                for (int i = 1; i < channelConfig.length - 1; i++) {
+                                    address = address + channelConfig[i] + ":";
                                 }
-                                if(!response.startsWith("ERROR")){
-                                    //TODO: decrease user credits
-                                }
-                                break;
-                            case "PUSHOVER":
-                                response = pushoverNotification.send(address, nodeName, message);
-                                break;
-                            case "SLACK":
-                                response = slackNotification.send(address, nodeName, message);
-                                break;
-                            case "TELEGRAM":
-                                response = telegramNotification.send(address, nodeName, message);
-                                break;
-                            case "DISCORD":
-                                response = discordNotification.send(address, nodeName, message);
-                                break;
-                            case "WEBHOOK":
-                                response = webhookNotification.send(address, nodeName, message);
-                                break;
-                            default:
-                                Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
+                                address = address + channelConfig[channelConfig.length - 1];
+                            }
+                            switch (messageChannel.toUpperCase()) {
+                                case "SMTP":
+                                    response = smtpNotification.send(address, nodeName, message);
+                                    break;
+                                case "SMS":
+                                    if (user.getCredits() > 0) {
+                                        response = smsNotification.send(user.getUid(), user.getPhonePrefix() + address, nodeName, message);
+                                    }
+                                    if (!response.startsWith("ERROR")) {
+                                        //TODO: decrease user credits
+                                    }
+                                    break;
+                                case "PUSHOVER":
+                                    response = pushoverNotification.send(address, nodeName, message);
+                                    break;
+                                case "SLACK":
+                                    response = slackNotification.send(address, nodeName, message);
+                                    break;
+                                case "TELEGRAM":
+                                    response = telegramNotification.send(address, nodeName, message);
+                                    break;
+                                case "DISCORD":
+                                    response = discordNotification.send(address, nodeName, message);
+                                    break;
+                                case "WEBHOOK":
+                                    response = webhookNotification.send(address, nodeName, message);
+                                    break;
+                                default:
+                                    Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
+                            }
                         }
                         if (response.startsWith("ERROR")) {
                             logger.warn(response);
@@ -258,7 +275,7 @@ public class IotEventHandler {
                         } catch (ThingsDataException ex) {
                         }
                         if (null != d) {
-                            event.setOrigin("@"+eui); //source@target
+                            event.setOrigin("@" + eui); //source@target
                             ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
                         }
                     }

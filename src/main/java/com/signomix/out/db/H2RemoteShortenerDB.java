@@ -42,9 +42,7 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
         }
         query = sb.toString();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
             pst.close();
             if (indexQuery != null) {
@@ -52,7 +50,6 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
                 pst2.executeUpdate();
                 pst2.close();
             }
-            conn.close();
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
@@ -61,13 +58,9 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
     @Override
     public void removeUrl(String target) throws KeyValueDBException {
         String query = "delete from urls where target=?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, target);
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new KeyValueDBException(KeyValueDBException.CANNOT_DELETE, e.getMessage());
         }
@@ -76,14 +69,10 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
     @Override
     public void putUrl(String path, String target) throws KeyValueDBException {
         String query = "merge into urls key(target) values (?,?);";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, path);
             pst.setString(2, target);
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new KeyValueDBException(KeyValueDBException.CANNOT_WRITE, e.getMessage());
         }
@@ -93,16 +82,12 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
     public String getTarget(String path) throws KeyValueDBException {
         String query = "select target from urls where source=?";
         String target = "";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, path);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                target=rs.getString(1);
+                target = rs.getString(1);
             }
-            pst.close();
-            conn.close();
             return target;
         } catch (SQLException e) {
             throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());

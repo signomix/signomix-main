@@ -4,23 +4,14 @@ services:
 
   # API Gateway
   nginx:
-    image: ghcr.io/signomix/signomix-proxy:latest
-    depends_on:
-      - signomix-main
-      - signomix-ta-ps
-    deploy:
-      restart_policy:
-        condition: always
+    image: signomix-proxy:local
     ports:
       - 8080:8080
       - 443:443
 
   # signomix
   signomix-main:
-    image: ghcr.io/signomix/signomix:latest
-    depends_on:
-      - dbserver
-    restart: always
+    image: signomix:local
     environment:
     # CHANGE CONFIG BELOW
       - SIGNOMIX_INITIAL_ADMIN_EMAIL=admin@localhost
@@ -53,11 +44,7 @@ services:
     
   # signomix publication service
   signomix-ta-ps:
-    image: ghcr.io/signomix/signomix-ta-ps:latest
-    depends_on:
-      - dbserver
-      - signomix-main   
-    restart: always
+    image: signomix-ta-ps:local
     environment:
       - SIGNOMIX_TITLE='Signomix'
     expose:
@@ -69,10 +56,6 @@ services:
     
   # database
   dbserver:
-    image: ghcr.io/signomix/signomix-database:latest
-    restart: always
-    expose:
-      - 9092
+    image: signomix-database:local
     volumes:
       - ~/tests/signomix/volume-db:/data:rw
-      

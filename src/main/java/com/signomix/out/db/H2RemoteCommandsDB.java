@@ -31,7 +31,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
 
     @Override
     public void addTable(String tableName, int maxSize, boolean persistent) throws KeyValueDBException {
-
         String query;
         String indexQuery = null;
         StringBuilder sb = new StringBuilder();
@@ -60,9 +59,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
         }
         query = sb.toString();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
             pst.close();
             if (indexQuery != null) {
@@ -70,7 +67,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                 pst2.executeUpdate();
                 pst2.close();
             }
-            conn.close();
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
@@ -90,9 +86,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
             overwriteMode = true;
         }
         command = command.substring(1);
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, commandEvent.getId());
             pst.setString(2, commandEvent.getCategory());
             pst.setString(3, commandEvent.getType());
@@ -100,8 +94,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
             pst.setString(5, command);
             pst.setLong(6, commandEvent.getCreatedAt());
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(e.getErrorCode(), e.getMessage());
         }
@@ -144,9 +136,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     public Event getFirstCommand(String deviceEUI) throws ThingsDataException {
         String query = "select id,category,type,payload,createdat from commands where origin like ? order by createdat limit 1";
         Event result = null;
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
@@ -154,8 +144,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                 result.setId(rs.getLong(1));
                 result.setCreatedAt(rs.getLong(5));
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -170,15 +158,11 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException {
         String query = "delete from commands where origin like ? and createdat<?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             pst.setLong(2, checkPoint);
             //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
@@ -187,13 +171,9 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void removeAllCommands(String deviceEUI) throws ThingsDataException {
         String query = "delete from commands where origin like ?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
@@ -203,9 +183,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     public List<Event> getAllCommands(String deviceEUI) throws ThingsDataException {
         String query = "select id,category,type,payload,createdat from commands where origin like ? order by createdat";
         ArrayList<Event> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             Event ev;
@@ -215,8 +193,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                 ev.setCreatedAt(rs.getLong(5));
                 result.add(ev.clone());
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -226,13 +202,11 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void putCommandLog(String deviceEUI, Event commandEvent) throws ThingsDataException {
         String query = "insert into commandslog (id,category,type,origin,payload,createdat) values (?,?,?,?,?,?);";
-        String command=(String) commandEvent.getPayload();
-        if(command.startsWith("#")||command.startsWith("&")){
-            command=command.substring(1);
+        String command = (String) commandEvent.getPayload();
+        if (command.startsWith("#") || command.startsWith("&")) {
+            command = command.substring(1);
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, commandEvent.getId());
             pst.setString(2, commandEvent.getCategory());
             pst.setString(3, commandEvent.getType());
@@ -240,8 +214,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
             pst.setString(5, command);
             pst.setLong(6, commandEvent.getCreatedAt());
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(e.getErrorCode(), e.getMessage());
         }
@@ -250,15 +222,11 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void clearAllLogs(String deviceEUI, long checkPoint) throws ThingsDataException {
         String query = "delete from commandslog where origin like ? and createdat<?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             pst.setLong(2, checkPoint);
             //pst.setTimestamp(2, new java.sql.Timestamp(checkPoint));
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
@@ -267,13 +235,9 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void removeAllLogs(String deviceEUI) throws ThingsDataException {
         String query = "delete from commandslog where origin like ?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
@@ -283,9 +247,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     public List<Event> getAllLogs(String deviceEUI) throws ThingsDataException {
         String query = "select id,category,type,payload,createdat from commandslog where origin like ? order by createdat";
         ArrayList<Event> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, "%@" + deviceEUI);
             ResultSet rs = pst.executeQuery();
             Event ev;
@@ -295,8 +257,6 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                 ev.setCreatedAt(rs.getLong(5));
                 result.add(ev.clone());
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -306,13 +266,9 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
     @Override
     public void removeCommand(long id) throws ThingsDataException {
         String query = "delete from commands where id=?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, id);
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }

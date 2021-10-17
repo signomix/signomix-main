@@ -42,6 +42,7 @@ import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
 import com.signomix.out.mailing.MailingIface;
+import com.signomix.out.notification.ExternalNotificatorIface;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -115,6 +116,7 @@ public class Service extends Kernel {
     NotificationIface discordNotification = null;
     NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
+    ExternalNotificatorIface externalNotificator =  null;
     
     MailingIface mailingAdapter = null;
     
@@ -171,6 +173,8 @@ public class Service extends Kernel {
         telegramNotification = (NotificationIface) getRegistered("telegramNotification");
         discordNotification = (NotificationIface) getRegistered("discordNotification");
         webhookNotification = (NotificationIface) getRegistered("webhookNotification");
+        externalNotificator = (ExternalNotificatorIface) getRegistered("externalNotificator");
+        
         emailSender = (EmailSenderIface) getRegistered("emailSender");
         mailingAdapter = (MailingIface) getRegistered("MailingService");
 
@@ -1058,7 +1062,8 @@ public class Service extends Kernel {
                     dashboardAdapter,
                     authAdapter,
                     scriptingAdapter,
-                    actuatorCommandsDB
+                    actuatorCommandsDB,
+                    externalNotificator
             );
         } catch (Exception e) {
             e.printStackTrace();

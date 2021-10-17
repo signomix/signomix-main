@@ -220,8 +220,8 @@
 
     self.listener.on('*', function(event, originalEvent){
         try{
-            var status = originalEvent.currentTarget.status
-            var message = originalEvent.currentTarget.statusText
+            var status = originalEvent.target.status
+            var message = originalEvent.target.statusText
             if(status == 409){
                 alert('Error while saving the document\nThe same UID already exists.')
             }else if(status!=200 && status!=201){
@@ -240,6 +240,8 @@
             var tmpDoc = self.doc = JSON.parse(text)
             self.callbackListener.trigger('submitted:'+tmpDoc.path)
         } else if (text.startsWith('[object MouseEvent')) {
+            self.callbackListener.trigger('cancelled')
+        } else if (text.startsWith('[object PointerEvent')) {
             self.callbackListener.trigger('cancelled')
         } else if (text.startsWith('error:409')){
                 alert('This UID is already defined!')

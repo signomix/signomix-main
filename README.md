@@ -38,13 +38,13 @@ $ docker build -t signomix:local .
 The services that make up the platform are launched using [Docker Compose](https://docs.docker.com/compose/):
 
 ```
-$ docker-compose -f docker-compose-local.yml up -d
+$ docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d
 ```
 
 To stop the platform:
 
 ```
-$ docker-compose -f docker-compose-local.yml down
+$ docker-compose -f docker-compose.yml -f docker-compose.local.yml down
 ```
 
 > The next versions and the target architecture of Signomix will be available in a separate repository: `signomix-ta`.

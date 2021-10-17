@@ -123,7 +123,7 @@ public class UserEventHandler {
                     String[] params = payload.split(":");
                     if (params.length == 2) {
                         //TODO: email templates from CMS
-                        String passResetLink = kernel.properties.getOrDefault("serviceurl", "") + "/app/?tid=" + params[0] + "#account";
+                        String passResetLink = kernel.properties.getOrDefault("serviceurl", "") + "/app/?tid=" + params[0] + "#!account";
                         emailSender.send(params[1], "Password Reset Request", "Click here to change password: <a href=\"" + passResetLink + "\">" + passResetLink + "</a>");
                     } else {
                         kernel.handle(Event.logWarning("UserEvent.USER_RESET_PASSWORD", "Malformed payload->" + payload));

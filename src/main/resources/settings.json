@@ -19,11 +19,11 @@
                 "user-confirm": "true",
                 "initial-admin-email": "$SIGNOMIX_INITIAL_ADMIN_EMAIL",
                 "initial-admin-secret": "$SIGNOMIX_INITIAL_ADMIN_SECRET",
-                "admin-notification-email": "",
+                "admin-notification-email": "$SIGNOMIX_ADMIN_NOTIFICATION_EMAIL",
                 "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator *@/api/mailing",
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
-                "backup-folder": "./data/backup",
+                "backup-folder": "./dbdata/backup",
                 "backup-strategy": "daily",
                 "serviceurl": "$SIGNOMIX_URL",
                 "servicetitle": "$SIGNOMIX_TITLE",
@@ -133,6 +133,15 @@
                     }
                 },
                 {
+                    "name": "GroupPublicationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.GroupPublicationApi",
+                    "properties": {
+                        "context": "/api/iot/gdata",
+                        "silent-mode": "false"
+                    }
+                },
+                {
                     "name": "TemplateService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "com.signomix.in.http.ThingsApi",
@@ -157,7 +166,7 @@
                     "classFullName": "com.signomix.in.http.IotApi",
                     "properties": {
                         "context": "/api/i4t",
-                        "authorization-required": "true",
+                        "authorization-required":"true",
                         "silent-mode": "false",
                         "dump-request": "true"
                     }
@@ -179,6 +188,17 @@
                     "classFullName": "com.signomix.in.http.TtnApi",
                     "properties": {
                         "context": "/api/ttn",
+                        "silent-mode": "false",
+                        "dump-request": "true",
+                        "authorization-required": "true"
+                    }
+                },
+                {
+                    "name": "Ttn3IntegrationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "com.signomix.in.http.Ttn3Api",
+                    "properties": {
+                        "context": "/api/ttn3",
                         "silent-mode": "false",
                         "dump-request": "true",
                         "authorization-required": "true"
@@ -292,7 +312,7 @@
                     "classFullName": "org.cricketmsf.out.log.FileLogger",
                     "properties": {
                         "name": "Signomix",
-                        "log-file-name": "./logs/gdpr.log"
+                        "log-file-name": "./dbdata/logs/gdpr.log"
                     }
                 },
                 {
@@ -301,7 +321,7 @@
                     "classFullName": "org.cricketmsf.out.db.KeyValueDB",
                     "description": "DB storing users, web cache, platform config/limits, tokens",
                     "properties": {
-                        "path": "./data",
+                        "path": "./dbdata/db",
                         "name": "local"
                     }
                 },
@@ -310,7 +330,7 @@
                     "interfaceName": "KeyValueDBIface",
                     "classFullName": "org.cricketmsf.out.db.KeyValueDB",
                     "properties": {
-                        "path": "./data",
+                        "path": "./dbdata/db",
                         "name": "queue"
                     }
                 },
@@ -320,7 +340,8 @@
                     "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/data/iot",
+                        "dbfile": "/h2data/iot",
+                        "file": "iot",
                         "test-query": "select * from serviceversion",
                         "version": "9",
                         "user": "sa",
@@ -334,7 +355,8 @@
                     "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/data/data",
+                        "dbfile": "/h2data/data",
+                        "file": "data",
                         "test-query": "select * from serviceversion",
                         "version": "3",
                         "user": "sa",
@@ -348,7 +370,7 @@
                     "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
                         "host": "dbserver",
-                        "dbfile": "/data/actuator",
+                        "dbfile": "/h2data/actuator",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
@@ -361,10 +383,11 @@
                     "interfaceName": "SchedulerIface",
                     "classFullName": "org.cricketmsf.in.scheduler.Scheduler",
                     "properties": {
-                        "path": "./data",
+                        "path": "./dbdata/db",
                         "envVariable": "SCHEDULER_DB_PATH",
                         "file": "scheduler.xml",
-                        "init": "Data2,SYSTEM,EVENT,CHECK_DEVICES,*1m,_|_;Data1,SYSTEM,EVENT,CLEAR_DATA,*1m,_|_;EV2,EC1COUNTER,EVENT,COMMAND,17:40:00 GMT|*24h,{\"value\":\"0\"};EV3,EC1,EVENT,BACKUP,21:40:00 GMT|*24h,_"
+                        "init":"Data3,SYSTEM,EVENT,CHECK_DEVICES,*15m,_|_;Data1,SIGNOMIX,EVENT,CLEAR_DATA,*40m,_|_;Data2,SIGNOMIX,EVENT,BACKUP,06:05:00 GMT|*24h,_"
+
                     }
                 },
                 {
@@ -417,10 +440,10 @@
                 {
                     "name": "cmsDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2CmsDB",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteCmsDB",
                     "properties": {
-                        "path": "./data",
-                        "file": "cms",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/cms",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "content",
@@ -431,10 +454,10 @@
                 {
                     "name": "userDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "com.signomix.out.db.H2UserDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteUserDB",
                     "properties": {
-                        "path": "./data",
-                        "file": "user",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/user",
                         "test-query": "select * from serviceversion",
                         "version": "2",
                         "encrypted": "false",
@@ -447,10 +470,10 @@
                 {
                     "name": "authDB",
                     "interfaceName": "SqlDBIface",
-                    "classFullName": "org.cricketmsf.microsite.out.db.H2AuthDB",
+                    "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteAuthDB",
                     "properties": {
-                        "path": "./data",
-                        "file": "auth",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/auth",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
@@ -465,11 +488,10 @@
                     "properties": {
                         "helper-name": "cmsDB",
                         "root-path": "./www/",
-                        "file-path": "./files/",
-                        "file-path-published": "./www/assets/",
+                        "file-path": "./dbdata/files/",
+                        "file-path-published": "./dbdata/assets/",
                         "index-file": "index.html",
-                        "default-language": "en",
-                        "pwa-prefix": "pwa/"
+                        "default-language": "en"
                     }
                 },
                 {
@@ -519,6 +541,14 @@
                     }
                 },
                 {
+                    "name": "externalNotificator",
+                    "interfaceName": "ExternalNotificatorIface",
+                    "classFullName": "com.signomix.out.notification.ExternalNotificator",
+                    "properties": {
+                        "url": ""
+                    }
+                },
+                {
                     "name": "smtpNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SmtpNotificator",
@@ -528,6 +558,7 @@
                         "localhost": "",
                         "user": "$SIGNOMIX_SMTP_USER",
                         "password": "$SIGNOMIX_SMTP_PASSWORD",
+                        "starttls":"true",
                         "debug-session": "false"
                     }
                 },
@@ -547,8 +578,8 @@
                     "classFullName": "com.signomix.out.notification.TelegramNotificator",
                     "properties": {
                         "url": "https://api.telegram.org/",
-                        "token": "$SIGNOMIX_TELEGRAM_TOKEN",
-                        "token-2": "935476658:AAH7lNOEiGCPAXuKbSd103Xo-LVtM-UH3mw",
+                        "token":"$SIGNOMIX_TELEGRAM_TOKEN",
+                        "token-2": "$SIGNOMIX_TELEGRAM_TOKEN2",
                         "ignore-certificate-check": "true"
                     }
                 },
@@ -583,8 +614,8 @@
                     "classFullName": "com.signomix.out.notification.ServerSmsNotificator",
                     "properties": {
                         "url": "https://api2.serwersms.pl/messages/send_sms",
-                        "login": "$SIGNOMIX_SMS_LOGIN",
-                        "password": "$SIGNOMIX_SMS_PASSWORD",
+                        "login":"$SIGNOMIX_SMS_LOGIN",
+                        "password":"$SIGNOMIX_SMS_PASSWORD",
                         "ignore-certificate-check": "true"
                     }
                 },
@@ -598,21 +629,21 @@
                         "localhost": "",
                         "user": "$SIGNOMIX_EMAIL_USER",
                         "password": "$SIGNOMIX_EMAIL_PASSWORD",
-                        "startttls": "false",
+                        "startttls":"true",
                         "debug-session": "false"
                     }
                 },
                 {
                     "name": "ShortenerDB",
                     "interfaceName": "ShortenerDBIface",
-                    "classFullName": "com.signomix.out.db.H2ShortenerDB",
+                    "classFullName": "com.signomix.out.db.H2RemoteShortenerDB",
                     "properties": {
-                        "path": "./data",
-                        "file": "urls",
+                        "host": "dbserver",
+                        "dbfile": "/h2data/shortener",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "encrypted": "false",
-                        "filePassword": "",
+                        "filePassword":"",
                         "name": "user",
                         "user": "sa",
                         "password": ""
@@ -650,8 +681,8 @@
                     "interfaceName": "CommandWebHookIface",
                     "classFullName": "com.signomix.out.notification.CommandWebHookClient",
                     "properties": {
-                        "url": "http://httpbin.org/post",
-                        "print-response": "true"
+                        "url":"http://httpbin.org/post",
+                        "print-response":"true"
                     }
                 },
                 {

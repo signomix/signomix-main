@@ -221,12 +221,6 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         return getDataStorage().getValues(userID, deviceEUI, query);
     }
 
-    /*
-    @Override
-    public List<List> getValues(String userID, String deviceEUI, int limit) throws ThingsDataException {
-        return getDataStorage().getValues(userID, deviceEUI, limit);
-    }
-     */
     @Override
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         return getIotDB().isAuthorized(userID, deviceEUI);
