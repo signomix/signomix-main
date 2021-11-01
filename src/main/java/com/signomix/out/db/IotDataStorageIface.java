@@ -17,6 +17,7 @@ import org.cricketmsf.out.db.KeyValueDBIface;
 public interface IotDataStorageIface extends KeyValueDBIface {
     
     public List<String> getDeviceChannels(String deviceEUI) throws ThingsDataException;
+    public int getChannelIndex(String deviceEUI,String channel) throws ThingsDataException;
     public void putDeviceChannels(String deviceEUI, String channelNames) throws ThingsDataException;
     public void putDeviceChannels(String deviceEUI, List<String> channelNames) throws ThingsDataException;
     public void clearAllChannels(String deviceEUI, long checkPoint) throws ThingsDataException;
@@ -37,4 +38,5 @@ public interface IotDataStorageIface extends KeyValueDBIface {
     
     
     public List<List> getDeviceMeasures(String userID, String deviceEUI, String query) throws ThingsDataException;
+    
 }

@@ -40,6 +40,15 @@ sgx0.addVirtualData = function (newEUI, newName, newValue) {
 sgx0.getAverageOf = function (channelName, scope) {
     return this.channelReader.getAverageValue(channelName, scope).getValue();
 }
+sgx0.getMinimumOf = function (channelName, scope) {
+    return this.channelReader.getMinimalValue(channelName, scope).getValue();
+}
+sgx0.getMaximumOf = function (channelName, scope) {
+    return this.channelReader.getMaximalValue(channelName, scope).getValue();
+}
+sgx0.getSumOf = function (channelName, scope) {
+    return this.channelReader.getSummaryValue(channelName, scope).getValue();
+}
 sgx0.getLastValue = function (channelName) {
     var tmpLastData=this.channelReader.getLastData(channelName);
     if(tmpLastData!=null){

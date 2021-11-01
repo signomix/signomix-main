@@ -115,7 +115,7 @@
         if(calcAlert){
             self.rangeName=self.range.substring(self.range.indexOf('@')+1)
         }
-        markerList=[]
+        //markerList=[]
         riot.update()
         self.noData=false
         

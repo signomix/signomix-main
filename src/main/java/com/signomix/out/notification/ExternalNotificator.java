@@ -4,6 +4,7 @@
  */
 package com.signomix.out.notification;
 
+import com.signomix.out.notification.dto.MessageWrapper;
 import com.cedarsoftware.util.io.JsonWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,8 +63,8 @@ public class ExternalNotificator extends HttpClient implements ExternalNotificat
     }
 
     @Override
-    public String getEndpoint() {
-        return endpointURL;
+    public boolean isConfigured() {
+        return !endpointURL.isBlank();
     }
 
 

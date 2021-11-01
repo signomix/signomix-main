@@ -40,14 +40,14 @@ public class ChannelClient {
     public ChannelData getAverageValue(String channel, int scope, Double newValue) {
         try {
             List<List> result;
-            if(newValue==null){
-                result =thingsAdapter.getValues(userID, deviceID, "channel "+channel+" average " + scope);
-            }else{
-                result =thingsAdapter.getValues(userID, deviceID, "channel "+channel+" average " + scope + " new "+newValue);
+            if (newValue == null) {
+                result = thingsAdapter.getValues(userID, deviceID, "channel " + channel + " average " + scope);
+            } else {
+                result = thingsAdapter.getValues(userID, deviceID, "channel " + channel + " average " + scope + " new " + newValue);
             }
-            if(result!=null){
-                if(result.get(0).size()>0){
-                    return (ChannelData)result.get(0).get(0);
+            if (result != null) {
+                if (result.get(0).size() > 0) {
+                    return (ChannelData) result.get(0).get(0);
                 }
             }
         } catch (Exception ex) {
@@ -55,4 +55,50 @@ public class ChannelClient {
         }
         return null;
     }
+
+    public ChannelData getMinimalValue(String channel, int scope) {
+        try {
+            List<List> result;
+            result = thingsAdapter.getValues(userID, deviceID, "channel " + channel + " minimum " + scope);
+            if (result != null) {
+                if (result.get(0).size() > 0) {
+                    return (ChannelData) result.get(0).get(0);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public ChannelData getMaximalValue(String channel, int scope) {
+        try {
+            List<List> result;
+            result = thingsAdapter.getValues(userID, deviceID, "channel " + channel + " maximum " + scope);
+            if (result != null) {
+                if (result.get(0).size() > 0) {
+                    return (ChannelData) result.get(0).get(0);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public ChannelData getSummaryValue(String channel, int scope) {
+        try {
+            List<List> result;
+            result = thingsAdapter.getValues(userID, deviceID, "channel " + channel + " sum " + scope);
+            if (result != null) {
+                if (result.get(0).size() > 0) {
+                    return (ChannelData) result.get(0).get(0);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 }

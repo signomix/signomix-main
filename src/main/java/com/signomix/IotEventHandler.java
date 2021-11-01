@@ -14,7 +14,7 @@ import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.iot.VirtualDevice;
 import com.signomix.out.notification.ExternalNotificatorIface;
-import com.signomix.out.notification.MessageWrapper;
+import com.signomix.out.notification.dto.MessageWrapper;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -100,8 +100,7 @@ public class IotEventHandler {
                         String response = "";
 
                         if (null != externalNotificator
-                                && null != externalNotificator.getEndpoint()
-                                && !externalNotificator.getEndpoint().isEmpty()) {
+                                && externalNotificator.isConfigured()) {
                             MessageWrapper wrapper = new MessageWrapper();
                             wrapper.type = event.getType();
                             wrapper.eui = nodeName;

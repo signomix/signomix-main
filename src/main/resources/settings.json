@@ -543,9 +543,10 @@
                 {
                     "name": "externalNotificator",
                     "interfaceName": "ExternalNotificatorIface",
-                    "classFullName": "com.signomix.out.notification.ExternalNotificator",
+                    "classFullName": "com.signomix.out.notification.JmsNotificator",
                     "properties": {
-                        "url": ""
+                        "url": "amqp://localhost:5672",
+                        "queuq": "notifications"
                     }
                 },
                 {

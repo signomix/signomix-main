@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.signomix</groupId>
     <artifactId>signomix</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.5</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.53</version>
+            <version>1.5.54</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -35,6 +35,11 @@
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
             <version>5.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>qpid-jms-client</artifactId>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
     <build>

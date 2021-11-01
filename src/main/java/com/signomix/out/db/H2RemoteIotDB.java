@@ -469,10 +469,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public List getAlerts(String userID, boolean descending) throws ThingsDataException {
-        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id limit=?";
+        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id ";
         if (descending) {
             query = query.concat(" desc");
         }
+        query=query.concat(" limit ?");
         try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setLong(2, requestLimit);

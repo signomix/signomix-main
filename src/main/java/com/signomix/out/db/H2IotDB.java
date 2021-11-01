@@ -30,6 +30,7 @@ import org.cricketmsf.Kernel;
 public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface, Adapter {
 
     private int timeOffset = 0;
+    private int requestLimit = 0; //no limit
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -40,6 +41,13 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             e.printStackTrace();
         }
         Kernel.getInstance().getLogger().print("\ttime-offset: " + timeOffset);
+        try {
+            requestLimit = Integer.parseInt(properties.getOrDefault("requestLimit", "500"));
+            Kernel.getInstance().getLogger().print("\trequestLimit: " + requestLimit);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
+    }
     }
 
     @Override
@@ -139,12 +147,8 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
         }
         query = sb.toString();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pst= conn.prepareStatement(query);) {
             pst.executeUpdate();
-            pst.close();
-            conn.close();
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
@@ -158,8 +162,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention from devices where userid = ?";
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
                 pstmt.setString(2, "%," + userID + "%,");
@@ -184,8 +187,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         String query;
         query = "select * from devices where groups like ?";
 
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, "%," + groupID + "%,");
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
@@ -207,8 +209,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and userid = ?";
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             pstmt.setString(2, userID);
             if (withShared) {
@@ -232,8 +233,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         if (deviceEUI == null || deviceEUI.isEmpty()) {
             return null;
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -253,9 +253,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + " is already defined");
         }
         String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getEUI());
             pstmt.setString(2, device.getName());
             pstmt.setString(3, device.getUserID());
@@ -286,7 +284,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setDouble(28, device.getState());
             pstmt.setLong(29, device.getRetentionTime());
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding device " + device.getEUI());
             }
@@ -301,9 +298,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
         String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=? where eui=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getName());
             pstmt.setString(2, device.getUserID());
             pstmt.setString(3, device.getType());
@@ -336,7 +331,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(29, device.getEUI());
             //TODO: last frame
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error updating device " + device.getEUI());
             }
@@ -356,12 +350,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeDevice(String deviceEUI) throws ThingsDataException {
         String query = "delete from devices where eui=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -373,12 +364,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeAllDevices(String userID) throws ThingsDataException {
         String query = "delete from devices where userid=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -403,9 +391,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = query1;
         }
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             if (userID != null) {
                 pstmt.setString(2, userID);
@@ -429,9 +415,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
         String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             if (userID != null) {
                 pstmt.setString(2, userID);
@@ -456,16 +440,14 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     public void addAlert(Event event) throws ThingsDataException {
         Alert alert = new Alert(event);
         String query = "insert into alerts (id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, alert.getId());
             pstmt.setString(2, alert.getName());
             pstmt.setString(3, alert.getCategory());
             pstmt.setString(4, alert.getType());
             pstmt.setString(5, alert.getDeviceEUI());
             pstmt.setString(6, alert.getUserID());
-            pstmt.setString(7, (null != alert.getPayload()) ? alert.getPayload().toString() : "");
+            pstmt.setString(7, (null!=alert.getPayload())?alert.getPayload().toString():"");
             pstmt.setString(8, alert.getTimePoint());
             pstmt.setString(9, alert.getServiceId());
             pstmt.setString(10, alert.getServiceUuid().toString());
@@ -474,7 +456,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setLong(13, alert.getRootEventId());
             pstmt.setBoolean(14, alert.isCyclic());
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding alert " + alert.getId());
             }
@@ -488,13 +469,14 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     @Override
     public List getAlerts(String userID, boolean descending) throws ThingsDataException {
-        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id";
+        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id ";
         if (descending) {
             query = query.concat(" desc");
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        query=query.concat(" limit ?");
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
+            pstmt.setLong(2, requestLimit);
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Alert> list = new ArrayList<>();
             while (rs.next()) {
@@ -509,12 +491,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeAlert(long alertID) throws ThingsDataException {
         String query = "delete from alerts where id=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, alertID);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -526,12 +505,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeAlerts(String userID) throws ThingsDataException {
         String query = "delete from alerts where userid=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -543,13 +519,10 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeAlerts(String userID, long checkpoint) throws ThingsDataException {
         String query = "delete from alerts where userid=? and createdat < ?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setLong(2, checkpoint);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -561,12 +534,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeOutdatedAlerts(long checkpoint) throws ThingsDataException {
         String query = "delete from alerts where createdat < ?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, checkpoint);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -578,9 +548,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void addDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "insert into dashboards (id,name,userid,title,team,widgets,token,shared) values (?,?,?,?,?,?,?,?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getId());
             pstmt.setString(2, dashboard.getName());
             pstmt.setString(3, dashboard.getUserID());
@@ -590,7 +558,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(7, dashboard.getSharedToken());
             pstmt.setBoolean(8, dashboard.isShared());
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding dashboard " + dashboard.getId());
             }
@@ -605,9 +572,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void addDeviceTemplate(DeviceTemplate device) throws ThingsDataException {
         String query = "insert into devicetemplates (eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer) values(?,?,?,?,?,?,?,?,?,?,?,?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getEui());
             pstmt.setString(2, device.getAppid());
             pstmt.setString(3, device.getAppeui());
@@ -622,7 +587,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(12, device.getProducer());
 
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding device template" + device.getEui());
             }
@@ -735,12 +699,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeUserDashboards(String userID) throws ThingsDataException {
         String query = "delete from dashboards where userid=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -757,8 +718,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = "select id,name,userid,title,team,widgets,token,shared from dashboards where userid=?";
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
                 pstmt.setString(2, "%," + userID + ",%");
@@ -777,13 +737,10 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeDashboard(String userID, String dashboardID) throws ThingsDataException {
         String query = "delete from dashboards where userid=? and id=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setString(2, dashboardID);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -801,8 +758,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = query.concat(")");
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardID);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -827,8 +783,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } else {
             query = query.concat(")");
         }
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardName);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -847,9 +802,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=? where id=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getName());
             pstmt.setString(2, dashboard.getUserID());
             pstmt.setString(3, dashboard.getTitle());
@@ -859,7 +812,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setBoolean(7, dashboard.isShared());
             pstmt.setString(8, dashboard.getId());
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             //e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -871,8 +823,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public boolean isDashboardRegistered(String dashboardID) throws ThingsDataException {
         String query = "select id from dashboards where id=?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -885,23 +836,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         }
     }
 
-    /*@Override
-    public Dashboard getDashboard(String dashboardID) throws ThingsDataException {
-        String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where id=?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, dashboardID);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return buildDashboard(rs);
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
-        }
-    }
-     */
     @Override
     protected void updateStructureTo(Connection conn, int versionNumber) throws KeyValueDBException {
         String query = "";
@@ -983,8 +917,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException {
         String query = "select eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer from devicetemplates where upper(eui) = ?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, templateEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -1001,8 +934,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public List<DeviceTemplate> getDeviceTemplates() throws ThingsDataException {
         String query = "select eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer from devicetemplates";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             ResultSet rs = pstmt.executeQuery();
             ArrayList<DeviceTemplate> list = new ArrayList<>();
             while (rs.next()) {
@@ -1018,8 +950,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     public int getUserDevicesCount(String userID) throws ThingsDataException {
         String query = "select count(eui) from devices where userid = ?";
         int counter = 0;
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             ResultSet rs = pstmt.executeQuery();
             ArrayList<DeviceTemplate> list = new ArrayList<>();
@@ -1037,8 +968,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         String query
                 = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices "
                 + "where tinterval > 0 and alert < 2 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-" + timeOffset + ") > tinterval/1000;";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
             while (rs.next()) {
@@ -1055,8 +985,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         String query;
         query = "select eui,name,userid,team,channels,description from groups where eui=? and (userid = ? or team like ?)";
 
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -1077,8 +1006,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         String query;
         query = "select eui,name,userid,team,channels,description from groups where eui=?";
 
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -1096,8 +1024,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {
         String query;
         query = "select eui,name,userid,team,channels,description from groups where userid = ? or team like ?";
-        try (Connection conn = getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setString(2, "%," + userID + "%,");
             ResultSet rs = pstmt.executeQuery();
@@ -1117,9 +1044,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             throw new ThingsDataException(ThingsDataException.CONFLICT, "group " + group.getEUI() + " is already defined");
         }
         String query = "insert into groups (eui,name,userid,team,channels,description) values(?,?,?,?,?,?)";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getEUI());
             pstmt.setString(2, group.getName());
             pstmt.setString(3, group.getUserID());
@@ -1127,7 +1052,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(5, group.getChannelsAsString());
             pstmt.setString(6, group.getDescription());
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding group " + group.getEUI());
             }
@@ -1141,9 +1065,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void updateGroup(DeviceGroup group) throws ThingsDataException {
         String query = "update groups set name=?,userid=?,team=?,channels=?,description=? where eui=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getName());
             pstmt.setString(2, group.getUserID());
             pstmt.setString(3, group.getTeam());
@@ -1151,7 +1073,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
             pstmt.setString(5, group.getDescription());
             pstmt.setString(6, group.getEUI());
             int updated = pstmt.executeUpdate();
-            conn.close();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error updating group " + group.getEUI());
             }
@@ -1165,12 +1086,9 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     @Override
     public void removeGroup(String groupEUI) throws ThingsDataException {
         String query = "delete from groups where eui=?";
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(true);
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             int updated = pstmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
@@ -1183,9 +1101,7 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         //return ((Service) Kernel.getInstance()).getDataStorageAdapter().
         String query = "select channels from groups where eui=?";
         ArrayList<String> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try (Connection conn = getConnection();PreparedStatement pst= conn.prepareStatement(query);) {
             pst.setString(1, groupEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
@@ -1194,8 +1110,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
                     result.add(s[i].toLowerCase());
                 }
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());

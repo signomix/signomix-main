@@ -4,8 +4,10 @@
  */
 package com.signomix.out.notification;
 
+import com.signomix.out.notification.dto.MessageWrapper;
+
 public interface ExternalNotificatorIface {
 
-    public String getEndpoint();
+    public boolean isConfigured();
     public String send(MessageWrapper messageWrapper);
 }

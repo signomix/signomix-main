@@ -11,7 +11,10 @@ package com.signomix.out.iot;
 public class DataQuery {
 
     private int limit;
-    private int average;
+    public int average;
+    public int minimum;
+    public int maximum;
+    public int summary;
     private String channelName;
     private boolean timeseries;
     private String project;
@@ -22,6 +25,8 @@ public class DataQuery {
     public DataQuery() {
         limit = 1;
         average = 0;
+        minimum = 0;
+        maximum = 0;
         channelName = null;
         timeseries = false;
         project = null;
@@ -32,6 +37,7 @@ public class DataQuery {
 
     public static DataQuery parse(String query) throws DataQueryException {
         //TODO: in case of number format exception - log SEVERE event
+        //TODO: parsing exception
         DataQuery dq = new DataQuery();
         String q = query.trim().toLowerCase();
         if (q.equalsIgnoreCase("last")) {
@@ -45,7 +51,46 @@ public class DataQuery {
                     i = i + 2;
                     break;
                 case "average":
-                    dq.setAverage(Integer.parseInt(params[i + 1]));
+                    dq.average=Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
+                        i = i + 2;
+                    }
+                    break;
+                case "minimum":
+                    dq.minimum = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
+                        i = i + 2;
+                    }
+                    break;
+                case "maximun":
+                    dq.maximum = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
+                        i = i + 2;
+                    }
+                    break;
+                case "sum":
+                    dq.summary = Integer.parseInt(params[i + 1]);
                     if (params.length > i + 2) {
                         try {
                             dq.setNewValue(Double.parseDouble(params[i + 2]));
@@ -97,12 +142,26 @@ public class DataQuery {
                     throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
             }
         }
-        if (dq.getAverage() > 0) {
-            dq.setLimit(dq.getAverage());
+        
+        if (dq.average > 0) {
+            dq.minimum = 0;
+            dq.maximum = 0;
+        } else if (dq.maximum > 0) {
+            dq.minimum = 0;
+        }
+        if (dq.average > 0) {
+            dq.setLimit(dq.average);
+        } else if (dq.maximum > 0) {
+            dq.setLimit(dq.maximum);
+        } else if (dq.minimum > 0) {
+            dq.setLimit(dq.minimum);
         }
         return dq;
     }
 
+    //public int getAverage(){
+    //    return average;
+    //}
     /**
      * @return the limit
      */
@@ -117,20 +176,14 @@ public class DataQuery {
         this.limit = limit;
     }
 
-    /**
-     * @return the average
-     */
-    public int getAverage() {
+/*    public int getAverage() {
         return average;
     }
 
-    /**
-     * @param average the average to set
-     */
     public void setAverage(int average) {
         this.average = average;
     }
-
+*/
     /**
      * @return the channelName
      */

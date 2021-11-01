@@ -1,5 +1,5 @@
 /**
- * Copyright (C) Grzegorz Skorupa 2018.
+ * Copyright (C) Grzegorz Skorupa 2021.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
 package com.signomix.out.db;
@@ -28,15 +28,11 @@ import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.out.archiver.ZipArchiver;
-import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
+import org.cricketmsf.out.db.PostgreSqlDB;
 import org.cricketmsf.out.db.SqlDBIface;
 
-/**
- *
- * @author Grzegorz Skorupa <g.skorupa at gmail.com>
- */
-public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, IotDataStorageIface, Adapter {
+public class QuestDBStorage extends PostgreSqlDB implements SqlDBIface, IotDataStorageIface, Adapter {
 
     private int requestLimit = 0; //no limit
 
@@ -193,7 +189,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             newChannels.add((String) key);
         });
         if (oldDevice != null && !device.getChannelsAsString().equals(oldDevice.getChannelsAsString())) {
-            // ATTENTION! All actualValue data will be lost!
+            // ATTENTION! All actual data will be lost!
             //TODO: Send notification to the user?
             removeAllChannels(device.getEUI());
             result = 1;
@@ -719,8 +715,6 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
 
     @Override
     public int getChannelIndex(String deviceEUI, String channel) throws ThingsDataException {
-        List<String> channels = getDeviceChannels(deviceEUI);
-        ArrayList<ChannelData> result = new ArrayList<>();
-        return channels.indexOf(channel) + 1;
+        return 0;
     }
 }

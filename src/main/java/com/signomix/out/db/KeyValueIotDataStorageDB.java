@@ -215,4 +215,9 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public int getChannelIndex(String deviceEUI, String channel) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

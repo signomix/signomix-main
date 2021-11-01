@@ -47,3 +47,5 @@ licenseheader.txt
 /docker-compose.dev-gs.yml
 /docker-compose.local-gs.yml
 /docker-compose.overlay.yml
+/volume-db/
+/.vscode/
