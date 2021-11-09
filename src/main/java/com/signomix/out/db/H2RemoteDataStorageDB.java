@@ -21,15 +21,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
+import org.cricketmsf.out.db.KeyValueDB;
 import org.cricketmsf.out.db.KeyValueDBException;
+import org.cricketmsf.out.db.KeyValueDBIface;
 import org.cricketmsf.out.db.SqlDBIface;
 
 /**
@@ -38,7 +43,16 @@ import org.cricketmsf.out.db.SqlDBIface;
  */
 public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, IotDataStorageIface, Adapter {
 
+    private static final String DEVICE_CHANNEL_CACHE = "device_channel_cache";
     private int requestLimit = 0; //no limit
+    private KeyValueDBIface cache = null;
+
+    private KeyValueDBIface getCache() {
+        if (null == cache) {
+            cache = ((Service) Service.getInstance()).database;
+        }
+        return cache;
+    }
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -54,7 +68,6 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
 
     @Override
     public void addTable(String tableName, int maxSize, boolean persistent) throws KeyValueDBException {
-
         String query;
         String indexQuery = null;
         StringBuilder sb = new StringBuilder();
@@ -118,18 +131,44 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
 
     @Override
     public List<String> getDeviceChannels(String deviceEUI) throws ThingsDataException {
+        List<String> channels;
+        try {
+            channels = (List) getCache().get(DEVICE_CHANNEL_CACHE, deviceEUI);
+            if (null != channels) {
+                String channelStr = "";
+                for (int i = 0; i < channels.size(); i++) {
+                    channelStr = channelStr + channels.get(i) + ",";
+                }
+                Kernel.getInstance().dispatchEvent(Event.logInfo(this, channelStr));
+                return channels;
+            } else {
+
+            }
+        } catch (KeyValueDBException ex) {
+            //TODO: logger
+            ex.printStackTrace();
+        }
         String query = "select channels from devicechannels where eui=?";
-        ArrayList<String> result = new ArrayList<>();
         try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                String[] s = rs.getString(1).split(",");
-                for (int i = 0; i < s.length; i++) {
-                    result.add(s[i].toLowerCase());
+                String[] s = rs.getString(1).toLowerCase().split(",");
+                channels = Arrays.asList(s);
+                try {
+                    getCache().put(DEVICE_CHANNEL_CACHE, deviceEUI, channels);
+                } catch (KeyValueDBException ex) {
+                    ex.printStackTrace();
                 }
+                String channelStr = "";
+                for (int i = 0; i < channels.size(); i++) {
+                    channelStr = channelStr + channels.get(i) + ",";
+                }
+                Kernel.getInstance().dispatchEvent(Event.logInfo(this, channelStr));
+                return channels;
+            } else {
+                return new ArrayList<>();
             }
-            return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
@@ -149,6 +188,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
+        removeChannelsFromCache(deviceEUI);
     }
 
     @Override
@@ -199,6 +239,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             result = 1;
         }
         putDeviceChannels(device.getEUI(), newChannels);
+        removeChannelsFromCache(device.getEUI());
         return result;
     }
 
@@ -212,11 +253,20 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
+        removeChannelsFromCache(deviceEUI);
     }
 
     @Override
     public void removeChannel(String deviceEUI, String channelName) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void removeChannelsFromCache(String deviceEUI) {
+        try {
+            cache.remove(DEVICE_CHANNEL_CACHE, deviceEUI);
+        } catch (KeyValueDBException ex) {
+            //TODO:logger
+        }
     }
 
     @Override
@@ -530,6 +580,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
                 data.setValue(actualValue / size);
             }
             subResult.add(data);
+            result.clear();
+            result.add(subResult);
         } else if (dq.maximum > 0) {
             if (result.size() > 0) {
                 size = result.get(0).size();
@@ -545,6 +597,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             }
             data.setValue(actualValue);
             subResult.add(data);
+            result.clear();
+            result.add(subResult);
         } else if (dq.minimum > 0) {
             if (result.size() > 0) {
                 size = result.get(0).size();
@@ -560,6 +614,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             }
             data.setValue(actualValue);
             subResult.add(data);
+            result.clear();
+            result.add(subResult);
         } else if (dq.summary > 0) {
             if (result.size() > 0) {
                 size = result.get(0).size();
@@ -572,9 +628,10 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             }
             data.setValue(actualValue);
             subResult.add(data);
+            result.clear();
+            result.add(subResult);
         }
-        result.clear();
-        result.add(subResult);
+
         return result;
     }
 
@@ -584,7 +641,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         if (channelIndex < 1) {
             return result;
         }
-        String columnName = "d" + (channelIndex + 1);
+        String columnName = "d" + (channelIndex);
 
         String query;
         String defaultQuery = "select eui,userid,day,dtime,tstamp,"
@@ -608,9 +665,8 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             limit = requestLimit;
         }
 
-        try ( Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        Kernel.getInstance().dispatchEvent(Event.logInfo(this, "getChannelValues QUERY: " + query));
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
 
             int paramIdx = 2;
@@ -633,8 +689,6 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             while (rs.next()) {
                 result.add(0, new ChannelData(deviceEUI, channel, rs.getDouble(6), rs.getTimestamp(5).getTime()));
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = " + query));
@@ -688,10 +742,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
         List<List> result = new ArrayList();
         List<ChannelData> row;
         ChannelData cd;
-        ArrayList<String> requestChannels = new ArrayList<>();
-        for (int n = 0; n < channelNames.length; n++) {
-            requestChannels.add(channelNames[n]);
-        }
+        List<String> requestChannels = Arrays.asList(channelNames);
         int idx;
         for (int i = 0; i < groupDevices.size(); i++) {
             tmpValues = getLastValues(userID, groupDevices.get(i).getEUI());
@@ -719,8 +770,6 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
 
     @Override
     public int getChannelIndex(String deviceEUI, String channel) throws ThingsDataException {
-        List<String> channels = getDeviceChannels(deviceEUI);
-        ArrayList<ChannelData> result = new ArrayList<>();
-        return channels.indexOf(channel) + 1;
+        return getDeviceChannels(deviceEUI).indexOf(channel) + 1;
     }
 }

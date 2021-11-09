@@ -343,11 +343,6 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
     }
 
     @Override
-    public void removeDevice(Device device) throws ThingsDataException {
-        removeDevice(device.getEUI());
-    }
-
-    @Override
     public void removeDevice(String deviceEUI) throws ThingsDataException {
         String query = "delete from devices where eui=?";
         try (Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
@@ -1114,5 +1109,10 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
+    }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

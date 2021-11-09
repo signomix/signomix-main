@@ -515,7 +515,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
         List<ChannelData> subResult = new ArrayList<>();
         Double actualValue = 0.0;
         Double tmpValue;
-            int size = 0;
+        int size = 0;
         if (dq.average > 0) {
             if (result.size() > 0) {
                 size = result.get(0).size();
@@ -573,17 +573,17 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             data.setValue(actualValue);
             subResult.add(data);
         }
-            result.clear();
+        result.clear();
         result.add(subResult);
         return result;
-        }
+    }
 
     private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit, String project, Double state) throws ThingsDataException {
         ArrayList<ChannelData> result = new ArrayList<>();
         int channelIndex = getChannelIndex(deviceEUI, channel);
         if (channelIndex < 1) {
-        return result;
-    }
+            return result;
+        }
         String columnName = "d" + (channelIndex + 1);
 
         String query;

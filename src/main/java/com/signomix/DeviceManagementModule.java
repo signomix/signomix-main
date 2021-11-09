@@ -207,7 +207,7 @@ public class DeviceManagementModule {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
-        String issuerID = request.headers.getFirst("X-issuer-id");
+        //String issuerID = request.headers.getFirst("X-issuer-id");
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);

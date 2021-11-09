@@ -1839,19 +1839,19 @@
             "pl": "znacznik czasu"
         },
         "nodata": {
-            "en": "No data found",
-            "it": "Nessun dato trovato",
-            "fr": "Aucune donnée trouvée",
-            "pl": "Brak danych"
+            "en": "Waiting for data ...",
+            "it": "In attesa di dati ...",
+            "fr": "En attente de données ...",
+            "pl": "Oczekiwanie na dane ..."
         }
     }
     
     app.texts.widget_map = {
         "nodata": {
-            "en": "No data found",
-            "it": "Nessun dato trovato",
-            "fr": "Aucune donnée trouvée",
-            "pl": "Brak danych"
+            "en": "Waiting for data ...",
+            "it": "In attesa di dati ...",
+            "fr": "En attente de données ...",
+            "pl": "Oczekiwanie na dane ..."
         }
     }
         
@@ -1881,10 +1881,10 @@
             "pl": "Wpisz nową wartość dla"
         },
         "nodata": {
-            "en": "No data found",
-            "it": "Nessun dato trovato",
-            "fr": "Aucune donnée trouvée",
-            "pl": "Brak danych"
+            "en": "Waiting for data ...",
+            "it": "In attesa di dati ...",
+            "fr": "En attente de données ...",
+            "pl": "Oczekiwanie na dane ..."
         },
         "largermap": {
             "en": "View larger map",
@@ -1971,10 +1971,10 @@
             "pl": "DATA"
         },
         "NO_DATA": {
-            "en": "No data found",
-            "it": "Nessun dato trovato.",
-            "fr": "Aucune donnée disponible.",
-            "pl": "Nie znaleziono danych"
+            "en": "Waiting for data ...",
+            "it": "In attesa di dati ...",
+            "fr": "En attente de données ...",
+            "pl": "Oczekiwanie na dane ..."
         }
     }
     

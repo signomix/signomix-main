@@ -1,7 +1,7 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package com.signomix;
 
 import com.signomix.out.db.ActuatorCommandsDBIface;
@@ -51,7 +51,7 @@ import org.cricketmsf.out.db.SqlDBIface;
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class PlatformAdministrationModule {
-    
+
     public static final int ERR_PAYMENT_REQUIRED = 402;
 
     private static PlatformAdministrationModule module;
@@ -187,7 +187,7 @@ public class PlatformAdministrationModule {
         result.setData(Kernel.getInstance().reportStatus());
         return result;
     }
-    
+
     private StandardResult getServiceConfig() {
         StandardResult result = new StandardResult();
         result.setData(Kernel.getInstance().getConfigSet().getConfigurationById(Kernel.getInstance().getId()));
@@ -263,6 +263,21 @@ public class PlatformAdministrationModule {
         }
         try {
             database.addTable("webcache_it", (int) getPlatformConfig().get("webCacheSize"), false);
+        } catch (ClassCastException | KeyValueDBException e) {
+            Kernel.getInstance().dispatchEvent(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+        }
+        try {
+            database.addTable("device_channel_cache", 1000, false);
+        } catch (ClassCastException | KeyValueDBException e) {
+            Kernel.getInstance().dispatchEvent(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+        }
+        try {
+            database.addTable("group_channel_cache", 1000, false);
+        } catch (ClassCastException | KeyValueDBException e) {
+            Kernel.getInstance().dispatchEvent(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+        }
+        try {
+            database.addTable("group_device_cache", 1000, false);
         } catch (ClassCastException | KeyValueDBException e) {
             Kernel.getInstance().dispatchEvent(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
         }
@@ -480,8 +495,8 @@ public class PlatformAdministrationModule {
                 //thingsDB.put("dashboards", dashboard.getId(), dashboard);
                 thingsDB.addDashboard(dashboard);
                 //thingsDB.put("widgets", widget.getId(), widget);
-                
-                DeviceGroup dg=new DeviceGroup();
+
+                DeviceGroup dg = new DeviceGroup();
                 dg.setChannels("latitude,longitude,temperature,humidity");
                 dg.setEUI("test");
                 dg.setName("Test group");
@@ -509,11 +524,11 @@ public class PlatformAdministrationModule {
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
             }
         }
-        
-        if(shortenerDB!=null){
-            try{
+
+        if (shortenerDB != null) {
+            try {
                 shortenerDB.addTable("urls", 100, true);
-            }catch(KeyValueDBException ex){
+            } catch (KeyValueDBException ex) {
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), ex.getMessage()));
             }
         }
@@ -661,7 +676,7 @@ public class PlatformAdministrationModule {
 
         //System.out.println("CLEARDATA:" + dataCategory + "," + userType);
         clearExpiredTokens(database);
-        if(demoMode){
+        if (demoMode) {
             clearAllUsersData(userType, dataCategory, userAdapter, thingsAdapter, dashboardAdapter, actuatorAdapter);
         }
         clearNotConfirmed(userAdapter);
@@ -669,37 +684,37 @@ public class PlatformAdministrationModule {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "Clearing data done."));
     }
 
-    public void checkDevicesLimit(User user, int actualValue) throws PlatformException{
+    public void checkDevicesLimit(User user, int actualValue) throws PlatformException {
         int limit = 0;
-        switch(user.getType()){
+        switch (user.getType()) {
             case User.DEMO:
-                limit = (int)getPlatformConfig().get("demoDevicesLimit");
+                limit = (int) getPlatformConfig().get("demoDevicesLimit");
                 break;
             case User.FREE:
-                limit = (int)getPlatformConfig().get("freeDevicesLimit");
+                limit = (int) getPlatformConfig().get("freeDevicesLimit");
                 break;
             case User.USER:
-                limit = (int)getPlatformConfig().get("standardDevicesLimit");
+                limit = (int) getPlatformConfig().get("standardDevicesLimit");
                 break;
             case User.EXTENDED:
-                limit = (int)getPlatformConfig().get("extendedDevicesLimit");
+                limit = (int) getPlatformConfig().get("extendedDevicesLimit");
                 break;
             case User.OWNER:
             case User.PRIMARY:
-                limit = (int)getPlatformConfig().get("primaryDevicesLimit");
+                limit = (int) getPlatformConfig().get("primaryDevicesLimit");
                 break;
             case User.SUPERUSER:
-                limit = (int)getPlatformConfig().get("superDevicesLimit");
+                limit = (int) getPlatformConfig().get("superDevicesLimit");
                 break;
             case User.READONLY:
                 limit = 0;
                 break;
         }
-        if(actualValue>=limit){
+        if (actualValue >= limit) {
             throw new PlatformException(PlatformException.TOO_MANY_USER_DEVICES, "too many devices");
         }
     }
-    
+
     private String guessChannelUnit(String channelName) {
         String unitName = "";
         switch (channelName.toUpperCase()) {
@@ -759,13 +774,13 @@ public class PlatformAdministrationModule {
         Iterator it;
         try {
             tokens = db.getAll("tokens");
-            it=tokens.keySet().iterator();
-            while(it.hasNext()){
-                t=(Token)tokens.get(it.next());
-                if(!t.isValid()){
-                    try{
-                    db.remove("tokens", t.getToken());
-                    }catch(KeyValueDBException e){
+            it = tokens.keySet().iterator();
+            while (it.hasNext()) {
+                t = (Token) tokens.get(it.next());
+                if (!t.isValid()) {
+                    try {
+                        db.remove("tokens", t.getToken());
+                    } catch (KeyValueDBException e) {
                         e.printStackTrace();
                     }
                 }
@@ -775,13 +790,13 @@ public class PlatformAdministrationModule {
         }
         try {
             tokens = db.getAll("ptokens");
-            it=tokens.keySet().iterator();
-            while(it.hasNext()){
-                t=(Token)tokens.get(it.next());
-                if(!t.isValid()){
-                    try{
-                    db.remove("ptokens", t.getToken());
-                    }catch(KeyValueDBException e){
+            it = tokens.keySet().iterator();
+            while (it.hasNext()) {
+                t = (Token) tokens.get(it.next());
+                if (!t.isValid()) {
+                    try {
+                        db.remove("ptokens", t.getToken());
+                    } catch (KeyValueDBException e) {
                         e.printStackTrace();
                     }
                 }
@@ -791,7 +806,7 @@ public class PlatformAdministrationModule {
         }
     }
 
-    private void clearAllUsersData(String userType, String dataCategory, UserAdapterIface userAdapter, 
+    private void clearAllUsersData(String userType, String dataCategory, UserAdapterIface userAdapter,
             ThingsDataIface thingsAdapter, DashboardAdapterIface dashboardAdapter, ActuatorDataIface actuatorAdapter) {
         //clear user data (cascade: alerts, devices, dashboards, users)
         int userTypeToRemove = -1;
@@ -838,7 +853,7 @@ public class PlatformAdministrationModule {
                         if ("ALL".equalsIgnoreCase(dataCategory) || "DASHBOARDS".equalsIgnoreCase(dataCategory)) {
                             dashboardAdapter.removeUserDashboards(uid);
                         }
-                        devices = thingsAdapter.getUserDevices(uid,false);
+                        devices = thingsAdapter.getUserDevices(uid, false);
                         if ("ALL".equalsIgnoreCase(dataCategory) || "CHANNELS".equalsIgnoreCase(dataCategory) || "DEVICES".equalsIgnoreCase(dataCategory)) {
                             for (int j = 0; j < devices.size(); j++) {
                                 thingsAdapter.removeAllChannels(devices.get(j).getEUI());
@@ -879,10 +894,11 @@ public class PlatformAdministrationModule {
 
     /**
      * Removes user's channel data, alerts
+     *
      * @param demoMode
      * @param userAdapter
      * @param thingsAdapter
-     * @param dashboardAdapter 
+     * @param dashboardAdapter
      */
     private void clearOldData(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
         // data retention
@@ -908,7 +924,7 @@ public class PlatformAdministrationModule {
             while (it.hasNext()) {
                 uid = (String) it.next();
                 if (!demoMode) {
-                    switch(userAdapter.get(uid).getType()){
+                    switch (userAdapter.get(uid).getType()) {
                         case User.OWNER:
                         case User.PRIMARY:
                             tooOldPoint = tooOldPointPrimary;
@@ -927,28 +943,29 @@ public class PlatformAdministrationModule {
                     }
                 }
                 thingsAdapter.removeUserAlerts(uid, tooOldPoint);
-                devices = thingsAdapter.getUserDevices(uid,false);
+                devices = thingsAdapter.getUserDevices(uid, false);
                 for (int j = 0; j < devices.size(); j++) {
                     thingsAdapter.clearAllChannels(devices.get(j).getEUI(), tooOldPoint);
-                    try{
+                    try {
                         actuatorAdapter.clearAllCommands(devices.get(j).getEUI(), tooOldPoint);
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
         } catch (ClassCastException | UserException | ThingsDataException ex) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName()+".clearOldData()", ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName() + ".clearOldData()", ex.getMessage()));
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Removes user's data, alerts when collection exceeds allowed size
+     *
      * @param demoMode
      * @param userAdapter
      * @param thingsAdapter
-     * @param dashboardAdapter 
+     * @param dashboardAdapter
      */
     private void clearDataExceedingLimit(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
         try {
@@ -956,18 +973,18 @@ public class PlatformAdministrationModule {
             List<Device> devices;
             Iterator it = users.keySet().iterator();
             String uid;
-            long limit=1008;
-            
+            long limit = 1008;
+
             long limitFree = (int) getPlatformConfig().get("freeCollectionLimit");
             long limitExtended = (int) getPlatformConfig().get("extendedCollectionLimit");
             long limitStandard = (int) getPlatformConfig().get("standardCollectionLimit");
             long limitPrimary = (int) getPlatformConfig().get("primaryCollectionLimit");
             long limitSuperuser = (int) getPlatformConfig().get("superCollectionLimit");
-            
+
             while (it.hasNext()) {
                 uid = (String) it.next();
                 if (!demoMode) {
-                    switch(userAdapter.get(uid).getType()){
+                    switch (userAdapter.get(uid).getType()) {
                         case User.OWNER:
                         case User.PRIMARY:
                             limit = limitPrimary;
@@ -986,22 +1003,22 @@ public class PlatformAdministrationModule {
                     }
                 }
                 thingsAdapter.removeUserAlertsLimit(uid, limit);
-                devices = thingsAdapter.getUserDevices(uid,false);
+                devices = thingsAdapter.getUserDevices(uid, false);
                 for (int j = 0; j < devices.size(); j++) {
                     thingsAdapter.clearAllChannelsLimit(devices.get(j).getEUI(), limit);
-                    try{
+                    try {
                         actuatorAdapter.clearAllCommandsLimit(devices.get(j).getEUI(), limit);
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
         } catch (ClassCastException | UserException | ThingsDataException ex) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName()+".clearTooMuchData()", ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName() + ".clearTooMuchData()", ex.getMessage()));
             ex.printStackTrace();
         }
     }
-    
+
     public String createEui(String prefix) {
         String eui = Long.toHexString(Kernel.getEventId());
         StringBuilder tmp = new StringBuilder(prefix).append(eui.substring(0, 2));

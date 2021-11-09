@@ -35,7 +35,7 @@ public interface IotDatabaseIface extends KeyValueDBIface {
 
     public void updateDevice(Device device) throws ThingsDataException;
 
-    public void removeDevice(Device device) throws ThingsDataException;
+    //public void removeDevice(Device device) throws ThingsDataException;
 
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException;
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException;
@@ -93,4 +93,6 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public void removeGroup(String groupEUI) throws ThingsDataException;
 
     public List<String> getGroupChannels(String groupEUI) throws ThingsDataException;
+    
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException;
 }

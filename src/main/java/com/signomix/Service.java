@@ -75,7 +75,7 @@ public class Service extends Kernel {
     // adapterClasses
     LoggerAdapterIface logAdapter = null;
     LoggerAdapterIface gdprLogger = null;
-    KeyValueDBIface database = null;
+    public KeyValueDBIface database = null;
     SchedulerIface scheduler = null;
     HtmlGenAdapterIface htmlAdapter = null;
     FileReaderAdapterIface fileReader = null;

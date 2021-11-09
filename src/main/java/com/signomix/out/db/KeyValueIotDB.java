@@ -89,11 +89,6 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public void removeDevice(Device device) throws ThingsDataException {
-        removeDevice(device.getEUI());
-    }
-
-    @Override
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         //if("public".equalsIgnoreCase(userID)){
         //    return true;
@@ -394,6 +389,11 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
