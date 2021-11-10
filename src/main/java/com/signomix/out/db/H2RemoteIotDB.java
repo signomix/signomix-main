@@ -34,7 +34,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     private static final String GROUP_CHANNEL_CACHE = "group_channel_cache";
     private static final String GROUP_DEVICE_CACHE = "group_device_cache";
     private int timeOffset = 0;
-    private int requestLimit = 0; //no limit
+    private int requestLimit = 0; // no limit
 
     private KeyValueDBIface cache = null;
 
@@ -70,97 +70,49 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         StringBuilder sb = new StringBuilder();
 
         switch (tableName) {
-            case "devicetemplates":
-                sb.append("create table devicetemplates (")
-                        .append("eui varchar primary key,")
-                        .append("appid varchar,")
-                        .append("appeui varchar,")
-                        .append("type varchar,")
-                        .append("channels varchar,")
-                        .append("code varchar,")
-                        .append("decoder varchar,")
-                        .append("description varchar,")
-                        .append("tinterval bigint,")
-                        .append("pattern varchar,")
-                        .append("commandscript varchar,")
-                        .append("producer varchar)");
-                break;
-            case "devices":
-                sb.append("create table devices (")
-                        .append("eui varchar primary key,")
-                        .append("name varchar,")
-                        .append("userid varchar,")
-                        .append("type varchar,")
-                        .append("team varchar,")
-                        .append("channels varchar,")
-                        .append("code varchar,")
-                        .append("decoder varchar,")
-                        .append("key varchar,")
-                        .append("description varchar,")
-                        .append("lastseen bigint,")
-                        .append("tinterval bigint,")
-                        .append("lastframe bigint,")
-                        .append("template varchar,")
-                        .append("pattern varchar,")
-                        .append("downlink varchar,")
-                        .append("commandscript varchar,")
-                        .append("appid varchar,")
-                        .append("groups varchar,")
-                        .append("alert number,")
-                        .append("appeui varchar,")
-                        .append("devid varchar,")
-                        .append("active boolean,")
-                        .append("project varchar,")
-                        .append("latitude double,")
-                        .append("longitude double,")
-                        .append("altitude double,")
-                        .append("state double,")
-                        .append("retention bigint)");
-                break;
-            case "dashboards":
-                sb.append("create table dashboards (")
-                        .append("id varchar primary key,")
-                        .append("name varchar,")
-                        .append("userid varchar,")
-                        .append("title varchar,")
-                        .append("team varchar,")
-                        .append("widgets varchar,")
-                        .append("token varchar,")
-                        .append("shared boolean)");
-                //TODO: widgets
-                break;
-            case "alerts":
-                //TODO: jak jest zapisany userID?
-                sb.append("create table alerts (")
-                        .append("id bigint primary key,")
-                        .append("name varchar,")
-                        .append("category varchar,")
-                        .append("type varchar,")
-                        .append("deviceeui varchar,")
-                        .append("userid varchar,")
-                        .append("payload varchar,")
-                        .append("timepoint varchar,")
-                        .append("serviceid varchar,")
-                        .append("uuid varchar,")
-                        .append("calculatedtimepoint bigint,")
-                        .append("createdat bigint,")
-                        .append("rooteventid bigint,")
-                        .append("cyclic boolean)");
-                break;
-            case "groups":
-                sb.append("create table groups (")
-                        .append("eui varchar primary key,")
-                        .append("name varchar,")
-                        .append("userid varchar,")
-                        .append("team varchar,")
-                        .append("channels varchar,")
-                        .append("description varchar)");
-                break;
-            default:
-                throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
+        case "devicetemplates":
+            sb.append("create table devicetemplates (").append("eui varchar primary key,").append("appid varchar,")
+                    .append("appeui varchar,").append("type varchar,").append("channels varchar,")
+                    .append("code varchar,").append("decoder varchar,").append("description varchar,")
+                    .append("tinterval bigint,").append("pattern varchar,").append("commandscript varchar,")
+                    .append("producer varchar)");
+            break;
+        case "devices":
+            sb.append("create table devices (").append("eui varchar primary key,").append("name varchar,")
+                    .append("userid varchar,").append("type varchar,").append("team varchar,")
+                    .append("channels varchar,").append("code varchar,").append("decoder varchar,")
+                    .append("key varchar,").append("description varchar,").append("lastseen bigint,")
+                    .append("tinterval bigint,").append("lastframe bigint,").append("template varchar,")
+                    .append("pattern varchar,").append("downlink varchar,").append("commandscript varchar,")
+                    .append("appid varchar,").append("groups varchar,").append("alert number,")
+                    .append("appeui varchar,").append("devid varchar,").append("active boolean,")
+                    .append("project varchar,").append("latitude double,").append("longitude double,")
+                    .append("altitude double,").append("state double,").append("retention bigint)");
+            break;
+        case "dashboards":
+            sb.append("create table dashboards (").append("id varchar primary key,").append("name varchar,")
+                    .append("userid varchar,").append("title varchar,").append("team varchar,")
+                    .append("widgets varchar,").append("token varchar,").append("shared boolean)");
+            // TODO: widgets
+            break;
+        case "alerts":
+            // TODO: jak jest zapisany userID?
+            sb.append("create table alerts (").append("id bigint primary key,").append("name varchar,")
+                    .append("category varchar,").append("type varchar,").append("deviceeui varchar,")
+                    .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
+                    .append("serviceid varchar,").append("uuid varchar,").append("calculatedtimepoint bigint,")
+                    .append("createdat bigint,").append("rooteventid bigint,").append("cyclic boolean)");
+            break;
+        case "groups":
+            sb.append("create table groups (").append("eui varchar primary key,").append("name varchar,")
+                    .append("userid varchar,").append("team varchar,").append("channels varchar,")
+                    .append("description varchar)");
+            break;
+        default:
+            throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
         }
         query = sb.toString();
-        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
@@ -175,7 +127,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention from devices where userid = ?";
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
                 pstmt.setString(2, "%," + userID + "%,");
@@ -200,16 +152,17 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                 return devices;
             }
         } catch (KeyValueDBException ex) {
-            //TODO: logger
+            // TODO: logger
         }
         DeviceGroup group = getGroup(userID, groupID);
-        if (null == group || (!group.isOpen() && !userID.equals(group.getUserID()) && !group.userIsTeamMember(userID))) {
+        if (null == group
+                || (!group.isOpen() && !userID.equals(group.getUserID()) && !group.userIsTeamMember(userID))) {
             return new ArrayList();
         }
         String query;
         query = "select * from devices where groups like ?";
 
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, "%," + groupID + "%,");
             ResultSet rs = pstmt.executeQuery();
             devices = new ArrayList<>();
@@ -236,7 +189,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and userid = ?";
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             pstmt.setString(2, userID);
             if (withShared) {
@@ -260,7 +213,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         if (deviceEUI == null || deviceEUI.isEmpty()) {
             return null;
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -277,10 +230,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void putDevice(Device device) throws ThingsDataException {
         if (getDevice(device.getUserID(), device.getEUI(), false) != null) {
-            throw new ThingsDataException(ThingsDataException.CONFLICT, "device " + device.getEUI() + " is already defined");
+            throw new ThingsDataException(ThingsDataException.CONFLICT,
+                    "device " + device.getEUI() + " is already defined");
         }
         String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getEUI());
             pstmt.setString(2, device.getName());
             pstmt.setString(3, device.getUserID());
@@ -312,7 +266,8 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setLong(29, device.getRetentionTime());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding device " + device.getEUI());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error adding device " + device.getEUI());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -325,9 +280,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
-        Device previous=getDevice(device.getEUI());
+        Device previous = getDevice(device.getEUI());
         String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=? where eui=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getName());
             pstmt.setString(2, device.getUserID());
             pstmt.setString(3, device.getType());
@@ -358,10 +313,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setLong(28, device.getRetentionTime());
 
             pstmt.setString(29, device.getEUI());
-            //TODO: last frame
+            // TODO: last frame
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error updating device " + device.getEUI());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error updating device " + device.getEUI());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -369,20 +325,22 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } catch (Exception e) {
             e.printStackTrace();
         }
-        removeFromCache(previous.getGroups());
-        removeFromCache(device.getGroups());
+        if (!previous.getGroups().equalsIgnoreCase(device.getGroups())) {
+            removeFromCache(previous.getGroups());
+            removeFromCache(device.getGroups());
+        }
     }
 
     @Override
     public void removeDevice(String deviceEUI) throws ThingsDataException {
-        Device device=getDevice(deviceEUI);
-        String groups=device.getGroups();
+        Device device = getDevice(deviceEUI);
+        String groups = device.getGroups();
         String query = "delete from devices where eui=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -392,30 +350,31 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public void removeAllDevices(String userID) throws ThingsDataException {
-        List<Device> devices=getUserDevices(userID, false);
+        List<Device> devices = getUserDevices(userID, false);
         String query = "delete from devices where userid=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        for(int i=0; i<devices.size(); i++){
+        for (int i = 0; i < devices.size(); i++) {
             removeFromCache(devices.get(i).getGroups());
         }
     }
 
     @Override
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
-        //System.out.println("H2IotDB.isAuthorized() userID"+userID+",deviceEUI:"+deviceEUI);
-        //if("public".equalsIgnoreCase(userID)){
-        //    return true;
-        //}
+        // System.out.println("H2IotDB.isAuthorized()
+        // userID"+userID+",deviceEUI:"+deviceEUI);
+        // if("public".equalsIgnoreCase(userID)){
+        // return true;
+        // }
 
-        //TODO: access to virtual devices must be authorized for the Service
+        // TODO: access to virtual devices must be authorized for the Service
         String query;
         String query1 = "select eui from devices where upper(eui) = upper(?) and (userid=? or team like ?)";
         String query2 = "select eui from devices where upper(eui) = upper(?) and type = 'VIRTUAL'";
@@ -424,7 +383,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = query1;
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             if (userID != null) {
                 pstmt.setString(2, userID);
@@ -437,7 +396,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                 return false;
             }
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -448,7 +407,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
         String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             if (userID != null) {
                 pstmt.setString(2, userID);
@@ -461,7 +420,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                 return false;
             }
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -473,7 +432,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     public void addAlert(Event event) throws ThingsDataException {
         Alert alert = new Alert(event);
         String query = "insert into alerts (id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, alert.getId());
             pstmt.setString(2, alert.getName());
             pstmt.setString(3, alert.getCategory());
@@ -490,7 +449,8 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setBoolean(14, alert.isCyclic());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding alert " + alert.getId());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error adding alert " + alert.getId());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -507,7 +467,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             query = query.concat(" desc");
         }
         query = query.concat(" limit ?");
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setLong(2, requestLimit);
             ResultSet rs = pstmt.executeQuery();
@@ -524,11 +484,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeAlert(long alertID) throws ThingsDataException {
         String query = "delete from alerts where id=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, alertID);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -538,7 +498,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeAlerts(String userID) throws ThingsDataException {
         String query = "delete from alerts where userid=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -552,12 +512,12 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeAlerts(String userID, long checkpoint) throws ThingsDataException {
         String query = "delete from alerts where userid=? and createdat < ?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setLong(2, checkpoint);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -567,11 +527,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeOutdatedAlerts(long checkpoint) throws ThingsDataException {
         String query = "delete from alerts where createdat < ?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setLong(1, checkpoint);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -581,7 +541,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void addDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "insert into dashboards (id,name,userid,title,team,widgets,token,shared) values (?,?,?,?,?,?,?,?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getId());
             pstmt.setString(2, dashboard.getName());
             pstmt.setString(3, dashboard.getUserID());
@@ -592,10 +552,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setBoolean(8, dashboard.isShared());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding dashboard " + dashboard.getId());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error adding dashboard " + dashboard.getId());
             }
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -605,7 +566,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void addDeviceTemplate(DeviceTemplate device) throws ThingsDataException {
         String query = "insert into devicetemplates (eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer) values(?,?,?,?,?,?,?,?,?,?,?,?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getEui());
             pstmt.setString(2, device.getAppid());
             pstmt.setString(3, device.getAppeui());
@@ -621,10 +582,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding device template" + device.getEui());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error adding device template" + device.getEui());
             }
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -632,7 +594,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     Device buildDevice(ResultSet rs) throws SQLException {
-        //eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval
+        // eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval
         Device d = new Device();
         d.setEUI(rs.getString(1));
         d.setName(rs.getString(2));
@@ -667,7 +629,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     DeviceTemplate buildDeviceTemplate(ResultSet rs) throws SQLException {
-        //eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval
+        // eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval
         DeviceTemplate d = new DeviceTemplate();
         d.setEui(rs.getString(1));
         d.setAppid(rs.getString(2));
@@ -685,7 +647,8 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     Alert buildAlert(ResultSet rs) throws SQLException {
-        //id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic        Device d = new Device();
+        // id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic
+        // Device d = new Device();
         Alert a = new Alert();
         a.setId(rs.getLong(1));
         a.setName(rs.getString(2));
@@ -704,7 +667,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     Dashboard buildDashboard(ResultSet rs) throws SQLException {
-        //id,name,userid,title,team,widgets,token,shared
+        // id,name,userid,title,team,widgets,token,shared
         Dashboard a = new Dashboard();
         a.setId(rs.getString(1));
         a.setName(rs.getString(2));
@@ -718,7 +681,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     DeviceGroup buildGroup(ResultSet rs) throws SQLException {
-        //eui,name,userid,team,description
+        // eui,name,userid,team,description
         DeviceGroup d = new DeviceGroup();
         d.setEUI(rs.getString(1));
         d.setName(rs.getString(2));
@@ -732,11 +695,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeUserDashboards(String userID) throws ThingsDataException {
         String query = "delete from dashboards where userid=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -751,7 +714,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = "select id,name,userid,title,team,widgets,token,shared from dashboards where userid=?";
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
                 pstmt.setString(2, "%," + userID + ",%");
@@ -770,12 +733,12 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeDashboard(String userID, String dashboardID) throws ThingsDataException {
         String query = "delete from dashboards where userid=? and id=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setString(2, dashboardID);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -791,7 +754,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = query.concat(")");
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardID);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -816,7 +779,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         } else {
             query = query.concat(")");
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardName);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -835,7 +798,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
         String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=? where id=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getName());
             pstmt.setString(2, dashboard.getUserID());
             pstmt.setString(3, dashboard.getTitle());
@@ -846,7 +809,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setString(8, dashboard.getId());
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -856,7 +819,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public boolean isDashboardRegistered(String dashboardID) throws ThingsDataException {
         String query = "select id from dashboards where id=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -875,66 +838,59 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         StringBuilder sb;
 
         switch (versionNumber) {
-            case 2:
-                query = "alter table devices add lastframe bigint default -1;";
-                break;
-            case 3:
-                sb = new StringBuilder();
-                sb.append("alter table devices add template varchar default ''; ")
-                        .append("alter table devices add pattern varchar default ''; ")
-                        .append("alter table devices add downlink varchar default ''; ")
-                        .append("alter table devices add commandscript varchar default ''; ")
-                        .append("alter table devices add appid varchar default ''; ")
-                        .append("alter table devices add appeui varchar default ''; ");
-                /*
-                        .append("drop table if exists devicetemplates; ")
-                        .append("create table devicetemplates (")
-                        .append("eui varchar primary key,")
-                        .append("appid varchar,")
-                        .append("appeui varchar,")
-                        .append("type varchar,")
-                        .append("channels varchar,")
-                        .append("code varchar,")
-                        .append("decoder varchar,")
-                        .append("description varchar,")
-                        .append("tinterval bigint,")
-                        .append("pattern varchar,")
-                        .append("commandscript varchar,")
-                        .append("producer varchar)");
-                 */
-                query = sb.toString();
-                break;
-            case 4:
-                break;
-            case 5:
-                return;
-            case 6:
-                sb = new StringBuilder();
-                sb.append("alter table devices add groups varchar;");
-                query = sb.toString();
-                break;
-            case 7:
-                sb = new StringBuilder();
-                sb.append("alter table devices add alert number default -1;");
-                query = sb.toString();
-                break;
-            case 8:
-                sb = new StringBuilder();
-                sb.append("alter table devices add devid varchar default '';");
-                query = sb.toString();
-                break;
-            case 9:
-                sb = new StringBuilder();
-                sb.append("alter table devices add active boolean default true;");
-                sb.append("alter table devices add project varchar default '';");
-                query = sb.toString();
-                break;
-            case 10:
-                sb = new StringBuilder();
-                sb.append("alter table devices add state double default 0.0;");
-                sb.append("alter table devices add retention bigint default -1;");
-                query = sb.toString();
-                break;
+        case 2:
+            query = "alter table devices add lastframe bigint default -1;";
+            break;
+        case 3:
+            sb = new StringBuilder();
+            sb.append("alter table devices add template varchar default ''; ")
+                    .append("alter table devices add pattern varchar default ''; ")
+                    .append("alter table devices add downlink varchar default ''; ")
+                    .append("alter table devices add commandscript varchar default ''; ")
+                    .append("alter table devices add appid varchar default ''; ")
+                    .append("alter table devices add appeui varchar default ''; ");
+            /*
+             * .append("drop table if exists devicetemplates; ")
+             * .append("create table devicetemplates (") .append("eui varchar primary key,")
+             * .append("appid varchar,") .append("appeui varchar,") .append("type varchar,")
+             * .append("channels varchar,") .append("code varchar,")
+             * .append("decoder varchar,") .append("description varchar,")
+             * .append("tinterval bigint,") .append("pattern varchar,")
+             * .append("commandscript varchar,") .append("producer varchar)");
+             */
+            query = sb.toString();
+            break;
+        case 4:
+            break;
+        case 5:
+            return;
+        case 6:
+            sb = new StringBuilder();
+            sb.append("alter table devices add groups varchar;");
+            query = sb.toString();
+            break;
+        case 7:
+            sb = new StringBuilder();
+            sb.append("alter table devices add alert number default -1;");
+            query = sb.toString();
+            break;
+        case 8:
+            sb = new StringBuilder();
+            sb.append("alter table devices add devid varchar default '';");
+            query = sb.toString();
+            break;
+        case 9:
+            sb = new StringBuilder();
+            sb.append("alter table devices add active boolean default true;");
+            sb.append("alter table devices add project varchar default '';");
+            query = sb.toString();
+            break;
+        case 10:
+            sb = new StringBuilder();
+            sb.append("alter table devices add state double default 0.0;");
+            sb.append("alter table devices add retention bigint default -1;");
+            query = sb.toString();
+            break;
         }
         try {
             PreparedStatement pst;
@@ -950,7 +906,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException {
         String query = "select eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer from devicetemplates where upper(eui) = ?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, templateEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -967,7 +923,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public List<DeviceTemplate> getDeviceTemplates() throws ThingsDataException {
         String query = "select eui,appid,appeui,type,channels,code,decoder,description,tinterval,pattern,commandscript,producer from devicetemplates";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             ResultSet rs = pstmt.executeQuery();
             ArrayList<DeviceTemplate> list = new ArrayList<>();
             while (rs.next()) {
@@ -983,7 +939,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     public int getUserDevicesCount(String userID) throws ThingsDataException {
         String query = "select count(eui) from devices where userid = ?";
         int counter = 0;
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             ResultSet rs = pstmt.executeQuery();
             ArrayList<DeviceTemplate> list = new ArrayList<>();
@@ -998,10 +954,10 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
 
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
-        String query
-                = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices "
-                + "where tinterval > 0 and alert < 2 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-" + timeOffset + ") > tinterval/1000;";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        String query = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices "
+                + "where tinterval > 0 and alert < 2 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-"
+                + timeOffset + ") > tinterval/1000;";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
             while (rs.next()) {
@@ -1018,7 +974,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         String query;
         query = "select eui,name,userid,team,channels,description from groups where eui=? and (userid = ? or team like ?)";
 
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
@@ -1039,7 +995,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         String query;
         query = "select eui,name,userid,team,channels,description from groups where eui=?";
 
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -1057,7 +1013,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {
         String query;
         query = "select eui,name,userid,team,channels,description from groups where userid = ? or team like ?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             pstmt.setString(2, "%," + userID + "%,");
             ResultSet rs = pstmt.executeQuery();
@@ -1074,10 +1030,11 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void putGroup(DeviceGroup group) throws ThingsDataException {
         if (getGroup(group.getUserID(), group.getEUI()) != null) {
-            throw new ThingsDataException(ThingsDataException.CONFLICT, "group " + group.getEUI() + " is already defined");
+            throw new ThingsDataException(ThingsDataException.CONFLICT,
+                    "group " + group.getEUI() + " is already defined");
         }
         String query = "insert into groups (eui,name,userid,team,channels,description) values(?,?,?,?,?,?)";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getEUI());
             pstmt.setString(2, group.getName());
             pstmt.setString(3, group.getUserID());
@@ -1086,7 +1043,8 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setString(6, group.getDescription());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error adding group " + group.getEUI());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error adding group " + group.getEUI());
             }
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -1098,7 +1056,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void updateGroup(DeviceGroup group) throws ThingsDataException {
         String query = "update groups set name=?,userid=?,team=?,channels=?,description=? where eui=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getName());
             pstmt.setString(2, group.getUserID());
             pstmt.setString(3, group.getTeam());
@@ -1107,7 +1065,8 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
             pstmt.setString(6, group.getEUI());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
-                throw new ThingsDataException(ThingsDataException.BAD_REQUEST, "DB error updating group " + group.getEUI());
+                throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
+                        "DB error updating group " + group.getEUI());
             }
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -1116,19 +1075,20 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         }
         removeFromCache(group.getEUI());
     }
-   
-    private void removeFromCache(String groupEUI){
+
+    private void removeFromCache(String groupEUI) {
         removeChannelsFromCache(groupEUI);
         removeDevicesFromCache(groupEUI);
     }
+
     private void removeChannelsFromCache(String groupEUI) {
         String[] euis = groupEUI.split(",");
         for (int i = 0; i < euis.length; i++) {
             if (!euis[i].isEmpty()) {
                 try {
-                    cache.remove(GROUP_CHANNEL_CACHE, euis[i]);
+                    getCache().remove(GROUP_CHANNEL_CACHE, euis[i]);
                 } catch (KeyValueDBException ex) {
-                    //TODO:logger
+                    // TODO:logger
                 }
             }
         }
@@ -1139,9 +1099,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
         for (int i = 0; i < euis.length; i++) {
             if (!euis[i].isEmpty()) {
                 try {
-                    cache.remove(GROUP_CHANNEL_CACHE, euis[i]);
+                    getCache().remove(GROUP_CHANNEL_CACHE, euis[i]);
                 } catch (KeyValueDBException ex) {
-                    //TODO:logger
+                    // TODO:logger
                 }
             }
         }
@@ -1150,7 +1110,7 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     @Override
     public void removeGroup(String groupEUI) throws ThingsDataException {
         String query = "delete from groups where eui=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -1170,12 +1130,12 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
                 return channels;
             }
         } catch (KeyValueDBException ex) {
-            //TODO: logger
+            // TODO: logger
         }
-        //return ((Service) Kernel.getInstance()).getDataStorageAdapter().
+        // return ((Service) Kernel.getInstance()).getDataStorageAdapter().
         String query = "select channels from groups where eui=?";
         channels = new ArrayList<>();
-        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, groupEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
@@ -1194,7 +1154,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames)
+            throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 }

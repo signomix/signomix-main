@@ -40,14 +40,26 @@ sgx0.addVirtualData = function (newEUI, newName, newValue) {
 sgx0.getAverageOf = function (channelName, scope) {
     return this.channelReader.getAverageValue(channelName, scope).getValue();
 }
+sgx0.getNewAverageOf = function (channelName, scope, newValue) {
+    return this.channelReader.getAverageValue(channelName, scope, newValue).getValue();
+}
 sgx0.getMinimumOf = function (channelName, scope) {
     return this.channelReader.getMinimalValue(channelName, scope).getValue();
+}
+sgx0.getNewMinimumOf = function (channelName, scope, newValue) {
+    return this.channelReader.getMinimalValue(channelName, scope, newValue).getValue();
 }
 sgx0.getMaximumOf = function (channelName, scope) {
     return this.channelReader.getMaximalValue(channelName, scope).getValue();
 }
+sgx0.getNewMaximumOf = function (channelName, scope, newValue) {
+    return this.channelReader.getMaximalValue(channelName, scope).getValue();
+}
 sgx0.getSumOf = function (channelName, scope) {
     return this.channelReader.getSummaryValue(channelName, scope).getValue();
+}
+sgx0.getNewSumOf = function (channelName, scope, newValue) {
+    return this.channelReader.getSummaryValue(channelName, scope, newValue).getValue();
 }
 sgx0.getLastValue = function (channelName) {
     var tmpLastData=this.channelReader.getLastData(channelName);
@@ -62,9 +74,6 @@ sgx0.getLastData = function (channelName) {
 }
 sgx0.getModulo = function (value, divider) {
     return this.result.getModulo(value, divider);
-}
-sgx0.getNewAverageOf = function (channelName, scope, newValue) {
-    return this.channelReader.getAverageValue(channelName, scope, newValue).getValue();
 }
 sgx0.getOutput = function () {
     return this.result.getOutput();

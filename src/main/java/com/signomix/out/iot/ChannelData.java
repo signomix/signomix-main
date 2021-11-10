@@ -17,9 +17,9 @@ public class ChannelData {
     private String deviceEUI;
     private String name;
     private Double value;
-    //private long longValue;
+    // private long longValue;
     private long timestamp;
-    //private int multiplier;
+    // private int multiplier;
     private String stringValue;
 
     public ChannelData() {
@@ -37,7 +37,7 @@ public class ChannelData {
         this.value = value;
         this.timestamp = timestamp;
     }
-    
+
     public ChannelData(String name, Long value, long timestamp) {
         this.name = name;
         this.value = value.doubleValue();
@@ -45,8 +45,8 @@ public class ChannelData {
     }
 
     public String toString() {
-        //return getName()+ ":" + getTimestamp() + ":" + getValue();
-        return getName()+":"+getValue()+":"+getTimestamp();
+        // return getName()+ ":" + getTimestamp() + ":" + getValue();
+        return getName() + ":" + getValue() + ":" + getTimestamp();
     }
 
     public String toCsv(String delimeter, boolean convertTimestamp) {
@@ -56,13 +56,13 @@ public class ChannelData {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             dateFormatted = dateFormat.format(new Date(getTimestamp()));
-            return getDeviceEUI() + delimeter + getName() + delimeter + getValue() + delimeter + dateFormatted ;
+            return getDeviceEUI() + delimeter + getName() + delimeter + getValue() + delimeter + dateFormatted;
         }
-        return getDeviceEUI() + delimeter + getName() + delimeter + getValue()+ delimeter + getTimestamp() ;
+        return getDeviceEUI() + delimeter + getName() + delimeter + getValue() + delimeter + getTimestamp();
     }
 
     public static String getCsvHeaderLine(boolean convertTimestamp) {
-        return "EUI,name,value,"+(convertTimestamp?"date (UTC)":"timestamp")+"\r\n";
+        return "EUI,name,value," + (convertTimestamp ? "date (UTC)" : "timestamp") + "\r\n";
     }
 
     /**
@@ -84,6 +84,10 @@ public class ChannelData {
      */
     public Double getValue() {
         return value;
+    }
+
+    public void setNullValue() {
+        this.value = null;
     }
 
     /**

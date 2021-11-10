@@ -36,8 +36,8 @@ public class DataQuery {
     }
 
     public static DataQuery parse(String query) throws DataQueryException {
-        //TODO: in case of number format exception - log SEVERE event
-        //TODO: parsing exception
+        // TODO: in case of number format exception - log SEVERE event
+        // TODO: parsing exception
         DataQuery dq = new DataQuery();
         String q = query.trim().toLowerCase();
         if (q.equalsIgnoreCase("last")) {
@@ -46,103 +46,103 @@ public class DataQuery {
         String[] params = q.split(" ");
         for (int i = 0; i < params.length;) {
             switch (params[i]) {
-                case "last":
-                    dq.setLimit(Integer.parseInt(params[i + 1]));
-                    i = i + 2;
-                    break;
-                case "average":
-                    dq.average=Integer.parseInt(params[i + 1]);
-                    if (params.length > i + 2) {
-                        try {
-                            dq.setNewValue(Double.parseDouble(params[i + 2]));
-                            i = i + 3;
-                        } catch (NumberFormatException ex) {
-                            i = i + 2;
-                        }
-                    } else {
-                        i = i + 2;
-                    }
-                    break;
-                case "minimum":
-                    dq.minimum = Integer.parseInt(params[i + 1]);
-                    if (params.length > i + 2) {
-                        try {
-                            dq.setNewValue(Double.parseDouble(params[i + 2]));
-                            i = i + 3;
-                        } catch (NumberFormatException ex) {
-                            i = i + 2;
-                        }
-                    } else {
-                        i = i + 2;
-                    }
-                    break;
-                case "maximun":
-                    dq.maximum = Integer.parseInt(params[i + 1]);
-                    if (params.length > i + 2) {
-                        try {
-                            dq.setNewValue(Double.parseDouble(params[i + 2]));
-                            i = i + 3;
-                        } catch (NumberFormatException ex) {
-                            i = i + 2;
-                        }
-                    } else {
-                        i = i + 2;
-                    }
-                    break;
-                case "sum":
-                    dq.summary = Integer.parseInt(params[i + 1]);
-                    if (params.length > i + 2) {
-                        try {
-                            dq.setNewValue(Double.parseDouble(params[i + 2]));
-                            i = i + 3;
-                        } catch (NumberFormatException ex) {
-                            i = i + 2;
-                        }
-                    } else {
-                        i = i + 2;
-                    }
-                    break;
-                case "project":
-                    dq.setProject(params[i + 1]);
-                    i = i + 2;
-                    break;
-                case "state": {
+            case "last":
+                dq.setLimit(Integer.parseInt(params[i + 1]));
+                i = i + 2;
+                break;
+            case "average":
+                dq.average = Integer.parseInt(params[i + 1]);
+                if (params.length > i + 2) {
                     try {
-                        dq.setState(Double.parseDouble(params[i + 1]));
-                    } catch (NumberFormatException e) {
-                        //TODO:inform user about wrong query selector
+                        dq.setNewValue(Double.parseDouble(params[i + 2]));
+                        i = i + 3;
+                    } catch (NumberFormatException ex) {
+                        i = i + 2;
                     }
+                } else {
                     i = i + 2;
-                    break;
                 }
-                case "timeseries":
-                case "csv.timeseries":
-                    dq.setTimeseries(true);
-                    i = i + 1;
-                    break;
-                case "channel":
-                    dq.setChannelName(params[i + 1]);
-                    i = i + 2;
-                    break;
-                case "group":
-                    dq.setGroup(params[i + 1]);
-                    i = i + 2;
-                    break;
-                case "new": {
+                break;
+            case "minimum":
+                dq.minimum = Integer.parseInt(params[i + 1]);
+                if (params.length > i + 2) {
                     try {
-                        Double n = Double.parseDouble(params[i + 1]);
-                        dq.setNewValue(n);
-                    } catch (NumberFormatException e) {
-                        //TODO:inform user about wrong query selector
+                        dq.setNewValue(Double.parseDouble(params[i + 2]));
+                        i = i + 3;
+                    } catch (NumberFormatException ex) {
+                        i = i + 2;
                     }
+                } else {
                     i = i + 2;
-                    break;
                 }
-                default:
-                    throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
+                break;
+            case "maximum":
+                dq.maximum = Integer.parseInt(params[i + 1]);
+                if (params.length > i + 2) {
+                    try {
+                        dq.setNewValue(Double.parseDouble(params[i + 2]));
+                        i = i + 3;
+                    } catch (NumberFormatException ex) {
+                        i = i + 2;
+                    }
+                } else {
+                    i = i + 2;
+                }
+                break;
+            case "sum":
+                dq.summary = Integer.parseInt(params[i + 1]);
+                if (params.length > i + 2) {
+                    try {
+                        dq.setNewValue(Double.parseDouble(params[i + 2]));
+                        i = i + 3;
+                    } catch (NumberFormatException ex) {
+                        i = i + 2;
+                    }
+                } else {
+                    i = i + 2;
+                }
+                break;
+            case "project":
+                dq.setProject(params[i + 1]);
+                i = i + 2;
+                break;
+            case "state": {
+                try {
+                    dq.setState(Double.parseDouble(params[i + 1]));
+                } catch (NumberFormatException e) {
+                    // TODO:inform user about wrong query selector
+                }
+                i = i + 2;
+                break;
+            }
+            case "timeseries":
+            case "csv.timeseries":
+                dq.setTimeseries(true);
+                i = i + 1;
+                break;
+            case "channel":
+                dq.setChannelName(params[i + 1]);
+                i = i + 2;
+                break;
+            case "group":
+                dq.setGroup(params[i + 1]);
+                i = i + 2;
+                break;
+            case "new": {
+                try {
+                    Double n = Double.parseDouble(params[i + 1]);
+                    dq.setNewValue(n);
+                } catch (NumberFormatException e) {
+                    // TODO:inform user about wrong query selector
+                }
+                i = i + 2;
+                break;
+            }
+            default:
+                throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
             }
         }
-        
+
         if (dq.average > 0) {
             dq.minimum = 0;
             dq.maximum = 0;
@@ -159,9 +159,9 @@ public class DataQuery {
         return dq;
     }
 
-    //public int getAverage(){
-    //    return average;
-    //}
+    // public int getAverage(){
+    // return average;
+    // }
     /**
      * @return the limit
      */
@@ -176,14 +176,11 @@ public class DataQuery {
         this.limit = limit;
     }
 
-/*    public int getAverage() {
-        return average;
-    }
-
-    public void setAverage(int average) {
-        this.average = average;
-    }
-*/
+    /*
+     * public int getAverage() { return average; }
+     * 
+     * public void setAverage(int average) { this.average = average; }
+     */
     /**
      * @return the channelName
      */
