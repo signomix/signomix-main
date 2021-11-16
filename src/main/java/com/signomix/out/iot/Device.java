@@ -131,14 +131,14 @@ public class Device {
      * @return the EUI
      */
     public String getEUI() {
-        return EUI;
+        return EUI.toUpperCase();
     }
 
     /**
      * @param EUI the EUI to set
      */
     public void setEUI(String EUI) {
-        this.EUI = EUI;
+        this.EUI = EUI.toUpperCase();
     }
 
     /**

@@ -7,6 +7,7 @@ package com.signomix;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.Dashboard;
 import com.signomix.out.gui.DashboardAdapterIface;
@@ -211,7 +212,8 @@ public class PlatformAdministrationModule {
             IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
             ActuatorCommandsDBIface actuatorCommandsDB,
-            ShortenerDBIface shortenerDB
+            ShortenerDBIface shortenerDB,
+            IotDbDataIface iotDB
     ) {
 
         // SYSTEM key parameters and limits
@@ -375,6 +377,135 @@ public class PlatformAdministrationModule {
 
         // IoT
         //TODO: configurable number of devices
+        LinkedHashMap<String, Channel> channels;
+        Channel ch;
+
+        DeviceTemplate template = new DeviceTemplate();
+        template.setType(Device.TTN);
+        template.setEui("SGMTH01");
+        template.setAppid("");
+        template.setAppeui("");
+        template.setChannels("temperature,humidity,battery");
+        template.setCommandScript("");
+        template.setDescription("Example device: Arduino Pro Mini and DTH11/DHT22 sensor.");
+        template.setPattern(",eui,name,key,");
+        template.setProducer("TTN Community");
+        template.setCode("");
+        template.setDecoder("");
+
+        Device device = new Device();
+        device.setType(Device.GENERIC);
+        device.setName("emulator");
+        device.setEUI("IOT-EMULATOR");
+        device.setTeam("admin");
+        device.setUserID("tester1");
+
+        channels = new LinkedHashMap<>();
+        channels.put("temperature", new Channel("temperature"));
+        channels.put("humidity", new Channel("humidity"));
+        channels.put("latitude", new Channel("latitude"));
+        channels.put("longitude", new Channel("longitude"));
+        device.setChannels(channels);
+        device.setKey("6022140857");
+
+        Dashboard dashboard = new Dashboard();
+        dashboard.setName("emulator");
+        dashboard.setId("IOT-EMULATOR");
+        dashboard.setTitle("Data from iot-emulator");
+        dashboard.setUserID("tester1");
+        dashboard.setShared(false);
+        dashboard.setTeam("admin");
+
+        Widget widget = new Widget();
+        widget.setName("e-temperature");
+        widget.setDescription("Displays last collected temperature form iot-emulator device");
+        widget.setTitle("Temperature (JSON)");
+        widget.setType("raw");
+        widget.setDev_id("IOT-EMULATOR");
+        widget.setChannel("temperature");
+        widget.setQuery("last 1");
+        widget.setRange("");
+
+        Widget widget2 = new Widget();
+        widget2.setName("e-info");
+        widget2.setDescription("The dashboard shows the most recent data registered by the emulator of IoT device.");
+        widget2.setTitle("Info");
+        widget2.setType("text");
+        widget2.setDev_id("");
+        widget2.setChannel("");
+        widget2.setQuery("");
+        widget2.setRange("");
+
+        Widget widget3 = new Widget();
+        widget3.setName("e-humidity");
+        widget3.setDescription("Displays last collected humidity form iot-emulator device");
+        widget3.setTitle("Humidity");
+        widget3.setType("symbol");
+        widget3.setDev_id("IOT-EMULATOR");
+        widget3.setChannel("humidity");
+        widget3.setUnitName("%");
+        widget3.setQuery("last 1");
+        widget3.setRange("<25");
+
+        Widget widget5 = new Widget();
+        widget5.setName("e-Temp");
+        widget5.setDescription("Temperature");
+        widget5.setTitle("Temperature");
+        widget5.setType("symbol");
+        widget5.setDev_id("IOT-EMULATOR");
+        widget5.setChannel("temperature");
+        widget5.setUnitName("&deg;C");
+        widget5.setQuery("last 1");
+        widget5.setRange("<-10>35:<0>25");
+
+        Widget widget1 = new Widget();
+        widget1.setName("e-humidity2");
+        widget1.setDescription("Displays last collected humidity form iot-emulator device");
+        widget1.setTitle("Humidity");
+        widget1.setType("line");
+        widget1.setDev_id("IOT-EMULATOR");
+        widget1.setChannel("humidity");
+        widget1.setUnitName("%");
+        widget1.setQuery("last 10");
+        widget1.setRange("");
+        widget1.setWidth(4);
+
+        dashboard.addWidget(widget2);
+        dashboard.addWidget(widget3);
+        dashboard.addWidget(widget5);
+        dashboard.addWidget(widget);
+        dashboard.addWidget(widget1);
+
+        DeviceGroup dg = new DeviceGroup();
+        dg.setChannels("latitude,longitude,temperature,humidity");
+        dg.setEUI("test");
+        dg.setName("Test group");
+        dg.setTeam("tester1");
+        dg.setUserID("admin");
+
+        if (null != iotDB) {
+            try {
+                iotDB.createStructure();
+                if (null == iotDB.getDeviceTemplte("SGMTH01")) {
+                    iotDB.addDeviceTemplate(template);
+                }
+                if (null == iotDB.getDevice("IOT-EMULATOR")) {
+                    iotDB.putDevice(device);
+                }
+                if (null == iotDB.getDeviceChannels("IOT-EMULATOR")) {
+                    iotDB.updateDeviceChannels(device, null);
+                }
+                if (null == iotDB.getDashboard("tester1", "IOT-EMULATOR")) {
+                    iotDB.addDashboard(dashboard);
+                }
+                if (null == iotDB.getGroup("test")) {
+                    iotDB.putGroup(dg);
+                }
+            } catch (ThingsDataException ex) {
+                ex.printStackTrace();
+            }
+        }
+
         if (thingsDB != null) {
             try {
                 thingsDB.addTable("devicetemplates", 100, true);
@@ -384,124 +515,11 @@ public class PlatformAdministrationModule {
                 thingsDB.addTable("groups", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 iotDataDB.addTable("devicedata", 1000 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
                 iotDataDB.addTable("devicechannels", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-                //thingsDB.addTable("widgets", 1000, true);
-                //templates
-                LinkedHashMap<String, Channel> channels;
-                Channel ch;
 
-                DeviceTemplate template = new DeviceTemplate();
-                template.setType(Device.TTN);
-                template.setEui("SGMTH01");
-                template.setAppid("");
-                template.setAppeui("");
-                template.setChannels("temperature,humidity,battery");
-                template.setCommandScript("");
-                template.setDescription("Example device: Arduino Pro Mini and DTH11/DHT22 sensor.");
-                template.setPattern(",eui,name,key,");
-                template.setProducer("TTN Community");
-                template.setCode("");
-                template.setDecoder("");
                 thingsDB.addDeviceTemplate(template); //demo device
-
-                Device device = new Device();
-                device.setType(Device.GENERIC);
-                device.setName("emulator");
-                device.setEUI("IOT-EMULATOR");
-                //device.setUid(device.getEUI());
-                device.setTeam("admin");
-                device.setUserID("tester1");
-
-                channels = new LinkedHashMap<>();
-                channels.put("temperature", new Channel("temperature"));
-                channels.put("humidity", new Channel("humidity"));
-                channels.put("latitude", new Channel("latitude"));
-                channels.put("longitude", new Channel("longitude"));
-                device.setChannels(channels);
-
-                Random r = new Random(System.currentTimeMillis());
-                device.setKey("6022140857");
-                //thingsDB.put("devices", device.getEUI(), device);
                 thingsDB.putDevice(device);
                 iotDataDB.updateDeviceChannels(device, null);
-
-                Dashboard dashboard = new Dashboard();
-                dashboard.setName("emulator");
-                dashboard.setId("IOT-EMULATOR");
-                dashboard.setTitle("Data from iot-emulator");
-                dashboard.setUserID("tester1");
-                dashboard.setShared(false);
-                dashboard.setTeam("admin");
-
-                Widget widget = new Widget();
-                widget.setName("e-temperature");
-                widget.setDescription("Displays last collected temperature form iot-emulator device");
-                widget.setTitle("Temperature (JSON)");
-                widget.setType("raw");
-                widget.setDev_id("IOT-EMULATOR");
-                widget.setChannel("temperature");
-                widget.setQuery("last 1");
-                widget.setRange("");
-
-                Widget widget2 = new Widget();
-                widget2.setName("e-info");
-                widget2.setDescription("The dashboard shows the most recent data registered by the emulator of IoT device.");
-                widget2.setTitle("Info");
-                widget2.setType("text");
-                widget2.setDev_id("");
-                widget2.setChannel("");
-                widget2.setQuery("");
-                widget2.setRange("");
-
-                Widget widget3 = new Widget();
-                widget3.setName("e-humidity");
-                widget3.setDescription("Displays last collected humidity form iot-emulator device");
-                widget3.setTitle("Humidity");
-                widget3.setType("symbol");
-                widget3.setDev_id("IOT-EMULATOR");
-                widget3.setChannel("humidity");
-                widget3.setUnitName("%");
-                widget3.setQuery("last 1");
-                widget3.setRange("<25");
-
-                Widget widget5 = new Widget();
-                widget5.setName("e-Temp");
-                widget5.setDescription("Temperature");
-                widget5.setTitle("Temperature");
-                widget5.setType("symbol");
-                widget5.setDev_id("IOT-EMULATOR");
-                widget5.setChannel("temperature");
-                widget5.setUnitName("&deg;C");
-                widget5.setQuery("last 1");
-                widget5.setRange("<-10>35:<0>25");
-
-                Widget widget1 = new Widget();
-                widget1.setName("e-humidity2");
-                widget1.setDescription("Displays last collected humidity form iot-emulator device");
-                widget1.setTitle("Humidity");
-                widget1.setType("line");
-                widget1.setDev_id("IOT-EMULATOR");
-                widget1.setChannel("humidity");
-                widget1.setUnitName("%");
-                widget1.setQuery("last 10");
-                widget1.setRange("");
-                widget1.setWidth(4);
-
-                dashboard.addWidget(widget2);
-                dashboard.addWidget(widget3);
-                dashboard.addWidget(widget5);
-                dashboard.addWidget(widget);
-                dashboard.addWidget(widget1);
-
-                //thingsDB.put("dashboards", dashboard.getId(), dashboard);
                 thingsDB.addDashboard(dashboard);
-                //thingsDB.put("widgets", widget.getId(), widget);
-
-                DeviceGroup dg = new DeviceGroup();
-                dg.setChannels("latitude,longitude,temperature,humidity");
-                dg.setEUI("test");
-                dg.setName("Test group");
-                dg.setTeam("tester1");
-                dg.setUserID("admin");
                 thingsDB.putGroup(dg);
             } catch (ClassCastException | KeyValueDBException | ThingsDataException e) {
                 e.printStackTrace();
@@ -509,6 +527,7 @@ public class PlatformAdministrationModule {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
         }
 
         // IoT actuator commands (storing events with actuator commands)
@@ -532,6 +551,7 @@ public class PlatformAdministrationModule {
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), ex.getMessage()));
             }
         }
+
     }
 
     /**

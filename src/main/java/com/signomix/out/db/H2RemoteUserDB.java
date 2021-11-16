@@ -4,6 +4,9 @@
  */
 package com.signomix.out.db;
 
+import com.cedarsoftware.util.io.JsonWriter;
+import java.io.File;
+import java.io.IOException;
 import org.cricketmsf.out.db.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.cricketmsf.Adapter;
+import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.user.User;
+import org.cricketmsf.out.archiver.ZipArchiver;
 
 /**
  *
@@ -23,9 +29,17 @@ import org.cricketmsf.microsite.user.User;
  */
 public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
 
+    private static int MAX_CONNECTIONS = 100;
+
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
+    }
+    
+    @Override
+    public void start() throws KeyValueDBException {
+        super.start();
+        cp.setMaxConnections(MAX_CONNECTIONS);
     }
 
     @Override
@@ -67,6 +81,24 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             }
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
+    }
+    
+    @Override
+    public File getBackupFile() {
+        try {
+            ZipArchiver archiver = new ZipArchiver("data-", ".zip");
+            Map args = new HashMap();
+            args.put(JsonWriter.TYPE, true);
+            args.put(JsonWriter.PRETTY_PRINT, true);
+            Map map;
+            map = getAll("users");
+            String json = JsonWriter.objectToJson(map, args);
+            archiver.addFileContent("users.json", json);
+            return archiver.getFile();
+        } catch (KeyValueDBException | IOException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return null;
         }
     }
 
@@ -244,7 +276,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
     private Object getUser(String tableName, String key, Object defaultResult) throws KeyValueDBException {
         User user = null;
         String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from " + tableName + " where uid=?";
-        try ( Connection conn = getConnection();PreparedStatement pstmt = conn.prepareStatement(query);) {
+        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();

@@ -31,6 +31,10 @@ public class H2IotDB extends H2EmbededDB implements SqlDBIface, IotDatabaseIface
 
     private int timeOffset = 0;
     private int requestLimit = 0; //no limit
+    
+    @Override
+    public void createStructure(){
+    }
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {

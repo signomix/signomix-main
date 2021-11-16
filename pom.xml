@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.signomix</groupId>
     <artifactId>signomix</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.8</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.54</version>
+            <version>1.5.55</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -41,6 +41,11 @@
             <artifactId>qpid-jms-client</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.24</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>signomix</finalName>
@@ -58,8 +63,8 @@
                         <configuration>
                             <tasks>
                                 <!--
-                                <copy file="src/main/java/com/signomix/Invariants.template" tofile="src/main/java/com/signomix/Invariants.java" overwrite="true"/>
-                                            -->
+                    <copy file="src/main/java/com/signomix/Invariants.template" tofile="src/main/java/com/signomix/Invariants.java" overwrite="true"/>
+                                -->
                             </tasks>
                         </configuration>
                     </execution>

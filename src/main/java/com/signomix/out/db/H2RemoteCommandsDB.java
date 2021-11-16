@@ -4,16 +4,28 @@
  */
 package com.signomix.out.db;
 
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 import com.signomix.out.iot.ThingsDataException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
+import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
@@ -24,9 +36,17 @@ import org.cricketmsf.out.db.SqlDBIface;
  */
 public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, ActuatorCommandsDBIface, Adapter {
 
+    private static int MAX_CONNECTIONS = 100;
+
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
+    }
+    
+    @Override
+    public void start() throws KeyValueDBException {
+        super.start();
+        cp.setMaxConnections(MAX_CONNECTIONS);
     }
 
     @Override
@@ -70,6 +90,52 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
+    }
+    
+    @Override
+    public File getBackupFile() {
+        try {
+            ZipArchiver archiver = new ZipArchiver("data-", ".zip");
+            Map args = new HashMap();
+            args.put(JsonWriter.TYPE, true);
+            args.put(JsonWriter.PRETTY_PRINT, true);
+            Map map;
+            map = getAll("commands");
+            String json = JsonWriter.objectToJson(map, args);
+            archiver.addFileContent("commands.json", json);
+            map = getAll("commandslog");
+            json = JsonWriter.objectToJson(map, args);
+            archiver.addFileContent("commandslog.json", json);
+            return archiver.getFile();
+        } catch (KeyValueDBException | IOException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            return null;
+        }
+    }
+    
+    private void loadBackupFile(String fileName){
+        ZipArchiver archiver;
+        try {
+            Path filePath = Path.of(fileName);
+	    String json = Files.readString(filePath);
+            switch(fileName) {
+                case "commands.json":
+                    //HashMap<String,Object>map=(HashMap)getAllCommands();
+                    HashMap<String,Object> map = (HashMap)JsonReader.jsonToJava(json);
+                    Iterator<String> it=map.keySet().iterator();
+                    while(it.hasNext()){
+                        String eui=it.next();
+                        Event ev=(Event)map.get(eui);
+                        putDeviceCommand(eui, ev);
+                    }
+                    break;
+                case "connamdslog.json":
+                    break;
+            }
+        } catch (IOException|ThingsDataException ex) {
+            Logger.getLogger(H2RemoteCommandsDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 
     @Override

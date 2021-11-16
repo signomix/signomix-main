@@ -9,6 +9,7 @@
 #
 
 FROM azul/zulu-openjdk-alpine:13
+#FROM azul/zulu-openjdk:13
 
 WORKDIR /usr/signomix
 
@@ -26,8 +27,17 @@ COPY src/main/resources/logback.xml /usr/signomix/
 COPY src/main/resources/device-script-template.js /usr/signomix/config/
 COPY src/main/resources/payload-decoder-envelope.js /usr/signomix/config/
 COPY src/main/www /usr/signomix/www
+COPY src/main/resources/run.sh /usr/signomix/
+RUN chmod +x /usr/signomix/run.sh
+
+#COPY src/main/resources/profiler-server-linuxamd64.zip /usr/signomix/
+#RUN apt-get update -y
+#RUN apt-get install -y unzip
+#RUN unzip /usr/signomix/profiler-server-linuxamd64.zip -d profiler
 
 VOLUME /usr/signomix/dbdata
 
-CMD ["java", "-Xms100m",  "-Xmx1g", "-cp", ".:signomix.jar", "org.cricketmsf.Runner", "-r", "-c", "config/settings.json"]
+#CMD ["java", "-Xms100m",  "-Xmx1g", "-cp", ".:signomix.jar", "org.cricketmsf.Runner", "-r", "-c", "config/settings.json"]
 #CMD ["java", "-Xms100m",  "-Xmx1g", "-jar", "./signomix.jar", "-r", "-c", "config/settings.json"]
+
+CMD ./run.sh

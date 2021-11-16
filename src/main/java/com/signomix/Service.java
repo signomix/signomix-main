@@ -15,9 +15,11 @@ import com.signomix.event.IotEvent;
 import com.signomix.event.MailingApiEvent;
 import com.signomix.event.NewDataEvent;
 import com.signomix.event.SubscriptionEvent;
+import com.signomix.iot.IotDataIface;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -105,6 +107,8 @@ public class Service extends Kernel {
     //WidgetAdapterIface widgetAdapter = null;
     IotDatabaseIface thingsDB = null;
     IotDataStorageIface iotDataDB = null;
+    
+    IotDbDataIface questDB = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
     //notifications and emails
@@ -165,6 +169,7 @@ public class Service extends Kernel {
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
         //widgetAdapter = (WidgetAdapterIface) getRegistered("widgetAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
+        questDB = (IotDbDataIface) getRegistered("IotDatabase");
         //notifications
         smtpNotification = (NotificationIface) getRegistered("smtpNotification");
         smsNotification = (NotificationIface) getRegistered("smsNotification");
@@ -217,7 +222,7 @@ public class Service extends Kernel {
         invariants = new Invariants();
         PlatformAdministrationModule.getInstance().initDatabases(
                 database, userDB, authDB, thingsDB,
-                iotDataDB, actuatorCommandsDB, shortenerDB);
+                iotDataDB, actuatorCommandsDB, shortenerDB, questDB);
         //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         //TODO: use services monitoring
         //PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);

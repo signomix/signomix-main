@@ -26,6 +26,9 @@ import org.cricketmsf.out.db.KeyValueDBException;
 public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
+    public void createStructure(){
+    }
+    @Override
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         try {
             Map map = getAll("devices");

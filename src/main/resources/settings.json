@@ -339,14 +339,15 @@
                     "interfaceName": "IotDatabaseIface",
                     "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/iot",
                         "file": "iot",
                         "test-query": "select * from serviceversion",
                         "version": "9",
                         "user": "sa",
                         "password": "",
-                        "time-offset": "3600"
+                        "time-offset": "3600",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -354,14 +355,15 @@
                     "interfaceName": "IotDataStorageIface",
                     "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/data",
                         "file": "data",
                         "test-query": "select * from serviceversion",
                         "version": "3",
                         "user": "sa",
                         "password": "",
-                        "requestLimit": "250"
+                        "requestLimit": "250",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -369,13 +371,14 @@
                     "interfaceName": "ActuatorCommandsDBIface",
                     "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/actuator",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -442,13 +445,14 @@
                     "interfaceName": "SqlDBIface",
                     "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteCmsDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/cms",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "content",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -456,7 +460,7 @@
                     "interfaceName": "SqlDBIface",
                     "classFullName": "com.signomix.out.db.H2RemoteUserDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/user",
                         "test-query": "select * from serviceversion",
                         "version": "2",
@@ -464,7 +468,8 @@
                         "filePassword": "",
                         "name": "user",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -472,13 +477,14 @@
                     "interfaceName": "SqlDBIface",
                     "classFullName": "org.cricketmsf.microsite.out.db.H2RemoteAuthDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/auth",
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -639,7 +645,7 @@
                     "interfaceName": "ShortenerDBIface",
                     "classFullName": "com.signomix.out.db.H2RemoteShortenerDB",
                     "properties": {
-                        "host": "dbserver",
+                        "host": "$SIGNOMIX_DB_SERVER",
                         "dbfile": "/h2data/shortener",
                         "test-query": "select * from serviceversion",
                         "version": "1",
@@ -647,7 +653,8 @@
                         "filePassword":"",
                         "name": "user",
                         "user": "sa",
-                        "password": ""
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 },
                 {
@@ -718,6 +725,24 @@
                         "user": "admin",
                         "password": "rabbit",
                         "exchange": "events"
+                    }
+                },
+                {
+                    "name": "IotDatabase",
+                    "classFullName": "com.signomix.out.db.QuestDB",
+                    "properties": {
+                        "hosts": "$SIGNOMIX_DB_SERVER",
+                        "ports": "8812",
+                        "test-query":"select systimestamp()",
+                        "database":"qdb",
+                        "user":"admin",
+                        "password":"quest",
+                        "sslmode":"disabled",
+                        "encrypted":"",
+                        "ignorecase":"true",
+                        "skip-update":"true",
+                        "autocommit":"true",
+                        "version":"1.0.0"
                     }
                 }
             ]
