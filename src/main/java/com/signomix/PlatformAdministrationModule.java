@@ -502,11 +502,12 @@ public class PlatformAdministrationModule {
                     iotDB.putGroup(dg);
                 }
             } catch (ThingsDataException ex) {
+                
                 ex.printStackTrace();
             }
         }
 
-        if (thingsDB != null) {
+        if (null!=thingsDB && null!=iotDataDB) {
             try {
                 thingsDB.addTable("devicetemplates", 100, true);
                 thingsDB.addTable("devices", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
@@ -517,8 +518,8 @@ public class PlatformAdministrationModule {
                 iotDataDB.addTable("devicechannels", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
 
                 thingsDB.addDeviceTemplate(template); //demo device
-                thingsDB.putDevice(device);
                 iotDataDB.updateDeviceChannels(device, null);
+                thingsDB.putDevice(device);
                 thingsDB.addDashboard(dashboard);
                 thingsDB.putGroup(dg);
             } catch (ClassCastException | KeyValueDBException | ThingsDataException e) {
@@ -526,6 +527,7 @@ public class PlatformAdministrationModule {
                 Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
             } catch (Exception e) {
                 e.printStackTrace();
+                Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
             }
 
         }

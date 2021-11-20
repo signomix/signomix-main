@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.signomix</groupId>
     <artifactId>signomix</artifactId>
-    <version>1.4.8</version>
+    <version>1.4.9</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.55</version>
+            <version>1.5.56</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

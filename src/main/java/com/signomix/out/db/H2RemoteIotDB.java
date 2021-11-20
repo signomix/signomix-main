@@ -1128,6 +1128,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     private void removeChannelsFromCache(String groupEUI) {
+        if(null==groupEUI){
+            return;
+        }
         String[] euis = groupEUI.split(",");
         for (int i = 0; i < euis.length; i++) {
             if (!euis[i].isEmpty()) {
@@ -1141,6 +1144,9 @@ public class H2RemoteIotDB extends H2RemoteDB implements SqlDBIface, IotDatabase
     }
 
     private void removeDevicesFromCache(String groupEUI) {
+        if(null==groupEUI){
+            return;
+        }
         String[] euis = groupEUI.split(",");
         for (int i = 0; i < euis.length; i++) {
             if (!euis[i].isEmpty()) {
