@@ -728,7 +728,7 @@
                     }
                 },
                 {
-                    "name": "IotDatabase",
+                    "name": "IotDatabase2",
                     "classFullName": "com.signomix.out.db.QuestDB",
                     "properties": {
                         "hosts": "$SIGNOMIX_DB_SERVER",
@@ -743,6 +743,23 @@
                         "skip-update":"true",
                         "autocommit":"true",
                         "version":"1.0.0"
+                    }
+                },
+                {
+                    "name": "IotDatabase",
+                    "interfaceName": "IotDatabaseIface",
+                    "classFullName": "com.signomix.out.db.H2RemoteIotDataDB",
+                    "properties": {
+                        "host": "$SIGNOMIX_DB_SERVER",
+                        "dbfile": "/h2data/iotdata",
+                        "test-query": "select * from serviceversion",
+                        "version": "1",
+                        "encrypted": "false",
+                        "filePassword":"",
+                        "name": "user",
+                        "user": "sa",
+                        "password": "",
+                        "cache-size": "1000"
                     }
                 }
             ]

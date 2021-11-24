@@ -50,7 +50,7 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
             case "urls":
                 sb.append("create table urls (")
                         .append("source varchar,")
-                        .append("target varchar primary key)");
+                        .append("target varchar primary key);");
                 indexQuery = "create index idxurls on urls(source);";
                 break;
             default:
@@ -59,7 +59,6 @@ public class H2RemoteShortenerDB extends H2RemoteDB implements SqlDBIface, Short
         query = sb.toString();
         try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
-            pst.close();
             if (indexQuery != null) {
                 PreparedStatement pst2 = conn.prepareStatement(indexQuery);
                 pst2.executeUpdate();

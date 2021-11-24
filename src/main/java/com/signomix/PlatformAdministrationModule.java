@@ -502,7 +502,8 @@ public class PlatformAdministrationModule {
                     iotDB.putGroup(dg);
                 }
             } catch (ThingsDataException ex) {
-                
+                ex.printStackTrace();
+            } catch(Exception ex){
                 ex.printStackTrace();
             }
         }
@@ -537,12 +538,18 @@ public class PlatformAdministrationModule {
             try {
                 actuatorCommandsDB.addTable("commands", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
             } catch (ClassCastException | KeyValueDBException e) {
+                e.printStackTrace();
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+            } catch (Exception e){
+                e.printStackTrace();
             }
             try {
                 actuatorCommandsDB.addTable("commandslog", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers") * 100, true);
             } catch (ClassCastException | KeyValueDBException e) {
+                e.printStackTrace();
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
 
@@ -550,7 +557,10 @@ public class PlatformAdministrationModule {
             try {
                 shortenerDB.addTable("urls", 100, true);
             } catch (KeyValueDBException ex) {
+                ex.printStackTrace();
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), ex.getMessage()));
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
 

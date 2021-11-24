@@ -46,10 +46,11 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     private static final String DEVICE_CHANNEL_CACHE = "device_channel_cache";
     private int requestLimit = 0; // no limit
     private KeyValueDBIface cache = null;
+    @Deprecated private boolean useCache = false;
     private static int MAX_CONNECTIONS = 100;
 
     private KeyValueDBIface getCache() {
-        if (null == cache) {
+        if (useCache && null == cache) {
             cache = ((Service) Service.getInstance()).database;
         }
         return cache;
@@ -65,6 +66,9 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             e.printStackTrace();
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
         }
+        useCache = Boolean.parseBoolean(properties.getOrDefault("use-cache", "false"));
+        Kernel.getInstance().getLogger().print("\tuse-cache: " + useCache);
+
     }
 
     @Override
@@ -107,6 +111,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
                 pst2.close();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
     }
@@ -114,20 +119,22 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     @Override
     public List<String> getDeviceChannels(String deviceEUI) throws ThingsDataException {
         List<String> channels;
-        try {
-            channels = (List) getCache().get(DEVICE_CHANNEL_CACHE, deviceEUI);
-            if (null != channels) {
-                String channelStr = "";
-                for (int i = 0; i < channels.size(); i++) {
-                    channelStr = channelStr + channels.get(i) + ",";
-                }
-                return channels;
-            } else {
+        if (useCache) {
+            try {
+                channels = (List) getCache().get(DEVICE_CHANNEL_CACHE, deviceEUI);
+                if (null != channels) {
+                    String channelStr = "";
+                    for (int i = 0; i < channels.size(); i++) {
+                        channelStr = channelStr + channels.get(i) + ",";
+                    }
+                    return channels;
+                } else {
 
+                }
+            } catch (KeyValueDBException ex) {
+                // TODO: logger
+                ex.printStackTrace();
             }
-        } catch (KeyValueDBException ex) {
-            // TODO: logger
-            ex.printStackTrace();
         }
         String query = "select channels from devicechannels where eui=?";
         try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
@@ -136,16 +143,18 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             if (rs.next()) {
                 String[] s = rs.getString(1).toLowerCase().split(",");
                 channels = Arrays.asList(s);
-                try {
-                    getCache().put(DEVICE_CHANNEL_CACHE, deviceEUI, channels);
-                } catch (KeyValueDBException ex) {
-                    ex.printStackTrace();
+                if (useCache) {
+                    try {
+                        getCache().put(DEVICE_CHANNEL_CACHE, deviceEUI, channels);
+                    } catch (KeyValueDBException ex) {
+                        ex.printStackTrace();
+                    }
                 }
                 String channelStr = "";
                 for (int i = 0; i < channels.size(); i++) {
                     channelStr = channelStr + channels.get(i) + ",";
                 }
-                Kernel.getInstance().dispatchEvent(Event.logInfo(this, "CHANNELS READ: "+deviceEUI+" "+channelStr));
+                Kernel.getInstance().dispatchEvent(Event.logInfo(this, "CHANNELS READ: " + deviceEUI + " " + channelStr));
                 return channels;
             } else {
                 return new ArrayList<>();
@@ -244,6 +253,9 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
     }
 
     private void removeChannelsFromCache(String deviceEUI) {
+        if(!useCache){
+            return;
+        }
         try {
             getCache().remove(DEVICE_CHANNEL_CACHE, deviceEUI);
         } catch (KeyValueDBException ex) {

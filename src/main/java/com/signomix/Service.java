@@ -104,11 +104,10 @@ public class Service extends Kernel {
     ActuatorCommandsDBIface actuatorCommandsDB = null;
     ActuatorApi actuatorApi = null;
     ActuatorDataIface actuatorAdapter = null;
-    //WidgetAdapterIface widgetAdapter = null;
+
     IotDatabaseIface thingsDB = null;
-    IotDataStorageIface iotDataDB = null;
-    
-    IotDbDataIface questDB = null;
+    IotDataStorageIface iotDataDB = null;  
+    IotDbDataIface iotDatabase = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
     //notifications and emails
@@ -167,9 +166,8 @@ public class Service extends Kernel {
         actuatorCommandsDB = (ActuatorCommandsDBIface) getRegistered("actuatorCommandsDB");
         actuatorApi = (ActuatorApi) getRegistered("ActuatorService");
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
-        //widgetAdapter = (WidgetAdapterIface) getRegistered("widgetAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
-        questDB = (IotDbDataIface) getRegistered("IotDatabase");
+        iotDatabase = (IotDbDataIface) getRegistered("IotDatabase");
         //notifications
         smtpNotification = (NotificationIface) getRegistered("smtpNotification");
         smsNotification = (NotificationIface) getRegistered("smsNotification");
@@ -220,9 +218,8 @@ public class Service extends Kernel {
             }
         }
         invariants = new Invariants();
-        PlatformAdministrationModule.getInstance().initDatabases(
-                database, userDB, authDB, thingsDB,
-                iotDataDB, actuatorCommandsDB, shortenerDB, questDB);
+        PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB, thingsDB,
+                iotDataDB, actuatorCommandsDB, shortenerDB, iotDatabase);
         //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         //TODO: use services monitoring
         //PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);

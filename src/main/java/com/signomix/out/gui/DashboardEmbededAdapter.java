@@ -27,7 +27,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
 
     private String helperAdapterName;
     private String userAdapterName;
-    private KeyValueDBIface database = null;
+    //private KeyValueDBIface database = null;
     private UserAdapterIface userAdapter = null;
 
     @Override
@@ -38,12 +38,12 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         Kernel.getInstance().getLogger().print("\thelper-name2: " + userAdapterName);
     }
 
-    private KeyValueDBIface getDatabase() {
+    /*private KeyValueDBIface getDatabase() {
         if (database == null) {
             database = (KeyValueDBIface) Kernel.getInstance().getAdaptersMap().get(helperAdapterName);
         }
         return database;
-    }
+    }*/
 
     private IotDatabaseIface getIotDB() {
         return (IotDatabaseIface) Kernel.getInstance().getAdaptersMap().get(helperAdapterName);

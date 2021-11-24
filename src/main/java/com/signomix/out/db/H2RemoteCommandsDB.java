@@ -62,7 +62,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                         .append("type varchar,")
                         .append("origin varchar,")
                         .append("payload varchar,")
-                        .append("createdat bigint)");
+                        .append("createdat bigint);");
                 indexQuery = "create index idxcommands on commands(origin);";
                 break;
             case "commandslog":
@@ -72,7 +72,7 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
                         .append("type varchar,")
                         .append("origin varchar,")
                         .append("payload varchar,")
-                        .append("createdat bigint)");
+                        .append("createdat bigint);");
                 indexQuery = "create index idxcommandslog on commandslog(origin);";
                 break;
             default:
@@ -81,13 +81,13 @@ public class H2RemoteCommandsDB extends H2RemoteDB implements SqlDBIface, Actuat
         query = sb.toString();
         try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
-            pst.close();
             if (indexQuery != null) {
                 PreparedStatement pst2 = conn.prepareStatement(indexQuery);
                 pst2.executeUpdate();
                 pst2.close();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
     }
