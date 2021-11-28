@@ -5,7 +5,6 @@
 package com.signomix.out.db;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import com.signomix.Service;
 import com.signomix.out.db.dto.DeviceChannelDto;
 import com.signomix.out.db.dto.DeviceDataDto;
 import com.signomix.out.gui.Dashboard;
@@ -36,7 +35,6 @@ import org.cricketmsf.Kernel;
 import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
-import org.cricketmsf.out.db.KeyValueDBIface;
 import org.cricketmsf.out.db.SqlDBIface;
 
 public class H2RemoteIotDataDB extends H2RemoteDB implements SqlDBIface, IotDbDataIface, Adapter {
@@ -1089,9 +1087,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB implements SqlDBIface, IotDbDa
     @Override
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames)
             throws ThingsDataException {
-        List<Device> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID,
+        List<Device> groupDevices = getGroupDevices(userID,
                 groupEUI);
-        List<String> groupChannels = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupChannels(groupEUI);
+        List<String> groupChannels = getGroupChannels(groupEUI);
         List<List> tmp, tmpValues;
         List<List> result = new ArrayList();
         List<ChannelData> row;
