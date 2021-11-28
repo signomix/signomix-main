@@ -515,8 +515,8 @@
                     "interfaceName": "ThingsDataIface",
                     "classFullName": "com.signomix.out.iot.ThingsDataEmbededAdapter",
                     "properties": {
-                        "helper-name": "iotDB",
-                        "helper-name2": "iotDataDB"
+                        "helper-name": "IotDatabase",
+                        "helper-name2": "IotDatabase"
                     }
                 },
                 {
@@ -524,7 +524,7 @@
                     "interfaceName": "DashboardIface",
                     "classFullName": "com.signomix.out.gui.DashboardEmbededAdapter",
                     "properties": {
-                        "helper-name": "iotDB",
+                        "helper-name": "IotDatabase",
                         "helper-name2": "userAdapter"
                     }
                 },
@@ -543,7 +543,7 @@
                     "interfaceName": "ActuatorDataIface",
                     "classFullName": "com.signomix.out.iot.ActuatorDataEmbededAdapter",
                     "properties": {
-                        "helper-name": "actuatorCommandsDB"
+                        "helper-name": "IotDatabase"
                     }
                 },
                 {

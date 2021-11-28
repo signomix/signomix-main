@@ -37,7 +37,9 @@ import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
 
-public class H2RemoteIotDataDB extends H2RemoteDB implements SqlDBIface, IotDbDataIface, Adapter {
+public class H2RemoteIotDataDB extends H2RemoteDB 
+        implements SqlDBIface, IotDbDataIface, ActuatorCommandsDBIface, IotDatabaseIface,IotDataStorageIface,
+        Adapter {
 
     private int requestLimit = 0; //no limit
     private int timeOffset = 0;
