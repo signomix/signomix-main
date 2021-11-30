@@ -29,6 +29,8 @@ import org.cricketmsf.microsite.user.User;
 public class DeviceManagementModule {
 
     private static DeviceManagementModule service;
+    
+    private long DEFAULT_GROUP_INTERVAL=60*60*1000; //60 MINUT
 
     public static DeviceManagementModule getInstance() {
         if (service == null) {
@@ -676,13 +678,14 @@ public class DeviceManagementModule {
 
     private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
+            //return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
+            return thingsAdapter.getLastValuesOfGroup(userID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return new ArrayList();
         }
     }
-
+    
     private List getUserDevices(String userID, ThingsDataIface thingsAdapter) {
         try {
             return (ArrayList) thingsAdapter.getUserDevices(userID, true);

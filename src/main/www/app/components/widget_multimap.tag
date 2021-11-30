@@ -84,12 +84,13 @@
     }
     
     self.verify=function(){
+        var minimalMeasures = 2
         var i=0
         var valuesOK=true
         var j
         //removing null values
         while(i<self.jsonData.length){
-            if(self.jsonData[i]==null || self.jsonData[i].length<2){
+            if(self.jsonData[i]==null || self.jsonData[i].length<minimalMeasures){
                 self.jsonData.splice(i,1)
             }else{
                 valuesOK=true

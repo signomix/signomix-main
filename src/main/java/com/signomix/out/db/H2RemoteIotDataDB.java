@@ -15,6 +15,7 @@ import com.signomix.out.iot.DataQueryException;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
+import com.signomix.out.iot.ThingsDataEmbededAdapter;
 import com.signomix.out.iot.ThingsDataException;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,15 +38,17 @@ import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
+import org.slf4j.LoggerFactory;
 
-public class H2RemoteIotDataDB extends H2RemoteDB 
-        implements SqlDBIface, IotDbDataIface, ActuatorCommandsDBIface, IotDatabaseIface,IotDataStorageIface,
+public class H2RemoteIotDataDB extends H2RemoteDB
+        implements SqlDBIface, IotDbDataIface, ActuatorCommandsDBIface, IotDatabaseIface, IotDataStorageIface,
         Adapter {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(H2RemoteIotDataDB.class);
     private int requestLimit = 0; //no limit
     private int timeOffset = 0;
-    private static final int MAX_CONNECTIONS = 100;
-
+    private static final int MAX_CONNECTIONS = 400;
+    private long defaultGroupInterval = 60 * 60 * 1000; //60 minutes
 
     @Override
     public void createDatabase(Connection conn, String version) {
@@ -126,7 +130,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "createStructure() "+e.getMessage()));
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "createStructure() " + e.getMessage()));
         }
     }
 
@@ -496,6 +500,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
 
@@ -1087,8 +1092,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
      * @throws ThingsDataException
      */
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames)
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval)
             throws ThingsDataException {
+        return getGroupLastValues(userID, groupEUI, channelNames, interval);
+        /*
         List<Device> groupDevices = getGroupDevices(userID,
                 groupEUI);
         List<String> groupChannels = getGroupChannels(groupEUI);
@@ -1120,6 +1127,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             result.add(row);
         }
         return result;
+         */
     }
 
     @Override
@@ -1466,7 +1474,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ex.getCode(), "DataQuery " + ex.getMessage());
         }
         if (null != dq.getGroup()) {
-            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","));
+            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","), defaultGroupInterval);
         }
         int limit = dq.getLimit();
         if (dq.average > 0) {
@@ -1899,6 +1907,111 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.executeUpdate();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException {
+        List<String> requestChannels = Arrays.asList(channelNames);
+        try {
+            String group = "%," + groupEUI + ",%";
+            long timestamp = System.currentTimeMillis() - secondsBack;
+            String deviceQuery = "SELECT eui,channels FROM devices WHERE groups like ?;";
+            HashMap<String, List> devices = new HashMap<>();
+            String query;
+            query = "SELECT "
+                    + "eui,userid,day,dtime,tstamp,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24 "
+                    + "FROM devicedata "
+                    + "WHERE eui IN "
+                    + "(SELECT eui FROM devices WHERE groups like ?) "
+                    + "and (tstamp>?) "
+                    + "order by eui,tstamp desc;";
+            List<String> groupChannels = getGroupChannels(groupEUI);
+            if (requestChannels.size() == 0) {
+                logger.error("empty channelNames");
+                requestChannels = groupChannels;
+            }
+            List<List> result = new ArrayList<>();
+            List<ChannelData> row = new ArrayList<>();
+            List<ChannelData> tmpResult = new ArrayList<>();
+            ChannelData cd;
+            logger.debug("{} {} {} {} {}", groupEUI, group, groupChannels.size(), requestChannels.size(), query);
+            try ( Connection conn = getConnection();  PreparedStatement pstd = conn.prepareStatement(deviceQuery);  PreparedStatement pst = conn.prepareStatement(query);) {
+                pstd.setString(1, group);
+                ResultSet rs = pstd.executeQuery();
+                while (rs.next()) {
+                    devices.put(rs.getString(1), Arrays.asList(rs.getString(2).split(",")));
+                }
+                pst.setString(1, group);
+                pst.setTimestamp(2, new Timestamp(timestamp));
+                rs = pst.executeQuery();
+                int channelIndex;
+                String channelName;
+                String devEui;
+                while (rs.next()) {
+                    for (int i = 0; i < groupChannels.size(); i++) {
+                        devEui = rs.getString(1);
+                        channelName = groupChannels.get(i);
+                        channelIndex = devices.get(devEui).indexOf(channelName);
+                        tmpResult.add(new ChannelData(devEui, channelName, rs.getDouble(6 + channelIndex),
+                                rs.getTimestamp(5).getTime()));
+                    }
+                }
+            } catch (SQLException e) {
+                logger.error(e.getMessage());
+                throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+                throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
+            }
+            if (tmpResult.isEmpty()) {
+                return result;
+            }
+            long processedTimestamp = 0;
+            String prevEUI = "";
+            long prevTimestamp = 0;
+            int idx;
+            for (int i = 0; i < tmpResult.size(); i++) {
+                cd = tmpResult.get(i);
+                logger.info("ChannelData: {} {} {}", cd.getDeviceEUI(), cd.getName(), cd.getTimestamp());
+                if (!cd.getDeviceEUI().equalsIgnoreCase(prevEUI)) {
+                    if (!row.isEmpty()) {
+                        result.add(row);
+                    }
+                    row = new ArrayList();
+                    for(int j=0;j<channelNames.length;j++){
+                        row.add(null);
+                    }
+                    idx = requestChannels.indexOf(cd.getName());
+                    if (idx > -1) {
+                        row.set(idx, cd);
+                    }
+                    prevEUI = cd.getDeviceEUI();
+                    prevTimestamp = cd.getTimestamp();
+                } else {
+                    if (prevTimestamp == cd.getTimestamp()) {
+                        idx = requestChannels.indexOf(cd.getName());
+                        if (idx > -1) {
+                            row.set(idx, cd);
+                        }
+                    } else {
+                        //skip prevous measures
+                    }
+                }
+            }
+            if (!row.isEmpty()) {
+                result.add(row);
+            }
+            return result;
+        } catch (Exception e) {
+            StackTraceElement[] ste = e.getStackTrace();
+            logger.error("requestChannels[{}]", requestChannels.size());
+            logger.error("channelNames[{}]", channelNames.length);
+            logger.error(e.getMessage());
+            for (int i = 0; i < ste.length; i++) {
+                logger.error("{}.{}:{}", e.getStackTrace()[i].getClassName(), e.getStackTrace()[i].getMethodName(), e.getStackTrace()[i].getLineNumber());
+            }
+            return null;
         }
     }
 

@@ -101,12 +101,13 @@ public class Service extends Kernel {
     // IoT
     ThingsDataIface thingsAdapter = null;
     DashboardAdapterIface dashboardAdapter = null;
-    ActuatorCommandsDBIface actuatorCommandsDB = null;
     ActuatorApi actuatorApi = null;
     ActuatorDataIface actuatorAdapter = null;
 
     IotDatabaseIface thingsDB = null;
-    IotDataStorageIface iotDataDB = null;  
+    IotDataStorageIface iotDataDB = null;
+    ActuatorCommandsDBIface actuatorCommandsDB = null;
+
     IotDbDataIface iotDatabase = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
@@ -119,10 +120,10 @@ public class Service extends Kernel {
     NotificationIface discordNotification = null;
     NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
-    ExternalNotificatorIface externalNotificator =  null;
-    
+    ExternalNotificatorIface externalNotificator = null;
+
     MailingIface mailingAdapter = null;
-    
+
     //Integration services
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
@@ -177,7 +178,7 @@ public class Service extends Kernel {
         discordNotification = (NotificationIface) getRegistered("discordNotification");
         webhookNotification = (NotificationIface) getRegistered("webhookNotification");
         externalNotificator = (ExternalNotificatorIface) getRegistered("externalNotificator");
-        
+
         emailSender = (EmailSenderIface) getRegistered("emailSender");
         mailingAdapter = (MailingIface) getRegistered("MailingService");
 
@@ -190,6 +191,7 @@ public class Service extends Kernel {
         apiGenerator = (OpenApiIface) getRegistered("OpenApi");
     }
 
+    @Deprecated
     public IotDatabaseIface getThingsAdapter() {
         return thingsDB;
     }
@@ -439,7 +441,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"),event.getData().get("target"), userAdapter, cms, emailSender);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -554,7 +556,7 @@ public class Service extends Kernel {
         StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
-    
+
     @HttpAdapterHook(adapterName = "GroupPublicationService", requestMethod = "OPTIONS")
     public Object groupPublicationServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -622,7 +624,7 @@ public class Service extends Kernel {
             return null;
         }
     }
-    
+
     @HttpAdapterHook(adapterName = "Ttn3IntegrationService", requestMethod = "OPTIONS")
     public Object ttn3DataCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -657,7 +659,11 @@ public class Service extends Kernel {
     public Object handleIotData(NewDataEvent requestEvent) {
         IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         try {
-            return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
+            if (null != actuatorCommandsDB) {
+                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
+            } else {
+                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, (ActuatorCommandsDBIface) iotDatabase);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -733,7 +739,11 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
-        return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB, scriptingAdapter);
+        if (null != actuatorCommandsDB) {
+            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB, scriptingAdapter);
+        } else {
+            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, (ActuatorCommandsDBIface) iotDatabase, scriptingAdapter);
+        }
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
@@ -803,6 +813,7 @@ public class Service extends Kernel {
     public Object handleSubscriptionStart(SubscriptionEvent event) {
         return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false, telegramNotification);
     }
+
     @PortEventClassHook(className = "SubscriptionEvent", procedureName = "end")
     public Object handleSubscriptionEnd(SubscriptionEvent event) {
         return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false, telegramNotification);
@@ -1065,7 +1076,8 @@ public class Service extends Kernel {
                     authAdapter,
                     scriptingAdapter,
                     actuatorCommandsDB,
-                    externalNotificator
+                    externalNotificator,
+                    iotDatabase
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -1096,7 +1108,8 @@ public class Service extends Kernel {
                     iotDataDB,
                     dashboardAdapter,
                     scriptingAdapter,
-                    emailSender
+                    emailSender,
+                    iotDatabase
             );
         } catch (Exception e) {
             e.printStackTrace();

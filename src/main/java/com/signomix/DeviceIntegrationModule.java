@@ -26,6 +26,7 @@ import com.signomix.iot.kpn.KPNData;
 import com.signomix.iot.ttn3.Decoder;
 import com.signomix.iot.ttn3.TtnData3;
 import com.signomix.out.db.ActuatorCommandsDBIface;
+import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.iot.ChannelData;
 import com.signomix.out.script.ScriptingAdapterIface;
 import com.signomix.util.HexTool;

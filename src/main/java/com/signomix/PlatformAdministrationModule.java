@@ -647,7 +647,8 @@ public class PlatformAdministrationModule {
             KeyValueDBIface cmsDB,
             IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
-            ActuatorCommandsDBIface actuatorCommandsDB
+            ActuatorCommandsDBIface actuatorCommandsDB,
+            IotDbDataIface iotDB
     ) {
         String prefix = backupDaily ? getDateString() : "";
         try {
@@ -670,20 +671,33 @@ public class PlatformAdministrationModule {
         } catch (KeyValueDBException ex) {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
+        if(null!=thingsDB){
         try {
             thingsDB.backup(backupFolder + prefix + thingsDB.getBackupFileName());
         } catch (KeyValueDBException ex) {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
+        }
+        if(null!=iotDataDB){
         try {
             iotDataDB.backup(backupFolder + prefix + iotDataDB.getBackupFileName());
         } catch (KeyValueDBException ex) {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
+        }
+        if(null!=actuatorCommandsDB){
         try {
             actuatorCommandsDB.backup(backupFolder + prefix + actuatorCommandsDB.getBackupFileName());
         } catch (KeyValueDBException ex) {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+        }
+        }
+        if(null!=iotDB){
+        try {
+            iotDB.backup(backupFolder + prefix + iotDB.getBackupFileName());
+        } catch (KeyValueDBException ex) {
+            Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+        }
         }
         //TODO: scheduler
         //TODO: queue DB

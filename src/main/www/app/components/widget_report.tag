@@ -12,15 +12,16 @@
                 <table class="table table-sm">
                 <thead>
                     <tr class="table-active">
+                        <td class="text-uppercase text-right" scope="col">#</td>
                         <td class="text-uppercase text-left" scope="col">{ app.texts.widget_report.EUI[app.language] }</td>
                         <td class="text-uppercase text-left" scope="col">{ app.texts.widget_report.NAME[app.language] }</td>
                         <td class="text-uppercase text-right" scope="col" each={ name in measureNames }>{name}</td>
                         <td class="text-uppercase text-right"scope="col">{ app.texts.widget_report.DATE[app.language] }</td>
-                        <!--<td class="text-uppercase text-right" scope="col">{ app.texts.widget_report.DETAILS[app.language] }</td>-->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr each={device in jsonData}>
+                    <tr each={ device,index in jsonData}>
+                        <td class="text-right">{index}</td>
                         <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI+'@'}">{device[0].deviceEUI}</a></td>
                         <td class="text-left">{getDeviceName(device[0].deviceEUI)}</td>
                         <td class="text-right" each={measure in device}>{(measure?measure.value:'')}</td>
@@ -97,11 +98,12 @@
     }
     
     self.verify=function(){
+        var minimalMeasures = 1; //previously 2 
         var i=0
         var valuesOK=true
         var j
         while(i<self.jsonData.length){
-            if(self.jsonData[i]==null || self.jsonData[i].length<2){
+            if(self.jsonData[i]==null || self.jsonData[i].length<minimalMeasures){
                 self.jsonData.splice(i,1)
             }else{
                 valuesOK=true

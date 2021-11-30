@@ -519,7 +519,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
             throw new ThingsDataException(ex.getCode(), "DataQuery " + ex.getMessage());
         }
         if (null != dq.getGroup()) {
-            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","));
+            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","),0);
         }
         int limit = dq.getLimit();
         if (dq.average > 0) {
@@ -781,7 +781,7 @@ public class H2RemoteDataStorageDB extends H2RemoteDB implements SqlDBIface, Iot
      * @throws ThingsDataException
      */
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames)
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval)
             throws ThingsDataException {
         List<Device> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID,
                 groupEUI);

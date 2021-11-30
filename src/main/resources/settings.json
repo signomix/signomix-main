@@ -335,7 +335,7 @@
                     }
                 },
                 {
-                    "name": "iotDB",
+                    "name": "iotDB.notused",
                     "interfaceName": "IotDatabaseIface",
                     "classFullName": "com.signomix.out.db.H2RemoteIotDB",
                     "properties": {
@@ -351,7 +351,7 @@
                     }
                 },
                 {
-                    "name": "iotDataDB",
+                    "name": "iotDataDB.notused",
                     "interfaceName": "IotDataStorageIface",
                     "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
                     "properties": {
@@ -367,7 +367,7 @@
                     }
                 },
                 {
-                    "name": "actuatorCommandsDB",
+                    "name": "actuatorCommandsDB.notused",
                     "interfaceName": "ActuatorCommandsDBIface",
                     "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
                     "properties": {
@@ -725,24 +725,6 @@
                         "user": "admin",
                         "password": "rabbit",
                         "exchange": "events"
-                    }
-                },
-                {
-                    "name": "IotDatabase2",
-                    "classFullName": "com.signomix.out.db.QuestDB",
-                    "properties": {
-                        "hosts": "$SIGNOMIX_DB_SERVER",
-                        "ports": "8812",
-                        "test-query":"select systimestamp()",
-                        "database":"qdb",
-                        "user":"admin",
-                        "password":"quest",
-                        "sslmode":"disabled",
-                        "encrypted":"",
-                        "ignorecase":"true",
-                        "skip-update":"true",
-                        "autocommit":"true",
-                        "version":"1.0.0"
                     }
                 },
                 {

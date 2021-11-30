@@ -467,7 +467,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
             throw new ThingsDataException(ex.getCode(), "DataQuery " + ex.getMessage());
         }
         if (null != dq.getGroup()) {
-            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","));
+            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","),0);
         }
         int limit = dq.getLimit();
         Double newValue = dq.getNewValue();
@@ -681,7 +681,7 @@ public class H2DataStorageDB extends H2EmbededDB implements SqlDBIface, IotDataS
      * @throws ThingsDataException
      */
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException {
         List<Device> groupDevices = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupDevices(userID, groupEUI);
         List<String> groupChannels = ((Service) Kernel.getInstance()).getThingsAdapter().getGroupChannels(groupEUI);
         List<List> tmp, tmpValues;

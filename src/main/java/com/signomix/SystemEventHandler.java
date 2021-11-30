@@ -8,6 +8,7 @@ import com.signomix.mailing.MailingModule;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.ThingsDataIface;
@@ -43,7 +44,9 @@ public class SystemEventHandler {
             IotDataStorageIface iotDataDB,
             DashboardAdapterIface dashboardAdapter,
             ScriptingAdapterIface scriptingAdapter,
-            EmailSenderIface emailSender) {
+            EmailSenderIface emailSender,
+            IotDbDataIface iotDB
+        ) {
 
         /*if (event.getTimePoint() != null) {
             scheduler.handleEvent(event);
@@ -106,7 +109,9 @@ public class SystemEventHandler {
             //    ActuatorModule.getInstance().processCommand(event, actuatorCommandsDB, virtualStackAdapter, thingsAdapter, scriptingAdapter);
             //    break;
             case "BACKUP":
-                PlatformAdministrationModule.getInstance().backupDatabases(database, userDB, authDB, cmsDatabase, thingsDB, iotDataDB, actuatorCommandsDB);
+                PlatformAdministrationModule
+                        .getInstance()
+                        .backupDatabases(database, userDB, authDB, cmsDatabase, thingsDB, iotDataDB, actuatorCommandsDB,iotDB);
                 break;
             case "CHECK_DEVICES":
                 DeviceManagementModule.getInstance().checkStatus(thingsAdapter);
