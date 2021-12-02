@@ -52,7 +52,9 @@
     <body>
         <app_texts></app_texts>
         <div style="height: 100vh">
-                <div  class="container" if={ app.currentPage=='dashboard'}><app_dashboard2></app_dashboard2></div>
+            <div  class="container" if={ app.currentPage=='dashboard'}><app_dashboard2></app_dashboard2></div>
+            <hr style="margin-top: 1rem; margin-bottom: 0px;">
+            <p class="font-weight-light" style="margin-left: 1rem; margin-top: 0rem;"><small style="margin-top: 0rem;">Powered by <a href="https://signomix.com" target="_blank" style="margin-top: 0rem;">Signomix</a></small></p>
         </div>
     <!-- SCRIPTS -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -138,7 +140,7 @@
         }
         
         <!-- THIS IS EMBEDED PAGE -->
-        app.embeded = true
+        app.embeded = true;
         <!-- THIS IS EMBEDED PAGE -->
 
         riot.mount('*');

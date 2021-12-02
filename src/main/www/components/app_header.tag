@@ -7,8 +7,8 @@
         <a class="p-2 text-dark" href="/status/">Status</a>
         <a class="p-2 text-dark" href="/app/#!doc,toc">{ app.texts.main.documentation[app.language] }</a>
         <a class="p-2 text-dark" href="/app/#!register">{ app.texts.main.signup[app.language] }</a>
-        <a class="p-2 text-dark" href="#!en" if={app.language!='en'} onclick={goto('en')}><span class="flag-icon flag-icon-gb border border-secondary rounded"></span></a>
-        <a class="p-2 text-dark" href="#!pl" if={app.language!='pl'} onclick={goto('pl')}><span class="flag-icon flag-icon-pl border border-secondary rounded"></span></a>
+        <a class="p-2 text-dark" href="#!en" onclick={goto('en')}><span class="flag-icon flag-icon-gb border border-secondary rounded"></span></a>
+        <a class="p-2 text-dark" href="#!pl" onclick={goto('pl')}><span class="flag-icon flag-icon-pl border border-secondary rounded"></span></a>
         </nav>
         <a class="btn btn-outline-primary" href="/app/#!login">{ app.texts.main.signin[app.language] }</a>
         </div>

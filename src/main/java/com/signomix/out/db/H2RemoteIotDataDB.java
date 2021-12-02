@@ -1095,39 +1095,6 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval)
             throws ThingsDataException {
         return getGroupLastValues(userID, groupEUI, channelNames, interval);
-        /*
-        List<Device> groupDevices = getGroupDevices(userID,
-                groupEUI);
-        List<String> groupChannels = getGroupChannels(groupEUI);
-        List<List> tmp, tmpValues;
-        List<List> result = new ArrayList();
-        List<ChannelData> row;
-        ChannelData cd;
-        List<String> requestChannels = Arrays.asList(channelNames);
-        int idx;
-        for (int i = 0; i < groupDevices.size(); i++) {
-            tmpValues = getLastValues(userID, groupDevices.get(i).getEUI());
-            if (tmpValues.isEmpty()) {
-                continue;
-            }
-            row = new ArrayList(requestChannels.size());
-            for (int n = 0; n < requestChannels.size(); n++) {
-                row.add(null);
-            }
-            tmp = tmpValues.get(0);
-            for (int j = 0; j < tmp.size(); j++) {
-                cd = (ChannelData) tmp.get(j);
-                if (groupChannels.indexOf(cd.getName()) > -1) {
-                    idx = requestChannels.indexOf(cd.getName());
-                    if (idx > -1) {
-                        row.set(idx, cd);
-                    }
-                }
-            }
-            result.add(row);
-        }
-        return result;
-         */
     }
 
     @Override
@@ -1399,9 +1366,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         List<String> channels = getDeviceChannels(deviceEUI);
         ArrayList<ChannelData> row = new ArrayList<>();
         ArrayList<List> result = new ArrayList<>();
-        try ( Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection(); PreparedStatement pst= conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
@@ -1411,8 +1376,6 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 }
                 result.add(row);
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -1426,9 +1389,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
         ArrayList row2;
-        try ( Connection conn = getConnection()) {
-            PreparedStatement pst;
-            pst = conn.prepareStatement(query);
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             pst.setInt(2, limit);
             ResultSet rs = pst.executeQuery();
@@ -1457,8 +1418,6 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                     result.add(row);
                 }
             }
-            pst.close();
-            conn.close();
             return result;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
@@ -1979,7 +1938,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                         result.add(row);
                     }
                     row = new ArrayList();
-                    for(int j=0;j<channelNames.length;j++){
+                    for (int j = 0; j < channelNames.length; j++) {
                         row.add(null);
                     }
                     idx = requestChannels.indexOf(cd.getName());

@@ -327,7 +327,7 @@
         
         download(form){
             return function(e){
-                var query='query=channel%20*%20last%201000%20csv.timeseries'
+                var query='query=channel%20*%20last%20*%20csv.timeseries'
                 getData( 
                     app.iotAPI+'/'+self.selectedForDownload+'?'+query,
                     '',

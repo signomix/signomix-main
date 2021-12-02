@@ -21,7 +21,7 @@
                 </thead>
                 <tbody>
                     <tr each={ device,index in jsonData}>
-                        <td class="text-right">{index}</td>
+                        <td class="text-right">{(index+1)}</td>
                         <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI+'@'}">{device[0].deviceEUI}</a></td>
                         <td class="text-left">{getDeviceName(device[0].deviceEUI)}</td>
                         <td class="text-right" each={measure in device}>{(measure?measure.value:'')}</td>

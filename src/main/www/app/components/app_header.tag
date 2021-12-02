@@ -24,7 +24,7 @@
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest }>
                         <a class="nav-link text-signo" href="#!account" onclick={ goto('#!account') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.account[app.language] }</a>
                     </li>
-                    <li class="nav-item" if={ app.distroType.toLowerCase() != 'mini' }>
+                    <li class="nav-item" if={ app.distroType.toLowerCase() != 'mini' && app.user.status == 'logged-in' && !app.user.guest }>
                         <a class="nav-link text-signo" href="#!doc,toc" onclick={ goto('#!doc,toc') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.documentation[app.language] }</a>
                     </li>
                     <li class="nav-item" if={!app.user.guest && app.user.status != 'logged-in' }>
@@ -33,12 +33,13 @@
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest}>
                         <a class="nav-link text-signo" href="#!logout"onclick={ goto('#!logout') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> { app.texts.header.logout[app.language] } ({app.user.name})</a>
                     </li>
-                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='en'}>
+                    <!-- <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='en'}> -->
+                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini'}>
                         <a href="#!en" class="nav-link text-signo" onclick={ goto('#!en') } data-toggle="collapse" data-target="#navbarNavDropdown">
                         <span class="flag-icon flag-icon-gb border border-secondary rounded"></span>
                         </a>
                     </li>
-                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini' && app.language!='pl'}>
+                    <li class="nav-item" if={app.distroType.toLowerCase() != 'mini'}>
                         <a href="#!pl" class="nav-link text-signo" onclick={ goto('#!pl') } data-toggle="collapse" data-target="#navbarNavDropdown">
                         <span class="flag-icon flag-icon-pl border border-secondary rounded"></span>
                         </a>

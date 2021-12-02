@@ -33,6 +33,7 @@ var app = {
     "debug": false,
     "localUid": 0,
     "dashboardRefreshInterval": 60000,
+    "publicDashboardRefreshInterval": 300000,
     "sessionRefreshInterval": 300000,
     "alertRefreshInterval": 30000,
     "log": function (message) {

@@ -47,7 +47,11 @@ public class DataQuery {
         for (int i = 0; i < params.length;) {
             switch (params[i]) {
             case "last":
-                dq.setLimit(Integer.parseInt(params[i + 1]));
+                if(params[i + 1].equals("*") || params[i + 1].equals("0")){
+                    dq.setLimit(Integer.MAX_VALUE);
+                }else{
+                    dq.setLimit(Integer.parseInt(params[i + 1]));
+                }
                 i = i + 2;
                 break;
             case "average":
@@ -159,9 +163,6 @@ public class DataQuery {
         return dq;
     }
 
-    // public int getAverage(){
-    // return average;
-    // }
     /**
      * @return the limit
      */

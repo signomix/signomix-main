@@ -82,6 +82,7 @@
     self.consolidatedDataCounter=0
     self.consolidationRequired=false
     self.accessOK = true
+    self.refreshInterval = app.dashboardRefreshInterval
     
     globalEvents.on('pageselected:dashboard',function(event){
         if(self.mounted){
@@ -106,10 +107,15 @@
         self.sharedLink = ''
         self.sharedEmbeded
         self.accessOK=true
+        if(app.embeded){
+            self.refreshInterval=app.publicDashboardRefreshInterval;
+        }
+        if(app.user.status != 'logged-in' || app.user.guest){
+            self.refreshInterval=app.publicDashboardRefreshInterval;
+        }
         readDashboardConfig(app.user.dashboardID, updateDashboard)
         self.mounted=true
     })
-    
     
     this.on('unmount',function(){
         myStopRefresh()
@@ -273,7 +279,7 @@
     }
     
     // thread for refreshing dashboard data
-    var myRefreshThread = setInterval(function(){ self.refresh(null) }, app.dashboardRefreshInterval);
+    var myRefreshThread = setInterval(function(){ self.refresh(null) }, self.refreshInterval);
     
     function myStopRefresh() {
         app.log('STOPPING THREAD')
