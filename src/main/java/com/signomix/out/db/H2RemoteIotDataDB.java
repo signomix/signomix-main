@@ -458,7 +458,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
-        String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ? administrators like ?)";
+        String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ? or administrators like ?)";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             if (userID != null) {
