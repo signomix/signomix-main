@@ -335,53 +335,6 @@
                     }
                 },
                 {
-                    "name": "iotDB.notused",
-                    "interfaceName": "IotDatabaseIface",
-                    "classFullName": "com.signomix.out.db.H2RemoteIotDB",
-                    "properties": {
-                        "host": "$SIGNOMIX_DB_SERVER",
-                        "dbfile": "/h2data/iot",
-                        "file": "iot",
-                        "test-query": "select * from serviceversion",
-                        "version": "9",
-                        "user": "sa",
-                        "password": "",
-                        "time-offset": "3600",
-                        "cache-size": "1000"
-                    }
-                },
-                {
-                    "name": "iotDataDB.notused",
-                    "interfaceName": "IotDataStorageIface",
-                    "classFullName": "com.signomix.out.db.H2RemoteDataStorageDB",
-                    "properties": {
-                        "host": "$SIGNOMIX_DB_SERVER",
-                        "dbfile": "/h2data/data",
-                        "file": "data",
-                        "test-query": "select * from serviceversion",
-                        "version": "3",
-                        "user": "sa",
-                        "password": "",
-                        "requestLimit": "250",
-                        "cache-size": "1000"
-                    }
-                },
-                {
-                    "name": "actuatorCommandsDB.notused",
-                    "interfaceName": "ActuatorCommandsDBIface",
-                    "classFullName": "com.signomix.out.db.H2RemoteCommandsDB",
-                    "properties": {
-                        "host": "$SIGNOMIX_DB_SERVER",
-                        "dbfile": "/h2data/actuator",
-                        "test-query": "select * from serviceversion",
-                        "version": "1",
-                        "name": "auth",
-                        "user": "sa",
-                        "password": "",
-                        "cache-size": "1000"
-                    }
-                },
-                {
                     "name": "scheduler",
                     "interfaceName": "SchedulerIface",
                     "classFullName": "org.cricketmsf.in.scheduler.Scheduler",

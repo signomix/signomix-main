@@ -36,15 +36,15 @@
                 </thead>
                 <tbody>
                     <tr each={device in myDevices}>
-                        <td>{device.EUI}</td>
+                        <td>{(device.userID!=app.user.name?'&Implies;':'')}{device.EUI}</td>
                         <td>{device.name}</td>
                         <td>{device.type}</td>
                         <td><img height="16px" style="margin-right: 10px;" src={ getStatus(device.lastSeen, device.transmissionInterval) }></td>
                         <td class="text-right">
                             <i class="material-icons clickable" onclick="{ selectForDownload(device.EUI) }" title="DOWNLOAD DATA" data-toggle="modal" data-target="#downloadModal">cloud_download</i>
                             <i class="material-icons clickable" onclick={ editDevice(device.EUI, false) } title="VIEW">open_in_browser</i>
-                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ editDevice(device.EUI, true) } title="MODIFY">mode_edit</i>
-                            <i class="material-icons clickable" if={device.userID == app.user.name} onclick={ selectForRemove(device.EUI) } title="REMOVE" data-toggle="modal" data-target="#myModal">delete</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name || device.administrators.includes(','+app.user.name+',')} onclick={ editDevice(device.EUI, true) } title="MODIFY">mode_edit</i>
+                            <i class="material-icons clickable" if={device.userID == app.user.name || device.administrators.includes(','+app.user.name+',')} onclick={ selectForRemove(device.EUI) } title="REMOVE" data-toggle="modal" data-target="#myModal">delete</i>
                         </td>
                     </tr>
                 </tbody>
@@ -59,12 +59,12 @@
                 </thead>
                 <tbody>
                     <tr each={group in myGroups}>
-                        <td>{group.EUI}</td>
+                        <td>{(group.userID!=app.user.name?'&Implies;':'')}{group.EUI}</td>
                         <td>{group.name}</td>
                         <td class="text-right">
                             <i class="material-icons clickable" onclick={ editGroup(group.EUI, false) }>open_in_browser</i>
-                            <i class="material-icons clickable" if={group.userID == app.user.name} onclick={ editGroup(group.EUI, true) }>mode_edit</i>
-                            <i class="material-icons clickable" if={group.userID == app.user.name} onclick={ selectGroupForRemove(group.EUI) } data-toggle="modal" data-target="#myGroupModal">delete</i>
+                            <i class="material-icons clickable" if={group.userID == app.user.name || group.administrators.includes(','+app.user.name+',')} onclick={ editGroup(group.EUI, true) }>mode_edit</i>
+                            <i class="material-icons clickable" if={group.userID == app.user.name || group.administrators.includes(','+app.user.name+',')} onclick={ selectGroupForRemove(group.EUI) } data-toggle="modal" data-target="#myGroupModal">delete</i>
                         </td>
                     </tr>
                 </tbody>

@@ -319,6 +319,25 @@
             </div>
             <div class="row">
                 <div class="form-group col-md-12">
+                    <form_input 
+                        id="admins"
+                        name="admins"
+                        label={ app.texts.dashboard_form.admins[app.language] }
+                        type="text"
+                        content={ dashboard.administrators }
+                        readonly={ !allowEdit }
+                        hint={ app.texts.dashboard_form.admins_hint[app.language] }
+                        ></form_input>
+                </div>
+            </div>
+            <div class="form-row" if={ !allowEdit }>
+                <div class="form-group col-md-12">
+                    <label for="status">{ app.texts.device_form.owner[app.language] }</label>
+                    <p class="form-control-static" id="owner">{dashboard.userID}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-12">
                     <h4>{ app.texts.dashboard_form.widgets[app.language] } <i class="material-icons clickable" if={allowEdit} onclick={ editWidget(-1) } title="NEW WIDGET" data-toggle="modal" data-target="#widgetEdit">add</i></h4>
                     <table id="devices" class="table table-condensed table-striped">
                         <thead>
@@ -372,6 +391,7 @@
                         'title': '',
                         'userID': '',
                         'team': '',
+                        'administrators': '',
                         'shared': false,
                         'widgets':[]
         }
@@ -443,6 +463,7 @@
             formData.title = e.target.elements['title'].value
             formData.userID = app.user.name
             formData.team = e.target.elements['team'].value
+            formData.administrators = e.target.elements['admins'].value
             formData.shared = e.target.elements['shared'].checked
             formData.widgets = self.dashboard.widgets
             app.log(JSON.stringify(formData))

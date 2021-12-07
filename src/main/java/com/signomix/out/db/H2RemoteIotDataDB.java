@@ -85,11 +85,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("appid varchar,").append("groups varchar,").append("alert number,")
                 .append("appeui varchar,").append("devid varchar,").append("active boolean,")
                 .append("project varchar,").append("latitude double,").append("longitude double,")
-                .append("altitude double,").append("state double,").append("retention bigint);");
+                .append("altitude double,").append("state double,").append("retention bigint,")
+                .append("administrators varchar);");
         sb.append("CREATE TABLE IF NOT EXISTS dashboards (").append("id varchar primary key,")
                 .append("name varchar,")
                 .append("userid varchar,").append("title varchar,").append("team varchar,")
-                .append("widgets varchar,").append("token varchar,").append("shared boolean);");
+                .append("widgets varchar,").append("token varchar,").append("shared boolean,")
+                .append("administrators varchar);");
         sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint primary key,").append("name varchar,")
                 .append("category varchar,").append("type varchar,").append("deviceeui varchar,")
                 .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
@@ -108,7 +110,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("PRIMARY KEY (eui,tstamp) );");
         sb.append("CREATE TABLE IF NOT EXISTS groups (").append("eui varchar primary key,").append("name varchar,")
                 .append("userid varchar,").append("team varchar,").append("channels varchar,")
-                .append("description varchar);");
+                .append("description varchar,")
+                .append("administrators varchar);");
         sb.append("CREATE TABLE IF NOT EXISTS commands (")
                 .append("id bigint,")
                 .append("category varchar,")
@@ -198,14 +201,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid, active, project, latitude,longitude,altitude,state,retention from devices where userid = ? or team like ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid, active, project, latitude,longitude,altitude,state,retention,administrators from devices where userid = ? or team like ? or administrators like ?";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention from devices where userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project, latitude,longitude,altitude,state,retention,administrators from devices where userid = ?";
         }
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
-                pstmt.setString(2, "%," + userID + "%,");
+                pstmt.setString(2, "%," + userID + ",%");
+                pstmt.setString(3, "%," + userID + ",%");
             }
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Device> list = new ArrayList<>();
@@ -230,7 +234,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         query = "select * from devices where groups like ?";
 
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, "%," + groupID + "%,");
+            pstmt.setString(1, "%," + groupID + ",%");
             ResultSet rs = pstmt.executeQuery();
             devices = new ArrayList<>();
             while (rs.next()) {
@@ -247,15 +251,16 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
         String query;
         if (withShared) {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and (userid = ? or team like ?)";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention,administrators from devices where upper(eui)=upper(?) and (userid = ? or team like ? or administrators like ?)";
         } else {
-            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui)=upper(?) and userid = ?";
+            query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention,administrators from devices where upper(eui)=upper(?) and userid = ?";
         }
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             pstmt.setString(2, userID);
             if (withShared) {
                 pstmt.setString(3, "%," + userID + ",%");
+                pstmt.setString(4, "%," + userID + ",%");
             }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -271,7 +276,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public Device getDevice(String deviceEUI) throws ThingsDataException {
-        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices where upper(eui) = upper(?)";
+        String query = "select eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention,administrators from devices where upper(eui) = upper(?)";
         if (deviceEUI == null || deviceEUI.isEmpty()) {
             return null;
         }
@@ -295,7 +300,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.CONFLICT,
                     "device " + device.getEUI() + " is already defined");
         }
-        String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into devices (eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention,administrators) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getEUI());
             pstmt.setString(2, device.getName());
@@ -326,6 +331,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setDouble(27, device.getAltitude());
             pstmt.setDouble(28, device.getState());
             pstmt.setLong(29, device.getRetentionTime());
+            pstmt.setString(30, device.getAdministrators());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
@@ -342,7 +348,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
         Device previous = getDevice(device.getEUI());
-        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=? where eui=?";
+        String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=?, administrators=? where eui=?";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getName());
             pstmt.setString(2, device.getUserID());
@@ -372,8 +378,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setDouble(26, device.getAltitude());
             pstmt.setDouble(27, device.getState());
             pstmt.setLong(28, device.getRetentionTime());
+            pstmt.setString(29, device.getAdministrators());
 
-            pstmt.setString(29, device.getEUI());
+            pstmt.setString(30, device.getEUI());
             // TODO: last frame
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
@@ -421,7 +428,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
         // TODO: Should be access to virtual devices authorized for the Service?
         String query;
-        String query1 = "select eui from devices where upper(eui) = upper(?) and (userid=? or team like ?)";
+        String query1 = "select eui from devices where upper(eui) = upper(?) and (userid=? or team like ? or administrators like ?)";
         String query2 = "select eui from devices where upper(eui) = upper(?) and type = 'VIRTUAL'";
         if (userID == null) {
             query = query2;
@@ -433,6 +440,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             if (userID != null) {
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
+                pstmt.setString(4, "%," + userID + ",%");
             }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -450,12 +458,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
-        String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ?)";
+        String query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ? administrators like ?)";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             if (userID != null) {
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
+                pstmt.setString(4, "%," + userID + ",%");
             }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -581,7 +590,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void addDashboard(Dashboard dashboard) throws ThingsDataException {
-        String query = "insert into dashboards (id,name,userid,title,team,widgets,token,shared) values (?,?,?,?,?,?,?,?)";
+        String query = "insert into dashboards (id,name,userid,title,team,widgets,token,shared,administrators) values (?,?,?,?,?,?,?,?,?)";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getId());
             pstmt.setString(2, dashboard.getName());
@@ -591,6 +600,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(6, dashboard.getWidgetsAsJson());
             pstmt.setString(7, dashboard.getSharedToken());
             pstmt.setBoolean(8, dashboard.isShared());
+            pstmt.setString(9, dashboard.getAdministrators());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
@@ -666,6 +676,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         d.setAltitude(rs.getDouble(27));
         d.setState(rs.getDouble(28));
         d.setRetentionTime(rs.getLong(29));
+        d.setAdministrators(rs.getString(30));
         return d;
     }
 
@@ -718,6 +729,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         a.setWidgetsFromJson(rs.getString(6));
         a.setSharedToken(rs.getString(7));
         a.setShared(rs.getBoolean(8));
+        a.setAdministrators(rs.getString(9));
         return a;
     }
 
@@ -730,6 +742,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         d.setTeam(rs.getString(4));
         d.setChannels(rs.getString(5));
         d.setDescription(rs.getString(6));
+        d.setAdministrators(rs.getString(7));
         return d;
     }
 
@@ -751,14 +764,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     public List<Dashboard> getUserDashboards(String userID, boolean withShared) throws ThingsDataException {
         String query;
         if (withShared) {
-            query = "select id,name,userid,title,team,widgets,token,shared from dashboards where userid=? or team like ?";
+            query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where userid=? or team like ? or administrators like ?";
         } else {
-            query = "select id,name,userid,title,team,widgets,token,shared from dashboards where userid=?";
+            query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where userid=?";
         }
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
             if (withShared) {
                 pstmt.setString(2, "%," + userID + ",%");
+                pstmt.setString(3, "%," + userID + ",%");
             }
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Dashboard> list = new ArrayList<>();
@@ -789,7 +803,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException {
         boolean publicUser = "public".equalsIgnoreCase(userID);
-        String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where id=? and (userid=? or team like ? ";
+        String query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where id=? and (userid=? or team like ? or administrators like ? ";
         if (publicUser) {
             query = query.concat("or shared=true)");
         } else {
@@ -799,6 +813,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(1, dashboardID);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
+            pstmt.setString(4, "%," + userID + ",%");
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return buildDashboard(rs);
@@ -814,7 +829,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public Dashboard getDashboardByName(String userID, String dashboardName) throws ThingsDataException {
         boolean publicUser = "public".equalsIgnoreCase(userID);
-        String query = "select id,name,userid,title,team,widgets,token,shared from dashboards where name=? and (userid=? or team like ? ";
+        String query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where name=? and (userid=? or team like ? or administrators like ? ";
         if (publicUser) {
             query = query.concat("or shared=true)");
         } else {
@@ -824,6 +839,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(1, dashboardName);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
+            pstmt.setString(4, "%," + userID + ",%");
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return buildDashboard(rs);
@@ -838,7 +854,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void updateDashboard(Dashboard dashboard) throws ThingsDataException {
-        String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=? where id=?";
+        String query = "update dashboards set name=?,userid=?,title=?,team=?,widgets=?,token=?,shared=?,administrators=? where id=?";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboard.getName());
             pstmt.setString(2, dashboard.getUserID());
@@ -847,7 +863,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(5, dashboard.getWidgetsAsJson());
             pstmt.setString(6, dashboard.getSharedToken());
             pstmt.setBoolean(7, dashboard.isShared());
-            pstmt.setString(8, dashboard.getId());
+            pstmt.setString(8, dashboard.getAdministrators());
+            pstmt.setString(9, dashboard.getId());
             int updated = pstmt.executeUpdate();
         } catch (SQLException e) {
             // e.printStackTrace();
@@ -928,7 +945,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
-        String query = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention from devices "
+        String query = "SELECT eui,name,userid,type,team,channels,code,decoder,key,description,lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,appeui,groups,alert,devid,active,project,latitude,longitude,altitude,state,retention,administrators from devices "
                 + "where tinterval > 0 and alert < 2 and (datediff(S,dateadd(S, lastseen/1000, DATE '1970-01-01'),now())-"
                 + timeOffset + ") > tinterval/1000;";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
@@ -946,12 +963,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public DeviceGroup getGroup(String userID, String groupEUI) throws ThingsDataException {
         String query;
-        query = "select eui,name,userid,team,channels,description from groups where eui=? and (userid = ? or team like ?)";
+        query = "select eui,name,userid,team,channels,description,administrators from groups where eui=? and (userid = ? or team like ? or administrators like ?)";
 
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
             pstmt.setString(2, userID);
             pstmt.setString(3, "%," + userID + ",%");
+            pstmt.setString(4, "%," + userID + ",%");
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 DeviceGroup group = buildGroup(rs);
@@ -967,7 +985,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException {
         String query;
-        query = "select eui,name,userid,team,channels,description from groups where eui=?";
+        query = "select eui,name,userid,team,channels,description,administrators from groups where eui=?";
 
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
@@ -986,10 +1004,11 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public List<DeviceGroup> getUserGroups(String userID) throws ThingsDataException {
         String query;
-        query = "select eui,name,userid,team,channels,description from groups where userid = ? or team like ?";
+        query = "select eui,name,userid,team,channels,description,administrators from groups where userid = ? or team like ? or administrators like ?";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
-            pstmt.setString(2, "%," + userID + "%,");
+            pstmt.setString(2, "%," + userID + ",%");
+            pstmt.setString(3, "%," + userID + ",%");
             ResultSet rs = pstmt.executeQuery();
             ArrayList<DeviceGroup> list = new ArrayList<>();
             while (rs.next()) {
@@ -1007,7 +1026,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.CONFLICT,
                     "group " + group.getEUI() + " is already defined");
         }
-        String query = "insert into groups (eui,name,userid,team,channels,description) values(?,?,?,?,?,?)";
+        String query = "insert into groups (eui,name,userid,team,channels,description,administrators) values(?,?,?,?,?,?,?)";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getEUI());
             pstmt.setString(2, group.getName());
@@ -1015,6 +1034,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(4, group.getTeam());
             pstmt.setString(5, group.getChannelsAsString());
             pstmt.setString(6, group.getDescription());
+            pstmt.setString(7, group.getAdministrators());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
@@ -1029,14 +1049,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void updateGroup(DeviceGroup group) throws ThingsDataException {
-        String query = "update groups set name=?,userid=?,team=?,channels=?,description=? where eui=?";
+        String query = "update groups set name=?,userid=?,team=?,channels=?,description=?,administrators=? where eui=?";
         try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getName());
             pstmt.setString(2, group.getUserID());
             pstmt.setString(3, group.getTeam());
             pstmt.setString(4, group.getChannelsAsString());
             pstmt.setString(5, group.getDescription());
-            pstmt.setString(6, group.getEUI());
+            pstmt.setString(6, group.getAdministrators());
+            pstmt.setString(7, group.getEUI());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
@@ -1366,7 +1387,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         List<String> channels = getDeviceChannels(deviceEUI);
         ArrayList<ChannelData> row = new ArrayList<>();
         ArrayList<List> result = new ArrayList<>();
-        try ( Connection conn = getConnection(); PreparedStatement pst= conn.prepareStatement(query);) {
+        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {

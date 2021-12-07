@@ -63,6 +63,19 @@
             <div class="form-row">
                 <div class="form-group col-md-12">
                     <form_input 
+                        id="admins" 
+                        name="admins" 
+                        label={ app.texts.device_form.admins[app.language] } 
+                        type="text" 
+                        content={ group.administrators } 
+                        readonly={ !allowEdit } 
+                        hint={ app.texts.device_form.admins_g_hint[app.language] }>
+                    </form_input>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <form_input 
                         id="description" 
                         name="description" 
                         label={ app.texts.device_form.description[app.language] } 
@@ -71,6 +84,12 @@
                         readonly={ !allowEdit } 
                         rows=2>
                     </form_input>
+                </div>
+            </div>
+            <div class="form-row" if={ self.mode !='create' }>
+                <div class="form-group col-md-12">
+                    <label for="status">{ app.texts.device_form.owner[app.language] }</label>
+                    <p class="form-control-static" id="owner">{group.userID}</p>
                 </div>
             </div>
             <div class="form-row" if={ self.communicationError }>
@@ -100,6 +119,7 @@
             'EUI': '',
             'name': '',
             'team': '',
+            'administrators': '',
             'channels': '',
             'description': '',
             'groups': ''
@@ -156,12 +176,14 @@
                 eui: '',
                 name: '',
                 team: '',
+                administrators: '',
                 channels: '',
                 description: ''
             }
             formData.eui = e.target.elements['eui'].value
             formData.name = e.target.elements['name'].value
             formData.team = e.target.elements['team'].value
+            formData.administrators = e.target.elements['admins'].value
             formData.channels = e.target.elements['channels'].value
             formData.description = e.target.elements['description'].value
             app.log(JSON.stringify(formData))

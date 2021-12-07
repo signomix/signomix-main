@@ -77,6 +77,11 @@
             </div>
             <div class="form-row">
                 <div class="form-group col-md-12">
+                    <form_input id="admins" name="admins" label={ app.texts.device_form.admins[app.language] } type="text" content={ device.administrators } readonly={ !allowEdit } hint={ app.texts.device_form.admins_hint[app.language] }></form_input>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
                     <form_input id="description" name="description" label={ app.texts.device_form.description[app.language] } type="textarea" content={ device.description } readonly={ !allowEdit } rows=2></form_input>
                 </div>
             </div>
@@ -167,6 +172,7 @@
             'key': '',
             'type': 'GENERIC',
             'team': '',
+            'administrators': '',
             'channels': '',
             'code': '',
             'encoder': '',
@@ -399,6 +405,7 @@
                 key: '',
                 type: '',
                 team: '',
+                administrators: '',
                 channels: '',
                 transmissionInterval: '',
                 description: '',
@@ -417,6 +424,7 @@
             formData.key = e.target.elements['key'].value
             formData.type = e.target.elements['type'].value
             formData.team = e.target.elements['team'].value
+            formData.administrators = e.target.elements['admins'].value
             formData.channels = e.target.elements['channels'].value
             formData.groups = e.target.elements['groups'].value
             formData.description = e.target.elements['description'].value

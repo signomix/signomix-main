@@ -104,9 +104,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void modifyDevice(String userID, Device device) throws ThingsDataException {
-        Device previous = getDevice(userID, device.getEUI(), false);
+        //Device previous = getDevice(userID, device.getEUI(), false);
+        Device previous = getDevice(userID, device.getEUI(), true);
         if (previous == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
+        }else{
+            device.setUserID(previous.getUserID()); //UserID override protection if modified by the admin.
         }
         //TODO: what to do when list of channels has been changed?
         getIotDB().updateDevice(device);
@@ -321,6 +324,8 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         DeviceGroup previous = getGroup(userID, group.getEUI());
         if (previous == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "group not found");
+        }else{
+            group.setUserID(previous.getUserID()); //UserID override protection if modified by the admin.
         }
         //TODO: what to do when list of channels has been changed?
         getIotDB().updateGroup(group);

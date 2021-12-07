@@ -1,17 +1,20 @@
 <app_header>
     <header>
         <!--Navbar-->
-        <nav class="navbar navbar-expand-md navbar-light bg-light border-bottom fixed-top">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom fixed-top">
             <a class="navbar-brand text-signo" href={ (app.user.roles.indexOf("guest")>-1)?'/':'#!' }>
                 <img src="resources/logo.png" height="32px" style="margin-right:0.5em;"><strong>{ getDistroType()}</strong>
             </a>
-            <span hidden={ app.requests<=0 }><spinner/></span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!--<span hidden={ app.requests<=0 }><spinner/></span>-->
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav mr-auto">
 <!--<li class="nav-item" if={app.user.status == 'logged-in' && app.user.roles.indexOf("admin")>-1}><a class="nav-link text-signo" href="/admin" data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.admin[app.language] }</a></li>-->
+                    <li class="nav-item">
+                        <a class="nav-link text-signo" href="#!" onclick={ goto('#!') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.main.mainpage[app.language] }</a>
+                    </li>
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest && app.user.alerts }>
                         <a class="nav-link text-signo" href="#!alerts" onclick={ goto('#!alerts') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.alerts[app.language] } <span if={ app.user.alerts.length>0 } class="badge badge-pill badge-danger">{app.user.alerts.length}</span></a>
                     </li>
@@ -24,9 +27,11 @@
                     <li class="nav-item" if={app.user.status == 'logged-in' && !app.user.guest }>
                         <a class="nav-link text-signo" href="#!account" onclick={ goto('#!account') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.account[app.language] }</a>
                     </li>
+<!--
                     <li class="nav-item" if={ app.distroType.toLowerCase() != 'mini' && app.user.status == 'logged-in' && !app.user.guest }>
                         <a class="nav-link text-signo" href="#!doc,toc" onclick={ goto('#!doc,toc') } data-toggle="collapse" data-target="#navbarNavDropdown">{ app.texts.header.documentation[app.language] }</a>
                     </li>
+-->
                     <li class="nav-item" if={!app.user.guest && app.user.status != 'logged-in' }>
                         <a class="nav-link text-signo" href="#!login" onclick={ goto('#!login') } data-toggle="collapse" data-target="#navbarNavDropdown"><i class="material-icons" style="vertical-align: middle;">perm_identity</i> { app.texts.header.login[app.language] } ({ app.texts.header.guest[app.language] })</a>
                     </li>

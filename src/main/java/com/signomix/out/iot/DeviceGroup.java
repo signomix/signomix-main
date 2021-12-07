@@ -17,6 +17,7 @@ public class DeviceGroup {
     private String name;
     private String userID;
     private String team;
+    private String administrators;
     private HashMap channels;
     private String description;
     private boolean open;
@@ -26,12 +27,19 @@ public class DeviceGroup {
         EUI = ""; 
         userID = "";
         team = "";
+        administrators = "";
         description = "";
         open=true;
     }
 
     public boolean userIsTeamMember(String userID) {
         String[] t = team.split(",");
+        for (int i = 0; i < t.length; i++) {
+            if (userID.equals(t[i])) {
+                return true;
+            }
+        }
+        String[] adm = administrators.split(",");
         for (int i = 0; i < t.length; i++) {
             if (userID.equals(t[i])) {
                 return true;
@@ -87,6 +95,23 @@ public class DeviceGroup {
             this.team = this.team + ",";
         }
         setOpen(this.team.indexOf(",public,")>=0);
+    }
+
+    public String getAdministrators() {
+        return administrators;
+    }
+
+    /**
+     * @param team the team to set
+     */
+    public void setAdministrators(String administrators) {
+        this.administrators = administrators!=null?administrators:"";
+        if (!this.administrators.startsWith(",")) {
+            this.administrators = "," + this.administrators;
+        }
+        if (!this.administrators.endsWith(",")) {
+            this.administrators = this.administrators + ",";
+        }
     }
 
     /**

@@ -85,6 +85,8 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             original = getIotDB().getDashboard(userID, dashboard.getId());
             if (original == null) {
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
+            }else{
+                dashboard.setUserID(original.getUserID()); //UserID override protection if modified by the admin.
             }
             if (original.isShared() && !dashboard.isShared()) {
                 Kernel.getInstance().handle((Event) new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));

@@ -78,6 +78,11 @@
                     <form_input id="team" name="team" label={ app.texts.device_form.team[app.language] } type="text" content={ device.team } readonly={ !allowEdit } hint={ app.texts.device_form.team_hint[app.language] }></form_input>
                 </div>
             </div>
+            <div class="form-row" if="{isVisible('team')}">
+                <div class="form-group col-md-12">
+                    <form_input id="admins" name="admins" label={ app.texts.device_form.admins[app.language] } type="text" content={ device.administrators } readonly={ !allowEdit } hint={ app.texts.device_form.admins_hint[app.language] }></form_input>
+                </div>
+            </div>
             <div class="form-row" if="{isVisible('description')}">
                 <div class="form-group col-md-12">
                     <form_input id="description" name="description" label={ app.texts.device_form.description[app.language] } type="textarea" content={ device.description } readonly={ !allowEdit } rows=2></form_input>
@@ -152,6 +157,12 @@
                     </p>
                 </div>
             </div>
+            <div class="form-row" if={ self.mode !='create' }>
+                <div class="form-group col-md-12">
+                    <label for="status">{ app.texts.device_form.owner[app.language] }</label>
+                    <p class="form-control-static" id="owner">{self.device.userID}</p>
+                </div>
+            </div>
             <div class="form-row" if={ self.mode=='update' && self.channelsChanged }>
                 <div class="form-group col-md-12">
                     <div class="alert alert-danger" role="alert">{ app.texts.device_form.channels_alert[app.language] }</div>
@@ -196,6 +207,7 @@
             'key': '',
             'type': 'GENERIC',
             'team': '',
+            'administrators': '',
             'channels': '',
             'code': '',
             'encoder': '',
@@ -395,6 +407,7 @@
                 key: '',
                 type: '',
                 team: '',
+                administrators: '',
                 channels: '',
                 transmissionInterval: '',
                 description: '',
@@ -442,6 +455,11 @@
                 formData.team = e.target.elements['team'].value
             }else{
                 formData.team = self.device.team
+            }
+            if(e.target.elements['admins']) {
+                formData.administrators = e.target.elements['admins'].value
+            }else{
+                formData.administrators = self.device.administrators
             }
             if(e.target.elements['channels']) {
                 formData.channels = e.target.elements['channels'].value

@@ -22,6 +22,7 @@ public class Dashboard {
     private String team;
     private ArrayList widgets;
     private String sharedToken;
+    private String administrators;
 
     public Dashboard() {
         id = null;
@@ -130,6 +131,24 @@ public class Dashboard {
             tmp = tmp + ",";
         }
         this.team = tmp;
+    }
+
+    public String getAdministrators() {
+        return administrators;
+    }
+
+    /**
+     * @param administrators the administrators to set
+     */
+    public void setAdministrators(String administrators) {
+        String tmp = administrators!=null?administrators.trim():"";
+        if (!tmp.startsWith(",")) {
+            tmp = "," + tmp;
+        }
+        if (!tmp.endsWith(",")) {
+            tmp = tmp + ",";
+        }
+        this.administrators = tmp;
     }
 
     /**

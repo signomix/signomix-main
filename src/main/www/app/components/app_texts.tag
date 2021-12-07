@@ -390,10 +390,22 @@
             "fr": "Les logins utilisateurs separes par des virgules",
             "pl": "Loginy użytkowników oddzielone przecinkami"
         },
+        "admins": {
+            "en": "Administrators",
+            "it": "Administrators",
+            "fr": "Administrators",
+            "pl": "Administratorzy"
+        },
+        "admins_hint": {
+            "en": "Logins of users who can change the configuration of this dashboard. Separated by commas.",
+            "it": "Logins of users who can change the configuration of this dashboard. Separated by commas.",
+            "fr": "Logins of users who can change the configuration of this dashboard. Separated by commas.",
+            "pl": "Loginy użytkowników, którzy mogą zmieniać konfigurację tego pulpitu. Oddzielone przecinkami."
+        },
         "name_hint": {
-            "en": "Choose unique dashboard name (alphanumerical, no spaces)",
-            "it": "Scegli un nome dashboard univoco (alfanumerico, nessuno spazio)",
-            "fr": "Choose unique dashboard name (alphanumerical, no spaces)",
+            "en": "Choose a unique desktop name (alphanumeric, no spaces)",
+            "it": "Choose a unique desktop name (alphanumeric, no spaces)",
+            "fr": "Choose a unique desktop name (alphanumeric, no spaces)",
             "pl": "Wybierz unikalną nazwę pulpitu (alfanumeryczną, bez spacji)"
         },
         "title_hint": {
@@ -819,6 +831,12 @@
             "fr": "A unique device group identifier. Automatically generated.",
             "pl": "Unikalny identyfikator grupy urządzeń. Generowany automatycznie."
         },
+        "owner": {
+            "en": "Owner",
+            "it": "Owner",
+            "fr": "Owner",
+            "pl": "Właściciel"
+        },
         "appeui": {
             "en": "Application EUI",
             "it": "EUI applicazione",
@@ -932,6 +950,24 @@
             "it": "Login di altri utenti che hanno accesso ai dati da questo gruppo. Separato da virgole.",
             "fr": "Logins of other users having access to data from this group. Separated by commas.",
             "pl": "Loginy innych użytkowników mających dostęp do danych z tego urządzenia. Oddzielone przecinkami."
+        },
+        "admins": {
+            "en": "Administrators",
+            "it": "Administrators",
+            "fr": "Administrators",
+            "pl": "Administratorzy"
+        },
+        "admins_hint": {
+            "en": "Logins of other users who can modify the device configuration. Separated by commas.",
+            "it": "Logins of other users who can modify the device configuration. Separated by commas.",
+            "fr": "Logins of other users who can modify the device configuration. Separated by commas.",
+            "pl": "Loginy innych użytkowników, którzy mogą modyfikować konfigurację urządzenia. Oddzielone przecinkami."
+        },
+        "admins_g_hint": {
+            "en": "Logins of other users who can modify the group configuration. Separated by commas.",
+            "it": "Logins of other users who can modify the group configuration. Separated by commas.",
+            "fr": "Logins of other users who can modify the group configuration. Separated by commas.",
+            "pl": "Loginy innych użytkowników, którzy mogą modyfikować konfigurację grupy. Oddzielone przecinkami."
         },
         "channels": {
             "en": "Measurements",

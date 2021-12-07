@@ -66,6 +66,7 @@ public class Device {
     private Double altitude;
     private Double state;
     private long retentionTime;
+    private String administrators;
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     /**
@@ -94,6 +95,7 @@ public class Device {
         longitude = 100000d;
         altitude = 100000d;
         state = 0d;
+        administrators="";
     }
 
     public void print() {
@@ -186,6 +188,26 @@ public class Device {
         }
         if (!this.team.endsWith(",")) {
             this.team = this.team + ",";
+        }
+    }
+
+        /**
+     * @return the team
+     */
+    public String getAdministrators() {
+        return administrators;
+    }
+
+    /**
+     * @param team the team to set
+     */
+    public void setAdministrators(String team) {
+        this.administrators = team!=null?team:"";
+        if (!this.administrators.startsWith(",")) {
+            this.administrators = "," + this.administrators;
+        }
+        if (!this.administrators.endsWith(",")) {
+            this.administrators = this.administrators + ",";
         }
     }
 

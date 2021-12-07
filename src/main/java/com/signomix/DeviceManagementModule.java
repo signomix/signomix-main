@@ -149,6 +149,12 @@ public class DeviceManagementModule {
                             thingsAdapter.modifyDevice(userID, device);
                         } catch (ThingsDataException ex) {
                             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                            StackTraceElement[] ste=ex.getStackTrace();
+                            for(int i=0; i<ste.length;i++){
+                                String msg="."+ste[i].getMethodName()+":"+ste[i].getLineNumber();
+                                Kernel.handle(Event.logWarning(ste[i].getClassName(),msg));
+                            }
+                            
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                         }
                         break;
@@ -460,6 +466,10 @@ public class DeviceManagementModule {
         if (newTeam != null && !newTeam.isEmpty()) {
             device.setTeam(newTeam);
         }
+        String newAdministrators = (String) request.parameters.getOrDefault("administrators", "");
+        if (newAdministrators != null && !newAdministrators.isEmpty()) {
+            device.setAdministrators(newAdministrators);
+        }
         String newDescription = (String) request.parameters.getOrDefault("description", "");
         if (newDescription != null && !newDescription.isEmpty()) {
             device.setDescription(newDescription);
@@ -593,6 +603,10 @@ public class DeviceManagementModule {
         String newTeam = (String) request.parameters.getOrDefault("team", "");
         if (newTeam != null && !newTeam.isEmpty()) {
             group.setTeam(newTeam);
+        }
+        String newAdministrators = (String) request.parameters.getOrDefault("administrators", "");
+        if (newAdministrators != null && !newAdministrators.isEmpty()) {
+            group.setAdministrators(newAdministrators);
         }
         String newChannels = (String) request.parameters.getOrDefault("channels", "");
         if (newChannels != null && !newChannels.isEmpty()) {
