@@ -213,7 +213,7 @@ public class ActuatorModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {

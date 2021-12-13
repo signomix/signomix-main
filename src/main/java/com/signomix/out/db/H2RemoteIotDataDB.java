@@ -15,7 +15,6 @@ import com.signomix.out.iot.DataQueryException;
 import com.signomix.out.iot.Device;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
-import com.signomix.out.iot.ThingsDataEmbededAdapter;
 import com.signomix.out.iot.ThingsDataException;
 import java.io.File;
 import java.io.IOException;
@@ -1310,30 +1309,30 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                     dto.day = rs.getDate(3);
                     dto.dtime = rs.getTime(4);
                     dto.timestamp = rs.getTimestamp(5);
-                    dto.d1 = rs.getDouble(6);
-                    dto.d2 = rs.getDouble(7);
-                    dto.d3 = rs.getDouble(8);
-                    dto.d4 = rs.getDouble(9);
-                    dto.d5 = rs.getDouble(10);
-                    dto.d6 = rs.getDouble(11);
-                    dto.d7 = rs.getDouble(12);
-                    dto.d8 = rs.getDouble(13);
-                    dto.d9 = rs.getDouble(14);
-                    dto.d10 = rs.getDouble(15);
-                    dto.d11 = rs.getDouble(16);
-                    dto.d12 = rs.getDouble(17);
-                    dto.d13 = rs.getDouble(18);
-                    dto.d14 = rs.getDouble(19);
-                    dto.d15 = rs.getDouble(20);
-                    dto.d16 = rs.getDouble(21);
-                    dto.d17 = rs.getDouble(22);
-                    dto.d18 = rs.getDouble(23);
-                    dto.d19 = rs.getDouble(24);
-                    dto.d20 = rs.getDouble(25);
-                    dto.d21 = rs.getDouble(26);
-                    dto.d22 = rs.getDouble(27);
-                    dto.d23 = rs.getDouble(28);
-                    dto.d24 = rs.getDouble(29);
+                    dto.d1 = getDouble(rs,6);
+                    dto.d2 = getDouble(rs,7);
+                    dto.d3 = getDouble(rs,8);
+                    dto.d4 = getDouble(rs,9);
+                    dto.d5 = getDouble(rs,10);
+                    dto.d6 = getDouble(rs,11);
+                    dto.d7 = getDouble(rs,12);
+                    dto.d8 = getDouble(rs,13);
+                    dto.d9 = getDouble(rs,14);
+                    dto.d10 = getDouble(rs,15);
+                    dto.d11 = getDouble(rs,16);
+                    dto.d12 = getDouble(rs,17);
+                    dto.d13 = getDouble(rs,18);
+                    dto.d14 = getDouble(rs,19);
+                    dto.d15 = getDouble(rs,20);
+                    dto.d16 = getDouble(rs,21);
+                    dto.d17 = getDouble(rs,22);
+                    dto.d18 = getDouble(rs,23);
+                    dto.d19 = getDouble(rs,24);
+                    dto.d20 = getDouble(rs,25);
+                    dto.d21 = getDouble(rs,26);
+                    dto.d22 = getDouble(rs,27);
+                    dto.d23 = getDouble(rs,28);
+                    dto.d24 = getDouble(rs,29);
                     dto.project = rs.getString(30);
                     dto.status = rs.getDouble(31);
                     dataMap.put(dto.eui, dto);
@@ -1346,6 +1345,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             return null;
         }
 
+    }
+
+    private Double getDouble(ResultSet rs, int index) throws SQLException {
+        double d = rs.getDouble(index);
+        if (!rs.wasNull()) {
+            return d;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -1390,10 +1398,14 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             ResultSet rs = pst.executeQuery();
+            double d;
             if (rs.next()) {
                 for (int i = 0; i < channels.size(); i++) {
-                    row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i),
-                            rs.getTimestamp(5).getTime()));
+                    d = rs.getDouble(6 + i);
+                    if (!rs.wasNull()) {
+                        row.add(new ChannelData(deviceEUI, channels.get(i), d,
+                                rs.getTimestamp(5).getTime()));
+                    }
                 }
                 result.add(row);
             }
@@ -1422,19 +1434,28 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 }
                 result.add(row2);
             }
+            double d;
             while (rs.next()) {
                 if (timeseriesMode) {
                     row2 = new ArrayList();
                     row2.add(rs.getTimestamp(5).getTime());
                     for (int i = 0; i < channels.size(); i++) {
-                        row2.add(rs.getDouble(6 + i));
+                        d = rs.getDouble(6 + i);
+                        if (!rs.wasNull()) {
+                            row2.add(d);
+                        } else {
+                            row2.add(null);
+                        }
                     }
                     result.add(row2);
                 } else {
                     row = new ArrayList<>();
                     for (int i = 0; i < channels.size(); i++) {
-                        row.add(new ChannelData(deviceEUI, channels.get(i), rs.getDouble(6 + i),
-                                rs.getTimestamp(5).getTime()));
+                        d = rs.getDouble(6 + i);
+                        if (!rs.wasNull()) {
+                            row.add(new ChannelData(deviceEUI, channels.get(i), d,
+                                    rs.getTimestamp(5).getTime()));
+                        }
                     }
                     result.add(row);
                 }
@@ -1928,13 +1949,17 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 int channelIndex;
                 String channelName;
                 String devEui;
+                double d;
                 while (rs.next()) {
                     for (int i = 0; i < groupChannels.size(); i++) {
                         devEui = rs.getString(1);
                         channelName = groupChannels.get(i);
                         channelIndex = devices.get(devEui).indexOf(channelName);
-                        tmpResult.add(new ChannelData(devEui, channelName, rs.getDouble(6 + channelIndex),
-                                rs.getTimestamp(5).getTime()));
+                        d = rs.getDouble(6 + channelIndex);
+                        if (!rs.wasNull()) {
+                            tmpResult.add(new ChannelData(devEui, channelName, d,
+                                    rs.getTimestamp(5).getTime()));
+                        }
                     }
                 }
             } catch (SQLException e) {
@@ -1993,6 +2018,21 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             }
             return null;
         }
+    }
+
+    @Override
+    public void setDeviceStatus(String eui, Double state) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

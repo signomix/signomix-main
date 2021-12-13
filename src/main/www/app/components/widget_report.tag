@@ -22,10 +22,10 @@
                 <tbody>
                     <tr each={ device,index in jsonData}>
                         <td class="text-right">{(index+1)}</td>
-                        <td class="text-left"><a href="{'#!dashboard,'+device[0].deviceEUI+'@'}">{device[0].deviceEUI}</a></td>
-                        <td class="text-left">{getDeviceName(device[0].deviceEUI)}</td>
+                        <td class="text-left"><a href="{'#!dashboard,'+getDeviceEUI(device)+'@'}">{getDeviceEUI(device)}</a></td>
+                        <td class="text-left">{getDeviceName(device)}</td>
                         <td class="text-right" each={measure in device}>{(measure?measure.value:'')}</td>
-                        <td class="text-right">{getDateFormatted(new Date(device[0].timestamp))}</td>
+                        <td class="text-right">{getDateFormatted(new Date(getDeviceTimestamp(device)))}</td>
                         <!--<td class="text-right"><a href="{'#!dashboard,'+device[0].deviceEUI}">{ app.texts.widget_report.MORE[app.language] }</a></td>-->
                     </tr>
                 </tbody>
@@ -88,15 +88,32 @@
             riot.update();
     }
         
-    self.getDeviceName = function(eui){
+    self.getDeviceName = function(device){
+        var tmpEUI=self.getDeviceEUI(device);
             for(var i =0; i< self.groups.length; i++){
-                if(self.groups[i].EUI===eui){
+                if(self.groups[i].EUI===tmpEUI){
                     return self.groups[i].name
                 }
             }
-        return eui;
+        return '';
     }
-    
+    self.getDeviceEUI = function(device){
+        for(j=0; j<device.length; j++){
+           if(device[j]!=null){
+             if(device[j].deviceEUI!=null){
+               return device[j].deviceEUI;
+             }
+           }
+        }
+        return '';
+    }
+    self.getDeviceTimestamp = function(device){
+        var tmpT=null
+        for(j=0; j<device.length; j++){
+           if(device[j]!=null){tmpT=device[j].timestamp; break;}
+        }
+        return tmpT;
+    }
     self.verify=function(){
         var minimalMeasures = 1; //previously 2 
         var i=0
@@ -110,7 +127,7 @@
                 j=0
                 while(j<self.jsonData[i].length){
                     if(self.jsonData[i][j]===null){
-                        self.jsonData[i][j]={'eui':'','name':null,'value':null,'timestamp':null}
+                        self.jsonData[i][j]={'deviceEUI':null,'name':null,'value':null,'timestamp':null}
                     }
                     j=j+1
                 }

@@ -36,7 +36,7 @@
     </div>
     <div class="row" if={ !app.embeded }>
         <div class="col-md-12">
-            <h2 class="module-title">{ dashboardConfig.title }
+            <h2 class="module-title text-center">{ dashboardConfig.title }
                 <i class="material-icons clickable" onclick={ refresh } if={app.user.status == 'logged-in' && !app.user.guest}>refresh</i>
                 <i class="material-icons clickable" data-toggle="modal" data-target="#linkView"
                    if={ dashboardConfig.shared && dashboardConfig.sharedToken && !app.embeded && app.shared==''}>link</i>

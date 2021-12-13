@@ -97,4 +97,9 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public List<String> getGroupChannels(String groupEUI) throws ThingsDataException;
     
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException;
+
+    public void setDeviceStatus(String eui, Double state) throws ThingsDataException;
+    public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException;
+    
+    public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException;
 }

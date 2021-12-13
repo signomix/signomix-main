@@ -175,7 +175,7 @@ public class DeviceIntegrationModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
@@ -475,7 +475,7 @@ public class DeviceIntegrationModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
@@ -577,7 +577,7 @@ public class DeviceIntegrationModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
@@ -705,7 +705,7 @@ public class DeviceIntegrationModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
@@ -754,7 +754,7 @@ public class DeviceIntegrationModule {
             for (int i = 0; i < outputList.size(); i++) {
                 thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
             }
-            if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+            if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                 System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                 thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
             }
@@ -888,7 +888,7 @@ public class DeviceIntegrationModule {
                 for (int i = 0; i < outputList.size(); i++) {
                     thingsAdapter.putData(device.getUserID(), device.getEUI(), device.getProject(), device.getState(), fixValues(device, outputList.get(i)));
                 }
-                if (device.getState().compareTo((Double) processingResult[1]) != 0) {
+                if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
                     System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
