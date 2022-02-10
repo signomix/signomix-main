@@ -51,6 +51,7 @@
                             <option value='SIGNOMIX' selected={''==user.generalNotificationChannel || 'SIGNOMIX'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Telegram</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Webhook</option>
@@ -85,6 +86,7 @@
                             <option value='SIGNOMIX' selected={''==user.infoNotificationChannel || 'SIGNOMIX'==user.infoNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Telegram</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Webhook</option>
@@ -119,6 +121,7 @@
                             <option value='SIGNOMIX' selected={''==user.warningNotificationChannel || 'SIGNOMIX'==user.warningNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Telegram</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Webhook</option>
@@ -153,6 +156,7 @@
                             <option value='SIGNOMIX' selected={''==user.alertNotificationChannel || 'SIGNOMIX'==user.alertNotificationChannel}>{ app.texts.user_form.select[app.language] }</option>
                             <option value="SMTP" selected={'SMTP'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>E-mail</option>
                             <option value="SLACK" selected={'SLACK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Slack</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Telegram</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Webhook</option>

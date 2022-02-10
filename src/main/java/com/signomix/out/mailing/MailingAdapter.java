@@ -4,12 +4,15 @@
  */
 package com.signomix.out.mailing;
 
-import com.signomix.out.db.MailingDBIface;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.dto.MessageEnvelope;
+
 import org.cricketmsf.Adapter;
 import org.cricketmsf.in.http.ResponseCode;
 import org.cricketmsf.in.http.StandardResult;
@@ -42,19 +45,20 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         super.loadProperties(properties, adapterName);
         reportPath = (String) properties.get("reports-path");
         logger.info("\treports-path: " + reportPath);
-        reportLanguage = (String) properties.getOrDefault("reports-language",REPORT_LANGUAGE);
+        reportLanguage = (String) properties.getOrDefault("reports-language", REPORT_LANGUAGE);
         logger.info("\treports-language: " + reportLanguage);
-        reportTesterRoleName = (String) properties.getOrDefault("tester-role-name",MAILING_TESTER_ROLE_NAME);
+        reportTesterRoleName = (String) properties.getOrDefault("tester-role-name", MAILING_TESTER_ROLE_NAME);
         logger.info("\ttester-role-name: " + reportTesterRoleName);
     }
 
     @Override
     public Object sendMailing(
-            String docUid, 
-            String target, 
-            UserAdapterIface userAdapter, 
-            CmsIface cmsAdapter, 
-            EmailSenderIface emailSender) {
+            String docUid,
+            String target,
+            UserAdapterIface userAdapter,
+            CmsIface cmsAdapter,
+            EmailSenderIface emailSender,
+            ExternalNotificatorIface externalNotificator) {
         try {
             ArrayList<String> recipients = new ArrayList<>();
             ArrayList<String> failures = new ArrayList<>();
@@ -99,13 +103,13 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
                     }
                     if (accepted && null != user.getEmail() && !user.getEmail().isBlank()) {
                         if ("pl".equalsIgnoreCase(user.getPreferredLanguage()) && null != documentPl) {
-                            if (send(user, documentPl, emailSender)) {
+                            if (send(user, documentPl, emailSender, externalNotificator)) {
                                 recipients.add(user.getEmail());
                             } else {
                                 failures.add(user.getEmail());
                             }
                         } else if (null != documentEn) {
-                            if (send(user, documentEn, emailSender)) {
+                            if (send(user, documentEn, emailSender, externalNotificator)) {
                                 recipients.add(user.getEmail());
                             } else {
                                 failures.add(user.getEmail());
@@ -134,7 +138,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
     }
 
     private void saveReport(CmsIface cmsAdapter, String docUid, String target, String reportContent) {
-        if(null==reportPath){
+        if (null == reportPath) {
             logger.info("report path not configured");
             return;
         }
@@ -151,15 +155,15 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             report.setTitle("mailing report " + timestamp);
             report.setSummary("");
             report.setContent(reportContent);
-            report.setExtra(docUid+";"+target);
+            report.setExtra(docUid + ";" + target);
             cmsAdapter.addDocument(report, roles);
         } catch (CmsException ex) {
             logger.warn(ex.getMessage());
         }
     }
 
-    private boolean send(User user, Document doc, EmailSenderIface emailSender) {
-        String userName;
+    private boolean send(User user, Document doc, EmailSenderIface emailSender,
+            ExternalNotificatorIface externalNotificator) {
         String topic;
         String content;
         try {
@@ -172,9 +176,20 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             System.out.println("to: " + user.getEmail());
             System.out.println("subject: " + topic);
             System.out.println(content);
-
-            String result = emailSender.send(user.getEmail(), topic, content);
-            return "OK".equalsIgnoreCase(result);
+            if (null != externalNotificator) {
+                User userStub = new User();
+                userStub.setEmail(user.getEmail());
+                MessageEnvelope envelope = new MessageEnvelope();
+                envelope.subject = topic;
+                envelope.message = content;
+                envelope.user = userStub;
+                envelope.type = MessageEnvelope.MAILING;
+                externalNotificator.send(envelope);
+                return true;
+            } else {
+                String result = emailSender.send(user.getEmail(), topic, content);
+                return "OK".equalsIgnoreCase(result);
+            }
         } catch (UnsupportedEncodingException ex) {
             logger.warn(ex.getMessage());
             return false;

@@ -28,7 +28,8 @@
                 "serviceurl": "$SIGNOMIX_URL",
                 "servicetitle": "$SIGNOMIX_TITLE",
                 "ga-tracking-id": "$GATRACKINGID",
-                "monitoring_device": "signomix_int_monitor"
+                "monitoring_device": "signomix_int_monitor",
+                "application_key":"$SIGNOMIX_APP_KEY"
             },
             "ports": [
                 {
@@ -500,15 +501,6 @@
                     }
                 },
                 {
-                    "name": "externalNotificator",
-                    "interfaceName": "ExternalNotificatorIface",
-                    "classFullName": "com.signomix.out.notification.JmsNotificator",
-                    "properties": {
-                        "url": "amqp://localhost:5672",
-                        "queuq": "notifications"
-                    }
-                },
-                {
                     "name": "smtpNotification",
                     "interfaceName": "NotificationIface",
                     "classFullName": "com.signomix.out.notification.SmtpNotificator",
@@ -695,6 +687,20 @@
                         "user": "sa",
                         "password": "",
                         "cache-size": "1000"
+                    }
+                },
+                {
+                    "name": "externalNotificator",
+                    "interfaceName": "MqClientIface",
+                    "classFullName": "com.signomix.out.queue.RabbitMqClient",
+                    "properties": {
+                        "host": "$QUEUE_HOST",
+                        "port": "$QUEUE_PORT",
+                        "user": "$QUEUE_USER",
+                        "password": "$QUEUE_PASSWORD",
+                        "queue-notifications": "$QUEUE_NOTIFICATIONS",
+                        "queue-mailing": "$QUEUE_MAILING",
+                        "queue-admin-email": "$QUEUE_ADMIN_EMAIL"
                     }
                 }
             ]

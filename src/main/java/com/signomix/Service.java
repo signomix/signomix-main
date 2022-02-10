@@ -4,64 +4,66 @@
  */
 package com.signomix;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.signomix.event.AlertApiEvent;
+import com.signomix.event.IotEvent;
+import com.signomix.event.MailingApiEvent;
+import com.signomix.event.NewDataEvent;
+import com.signomix.event.SubscriptionEvent;
 import com.signomix.event.UplinkEvent;
 import com.signomix.in.http.ActuatorApi;
 import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData;
-import com.signomix.event.IotEvent;
-import com.signomix.event.MailingApiEvent;
-import com.signomix.event.NewDataEvent;
-import com.signomix.event.SubscriptionEvent;
-import com.signomix.iot.IotDataIface;
+import com.signomix.out.auth.AuthLogic;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
-import org.cricketmsf.Event;
-import org.cricketmsf.Kernel;
-import org.cricketmsf.RequestObject;
-import java.util.HashMap;
-import org.cricketmsf.annotation.HttpAdapterHook;
-import org.cricketmsf.in.http.HtmlGenAdapterIface;
-import org.cricketmsf.in.http.ParameterMapResult;
-import org.cricketmsf.in.http.StandardResult;
-import org.cricketmsf.in.scheduler.SchedulerIface;
-import org.cricketmsf.microsite.cms.CmsIface;
-import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
-import com.signomix.out.iot.ThingsDataIface;
-import org.cricketmsf.microsite.out.queue.QueueAdapterIface;
-import org.cricketmsf.microsite.out.user.UserAdapterIface;
-import org.cricketmsf.microsite.out.user.UserException;
-import org.cricketmsf.microsite.user.User;
-import org.cricketmsf.out.db.KeyValueDBIface;
-import org.cricketmsf.out.file.FileReaderAdapterIface;
-import org.cricketmsf.out.log.LoggerAdapterIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.mailing.MailingIface;
 import com.signomix.out.notification.ExternalNotificatorIface;
 import com.signomix.out.notification.NotificationIface;
+import com.signomix.out.notification.dto.MessageEnvelope;
 import com.signomix.out.script.ScriptingAdapterIface;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
+import org.cricketmsf.RequestObject;
 import org.cricketmsf.annotation.EventHook;
+import org.cricketmsf.annotation.HttpAdapterHook;
 import org.cricketmsf.annotation.PortEventClassHook;
 import org.cricketmsf.event.EventMaster;
 import org.cricketmsf.exception.EventException;
 import org.cricketmsf.exception.InitException;
+import org.cricketmsf.in.http.HtmlGenAdapterIface;
+import org.cricketmsf.in.http.ParameterMapResult;
 import org.cricketmsf.in.http.ResponseCode;
+import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.in.openapi.OpenApiIface;
-import org.cricketmsf.microsite.auth.AuthBusinessLogic;
+import org.cricketmsf.in.scheduler.SchedulerIface;
+import org.cricketmsf.microsite.cms.CmsIface;
 import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
+import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
 import org.cricketmsf.microsite.out.notification.EmailSenderIface;
+import org.cricketmsf.microsite.out.queue.QueueAdapterIface;
 import org.cricketmsf.microsite.out.queue.QueueException;
+import org.cricketmsf.microsite.out.user.UserAdapterIface;
+import org.cricketmsf.microsite.out.user.UserException;
+import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.microsite.user.UserEvent;
+import org.cricketmsf.out.db.KeyValueDBIface;
+import org.cricketmsf.out.file.FileReaderAdapterIface;
+import org.cricketmsf.out.log.LoggerAdapterIface;
 
 /**
  * EchoService
@@ -111,7 +113,9 @@ public class Service extends Kernel {
     IotDbDataIface iotDatabase = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
-    //notifications and emails
+
+//notifications and emails
+    //MqClientIface mqClient = null;
     NotificationIface smtpNotification = null;
     NotificationIface smsNotification = null;
     NotificationIface pushoverNotification = null;
@@ -121,7 +125,6 @@ public class Service extends Kernel {
     NotificationIface webhookNotification = null;
     EmailSenderIface emailSender = null;
     ExternalNotificatorIface externalNotificator = null;
-
     MailingIface mailingAdapter = null;
 
     //Integration services
@@ -170,6 +173,7 @@ public class Service extends Kernel {
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
         iotDatabase = (IotDbDataIface) getRegistered("IotDatabase");
         //notifications
+        //mqClient = (MqClientIface) getRegistered("MqClient");
         smtpNotification = (NotificationIface) getRegistered("smtpNotification");
         smsNotification = (NotificationIface) getRegistered("smsNotification");
         pushoverNotification = (NotificationIface) getRegistered("pushoverNotification");
@@ -223,9 +227,6 @@ public class Service extends Kernel {
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB, thingsDB,
                 iotDataDB, actuatorCommandsDB, shortenerDB, iotDatabase);
         //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
-        //TODO: use services monitoring
-        //PlatformAdministrationModule.getInstance().initScheduledTasks(scheduler);
-        //TODO: na tym się potrafi zawiesić
         Kernel.getInstance().handleEvent(
                 new Event(
                         this.getClass().getSimpleName(),
@@ -234,6 +235,11 @@ public class Service extends Kernel {
                         "+1s",
                         "Signomix service has been started.")
         );
+
+        // force to disable obsolete Telegram notificator
+        if(null!=externalNotificator){
+            telegramNotification = null;
+        }
         apiGenerator.init(this);
         setInitialized(true);
     }
@@ -259,10 +265,23 @@ public class Service extends Kernel {
 
     @Override
     public void shutdown() {
-        emailSender.send(
-                (String) getProperties().getOrDefault("admin-notification-email", ""),
-                "Signomix - shutdown", "Signomix service is going down."
-        );
+        String subject = "Signomix - shutdown";
+        String text = "Signomix service is going down.";
+        if (null != externalNotificator) {
+            MessageEnvelope message = new MessageEnvelope();
+            message.message = text;
+            message.subject = subject;
+            message.type = MessageEnvelope.ADMIN_EMAIL;
+            User user = new User();
+            user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
+            message.user = user;
+            externalNotificator.send(message);
+        } else {
+            emailSender.send(
+                    (String) getProperties().getOrDefault("admin-notification-email", ""),
+                    subject, text
+            );
+        }
         super.shutdown();
     }
 
@@ -441,7 +460,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender, externalNotificator);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -863,7 +882,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "POST")
     public Object authLogin(Event event) {
         System.out.println("LOGIN");
-        StandardResult result = (StandardResult) AuthBusinessLogic.getInstance().login(event, authAdapter);
+        StandardResult result = (StandardResult) AuthLogic.getInstance().login(event, authAdapter);
         if (result.getCode() == ResponseCode.OK) {
             Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, "login"));
         } else {
@@ -874,17 +893,18 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "DELETE")
     public Object authLogout(Event event) {
-        return AuthBusinessLogic.getInstance().logout(event, authAdapter);
+        return AuthLogic.getInstance().logout(event, authAdapter);
     }
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "GET")
     public Object authCheck(Event event) {
-        return AuthBusinessLogic.getInstance().check(event, authAdapter);
+        Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "CHECK TOKEN"));
+        return AuthLogic.getInstance().check(event, authAdapter);
     }
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "PUT")
     public Object authRefresh(Event event) {
-        return AuthBusinessLogic.getInstance().refreshToken(event, authAdapter);
+        return AuthLogic.getInstance().refreshToken(event, authAdapter);
     }
 
     @HttpAdapterHook(adapterName = "ConfirmationService", requestMethod = "GET")
@@ -1018,7 +1038,20 @@ public class Service extends Kernel {
         try {
             logAdapter.log(event);
             if (event.getType().equals(Event.LOG_SEVERE)) {
-                emailSender.send((String) getProperties().getOrDefault("admin-notification-email", ""), "Signomix - error", event.toString());
+                String subject = "Signomix - error";
+                String text = event.toString();
+                if (null != externalNotificator) {
+                    MessageEnvelope message = new MessageEnvelope();
+                    message.message = text;
+                    message.subject = subject;
+                    message.type = MessageEnvelope.ADMIN_EMAIL;
+                    User user = new User();
+                    user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
+                    message.user = user;
+                    externalNotificator.send(message);
+                } else {
+                    emailSender.send((String) getProperties().getOrDefault("admin-notification-email", ""), subject, text);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1109,6 +1142,7 @@ public class Service extends Kernel {
                     dashboardAdapter,
                     scriptingAdapter,
                     emailSender,
+                    externalNotificator,
                     iotDatabase
             );
         } catch (Exception e) {

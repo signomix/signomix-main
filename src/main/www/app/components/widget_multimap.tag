@@ -179,12 +179,15 @@
         for(var i=0;i<point.length;i++){
             if(point[i]){
                 if(point[i].name==self.rangeName){
-                    switch(getAlertLevel(self.range, point[i].value)){
+                    switch(getAlertLevel(self.range, point[i].value, point[i]['timestamp'])){
                         case 1:
                             result='yellow'
                             break
                         case 2:
                             result='red'
+                            break
+                        case 3:
+                            result='grey'
                             break
                     }
                 }

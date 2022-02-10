@@ -1,9 +1,10 @@
 /**
-* Copyright (C) Grzegorz Skorupa 2018.
-* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
-*/
+ * Copyright (C) Grzegorz Skorupa 2018.
+ * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+ */
 package org.cricketmsf.microsite.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.signomix.event.IotEvent;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +52,7 @@ public class User {
     public static final int READONLY = 6;
     public static final int EXTENDED = 7; // students, scientists, nonprofits
     public static final int SUPERUSER = 8;
-    
+
     public static final int SUBSCRIBER = 100;
 
     public static final int IS_REGISTERING = 0;
@@ -61,7 +62,7 @@ public class User {
 
     public static final int SERVICE_SMS = 0b00000001;
     public static final int SERVICE_NEW = 0b00000010; //not used
-    
+
     private Integer type = FREE;
     private String uid;
     private String email;
@@ -91,15 +92,15 @@ public class User {
         authStatus = IS_REGISTERING;
         createdAt = System.currentTimeMillis();
         services = 0b0;
-        credits=0;
-        autologin=false;
+        credits = 0;
+        autologin = false;
     }
-    
-    public void clearStatus(){
+
+    public void clearStatus() {
         confirmed = null;
         unregisterRequested = null;
-        authStatus = null;  
-        type=null;
+        authStatus = null;
+        type = null;
     }
 
     /**
@@ -200,11 +201,12 @@ public class User {
         return role;
     }
 
-    public List getRoles(){
+    @JsonIgnore
+    public List getRoles() {
         return Arrays.asList(getRole().split(","));
     }
-    
-    public boolean hasRole(String role){
+
+    public boolean hasRole(String role) {
         return getRoles().contains(role);
     }
 
@@ -218,6 +220,7 @@ public class User {
     /**
      * @return the password
      */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -251,8 +254,8 @@ public class User {
                 channel = getAlertNotificationChannel();
                 break;
         }
-        if(channel==null){
-            channel="";
+        if (channel == null) {
+            channel = "";
         }
         return channel.split(":");
     }
@@ -288,6 +291,7 @@ public class User {
     /**
      * @return the status
      */
+    @JsonIgnore
     public int getStatus() {
         return authStatus;
     }
@@ -296,6 +300,17 @@ public class User {
      * @param status the status to set
      */
     public void setStatus(int status) {
+        this.authStatus = status;
+    }
+    
+    public int getAuthStatus() {
+        return authStatus;
+    }
+
+    /**
+     * @param status the status to set
+     */
+    public void setAuthStatus(int status) {
         this.authStatus = status;
     }
 
@@ -312,7 +327,7 @@ public class User {
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
-    
+
     /**
      * @return the number
      */
@@ -368,13 +383,13 @@ public class User {
     public void setServices(int services) {
         this.services = services;
     }
-    
-    public void addService(int newService){
-        services = services|newService;
+
+    public void addService(int newService) {
+        services = services | newService;
     }
 
-    public void removeService(int newService){
-        services = services^newService;
+    public void removeService(int newService) {
+        services = services ^ newService;
     }
 
     /**
@@ -403,8 +418,8 @@ public class User {
      */
     public void setCredits(long credits) {
         this.credits = credits;
-        if(this.credits<0){
-            this.credits=0;
+        if (this.credits < 0) {
+            this.credits = 0;
         }
     }
 

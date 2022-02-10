@@ -49,3 +49,4 @@ licenseheader.txt
 /docker-compose.overlay.yml
 /volume-db/
 /.vscode/
+pom.xml~

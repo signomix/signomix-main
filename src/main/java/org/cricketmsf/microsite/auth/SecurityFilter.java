@@ -217,6 +217,7 @@ public class SecurityFilter extends Filter {
                         if (inParamsToken.endsWith("/")) {
                             inParamsToken = inParamsToken.substring(0, inParamsToken.length() - 1);
                         }
+                        logger.debug("tokenFromParams={}", tokenID);
                         result.user = getUser(inParamsToken, true);
                         result.issuer = getIssuer(inParamsToken);
                         //Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "FOUND IP TOKEN " + inParamsToken + " FOR " + result.user.getUid() + " by " + result.issuer.getUid()));
@@ -249,7 +250,11 @@ public class SecurityFilter extends Filter {
         if (tokenID == null || tokenID.isEmpty()) {
             try {
                 if (null != parameters) {
-                    tokenID = (String) parameters.get("tid");
+                    Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "request parameters:"));
+                    parameters.keySet().forEach(key->{
+                        Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "key:"+key));
+                    });
+                    tokenID = (String) parameters.getOrDefault("tid","");
                     if (tokenID.endsWith("/")) {
                         tokenID = tokenID.substring(0, tokenID.length() - 1);
                     }

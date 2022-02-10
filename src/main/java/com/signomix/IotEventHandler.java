@@ -14,7 +14,7 @@ import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.iot.VirtualDevice;
 import com.signomix.out.notification.ExternalNotificatorIface;
-import com.signomix.out.notification.dto.MessageWrapper;
+import com.signomix.out.notification.dto.MessageEnvelope;
 import com.signomix.out.notification.NotificationIface;
 import com.signomix.out.script.ScriptingAdapterIface;
 import java.util.ArrayList;
@@ -73,26 +73,27 @@ public class IotEventHandler {
                         System.out.println(">>>>> event origin not properly set: " + event.getOrigin());
                         break;
                     }
-                    //save alert
+                    // save alert
                     AlertModule.getInstance().putAlert(event, thingsAdapter);
-                    //send message
+                    // send message
                     User user;
                     String payload;
                     String[] params;
                     try {
                         user = userAdapter.get(origin[0]);
                         if (user == null) {
-                            //TODO: this shouldn't happen - log error?
+                            // TODO: this shouldn't happen - log error?
                             logger.warn("user is null");
                             break;
                         }
                         String nodeName = origin[1];
                         if (IotEvent.DEVICE_LOST.equals(event.getType())) {
                             // this event can appear several times: for device owner + all team members
-                            // TODO: the event should be directed for "system" user and only this particulrar
+                            // TODO: the event should be directed for "system" user and only this
+                            // particulrar
                             // event instance should modify alert status
                             thingsAdapter.updateAlertStatus(nodeName, Device.FAILURE);
-                            // see also: 
+                            // see also:
                             // ThingsDataIface.updateHealthStatus()
                             // DeviceManagementModule.checkStatus()
                         }
@@ -100,14 +101,21 @@ public class IotEventHandler {
                         String message = (String) event.getPayload();
                         String response = "";
 
+                        // Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(),
+                        // "externalNotificator="+(null!=externalNotificator)+","+externalNotificator.isReady()));
                         if (null != externalNotificator
-                                && externalNotificator.isConfigured()) {
-                            MessageWrapper wrapper = new MessageWrapper();
-                            wrapper.type = event.getType();
-                            wrapper.eui = nodeName;
-                            wrapper.message = message;
-                            wrapper.user = user;
-                            response = externalNotificator.send(wrapper);
+                                && externalNotificator.isReady()) {
+                            String[] channelConfig = user.getChannelConfig(event.getType());
+                            if (channelConfig == null || channelConfig.length < 2 || channelConfig[0].toUpperCase().startsWith("SIGNOMIX:")) {
+                                break; // OK, notification on the web GUI or API
+                            } else {
+                                MessageEnvelope wrapper = new MessageEnvelope();
+                                wrapper.type = event.getType();
+                                wrapper.eui = nodeName;
+                                wrapper.message = message;
+                                wrapper.user = user;
+                                response = externalNotificator.send(wrapper);
+                            }
                         } else {
                             String[] channelConfig = user.getChannelConfig(event.getType());
                             if (channelConfig == null || channelConfig.length < 2) {
@@ -130,10 +138,11 @@ public class IotEventHandler {
                                     break;
                                 case "SMS":
                                     if (user.getCredits() > 0) {
-                                        response = smsNotification.send(user.getUid(), user.getPhonePrefix() + address, nodeName, message);
+                                        response = smsNotification.send(user.getUid(), user.getPhonePrefix() + address,
+                                                nodeName, message);
                                     }
                                     if (!response.startsWith("ERROR")) {
-                                        //TODO: decrease user credits
+                                        // TODO: decrease user credits
                                     }
                                     break;
                                 case "PUSHOVER":
@@ -152,57 +161,70 @@ public class IotEventHandler {
                                     response = webhookNotification.send(address, nodeName, message);
                                     break;
                                 default:
-                                    Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "message channel " + messageChannel + " not supported"));
+                                    Kernel.getInstance()
+                                            .dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(),
+                                                    "message channel " + messageChannel + " not supported"));
                             }
                         }
-                        if (response.startsWith("ERROR")) {
+                        if (null != response && response.startsWith("ERROR")) {
                             logger.warn(response);
                         }
                     } catch (UserException ex) {
-                        Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(
+                                Event.logWarning(IotEventHandler.class.getSimpleName(), ex.getMessage()));
                     } catch (ThingsDataException ex) {
-                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName(), "updateAlertStatus() " + ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName(),
+                                "updateAlertStatus() " + ex.getMessage()));
                     }
                     break;
                 case IotEvent.CHANNEL_REMOVE:
                     payload = "" + (String) event.getPayload();
                     params = payload.split("@");
-                    //create user alert with information about channel removal
+                    // create user alert with information about channel removal
                     try {
                         Device device = thingsAdapter.getDevice(params[1]);
-                        IotEvent info = new IotEvent(IotEvent.INFO, params[1] + "\t" + device.getUserID(), "Data channel \"" + params[0] + "\" has been removed from the device definition. You should check dependent dashboards.");
+                        IotEvent info = new IotEvent(IotEvent.INFO, params[1] + "\t" + device.getUserID(),
+                                "Data channel \"" + params[0]
+                                        + "\" has been removed from the device definition. You should check dependent dashboards.");
                         Kernel.getInstance().dispatchEvent(info);
                     } catch (ThingsDataException e) {
-                        Kernel.getInstance().dispatchEvent(Event.logSevere(IotEventHandler.class.getSimpleName() + ".processIotEvent()", e.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logSevere(
+                                IotEventHandler.class.getSimpleName() + ".processIotEvent()", e.getMessage()));
                     }
                     break;
                 case IotEvent.DEVICE_REGISTERED:
-                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), event.getPayload() + " device registered"));
-                    PlatformAdministrationModule.getInstance().buildDefaultDashboard((String) event.getPayload(), thingsAdapter, dashboardAdapter, authAdapter);
+                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(),
+                            event.getPayload() + " device registered"));
+                    PlatformAdministrationModule.getInstance().buildDefaultDashboard((String) event.getPayload(),
+                            thingsAdapter, dashboardAdapter, authAdapter);
                     break;
 
                 case IotEvent.DEVICE_REMOVED:
-                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), event.getPayload() + " device unregistered"));
+                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(),
+                            event.getPayload() + " device unregistered"));
                     try {
                         params = ((String) event.getPayload()).split("\t");
                         if (params.length == 2) {
                             dashboardAdapter.removeDashboard(params[1], params[0]);
                         }
                     } catch (Exception e) {
-                        Kernel.getInstance().dispatchEvent(Event.logWarning("Problem renoving dashboards", e.getMessage()));
+                        Kernel.getInstance()
+                                .dispatchEvent(Event.logWarning("Problem removing dashboards", e.getMessage()));
                     }
                     break;
                 case IotEvent.DASHBOARD_SHARED:
-                    //TODO: add "public" team member to dashboards reported
+                    // TODO: add "public" team member to dashboards reported
                     break;
                 case IotEvent.DASHBOARD_REMOVED:
                 case IotEvent.DASHBOARD_UNSHARED:
-                    //TODO: remove "public" team member from devices raported by this dashboard
-                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(), "removing shared token " + event.getPayload()));
+                    // TODO: remove "public" team member from devices raported by this dashboard
+                    Kernel.getInstance().dispatchEvent(Event.logInfo(IotEventHandler.class.getSimpleName(),
+                            "removing shared token " + event.getPayload()));
                     try {
                         authAdapter.removePermanentToken("" + event.getPayload());
                     } catch (AuthException ex) {
-                        Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(), "error while removing token " + event.getPayload() + "->" + ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(Event.logWarning(IotEventHandler.class.getSimpleName(),
+                                "error while removing token " + event.getPayload() + "->" + ex.getMessage()));
                     }
                     break;
                 case IotEvent.VIRTUAL_DATA:
@@ -219,7 +241,8 @@ public class IotEventHandler {
                             device = thingsAdapter.getDevice(sourceDevice.getUserID(), deviceEUI, false);
                         }
                     } catch (ThingsDataException ex) {
-                        Kernel.getInstance().dispatchEvent(Event.logWarning("IotEventHandler", "virtual device: " + ex.getMessage()));
+                        Kernel.getInstance().dispatchEvent(
+                                Event.logWarning("IotEventHandler", "virtual device: " + ex.getMessage()));
                         return;
                     }
                     if (null == sourceDevice) {
@@ -257,21 +280,26 @@ public class IotEventHandler {
                         }
                     }
                     if (!values.isEmpty()) {
-                        DeviceIntegrationModule.getInstance().writeVirtualData(thingsAdapter, scriptingAdapter, device, values);
+                        DeviceIntegrationModule.getInstance().writeVirtualData(thingsAdapter, scriptingAdapter, device,
+                                values);
                     }
                     break;
                 case IotEvent.ACTUATOR_CMD:
                     if (null != actuatorCommandsDB) {
-                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter,
+                                scriptingAdapter);
                     } else {
-                        ActuatorModule.getInstance().processCommand(event, false, (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
+                        ActuatorModule.getInstance().processCommand(event, false, (ActuatorCommandsDBIface) iotDB,
+                                thingsAdapter, scriptingAdapter);
                     }
                     break;
                 case IotEvent.ACTUATOR_HEXCMD:
                     if (null != actuatorCommandsDB) {
-                        ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                        ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter,
+                                scriptingAdapter);
                     } else {
-                        ActuatorModule.getInstance().processCommand(event, true, (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
+                        ActuatorModule.getInstance().processCommand(event, true, (ActuatorCommandsDBIface) iotDB,
+                                thingsAdapter, scriptingAdapter);
                     }
                     break;
                 case IotEvent.PLATFORM_MONITORING:
@@ -283,20 +311,23 @@ public class IotEventHandler {
                         } catch (ThingsDataException ex) {
                         }
                         if (null != d) {
-                            event.setOrigin("@" + eui); //source@target
+                            event.setOrigin("@" + eui); // source@target
                             if (null != actuatorCommandsDB) {
-                                ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter, scriptingAdapter);
+                                ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB,
+                                        thingsAdapter, scriptingAdapter);
                             } else {
-                                ActuatorModule.getInstance().processCommand(event, false, (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
+                                ActuatorModule.getInstance().processCommand(event, false,
+                                        (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
                             }
                         }
                     }
                     break;
                 default:
                     Kernel.getInstance().dispatchEvent(
-                            Event.logWarning("Don't know how to handle category/type " + event.getCategory() + "/" + event.getType(),
-                                    "" + event.getPayload())
-                    );
+                            Event.logWarning(
+                                    "Don't know how to handle category/type " + event.getCategory() + "/"
+                                            + event.getType(),
+                                    "" + event.getPayload()));
             }
         }
     }

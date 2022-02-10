@@ -369,7 +369,9 @@ public class UserModule extends UserBusinessLogic {
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
             }
-            user = verifyNotificationsConfig(user, telegramNotifier);
+            if(null!=telegramNotifier){
+                user = verifyNotificationsConfig(user, telegramNotifier);
+            }
             userAdapter.modify(user);
             //fire event
             Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));

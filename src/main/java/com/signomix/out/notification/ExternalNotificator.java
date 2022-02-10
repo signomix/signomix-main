@@ -4,7 +4,7 @@
  */
 package com.signomix.out.notification;
 
-import com.signomix.out.notification.dto.MessageWrapper;
+import com.signomix.out.notification.dto.MessageEnvelope;
 import com.cedarsoftware.util.io.JsonWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class ExternalNotificator extends HttpClient implements ExternalNotificat
     }
 
     @Override
-    public String send(MessageWrapper messageWrapper) {
+    public String send(MessageEnvelope messageWrapper) {
         Result r = null;
         Request request = new Request()
                 .setMethod("POST")
@@ -63,7 +63,7 @@ public class ExternalNotificator extends HttpClient implements ExternalNotificat
     }
 
     @Override
-    public boolean isConfigured() {
+    public boolean isReady() {
         return !endpointURL.isBlank();
     }
 

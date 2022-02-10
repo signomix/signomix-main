@@ -88,7 +88,7 @@
                             <option value="SLACK" selected={'SLACK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Telegram</option>
-                            <option value="DISCORD" selected={'DISCORD'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Discord</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>Webhook</option>
                             <option if={smsEnabled} value="SMS" selected={'SMS'==user.infoNotificationChannel.substring(0,user.infoNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
@@ -123,7 +123,7 @@
                             <option value="SLACK" selected={'SLACK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Telegram</option>
-                            <option value="DISCORD" selected={'DISCORD'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Discord</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>Webhook</option>
                             <option if={smsEnabled} value="SMS" selected={'SMS'==user.warningNotificationChannel.substring(0,user.warningNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>
@@ -158,7 +158,7 @@
                             <option value="SLACK" selected={'SLACK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Slack</option>
                             <option value="PUSHOVER" selected={'PUSHOVER'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Pushover</option>
                             <option value="TELEGRAM" selected={'TELEGRAM'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Telegram</option>
-                            <option value="DISCORD" selected={'DISCORD'==user.generalNotificationChannel.substring(0,user.generalNotificationChannel.indexOf(':'))}>Discord</option>
+                            <option value="DISCORD" selected={'DISCORD'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Discord</option>
                             <option value="WEBHOOK" selected={'WEBHOOK'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>Webhook</option>
                             <option if={smsEnabled} value="SMS" selected={'SMS'==user.alertNotificationChannel.substring(0,user.alertNotificationChannel.indexOf(':'))}>SMS</option>
                         </select>

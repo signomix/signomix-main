@@ -22,6 +22,7 @@
         self.value = '-'
         self.range = ''
         self.measureDate = '-'
+        self.timestamp = 0
         self.front = true
         
         self.show2 = function(){
@@ -32,8 +33,9 @@
                 return
             }
             self.value = parseFloat(self.jsonData[0][0]['value'])
+            self.timestamp=self.jsonData[0][0]['timestamp']
             if(self.range!=''){
-                self.alertLevel=getAlertLevel(self.range, self.value)
+                self.alertLevel=getAlertLevel(self.range, self.value, self.timestamp)
             }else{
                 self.alertLevel=self.value==0?0:2
             }
@@ -57,6 +59,8 @@
                     return 'images/led-yellow.svg'
                 case 2:
                     return 'images/led-red.svg'
+                case 3:
+                    return 'images/led-grey.svg'
                 default:
                     return 'images/KO.svg'
             }

@@ -20,6 +20,7 @@
     
     self.value = '-'
     self.measureDate = '-'
+    self.tstamp = 0;
     self.front = true
 
     self.rawdata = "[]"
@@ -95,7 +96,6 @@
             self.lon=parseFloat(self.jsonData[self.jsonData.length-1][1]['value'])
         }
         self.measureDate = new Date(self.jsonData[self.jsonData.length-1][0]['timestamp']).toLocaleString(getSelectedLocale())
-        
         if(self.lat==self.prevLat && self.lon==self.prevLon){
             return
         }

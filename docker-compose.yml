@@ -1,5 +1,8 @@
 version: "3.7"
 
+volumes:
+  cms-assets:
+
 services:
 
   # API Gateway
@@ -12,14 +15,38 @@ services:
       restart_policy:
         condition: always
     ports:
-      - 8080:8080
+      - 80:80
       - 443:443
+    networks:
+      - signomix-network
+    volumes:
+      - ~/tests/signomix/volume-proxy:/etc/nginx/keys:rw
 
+rabbitmq:
+    image: signomix-rabbitmq:1.0.0
+    hostname: rabbitmq
+    container_name: rabbitmq
+    networks:
+      - signomix-network
+    environment:
+      RABBITMQ_USER: user
+      RABBITMQ_PASSWORD: user
+    ports:
+      - 15672:15672
+      - 5672:5672
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
   # signomix
   signomix-main:
     image: ghcr.io/signomix/signomix:latest
+    networks:
+      - signomix-network
     depends_on:
       - dbserver
+      - rabbitmq
     restart: always
     environment:
     # CHANGE CONFIG BELOW
@@ -29,19 +56,28 @@ services:
       - SIGNOMIX_URL=http://localhost
       - SIGNOMIX_TITLE="Signomix"
       - GATRACKINGID=MY-GA-TRACKING-ID
-      - SIGNOMIX_SMTP_FROM=signomix@localhost
-      - SIGNOMIX_SMTP_HOST=localhost
-      - SIGNOMIX_SMTP_USER=signomix@localhost
-      - SIGNOMIX_SMTP_PASSWORD=my-password
-      - SIGNOMIX_PUSHOVER_TOKEN=my-token
-      - SIGNOMIX_TELEGRAM_TOKEN=my-token
-      - SIGNOMIX_TELEGRAM_TOKEN2=my-token
-      - SIGNOMIX_SMS_LOGIN=my-login
-      - SIGNOMIX_SMS_PASSWORD=my-password
-      - SIGNOMIX_EMAIL_FROM=signomix@localhost
-      - SIGNOMIX_EMAIL_HOST=localhost
-      - SIGNOMIX_EMAIL_USER=signomix@localhost
-      - SIGNOMIX_EMAIL_PASSWORD=my-password
+#      - SIGNOMIX_SMTP_FROM=signomix@localhost
+#      - SIGNOMIX_SMTP_HOST=localhost
+#      - SIGNOMIX_SMTP_USER=signomix@localhost
+#      - SIGNOMIX_SMTP_PASSWORD=my-password
+#      - SIGNOMIX_PUSHOVER_TOKEN=my-token
+#      - SIGNOMIX_TELEGRAM_TOKEN=my-token
+#      - SIGNOMIX_TELEGRAM_TOKEN2=my-token
+#      - SIGNOMIX_SMS_LOGIN=my-login
+#      - SIGNOMIX_SMS_PASSWORD=my-password
+#      - SIGNOMIX_EMAIL_FROM=signomix@localhost
+#      - SIGNOMIX_EMAIL_HOST=localhost
+#      - SIGNOMIX_EMAIL_USER=signomix@localhost
+#      - SIGNOMIX_EMAIL_PASSWORD=my-password
+      - SIGNOMIX_DB_SERVER=dbserver
+      - SIGNOMIX_APP_KEY=123456
+      - QUEUE_HOST=rabbitmq
+      - QUEUE_PORT=5672
+      - QUEUE_USER=user
+      - QUEUE_PASSWORD=user
+      - QUEUE_NOTIFICATIONS=notifications
+      - QUEUE_MAILING=mailing
+      - QUEUE_ADMIN_EMAIL=admin_email
     expose:
       - 8080
     volumes:
@@ -60,6 +96,7 @@ services:
     restart: always
     environment:
       - SIGNOMIX_TITLE='Signomix'
+      - SIGNOMIX_SENTRY_DNS=my_sentry_dns
     expose:
       - 8080
     volumes:
@@ -67,12 +104,55 @@ services:
       - ~/tests/signomix/volume-ps/logs:/usr/signomix/dbdata/logs:rw
       - ~/tests/signomix/volume-ps/assets:/usr/signomix/dbdata/assets:rw
     
+  signomix-ta-app:
+    image: signomix-ta-app:1.0.3
+    restart: always
+    networks:
+      - signomix-network
+    depends_on:
+      - rabbitmq
+    environment:
+      - SIGNOMIX_APP_KEY=123456
+      - SIGNOMIX_AUTH_HOST_URL=http://signomix-main:8080
+
+  signomix-ta-ms:
+    image: signomix-ta-ms:1.0.0
+    restart: always
+    networks:
+      - signomix-network
+    depends_on:
+      - rabbitmq
+    environment:
+      - SIGNOMIX_TITLE=Signomix
+      - SIGNOMIX_ENV_NAME=dev
+      - SIGNOMIX_PUSHOVER_TOKEN=aysqzr1nwu8phy4cfb69tduu5258i6
+      - SIGNOMIX_SMTP_FROM=signomix@localhost
+      - SIGNOMIX_SMTP_HOST=localhost
+      - SIGNOMIX_SMTP_USER=signomix@localhost
+      - SIGNOMIX_SMTP_PASSWORD=my-password
+      - SIGNOMIX_SMTP_PORT=465
+      - SIGNOMIX_SMTP_SSL=true
+      - QUEUE_HOST=rabbitmq
+      - QUEUE_PORT=5672
+      - QUEUE_USER=user
+      - QUEUE_PASSWORD=user
+      - QUEUE_NOTIFICATIONS=notifications
+      - QUEUE_MAILING=mailing
+
+      # SIGNOMIX_SMS_LOGIN=mylogin
+      # SIGNOMIX_SMS_PASSWORD=mypassword
   # database
   dbserver:
     image: ghcr.io/signomix/signomix-database:latest
     restart: always
+    networks:
+      - signomix-network
     expose:
       - 9092
+    ports:
+      - 9092:9092
     volumes:
       - ~/tests/signomix/volume-db:/data:rw
-      
+networks:
+  signomix-network:
+    driver: bridge

@@ -5,25 +5,39 @@
 // 
 // @param {String} definition 
 // @param {Number} v is value to check against definition
-// @returns {Number} 2==alert, 1==warning, otherwise 0 or -1 when definition not provided
+// @param {Number} maximum time interval from the last measurement 
+// @returns {Number} 3==notResponding, 2==alert, 1==warning, otherwise 0 or -1 when definition not provided
 //
-// definition "{alertCondition}[:{warningConditon}][@variableName]
+// definition "{alertCondition}[:{warningConditon}][@variableName][#maxDelay]
 // condition: [variableName]{comparator}{value}[[variableName]{comparator}{value}]
 // comparator is one of: > <
 // 
 // example 1: "x<-10>40:x<0>30"
 // example 2: "<-10>40:<0>30"
-// example 3: "<-10>40:<0>30@x"
-function getAlertLevel(definition, value){
+// example 3: "<-10>40:<0>30@measureName"
+// example 3: "<-10>40:<0>30@measureName#maxDelay"
+function getAlertLevel(definition, value, tstamp){
     if(definition==''||definition==undefined){
         return -1
     }
     //remove whitespaces and measure name
+    let delay=0;
     let def=definition.replace(/\s+/g, '');
+    if(def.indexOf("#")>0){
+        delay=parseInt(def.substring(definition.indexOf("#")+1))
+        if(isNaN(delay)){ delay=0}
+    }
     if(def.indexOf("@")>0){
         def=def.substring(0,definition.indexOf("@"))
     }
     if(def.length==0) return 0;
+
+    if(delay>0){
+        if(tstamp+delay<Date.now()){
+            return 3;
+        }
+    }
+
     let defs=def.split(":");
     let alertDef=defs[0];
     let warningDef="";
