@@ -36,14 +36,14 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
 
     private static final Logger logger = LoggerFactory.getLogger(MailingApi.class);
     private String[] authorizedUsers;
-    
+
     /**
      * This method is executed while adapter is instantiated during the service
      * start. It's used to configure the adapter according to the configuration.
      *
-     * @param properties map of properties readed from the configuration file
+     * @param properties  map of properties readed from the configuration file
      * @param adapterName name of the adapter set in the configuration file (can
-     * be different from the interface and class name.
+     *                    be different from the interface and class name.
      */
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -53,7 +53,7 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
         logger.info("context=" + getContext());
         setExtendedResponse(properties.getOrDefault("extended-response", "false"));
         logger.info("extended-response=" + isExtendedResponse());
-        authorizedUsers=properties.getOrDefault("authorized", "").split(",");
+        authorizedUsers = properties.getOrDefault("authorized", "").split(",");
         logger.info("\tauthorized=" + properties.getOrDefault("authorized", ""));
     }
 
@@ -68,7 +68,7 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
                 return ProcedureCall.respond(200, null);
             default:
                 HashMap<String, Object> err = new HashMap<>();
-                err.put("code", 405); //code<100 || code >1000
+                err.put("code", 405); // code<100 || code >1000
                 err.put("message", String.format("method %1s not allowed", request.method));
                 return ProcedureCall.respond(405, err);
         }
@@ -76,41 +76,53 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
 
     private ProcedureCall preprocessPost(RequestObject request) {
         String userId = request.headers.getFirst("X-user-id");
-        if (null==userId || userId.isEmpty()) {
+        if (null == userId || userId.isEmpty()) {
             HashMap<String, Object> err = new HashMap<>();
-            err.put("code", 403); //code<100 || code >1000
+            err.put("code", 403); // code<100 || code >1000
             err.put("message", "not authenticated");
             return ProcedureCall.respond(400, err);
         }
-        UserAdapterIface userAdapter = (UserAdapterIface) ((Service) Kernel.getInstance()).adaptersMap.get("userAdapter");
+        UserAdapterIface userAdapter = (UserAdapterIface) ((Service) Kernel.getInstance()).adaptersMap
+                .get("userAdapter");
         boolean authorized = false;
         try {
             User sender = userAdapter.get(userId);
-            if (null != sender && sender.hasRole("redactor") && Arrays.asList(authorizedUsers).contains(sender.getUid())) {
-                authorized = true;
+            if (null != sender) {
+                if (null != sender && sender.hasRole("redactor")) {
+                    if (null != sender && Arrays.asList(authorizedUsers).contains(sender.getUid())) {
+                        authorized = true;
+                    } else {
+                        logger.warn("User is not authorized: "+userId);
+                    }
+                } else {
+                    logger.warn("User is not redactor: "+userId);
+                }
+            }else{
+                logger.warn("User not found: "+userId);
             }
         } catch (UserException ex) {
+            ex.printStackTrace();
         }
         if (!authorized) {
             HashMap<String, Object> err = new HashMap<>();
-            err.put("code", 400); //code<100 || code >1000
+            err.put("code", 400); // code<100 || code >1000
             err.put("message", "not authorized");
             return ProcedureCall.respond(400, err);
         }
         String documentId = (String) request.parameters.get("doc");
         String target = (String) request.parameters.get("target");
-        
-        if (null==documentId||documentId.isEmpty()) {
+
+        if (null == documentId || documentId.isEmpty()) {
             HashMap<String, Object> err = new HashMap<>();
-            err.put("code", 400); //code<100 || code >1000
+            err.put("code", 400); // code<100 || code >1000
             err.put("message", "doc parameter not found");
             return ProcedureCall.respond(400, err);
         }
-        String[] tList={"all","users","subscribers","test"};
-        List<String> validTargets=Arrays.asList(tList);
-        if (null==target||!validTargets.contains(target)) {
+        String[] tList = { "all", "users", "subscribers", "test" };
+        List<String> validTargets = Arrays.asList(tList);
+        if (null == target || !validTargets.contains(target)) {
             HashMap<String, Object> err = new HashMap<>();
-            err.put("code", 400); //code<100 || code >1000
+            err.put("code", 400); // code<100 || code >1000
             err.put("message", "target parameter not found or not valid (all|users|subscribers|test)");
             return ProcedureCall.respond(400, err);
         }
@@ -120,7 +132,7 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
 
     private ProcedureCall preprocessDelete(RequestObject request) {
         HashMap<String, Object> err = new HashMap<>();
-        err.put("code", 400); //code<100 || code >1000
+        err.put("code", 400); // code<100 || code >1000
         err.put("message", "not implemented");
         return ProcedureCall.respond(400, err);
     }
@@ -141,9 +153,7 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
                                 ParameterLocation.header,
                                 true,
                                 "Session key",
-                                new Schema(SchemaType.string)
-                        )
-                )
+                                new Schema(SchemaType.string)))
                 .response(new Response("200").content("application/json").description("response"))
                 .response(new Response("401").description("session expired"))
                 .response(new Response("403").description("not authorized"));
@@ -160,16 +170,13 @@ public class MailingApi extends HttpPortedAdapter implements HttpAdapterIface, A
                                 ParameterLocation.header,
                                 true,
                                 "Session key",
-                                new Schema(SchemaType.string)
-                        )
-                )
+                                new Schema(SchemaType.string)))
                 .parameter(
                         new Parameter(
                                 "alertId",
                                 ParameterLocation.path,
                                 true,
-                                "alert ID to delete or * to delete all")
-                )
+                                "alert ID to delete or * to delete all"))
                 .pathModifier("/{alertId}")
                 .response(new Response("200").content("text/plain").description("deletion successfull"))
                 .response(new Response("400").description("invalid request parameters"))
