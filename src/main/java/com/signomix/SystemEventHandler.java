@@ -12,7 +12,7 @@ import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
 //import com.signomix.out.notification.EmailSenderIface;
 import com.signomix.out.script.ScriptingAdapterIface;
@@ -47,8 +47,7 @@ public class SystemEventHandler {
             IotDataStorageIface iotDataDB,
             DashboardAdapterIface dashboardAdapter,
             ScriptingAdapterIface scriptingAdapter,
-            EmailSenderIface emailSender,
-            ExternalNotificatorIface externalNotificator,
+            MessageBrokerIface externalNotificator,
             IotDbDataIface iotDB
     ) {
 
@@ -73,11 +72,6 @@ public class SystemEventHandler {
                     user.setEmail((String) kernel.getProperties().getOrDefault("admin-notification-email", ""));
                     message.user = user;
                     externalNotificator.send(message);
-                } else {
-                    emailSender.send(
-                            (String) kernel.getProperties().getOrDefault("admin-notification-email", ""),
-                            "Signomix - started", "" + event.getPayload()
-                    );
                 }
                 break;
             case "CLEAR_DATA":

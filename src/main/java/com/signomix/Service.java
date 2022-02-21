@@ -30,8 +30,7 @@ import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.mailing.MailingIface;
-import com.signomix.out.notification.ExternalNotificatorIface;
-import com.signomix.out.notification.NotificationIface;
+import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
 import com.signomix.out.script.ScriptingAdapterIface;
 
@@ -54,7 +53,6 @@ import org.cricketmsf.microsite.cms.CmsIface;
 import org.cricketmsf.microsite.cms.Document;
 import org.cricketmsf.microsite.in.http.ContentRequestProcessor;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
-import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.queue.QueueAdapterIface;
 import org.cricketmsf.microsite.out.queue.QueueException;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
@@ -114,17 +112,7 @@ public class Service extends Kernel {
 
     ScriptingAdapterIface scriptingAdapter = null;
 
-//notifications and emails
-    //MqClientIface mqClient = null;
-    NotificationIface smtpNotification = null;
-    NotificationIface smsNotification = null;
-    NotificationIface pushoverNotification = null;
-    NotificationIface slackNotification = null;
-    NotificationIface telegramNotification = null;
-    NotificationIface discordNotification = null;
-    NotificationIface webhookNotification = null;
-    EmailSenderIface emailSender = null;
-    ExternalNotificatorIface externalNotificator = null;
+    MessageBrokerIface messageBroker = null;
     MailingIface mailingAdapter = null;
 
     //Integration services
@@ -172,26 +160,13 @@ public class Service extends Kernel {
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
         iotDatabase = (IotDbDataIface) getRegistered("IotDatabase");
-        //notifications
-        //mqClient = (MqClientIface) getRegistered("MqClient");
-        smtpNotification = (NotificationIface) getRegistered("smtpNotification");
-        smsNotification = (NotificationIface) getRegistered("smsNotification");
-        pushoverNotification = (NotificationIface) getRegistered("pushoverNotification");
-        slackNotification = (NotificationIface) getRegistered("slackNotification");
-        telegramNotification = (NotificationIface) getRegistered("telegramNotification");
-        discordNotification = (NotificationIface) getRegistered("discordNotification");
-        webhookNotification = (NotificationIface) getRegistered("webhookNotification");
-        externalNotificator = (ExternalNotificatorIface) getRegistered("externalNotificator");
-
-        emailSender = (EmailSenderIface) getRegistered("emailSender");
-        mailingAdapter = (MailingIface) getRegistered("MailingService");
-
         loraUplinkService = (LoRaApi) getRegistered("LoRaUplinkService");
         ttnIntegrationService = (TtnApi) getRegistered("TtnIntegrationService");
         kpnUplinkService = (KpnApi) getRegistered("KpnUplinkService");
-
+        //
+        messageBroker = (MessageBrokerIface) getRegistered("MessageBroker");
+        mailingAdapter = (MailingIface) getRegistered("MailingService");
         shortenerDB = (ShortenerDBIface) getRegistered("ShortenerDB");
-
         apiGenerator = (OpenApiIface) getRegistered("OpenApi");
     }
 
@@ -236,10 +211,6 @@ public class Service extends Kernel {
                         "Signomix service has been started.")
         );
 
-        // force to disable obsolete Telegram notificator
-        if(null!=externalNotificator){
-            telegramNotification = null;
-        }
         apiGenerator.init(this);
         setInitialized(true);
     }
@@ -267,7 +238,7 @@ public class Service extends Kernel {
     public void shutdown() {
         String subject = "Signomix - shutdown";
         String text = "Signomix service is going down.";
-        if (null != externalNotificator) {
+        if (null != messageBroker) {
             MessageEnvelope message = new MessageEnvelope();
             message.message = text;
             message.subject = subject;
@@ -275,12 +246,7 @@ public class Service extends Kernel {
             User user = new User();
             user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
             message.user = user;
-            externalNotificator.send(message);
-        } else {
-            emailSender.send(
-                    (String) getProperties().getOrDefault("admin-notification-email", ""),
-                    subject, text
-            );
+            messageBroker.send(message);
         }
         super.shutdown();
     }
@@ -460,7 +426,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, emailSender, externalNotificator);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, messageBroker);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -801,7 +767,7 @@ public class Service extends Kernel {
     public Object recoveryHandle(Event event) {
         String resetPassEmail = event.getRequestParameter("resetpass");
         String userName = event.getRequestParameter("name");
-        return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter, emailSender);
+        return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter);
     }
 
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "OPTIONS")
@@ -825,17 +791,17 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "POST")
     public Object userAdd(Event event) {
         boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
-        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, telegramNotification);
+        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation);
     }
 
     @PortEventClassHook(className = "SubscriptionEvent", procedureName = "start")
     public Object handleSubscriptionStart(SubscriptionEvent event) {
-        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false, telegramNotification);
+        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false);
     }
 
     @PortEventClassHook(className = "SubscriptionEvent", procedureName = "end")
     public Object handleSubscriptionEnd(SubscriptionEvent event) {
-        return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false, telegramNotification);
+        return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false);
     }
 
     /**
@@ -849,10 +815,10 @@ public class Service extends Kernel {
         String resetPassEmail = event.getRequestParameter("resetpass");
         try {
             if (resetPassEmail == null || resetPassEmail.isEmpty()) {
-                return UserModule.getInstance().handleUpdateRequest(event, userAdapter, telegramNotification);
+                return UserModule.getInstance().handleUpdateRequest(event, userAdapter);
             } else {
                 String userName = event.getRequestParameter("name");
-                return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter, emailSender);
+                return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1040,7 +1006,7 @@ public class Service extends Kernel {
             if (event.getType().equals(Event.LOG_SEVERE)) {
                 String subject = "Signomix - error";
                 String text = event.toString();
-                if (null != externalNotificator) {
+                if (null != messageBroker) {
                     MessageEnvelope message = new MessageEnvelope();
                     message.message = text;
                     message.subject = subject;
@@ -1048,9 +1014,7 @@ public class Service extends Kernel {
                     User user = new User();
                     user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
                     message.user = user;
-                    externalNotificator.send(message);
-                } else {
-                    emailSender.send((String) getProperties().getOrDefault("admin-notification-email", ""), subject, text);
+                    messageBroker.send(message);
                 }
             }
         } catch (Exception e) {
@@ -1081,8 +1045,7 @@ public class Service extends Kernel {
                     gdprLogger,
                     authAdapter,
                     thingsAdapter,
-                    dashboardAdapter,
-                    emailSender
+                    dashboardAdapter
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -1098,18 +1061,11 @@ public class Service extends Kernel {
                     scheduler,
                     userAdapter,
                     thingsAdapter,
-                    smtpNotification,
-                    smsNotification,
-                    pushoverNotification,
-                    slackNotification,
-                    telegramNotification,
-                    discordNotification,
-                    webhookNotification,
                     dashboardAdapter,
                     authAdapter,
                     scriptingAdapter,
                     actuatorCommandsDB,
-                    externalNotificator,
+                    messageBroker,
                     iotDatabase
             );
         } catch (Exception e) {
@@ -1141,8 +1097,7 @@ public class Service extends Kernel {
                     iotDataDB,
                     dashboardAdapter,
                     scriptingAdapter,
-                    emailSender,
-                    externalNotificator,
+                    messageBroker,
                     iotDatabase
             );
         } catch (Exception e) {

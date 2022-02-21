@@ -4,7 +4,7 @@
  */
 package com.signomix.out.mailing;
 
-import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageBrokerIface;
 
 import org.cricketmsf.microsite.cms.CmsIface;
 import org.cricketmsf.microsite.out.notification.EmailSenderIface;
@@ -17,6 +17,6 @@ import org.cricketmsf.microsite.out.user.UserAdapterIface;
 public interface MailingIface {
 
     public Object sendMailing(String docUid, String target, UserAdapterIface userAdapter, CmsIface cmsAdapter,
-            EmailSenderIface emailSender, ExternalNotificatorIface externalNotificator);
+            MessageBrokerIface externalNotificator);
 
 }

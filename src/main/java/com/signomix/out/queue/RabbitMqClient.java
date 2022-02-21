@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.out.OutboundAdapter;
 
-public class RabbitMqClient extends OutboundAdapter implements MqClientIface, ExternalNotificatorIface, Adapter {
+public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIface, Adapter {
 
     private Connection connection;
     private Channel channel;
@@ -138,8 +138,8 @@ public class RabbitMqClient extends OutboundAdapter implements MqClientIface, Ex
         return null;
     }
 
-    @Override
-    public void sendNotification(String message) {
+    //@Override
+    private void sendNotification(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
         }
@@ -151,8 +151,8 @@ public class RabbitMqClient extends OutboundAdapter implements MqClientIface, Ex
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
     }
 
-    @Override
-    public void sendMailing(String message) {
+    //@Override
+    private void sendMailing(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
         }
@@ -164,8 +164,8 @@ public class RabbitMqClient extends OutboundAdapter implements MqClientIface, Ex
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
     }
 
-    @Override
-    public void sendAdminEmail(String message) {
+    //@Override
+    private void sendAdminEmail(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
         }

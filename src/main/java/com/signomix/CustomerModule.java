@@ -14,7 +14,6 @@ import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
 import org.cricketmsf.microsite.out.auth.AuthException;
 import org.cricketmsf.microsite.out.auth.Token;
-import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 
@@ -46,8 +45,7 @@ public class CustomerModule {
             String userID,
             String resetPassEmail,
             UserAdapterIface userAdapter,
-            AuthAdapterIface authAdapter,
-            EmailSenderIface emailSender) {
+            AuthAdapterIface authAdapter) {
 
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -81,8 +79,7 @@ public class CustomerModule {
     public Object handlePermanentLinkRequest(
             Event event,
             UserAdapterIface userAdapter,
-            AuthAdapterIface authAdapter,
-            EmailSenderIface emailSender) {
+            AuthAdapterIface authAdapter) {
 
         RequestObject request = event.getRequest();
         String userID = request.headers.getFirst("X-issuer-id");

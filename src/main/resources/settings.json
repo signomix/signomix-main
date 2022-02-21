@@ -501,91 +501,6 @@
                     }
                 },
                 {
-                    "name": "smtpNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.SmtpNotificator",
-                    "properties": {
-                        "from": "$SIGNOMIX_SMTP_FROM",
-                        "mailhost": "$SIGNOMIX_SMTP_HOST",
-                        "localhost": "",
-                        "user": "$SIGNOMIX_SMTP_USER",
-                        "password": "$SIGNOMIX_SMTP_PASSWORD",
-                        "starttls":"true",
-                        "debug-session": "false"
-                    }
-                },
-                {
-                    "name": "pushoverNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.PushoverNotificator",
-                    "properties": {
-                        "url": "https://api.pushover.net/1/messages.json",
-                        "token": "$SIGNOMIX_PUSHOVER_TOKEN",
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "telegramNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.TelegramNotificator",
-                    "properties": {
-                        "url": "https://api.telegram.org/",
-                        "token":"$SIGNOMIX_TELEGRAM_TOKEN",
-                        "token-2": "$SIGNOMIX_TELEGRAM_TOKEN2",
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "discordNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.DiscordNotificator",
-                    "properties": {
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "slackNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.SlackNotificator",
-                    "properties": {
-                        "url": "https://hooks.slack.com/services/",
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "webhookNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.WebhookNotificator",
-                    "properties": {
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "smsNotification",
-                    "interfaceName": "NotificationIface",
-                    "classFullName": "com.signomix.out.notification.ServerSmsNotificator",
-                    "properties": {
-                        "url": "https://api2.serwersms.pl/messages/send_sms",
-                        "login":"$SIGNOMIX_SMS_LOGIN",
-                        "password":"$SIGNOMIX_SMS_PASSWORD",
-                        "ignore-certificate-check": "true"
-                    }
-                },
-                {
-                    "name": "emailSender",
-                    "interfaceName": "EmailSenderIface",
-                    "classFullName": "com.signomix.out.notification.SmtpSender",
-                    "properties": {
-                        "from": "$SIGNOMIX_EMAIL_FROM",
-                        "mailhost": "$SIGNOMIX_EMAIL_HOST",
-                        "localhost": "",
-                        "user": "$SIGNOMIX_EMAIL_USER",
-                        "password": "$SIGNOMIX_EMAIL_PASSWORD",
-                        "startttls":"true",
-                        "debug-session": "false"
-                    }
-                },
-                {
                     "name": "ShortenerDB",
                     "interfaceName": "ShortenerDBIface",
                     "classFullName": "com.signomix.out.db.H2RemoteShortenerDB",
@@ -690,8 +605,8 @@
                     }
                 },
                 {
-                    "name": "externalNotificator",
-                    "interfaceName": "MqClientIface",
+                    "name": "MessageBroker",
+                    "interfaceName": "MessageBrokerIface",
                     "classFullName": "com.signomix.out.queue.RabbitMqClient",
                     "properties": {
                         "host": "$QUEUE_HOST",

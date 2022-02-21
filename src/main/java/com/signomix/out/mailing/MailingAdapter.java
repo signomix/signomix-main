@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
 
 import org.cricketmsf.Adapter;
@@ -57,8 +57,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             String target,
             UserAdapterIface userAdapter,
             CmsIface cmsAdapter,
-            EmailSenderIface emailSender,
-            ExternalNotificatorIface externalNotificator) {
+            MessageBrokerIface externalNotificator) {
         try {
             ArrayList<String> recipients = new ArrayList<>();
             ArrayList<String> failures = new ArrayList<>();
@@ -103,13 +102,13 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
                     }
                     if (accepted && null != user.getEmail() && !user.getEmail().isBlank()) {
                         if ("pl".equalsIgnoreCase(user.getPreferredLanguage()) && null != documentPl) {
-                            if (send(user, documentPl, emailSender, externalNotificator)) {
+                            if (send(user, documentPl, externalNotificator)) {
                                 recipients.add(user.getEmail());
                             } else {
                                 failures.add(user.getEmail());
                             }
                         } else if (null != documentEn) {
-                            if (send(user, documentEn, emailSender, externalNotificator)) {
+                            if (send(user, documentEn, externalNotificator)) {
                                 recipients.add(user.getEmail());
                             } else {
                                 failures.add(user.getEmail());
@@ -162,8 +161,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         }
     }
 
-    private boolean send(User user, Document doc, EmailSenderIface emailSender,
-            ExternalNotificatorIface externalNotificator) {
+    private boolean send(User user, Document doc, MessageBrokerIface externalNotificator) {
         String topic;
         String content;
         try {
@@ -186,9 +184,8 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
                 envelope.type = MessageEnvelope.MAILING;
                 externalNotificator.send(envelope);
                 return true;
-            } else {
-                String result = emailSender.send(user.getEmail(), topic, content);
-                return "OK".equalsIgnoreCase(result);
+            }else{
+                return false;
             }
         } catch (UnsupportedEncodingException ex) {
             logger.warn(ex.getMessage());

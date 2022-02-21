@@ -7,7 +7,7 @@ package com.signomix;
 import com.signomix.event.SignomixUserEvent;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.notification.ExternalNotificatorIface;
+import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
 //import com.signomix.out.notification.EmailSenderIface;
 import org.cricketmsf.Event;
@@ -33,10 +33,9 @@ public class UserEventHandler {
             LoggerAdapterIface gdprLogger,
             AuthAdapterIface authAdapter,
             ThingsDataIface thingsAdapter,
-            DashboardAdapterIface dashboardAdapter,
-            EmailSenderIface emailSender) {
+            DashboardAdapterIface dashboardAdapter) {
         //TODO: all events should be send to the relevant queue
-        ExternalNotificatorIface externalNotificator = ((Service) kernel).externalNotificator;
+        MessageBrokerIface externalNotificator = ((Service) kernel).messageBroker;
         switch (event.getType()) {
             case UserEvent.USER_REGISTERED:     //send confirmation email
                 try {
@@ -67,19 +66,6 @@ public class UserEventHandler {
                     message2.type = MessageEnvelope.DIRECT_EMAIL;
                     message2.user = user;
                     externalNotificator.send(message2);
-                } else {
-                    emailSender.send(
-                            user.getEmail(),
-                            "Signomix registration confirmation",
-                            "We received a request to sign up to Signomix Platform with this email address.<br>"
-                            + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/confirm?key=" + user.getConfirmString() + "'>Click here to confirm your registration</a><br>"
-                            + "If you received this email by mistake, simply delete it. You won't be registered if you don't click the confirmation link above."
-                            + "<br><br>"
-                            + "Otrzymaliśmy prośbę założenia konta na platformie Signomix z tym adresem email.<br>"
-                            + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/confirm?key=" + user.getConfirmString() + "'>Kliknij tu w celu potwierdzenia swojej rejestracji</a><br>"
-                            + "Jeżeli otrzymałeś ten email przez pomyłkę, po prostu go skasuj. Nie zostaniesz zarejestrowany jeśli nie klikniesz powyższego odnośnika."
-                    );
-                    emailSender.send((String) kernel.getProperties().getOrDefault("admin-notification-email", ""), "Signomix - registration", uid);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -115,19 +101,6 @@ public class UserEventHandler {
                     message2.type = MessageEnvelope.DIRECT_EMAIL;
                     message2.user = user;
                     externalNotificator.send(message2);
-                } else {
-                    emailSender.send(
-                            user.getEmail(),
-                            "Newsletter subscription confirmation",
-                            "<p>Confirm subscription by clicking on the link below.<br>"
-                            + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/subsconfirm?key=" + user.getConfirmString() + "'>I confirm my subscription</a><br>"
-                            + "If your subscription is not from you, simply delete this e-mail. An unconfirmed subscription will be deleted."
-                            + "</p>"
-                            + "<p>Potwierdź subskrybcję klikając na link poniżej.<br>"
-                            + "<a href='" + kernel.getProperties().get("serviceurl") + "/api/subsconfirm?key=" + user.getConfirmString() + "'>Potwierdzam subskrypcję</a><br>"
-                            + "Jeżeli zgłoszenie nie pochodzi od Ciebie, po prostu skasuj ten e-mail. Niepotwierdzona subskrypcja zostanie usunięta.</p>"
-                    );
-                    emailSender.send((String) kernel.getProperties().getOrDefault("admin-notification-email", ""), "Signomix - registration", uid);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -161,19 +134,6 @@ public class UserEventHandler {
                     message2.type = MessageEnvelope.DIRECT_EMAIL;
                     message2.user = user;
                     externalNotificator.send(message2);
-                } else {
-                    emailSender.send(
-                            user.getEmail(),
-                            "Signomix unregistration confirmed",
-                            "We received a request to remove your account from Signomix Platform with this email address.<br>"
-                            + "Your account is locked now and all data related to your account will be deleted to the end of next work day.<br>"
-                            + "If you received this email by mistake, you can contact our support before this date to stop unregistration procedure."
-                            + "<br><br>"
-                            + "Otrzymaliśmy prośbę usunięcia konta z platformy Signomix z tym adresem email.<br>"
-                            + "Twoje konto zostało zablokowane i wszystkie dane z nim związane zostaną wykasowane z końcem następnego dnia roboczego.<br>"
-                            + "Jeżeli otrzymałeś ten email przez pomyłkę, możesz skontaktować się z nami przed tą datą w celu odwołania procesu wyrejestrowania."
-                    );
-                    emailSender.send((String) kernel.getProperties().getOrDefault("admin-notification-email", ""), "signomix - unregister", uid);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -208,8 +168,6 @@ public class UserEventHandler {
                             tmpUser.setEmail(params[1]);
                             message2.user = tmpUser;
                             externalNotificator.send(message2);
-                        } else {
-                            emailSender.send(params[1], "Password Reset Request", "Click here to change password: <a href=\"" + passResetLink + "\">" + passResetLink + "</a>");
                         }
                     } else {
                         kernel.handle(Event.logWarning("UserEvent.USER_RESET_PASSWORD", "Malformed payload->" + payload));

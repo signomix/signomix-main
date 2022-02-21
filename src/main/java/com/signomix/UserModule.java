@@ -89,7 +89,7 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
+    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default (plus APPLICATION type)
         RequestObject request = event.getRequest();
@@ -177,7 +177,7 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
+    public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
         SubscriptionEvent sev=(SubscriptionEvent)event;
         StandardResult result = new StandardResult();
         try {
@@ -232,7 +232,7 @@ public class UserModule extends UserBusinessLogic {
         }
         return result;
     }
-    public Object handleUnsubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, NotificationIface telegramNotifier) {
+    public Object handleUnsubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
         SubscriptionEvent sev=(SubscriptionEvent)event;
         StandardResult result = new StandardResult();
         try {
@@ -267,7 +267,7 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter, NotificationIface telegramNotifier) {
+    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default
         RequestObject request = event.getRequest();
@@ -368,9 +368,6 @@ public class UserModule extends UserBusinessLogic {
                     user.setStatus(User.IS_UNREGISTERING);
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
-            }
-            if(null!=telegramNotifier){
-                user = verifyNotificationsConfig(user, telegramNotifier);
             }
             userAdapter.modify(user);
             //fire event

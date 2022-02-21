@@ -6,7 +6,7 @@ package com.signomix.out.notification;
 
 import com.signomix.out.notification.dto.MessageEnvelope;
 
-public interface ExternalNotificatorIface {
+public interface MessageBrokerIface {
 
     public boolean isReady();
     public String send(MessageEnvelope messageWrapper);
