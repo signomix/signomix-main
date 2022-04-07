@@ -1,7 +1,5 @@
 package com.signomix.iot.ttn3;
 
-import com.signomix.iot.IotDataIface;
-import com.signomix.iot.TtnData;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -10,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import com.signomix.iot.IotDataIface;
 
 /**
  *
@@ -176,6 +176,12 @@ public class TtnData3 extends TtnData implements IotDataIface {
         if(null==deviceEui){
             deviceEui=deviceId;
         }
+    }
+
+    @Override
+    public String getHexPayload() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

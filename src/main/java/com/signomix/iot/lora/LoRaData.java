@@ -227,4 +227,10 @@ public class LoRaData implements IotDataIface {
         return null;
     }
 
+    @Override
+    public String getHexPayload() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

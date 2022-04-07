@@ -276,4 +276,10 @@ public class Uplink implements IotDataIface{
         this.paylodFields = paylodFields;
     }
 
+    @Override
+    public String getHexPayload() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

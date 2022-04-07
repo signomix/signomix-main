@@ -4,6 +4,8 @@
  */
 package com.signomix.out.iot;
 
+import java.sql.Timestamp;
+
 /**
  *
  * @author greg
@@ -21,6 +23,18 @@ public class DataQuery {
     private Double newValue;
     private String group;
     private Double state;
+    private Timestamp fromTs;
+
+
+    public Timestamp getFromTs() {
+        return fromTs;
+    }
+
+    public Timestamp getToTs() {
+        return toTs;
+    }
+
+    private Timestamp toTs;
 
     public DataQuery() {
         limit = 1;
@@ -33,6 +47,8 @@ public class DataQuery {
         newValue = null;
         group = null;
         state = null;
+        fromTs=null;
+        toTs=null;
     }
 
     public static DataQuery parse(String query) throws DataQueryException {
@@ -142,6 +158,14 @@ public class DataQuery {
                 i = i + 2;
                 break;
             }
+            case "from":
+                dq.setFromTs(params[i + 1]);
+                i = i + 2;
+                break;
+            case "to":
+                dq.setToTs(params[i + 1]);
+                i = i + 2;
+                break;
             default:
                 throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
             }
@@ -264,6 +288,30 @@ public class DataQuery {
      */
     public void setState(Double state) {
         this.state = state;
+    }
+
+    /**
+     * Parses date provided in yyyy-mm-dd_hh:mm:ss format
+     * @param fromStr
+     */
+    public void setFromTs(String fromStr){
+        try{
+            fromTs=Timestamp.valueOf(fromStr.replace("_", " "));
+        }catch(IllegalArgumentException ex){
+            //TODO: handle error
+        }
+    }
+
+    /**
+     * Parses date provided in yyyy-mm-dd_hh:mm:ss format
+     * @param fromStr
+     */
+    public void setToTs(String toStr){
+        try{
+            toTs=Timestamp.valueOf(toStr.replace("_", " "));
+        }catch(IllegalArgumentException ex){
+            //TODO: handle error
+        }
     }
 
 }

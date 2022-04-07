@@ -136,6 +136,8 @@ public class IotApi extends HttpPortedAdapter {
                 data.authKey = value;
             } else if ("clienttitle".equalsIgnoreCase(key)) {
                 data.clientname = value;
+            } else if ("payload".equalsIgnoreCase(key)) {
+                data.payload = value;
             } else {
                 map = new HashMap<>();
                 map.put("name", key);

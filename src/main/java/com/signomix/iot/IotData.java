@@ -4,10 +4,9 @@
  */
 package com.signomix.iot;
 
-import com.signomix.iot.generic.IotData2;
 import com.signomix.iot.chirpstack.uplink.Uplink;
-import com.signomix.out.iot.ChannelData;
-import java.util.ArrayList;
+import com.signomix.iot.generic.IotData2;
+import com.signomix.iot.ttn3.TtnData;
 
 /**
  *
@@ -23,7 +22,6 @@ public class IotData {
     private int type;
     private Uplink chirpstackData;
     private IotData2 iotData;
-    private TtnData ttnData;
     private boolean authRequired;
     private String authKey;
     private String serializedData;

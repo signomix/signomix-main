@@ -2,12 +2,14 @@
  * Copyright (C) Grzegorz Skorupa 2018.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot;
+package com.signomix.iot.ttn3;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.signomix.iot.IotDataIface;
 
 /**
  *
@@ -177,6 +179,12 @@ public class TtnData extends HashMap implements Map, IotDataIface {
         } catch (NumberFormatException e) {
             //e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public String getHexPayload() {
+        // TODO Auto-generated method stub
         return null;
     }
 }

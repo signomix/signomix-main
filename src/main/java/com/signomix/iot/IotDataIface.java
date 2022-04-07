@@ -14,6 +14,7 @@ public interface IotDataIface {
     public String getDeviceEUI();
     public String getDeviceID();
     public String getPayload();
+    public String getHexPayload();
     public String[] getPayloadFieldNames();
     //public long getLongValue(String fieldName, int multiplier);
     public Instant getTimeField();

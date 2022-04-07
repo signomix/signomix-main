@@ -83,5 +83,11 @@ public class KPNData implements IotDataIface{
     public Double getAltitude() {
         return null;
     }
+
+    @Override
+    public String getHexPayload() {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 }
