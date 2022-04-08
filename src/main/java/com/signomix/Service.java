@@ -71,7 +71,7 @@ import org.cricketmsf.out.log.LoggerAdapterIface;
 public class Service extends Kernel {
 
     public static String SIGNOMIX_TOKEN_NAME = "signomixToken";
-    //service parameters
+    // service parameters
     Invariants invariants = null;
 
     // adapterClasses
@@ -84,18 +84,19 @@ public class Service extends Kernel {
 
     // optional
     // we don't need to register input adapters:
-    // UserApi, AuthApi and other input adapter if we not need to acces them directly from the service
-    //CM module
+    // UserApi, AuthApi and other input adapter if we not need to acces them
+    // directly from the service
+    // CM module
     KeyValueDBIface cmsDatabase = null;
     FileReaderAdapterIface cmsFileReader = null;
     CmsIface cms = null;
-    //user module
+    // user module
     KeyValueDBIface userDB = null;
     UserAdapterIface userAdapter = null;
-    //auth module
+    // auth module
     KeyValueDBIface authDB = null;
     AuthAdapterIface authAdapter = null;
-    //event broker client
+    // event broker client
     QueueAdapterIface queueAdapter = null;
     KeyValueDBIface queueDB = null;
     // IoT
@@ -104,10 +105,9 @@ public class Service extends Kernel {
     ActuatorApi actuatorApi = null;
     ActuatorDataIface actuatorAdapter = null;
 
-    IotDatabaseIface thingsDB = null;
-    IotDataStorageIface iotDataDB = null;
-    ActuatorCommandsDBIface actuatorCommandsDB = null;
-
+    //IotDatabaseIface thingsDB = null;
+    //IotDataStorageIface iotDataDB = null;
+    //ActuatorCommandsDBIface actuatorCommandsDB = null;
     IotDbDataIface iotDatabase = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
@@ -115,12 +115,12 @@ public class Service extends Kernel {
     MessageBrokerIface messageBroker = null;
     MailingIface mailingAdapter = null;
 
-    //Integration services
+    // Integration services
     LoRaApi loraUplinkService = null;
     TtnApi ttnIntegrationService = null;
     KpnApi kpnUplinkService = null;
 
-    //Utils
+    // Utils
     ShortenerDBIface shortenerDB = null;
     OpenApiIface apiGenerator = null;
 
@@ -137,25 +137,25 @@ public class Service extends Kernel {
         scheduler = (SchedulerIface) getRegistered("scheduler");
         htmlAdapter = (HtmlGenAdapterIface) getRegistered("WwwService");
         fileReader = (FileReaderAdapterIface) getRegistered("FileReader");
-        //cms
+        // cms
         cmsFileReader = (FileReaderAdapterIface) getRegistered("CmsFileReader");
         cmsDatabase = (KeyValueDBIface) getRegistered("cmsDB");
         cms = (CmsIface) getRegistered("cms");
-        //user
+        // user
         userAdapter = (UserAdapterIface) getRegistered("userAdapter");
         userDB = (KeyValueDBIface) getRegistered("userDB");
-        //auth
+        // auth
         authAdapter = (AuthAdapterIface) getRegistered("authAdapter");
         authDB = (KeyValueDBIface) getRegistered("authDB");
-        //queue
+        // queue
         queueDB = (KeyValueDBIface) getRegistered("queueDB");
         queueAdapter = (QueueAdapterIface) getRegistered("queueAdapter");
-        //IoT
+        // IoT
         thingsAdapter = (ThingsDataIface) getRegistered("iotAdapter");
-        thingsDB = (IotDatabaseIface) getRegistered("iotDB");
-        iotDataDB = (IotDataStorageIface) getRegistered("iotDataDB");
+        //thingsDB = (IotDatabaseIface) getRegistered("iotDB");
+        //iotDataDB = (IotDataStorageIface) getRegistered("iotDataDB");
         dashboardAdapter = (DashboardAdapterIface) getRegistered("dashboardAdapter");
-        actuatorCommandsDB = (ActuatorCommandsDBIface) getRegistered("actuatorCommandsDB");
+        //actuatorCommandsDB = (ActuatorCommandsDBIface) getRegistered("actuatorCommandsDB");
         actuatorApi = (ActuatorApi) getRegistered("ActuatorService");
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
@@ -169,12 +169,7 @@ public class Service extends Kernel {
         shortenerDB = (ShortenerDBIface) getRegistered("ShortenerDB");
         apiGenerator = (OpenApiIface) getRegistered("OpenApi");
     }
-
-    @Deprecated
-    public IotDatabaseIface getThingsAdapter() {
-        return thingsDB;
-    }
-
+    
     @Override
     public void runInitTasks() {
         try {
@@ -187,7 +182,7 @@ public class Service extends Kernel {
             ex.printStackTrace();
             shutdown();
         }
-        //read the OS variable to get the service URL
+        // read the OS variable to get the service URL
         String urlEnvName = (String) getProperties().get("SRVC_URL_ENV_VARIABLE");
         if (null != urlEnvName) {
             try {
@@ -199,17 +194,17 @@ public class Service extends Kernel {
             }
         }
         invariants = new Invariants();
-        PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB, thingsDB,
-                iotDataDB, actuatorCommandsDB, shortenerDB, iotDatabase);
-        //PlatformAdministrationModule.getInstance().readPlatformConfig(database);
+        PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB,
+                /* thingsDB,iotDataDB, actuatorCommandsDB, */
+                shortenerDB, iotDatabase);
+        // PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         Kernel.getInstance().handleEvent(
                 new Event(
                         this.getClass().getSimpleName(),
                         Event.CATEGORY_GENERIC,
                         "EMAIL_ADMIN_STARTUP",
                         "+1s",
-                        "Signomix service has been started.")
-        );
+                        "Signomix service has been started."));
 
         apiGenerator.init(this);
         setInitialized(true);
@@ -218,10 +213,10 @@ public class Service extends Kernel {
     @Override
     public void runFinalTasks() {
         /*
-        // CLI adapter doesn't start automaticaly as other inbound adapters
-        if (cli != null) {
-            cli.start();
-        }
+         * // CLI adapter doesn't start automaticaly as other inbound adapters
+         * if (cli != null) {
+         * cli.start();
+         * }
          */
     }
 
@@ -305,14 +300,14 @@ public class Service extends Kernel {
                 }
 
             });
-            //cookies.forEach(value -> System.out.println("Cookie: " + value));
+            // cookies.forEach(value -> System.out.println("Cookie: " + value));
         } catch (Exception e) {
         }
 
         ParameterMapResult result = new ParameterMapResult();
         String userID = null;
         try {
-            //TODO: to nie jest optymalne rozwiązanie
+            // TODO: to nie jest optymalne rozwiązanie
             Kernel.getInstance().dispatchEvent(Event.logWarning(this, "GET WWW: " + event.getRequest().pathExt));
             dispatchEvent(Event.logFinest(this.getClass().getSimpleName(), event.getRequest().uri));
             String language = event.getRequestParameter("language");
@@ -329,8 +324,9 @@ public class Service extends Kernel {
 
                 if (ResponseCode.NOT_FOUND == result.getCode()) {
                     if (event.getRequest().pathExt.endsWith(".html")) {
-                        //TODO: configurable index file params
-                        //RequestObject request = processRequest(event.getRequest(), ".html", "index_pl.html");
+                        // TODO: configurable index file params
+                        // RequestObject request = processRequest(event.getRequest(), ".html",
+                        // "index_pl.html");
                         RequestObject request = processRequest(event.getRequest(), ".html", "index.html");
                         result = (ParameterMapResult) fileReader
                                 .getFile(request, htmlAdapter.useCache() ? database : null, "webcache_en");
@@ -338,18 +334,22 @@ public class Service extends Kernel {
                 }
 
                 if (ResponseCode.NOT_FOUND == result.getCode()) {
-                    Kernel.getInstance().dispatchEvent(Event.logWarning(this, "404 WWW: " + event.getRequest().pathExt));
+                    Kernel.getInstance()
+                            .dispatchEvent(Event.logWarning(this, "404 WWW: " + event.getRequest().pathExt));
                     return result;
                 } else if (ResponseCode.NOT_FOUND != result.getCode()
-                        && ("".equals(event.getRequest().pathExt) || event.getRequest().pathExt.endsWith("/") || event.getRequest().pathExt.endsWith(".html"))) {
-                    //((HashMap) result.getData()).put("serviceurl", getProperties().get("serviceurl"));
+                        && ("".equals(event.getRequest().pathExt) || event.getRequest().pathExt.endsWith("/")
+                                || event.getRequest().pathExt.endsWith(".html"))) {
+                    // ((HashMap) result.getData()).put("serviceurl",
+                    // getProperties().get("serviceurl"));
                     userID = event.getRequest().headers.getFirst("X-user-id");
                     HashMap rd = (HashMap) result.getData();
                     rd.put("serviceurl", getProperties().get("serviceurl"));
                     rd.put("defaultLanguage", getProperties().get("default-language"));
                     rd.put("gaTrackingID", getProperties().get("ga-tracking-id"));
-                    rd.put("token", event.getRequestParameter("tid"));  // fake tokens doesn't pass SecurityFilter
-                    rd.put("shared", event.getRequestParameter("tid"));  // niepusty tid może być permanentnym tokenem ale może też być fałszywy
+                    rd.put("token", event.getRequestParameter("tid")); // fake tokens doesn't pass SecurityFilter
+                    rd.put("shared", event.getRequestParameter("tid")); // niepusty tid może być permanentnym tokenem
+                                                                        // ale może też być fałszywy
                     rd.put("user", userID);
                     rd.put("environmentName", getName());
                     rd.put("distroType", (String) invariants.get("release"));
@@ -368,16 +368,16 @@ public class Service extends Kernel {
                     } else {
                         rd.put("roles", "[]");
                     }
-                    // TODO: caching policy 
+                    // TODO: caching policy
                     result.setMaxAge(120);
                     if (null != userID && !userID.isEmpty()) {
                         result.setHeader("X-user-id", userID);
                     } else {
                         result.setHeader("X-user-id", "guest");
                     }
-                    //if (null != cookies && cookies.get(0).indexOf(SIGNOMIX_TOKEN_NAME) >= 0) {
-                    //    result.setHeader("Cookie", cookies.get(0));
-                    //}
+                    // if (null != cookies && cookies.get(0).indexOf(SIGNOMIX_TOKEN_NAME) >= 0) {
+                    // result.setHeader("Cookie", cookies.get(0));
+                    // }
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, "500 WWW: " + event.getRequest().pathExt));
@@ -426,7 +426,8 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "MailingApiEvent", procedureName = "send")
     public Object handleMailingSend(MailingApiEvent event) {
-        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter, cms, messageBroker);
+        return mailingAdapter.sendMailing(event.getData().get("documentId"), event.getData().get("target"), userAdapter,
+                cms, messageBroker);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
@@ -444,25 +445,28 @@ public class Service extends Kernel {
     }
 
     /*
-    @HttpAdapterHook(adapterName = "AlertService", requestMethod = "OPTIONS")
-    public Object alertCors(Event requestEvent) {
-        StandardResult result = new StandardResult();
-        result.setCode(ResponseCode.OK);
-        return result;
-    }
-    @HttpAdapterHook(adapterName = "AlertService", requestMethod = "GET")
-    public Object alertGet(Event event) {
-        return AlertModule.getInstance().getAlerts(event, thingsAdapter);
-    }
-    @HttpAdapterHook(adapterName = "AlertService", requestMethod = "DELETE")
-    public Object alertDelete(Event event) {
-        String alertId = event.getRequest().pathExt;
-        if (alertId != null && !alertId.isEmpty()) {
-            return AlertModule.getInstance().removeAlert(event, thingsAdapter);
-        } else {
-            return AlertModule.getInstance().removeAll(event.getRequestParameter("user"), thingsAdapter);
-        }
-    }
+     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "OPTIONS")
+     * public Object alertCors(Event requestEvent) {
+     * StandardResult result = new StandardResult();
+     * result.setCode(ResponseCode.OK);
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "GET")
+     * public Object alertGet(Event event) {
+     * return AlertModule.getInstance().getAlerts(event, thingsAdapter);
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "DELETE")
+     * public Object alertDelete(Event event) {
+     * String alertId = event.getRequest().pathExt;
+     * if (alertId != null && !alertId.isEmpty()) {
+     * return AlertModule.getInstance().removeAlert(event, thingsAdapter);
+     * } else {
+     * return AlertModule.getInstance().removeAll(event.getRequestParameter("user"),
+     * thingsAdapter);
+     * }
+     * }
      */
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")
     public Object dashboardServiceOptions(Event requestEvent) {
@@ -474,7 +478,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "GET")
     public Object dashboardServiceGet(Event event) {
         try {
-            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter,
+                    authAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -484,7 +489,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "POST")
     public Object dashboardServicePost(Event event) {
         try {
-            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter,
+                    authAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -494,7 +500,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "PUT")
     public Object dashboardServicePut(Event event) {
         try {
-            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter,
+                    authAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -504,7 +511,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "DELETE")
     public Object dashboardServiceDelete(Event event) {
         try {
-            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter, authAdapter);
+            return new DashboardBusinessLogic().getInstance().processEvent(event, dashboardAdapter, thingsAdapter,
+                    authAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -520,25 +528,29 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "GET")
     public Object deviceServiceGet(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+                userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "POST")
     public Object deviceServicePost(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+                userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "PUT")
     public Object deviceServicePut(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+                userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "DELETE")
     public Object deviceServiceDelete(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+                userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
@@ -551,7 +563,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "GroupPublicationService", requestMethod = "GET")
     public Object groupPublicationServiceGet(Event event) {
-        return new DeviceManagementModule().processGroupPublicationEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processGroupPublicationEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "OPTIONS")
@@ -563,22 +576,26 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "GET")
     public Object groupServiceGet(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "POST")
     public Object groupServicePost(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "PUT")
     public Object groupServicePut(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "DELETE")
     public Object groupServiceDelete(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "OPTIONS")
@@ -590,7 +607,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "*")
     public Object templateServiceHandle(Event event) {
-        return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter, PlatformAdministrationModule.getInstance());
+        return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter,
+                PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "TtnIntegrationService", requestMethod = "OPTIONS")
@@ -603,7 +621,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "TtnIntegrationService", requestMethod = "*")
     public Object ttnDataAdd(Event event) {
         try {
-            return DeviceIntegrationModule.getInstance().processTtnRequest(event, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
+            return DeviceIntegrationModule.getInstance().processTtnRequest(event, thingsAdapter, userAdapter,
+                    scriptingAdapter, ttnIntegrationService);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -620,7 +639,8 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "Ttn3IntegrationService", requestMethod = "*")
     public Object ttn3DataAdd(Event event) {
         try {
-            return DeviceIntegrationModule.getInstance().processTtn3Request(event, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
+            return DeviceIntegrationModule.getInstance().processTtn3Request(event, thingsAdapter, userAdapter,
+                    scriptingAdapter, ttnIntegrationService);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -632,7 +652,8 @@ public class Service extends Kernel {
         IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         String info = "RECEIVED: application=%1$s, devEUI=%2$s, data=%3$s";
         try {
-            return DeviceIntegrationModule.getInstance().processChirpstackRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService);
+            return DeviceIntegrationModule.getInstance().processChirpstackRequest(data, thingsAdapter, userAdapter,
+                    scriptingAdapter, ttnIntegrationService);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -644,11 +665,13 @@ public class Service extends Kernel {
     public Object handleIotData(NewDataEvent requestEvent) {
         IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         try {
-            if (null != actuatorCommandsDB) {
-                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
-            } else {
-                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter, scriptingAdapter, ttnIntegrationService, (ActuatorCommandsDBIface) iotDatabase);
-            }
+            //if (null != actuatorCommandsDB) {
+            //    return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
+            //            scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
+            //} else {
+                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
+                        scriptingAdapter, ttnIntegrationService, (ActuatorCommandsDBIface) iotDatabase);
+            //}
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -656,64 +679,74 @@ public class Service extends Kernel {
     }
 
     /*
-
-    @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "OPTIONS")
-    public Object iotDataCors(Event requestEvent) {
-        StandardResult result = new StandardResult();
-        result.setCode(ResponseCode.OK);
-        return result;
-    }
-
-    @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "*")
-    public Object iotDataAdd(Event event) {
-        StandardResult result;
-        try {
-            result = (StandardResult) DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter, userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return result;
-    }
-
-    @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "OPTIONS")
-    public Object iotSimpleDataCors(Event requestEvent) {
-        StandardResult result = new StandardResult();
-        result.setCode(ResponseCode.OK);
-        return result;
-    }
-
-    @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod = "*")
-    public Object iotSimpleDataAdd(Event event) {
-        StandardResult result;
-        try {
-            result = (StandardResult) DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter, userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return result;
-    }
-
-    @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "OPTIONS")
-    public Object rawDataCors(Event requestEvent) {
-        StandardResult result = new StandardResult();
-        result.setCode(ResponseCode.OK);
-        return result;
-    }
-
-    @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "*")
-    public Object rawDataAdd(Event event) {
-        StandardResult result;
-        try {
-            result = (StandardResult) DeviceIntegrationModule.getInstance().processRawRequest(event, thingsAdapter, userAdapter, scriptingAdapter, rawIntegrationService, actuatorCommandsDB);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return result;
-    }
-
+     * 
+     * @HttpAdapterHook(adapterName = "IntegrationService", requestMethod =
+     * "OPTIONS")
+     * public Object iotDataCors(Event requestEvent) {
+     * StandardResult result = new StandardResult();
+     * result.setCode(ResponseCode.OK);
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "*")
+     * public Object iotDataAdd(Event event) {
+     * StandardResult result;
+     * try {
+     * result = (StandardResult)
+     * DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter,
+     * userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
+     * } catch (Exception e) {
+     * e.printStackTrace();
+     * return null;
+     * }
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod =
+     * "OPTIONS")
+     * public Object iotSimpleDataCors(Event requestEvent) {
+     * StandardResult result = new StandardResult();
+     * result.setCode(ResponseCode.OK);
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod =
+     * "*")
+     * public Object iotSimpleDataAdd(Event event) {
+     * StandardResult result;
+     * try {
+     * result = (StandardResult)
+     * DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter,
+     * userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
+     * } catch (Exception e) {
+     * e.printStackTrace();
+     * return null;
+     * }
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod =
+     * "OPTIONS")
+     * public Object rawDataCors(Event requestEvent) {
+     * StandardResult result = new StandardResult();
+     * result.setCode(ResponseCode.OK);
+     * return result;
+     * }
+     * 
+     * @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "*")
+     * public Object rawDataAdd(Event event) {
+     * StandardResult result;
+     * try {
+     * result = (StandardResult)
+     * DeviceIntegrationModule.getInstance().processRawRequest(event, thingsAdapter,
+     * userAdapter, scriptingAdapter, rawIntegrationService, actuatorCommandsDB);
+     * } catch (Exception e) {
+     * e.printStackTrace();
+     * return null;
+     * }
+     * return result;
+     * }
+     * 
      */
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "OPTIONS")
     public Object actuatorCors(Event requestEvent) {
@@ -724,16 +757,19 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
-        if (null != actuatorCommandsDB) {
-            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB, scriptingAdapter);
-        } else {
-            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, (ActuatorCommandsDBIface) iotDatabase, scriptingAdapter);
-        }
+        //if (null != actuatorCommandsDB) {
+        //    return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB,
+        //            scriptingAdapter);
+        //} else {
+            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter,
+                    (ActuatorCommandsDBIface) iotDatabase, scriptingAdapter);
+        //}
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
     public Object LoRaUplinkHandle(Event event) {
-        return DeviceIntegrationModule.getInstance().processLoRaRequest(event, thingsAdapter, userAdapter, scriptingAdapter, loraUplinkService);
+        return DeviceIntegrationModule.getInstance().processLoRaRequest(event, thingsAdapter, userAdapter,
+                scriptingAdapter, loraUplinkService);
     }
 
     @HttpAdapterHook(adapterName = "LoRaJoinService", requestMethod = "*")
@@ -753,7 +789,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "KpnUplinkService", requestMethod = "*")
     public Object KpnUplinkHandle(Event event) {
-        return DeviceIntegrationModule.getInstance().processKpnRequest(event, thingsAdapter, userAdapter, scriptingAdapter, kpnUplinkService);
+        return DeviceIntegrationModule.getInstance().processKpnRequest(event, thingsAdapter, userAdapter,
+                scriptingAdapter, kpnUplinkService);
     }
 
     @HttpAdapterHook(adapterName = "RecoveryService", requestMethod = "OPTIONS")
@@ -767,7 +804,8 @@ public class Service extends Kernel {
     public Object recoveryHandle(Event event) {
         String resetPassEmail = event.getRequestParameter("resetpass");
         String userName = event.getRequestParameter("name");
-        return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter);
+        return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter,
+                authAdapter);
     }
 
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "OPTIONS")
@@ -790,7 +828,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "POST")
     public Object userAdd(Event event) {
-        boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
+        boolean withConfirmation = "true"
+                .equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation);
     }
 
@@ -818,7 +857,8 @@ public class Service extends Kernel {
                 return UserModule.getInstance().handleUpdateRequest(event, userAdapter);
             } else {
                 String userName = event.getRequestParameter("name");
-                return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter, authAdapter);
+                return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter,
+                        authAdapter);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -834,7 +874,8 @@ public class Service extends Kernel {
      */
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "DELETE")
     public Object userDelete(Event event) {
-        boolean withConfirmation = "true".equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
+        boolean withConfirmation = "true"
+                .equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleDeleteRequest(event, userAdapter, withConfirmation);
     }
 
@@ -886,24 +927,23 @@ public class Service extends Kernel {
                         user.setConfirmed(true);
                         userAdapter.modify(user);
                         result.setCode(200);
-                        //TODO: build default html page or redirect
-                        String pageContent
-                                = "Registration confirmed.<br>You can go to <a href=/#!login>login page</a> and sign in.";
+                        // TODO: build default html page or redirect
+                        String pageContent = "Registration confirmed.<br>You can go to <a href=/#!login>login page</a> and sign in.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
-                        //result.setData(pageContent);
+                        // result.setData(pageContent);
                         result.setPayload(pageContent.getBytes());
                     }
                 } else {
                     result.setCode(401);
-                    String pageContent
-                            = "Oops, something has gone wrong: confirmation token not found . We cannot confirm your <a href=/>Signomix</a> registration. Please contact support.";
+                    String pageContent = "Oops, something has gone wrong: confirmation token not found . We cannot confirm your <a href=/>Signomix</a> registration. Please contact support.";
                     result.setFileExtension("html");
                     result.setHeader("Content-type", "text/html");
                     result.setPayload(pageContent.getBytes());
                 }
             } catch (UserException ex) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(
+                        Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -924,24 +964,23 @@ public class Service extends Kernel {
                         user.setConfirmed(true);
                         userAdapter.modify(user);
                         result.setCode(200);
-                        //TODO: build default html page or redirect
-                        String pageContent
-                                = "Subscription confirmed.<br>Thank you for using <a href='/'>Signomix</a>.";
+                        // TODO: build default html page or redirect
+                        String pageContent = "Subscription confirmed.<br>Thank you for using <a href='/'>Signomix</a>.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
-                        //result.setData(pageContent);
+                        // result.setData(pageContent);
                         result.setPayload(pageContent.getBytes());
                     }
                 } else {
                     result.setCode(401);
-                    String pageContent
-                            = "Oops, something has gone wrong: confirmation token not found . Your subscription cannot be confirmed.";
+                    String pageContent = "Oops, something has gone wrong: confirmation token not found . Your subscription cannot be confirmed.";
                     result.setFileExtension("html");
                     result.setHeader("Content-type", "text/html");
                     result.setPayload(pageContent.getBytes());
                 }
             } catch (UserException ex) {
-                Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
+                Kernel.getInstance().dispatchEvent(
+                        Event.logWarning(this.getClass().getSimpleName(), "confirmation error " + ex.getMessage()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1045,8 +1084,7 @@ public class Service extends Kernel {
                     gdprLogger,
                     authAdapter,
                     thingsAdapter,
-                    dashboardAdapter
-            );
+                    dashboardAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1064,10 +1102,9 @@ public class Service extends Kernel {
                     dashboardAdapter,
                     authAdapter,
                     scriptingAdapter,
-                    actuatorCommandsDB,
+                    /*actuatorCommandsDB,*/
                     messageBroker,
-                    iotDatabase
-            );
+                    iotDatabase);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1091,15 +1128,14 @@ public class Service extends Kernel {
                     authAdapter,
                     authDB,
                     actuatorAdapter,
-                    actuatorCommandsDB,
+                    /*actuatorCommandsDB,*/
                     thingsAdapter,
-                    thingsDB,
-                    iotDataDB,
+                    /*thingsDB,
+                    iotDataDB,*/
                     dashboardAdapter,
                     scriptingAdapter,
                     messageBroker,
-                    iotDatabase
-            );
+                    iotDatabase);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1116,7 +1152,8 @@ public class Service extends Kernel {
             if (event.getTimePoint() != null) {
                 scheduler.handleEvent(event);
             } else {
-                handleEvent(Event.logWarning("Don't know how to handle category " + event.getCategory(), event.getPayload().toString()));
+                handleEvent(Event.logWarning("Don't know how to handle category " + event.getCategory(),
+                        event.getPayload().toString()));
             }
         } catch (Exception e) {
             e.printStackTrace();

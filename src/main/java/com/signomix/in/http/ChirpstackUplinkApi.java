@@ -114,7 +114,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
             e.printStackTrace();
             errorMessage = e.getMessage();
         }
-        if (errorMessage.isEmpty()) {
+        if (null==errorMessage || errorMessage.isEmpty()) {
             Event ev = new Event(this.getName(), request);
             ev.setRootEventId(rootEventId);
             ev.setPayload(
@@ -141,11 +141,16 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         uplink.setDeviceName((String) o.get("deviceName"));
         uplink.setfCnt((long) o.get("fCnt"));
         uplink.setfPort((long) o.get("fPort"));
+        uplink.setDr((long) o.get("dr"));
 
         //tx
         JsonObject txObj = (JsonObject) o.get("txInfo");
         TxInfo txInfo = new TxInfo();
-        txInfo.setDr((long) txObj.get("dr"));
+        try{
+            txInfo.setDr((long) txObj.get("dr"));
+        }catch(NullPointerException ex){
+            //dr moved to uplink field
+        }
         txInfo.setFrequency((long) txObj.get("frequency"));
         uplink.setTxInfo(txInfo);
 
@@ -176,7 +181,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         uplink.setRxInfo(rxList);
 
         //data
-        JsonObject data = (JsonObject) o.get("object");
+        JsonObject data = (JsonObject) o.get("objectJSON");
         JsonObject dataMap;
         JsonObject dataFieldsMap;
         Iterator it = data.keySet().iterator();

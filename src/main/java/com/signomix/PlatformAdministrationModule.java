@@ -4,9 +4,6 @@
  */
 package com.signomix;
 
-import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.db.IotDataStorageIface;
-import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.Dashboard;
@@ -209,9 +206,11 @@ public class PlatformAdministrationModule {
             KeyValueDBIface database,
             KeyValueDBIface userDB,
             KeyValueDBIface authDB,
+            /*
             IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
             ActuatorCommandsDBIface actuatorCommandsDB,
+            */
             ShortenerDBIface shortenerDB,
             IotDbDataIface iotDB
     ) {
@@ -508,6 +507,7 @@ public class PlatformAdministrationModule {
             }
         }
 
+        /*
         if (null!=thingsDB && null!=iotDataDB) {
             try {
                 thingsDB.addTable("devicetemplates", 100, true);
@@ -532,6 +532,7 @@ public class PlatformAdministrationModule {
             }
 
         }
+        
 
         // IoT actuator commands (storing events with actuator commands)
         if (actuatorCommandsDB != null) {
@@ -552,6 +553,7 @@ public class PlatformAdministrationModule {
                 e.printStackTrace();
             }
         }
+        */
 
         if (shortenerDB != null) {
             try {
@@ -645,9 +647,9 @@ public class PlatformAdministrationModule {
             KeyValueDBIface userDB,
             KeyValueDBIface authDB,
             KeyValueDBIface cmsDB,
-            IotDatabaseIface thingsDB,
+            /*IotDatabaseIface thingsDB,
             IotDataStorageIface iotDataDB,
-            ActuatorCommandsDBIface actuatorCommandsDB,
+            ActuatorCommandsDBIface actuatorCommandsDB,*/
             IotDbDataIface iotDB
     ) {
         String prefix = backupDaily ? getDateString() : "";
@@ -671,6 +673,7 @@ public class PlatformAdministrationModule {
         } catch (KeyValueDBException ex) {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
+        /*
         if(null!=thingsDB){
         try {
             thingsDB.backup(backupFolder + prefix + thingsDB.getBackupFileName());
@@ -692,6 +695,7 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
         }
+        */
         if(null!=iotDB){
         try {
             iotDB.backup(backupFolder + prefix + iotDB.getBackupFileName());

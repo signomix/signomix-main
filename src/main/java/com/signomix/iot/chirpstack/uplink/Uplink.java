@@ -25,15 +25,25 @@ public class Uplink implements IotDataIface{
     private TxInfo txInfo;
     private boolean adr;
     private long fCnt;
+
     private long fPort;
     private String data;
     private Map<String, Map<String,Object>> object;
     private HashMap<String, Double> paylodFields=new HashMap<>();
+    private long dr;
     
     //private boolean authRequired;
     //private String authKey;
     
     public Uplink(){
+    }
+
+    public long getDr() {
+        return dr;
+    }
+
+    public void setDr(long dr) {
+        this.dr = dr;
     }
     
     public void addField(String name, Double value){
@@ -93,6 +103,7 @@ public class Uplink implements IotDataIface{
      * @param devEUI the devEUI to set
      */
     public void setDevEUI(String devEUI) {
+        //TODO: convert from base64 to hex
         this.devEUI = devEUI;
     }
 

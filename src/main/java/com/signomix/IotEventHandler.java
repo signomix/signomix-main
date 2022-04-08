@@ -45,7 +45,7 @@ public class IotEventHandler {
             DashboardAdapterIface dashboardAdapter,
             AuthAdapterIface authAdapter,
             ScriptingAdapterIface scriptingAdapter,
-            ActuatorCommandsDBIface actuatorCommandsDB,
+            //ActuatorCommandsDBIface actuatorCommandsDB,
             MessageBrokerIface externalNotificator,
             IotDbDataIface iotDB) {
         String[] origin;
@@ -228,22 +228,22 @@ public class IotEventHandler {
                     }
                     break;
                 case IotEvent.ACTUATOR_CMD:
-                    if (null != actuatorCommandsDB) {
-                        ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter,
-                                scriptingAdapter);
-                    } else {
+                    //if (null != actuatorCommandsDB) {
+                    //    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter,
+                    //            scriptingAdapter);
+                    //} else {
                         ActuatorModule.getInstance().processCommand(event, false, (ActuatorCommandsDBIface) iotDB,
                                 thingsAdapter, scriptingAdapter);
-                    }
+                    //}
                     break;
                 case IotEvent.ACTUATOR_HEXCMD:
-                    if (null != actuatorCommandsDB) {
-                        ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter,
-                                scriptingAdapter);
-                    } else {
+                    //if (null != actuatorCommandsDB) {
+                    //    ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter,
+                    //            scriptingAdapter);
+                    //} else {
                         ActuatorModule.getInstance().processCommand(event, true, (ActuatorCommandsDBIface) iotDB,
                                 thingsAdapter, scriptingAdapter);
-                    }
+                    //}
                     break;
                 case IotEvent.PLATFORM_MONITORING:
                     String eui = (String) kernel.getProperties().getOrDefault("monitoring_device", "");
@@ -255,13 +255,13 @@ public class IotEventHandler {
                         }
                         if (null != d) {
                             event.setOrigin("@" + eui); // source@target
-                            if (null != actuatorCommandsDB) {
-                                ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB,
-                                        thingsAdapter, scriptingAdapter);
-                            } else {
+                            //if (null != actuatorCommandsDB) {
+                            //    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB,
+                            //            thingsAdapter, scriptingAdapter);
+                            //} else {
                                 ActuatorModule.getInstance().processCommand(event, false,
                                         (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
-                            }
+                            //}
                         }
                     }
                     break;

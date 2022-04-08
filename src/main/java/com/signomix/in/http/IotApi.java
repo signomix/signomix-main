@@ -147,7 +147,7 @@ public class IotApi extends HttpPortedAdapter {
             }
             System.out.println("timestamp:" + data.timestamp);
         }
-        if (null == data.dev_eui || data.payload_fields.isEmpty()) {
+        if (null == data.dev_eui || (data.payload_fields.isEmpty() && null==data.payload)) {
             System.out.println("ERROR: " + data.dev_eui + "," + data.payload_fields);
             return null;
         }
