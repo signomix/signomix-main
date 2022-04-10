@@ -15,11 +15,14 @@
  */
 package org.cricketmsf.microsite.auth;
 
-import com.sun.net.httpserver.Filter;
-import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Map;
+
+import com.sun.net.httpserver.Filter;
+import com.sun.net.httpserver.HttpExchange;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
@@ -220,7 +223,9 @@ public class SecurityFilter extends Filter {
                         logger.debug("tokenFromParams={}", tokenID);
                         result.user = getUser(inParamsToken, true);
                         result.issuer = getIssuer(inParamsToken);
-                        //Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "FOUND IP TOKEN " + inParamsToken + " FOR " + result.user.getUid() + " by " + result.issuer.getUid()));
+                        // Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(),
+                        // "FOUND IP TOKEN " + inParamsToken + " FOR " + result.user.getUid() + " by " +
+                        // result.issuer.getUid()));
                     } else {
                         tokenID = cookieValue;
                         logger.debug("tokenFromCookie={}", tokenID);
@@ -239,7 +244,8 @@ public class SecurityFilter extends Filter {
                 }
             } catch (NullPointerException e) {
             } catch (AuthException e) {
-                Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "AUTH PROBLEM " + e.getCode() + " " + e.getMessage())); // eg. expired token
+                Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(),
+                        "AUTH PROBLEM " + e.getCode() + " " + e.getMessage())); // eg. expired token
             }
             result.code = 200;
             result.message = "";
@@ -250,22 +256,22 @@ public class SecurityFilter extends Filter {
         if (tokenID == null || tokenID.isEmpty()) {
             try {
                 if (null != parameters) {
-                    Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "request parameters:"));
-                    parameters.keySet().forEach(key->{
-                        Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(), "key:"+key));
-                    });
-                    tokenID = (String) parameters.getOrDefault("tid","");
+                    tokenID = (String) parameters.getOrDefault("tid", "");
                     if (tokenID.endsWith("/")) {
                         tokenID = tokenID.substring(0, tokenID.length() - 1);
                     }
                 }
                 if (null == tokenID || tokenID.isEmpty()) {
-                    int idx = exchange.getRequestURI().getQuery().indexOf("tid=");
-                    if (idx >= 0) {
-                        tokenID = exchange.getRequestURI().getQuery().substring(idx + 4);
-                        int pos = tokenID.indexOf("&");
-                        if (pos > 0) {
-                            tokenID = tokenID.substring(0, pos);
+                    URI uri = exchange.getRequestURI();
+                    String query = uri.getQuery();
+                    if (null != query) {
+                        int idx = query.indexOf("tid=");
+                        if (idx >= 0) {
+                            tokenID = exchange.getRequestURI().getQuery().substring(idx + 4);
+                            int pos = tokenID.indexOf("&");
+                            if (pos > 0) {
+                                tokenID = tokenID.substring(0, pos);
+                            }
                         }
                     }
                 }
@@ -289,7 +295,6 @@ public class SecurityFilter extends Filter {
         } catch (Exception e) {
             result.code = 403;
             result.message = e.getMessage() + " - request blocked by security filter\r\n";
-            //Kernel.getInstance().dispatchEvent(Event.logFine(this.getClass().getSimpleName(), "not authorized " + path));
             return result;
         }
         logger.debug("user={}", user.getUid());
@@ -301,8 +306,9 @@ public class SecurityFilter extends Filter {
     }
 
     private User getUser(String token, boolean permanentToken) throws AuthException {
-        //ask dedicated adapter
-        AuthAdapterIface authAdapter = (AuthAdapterIface) Kernel.getInstance().getAdaptersMap().getOrDefault("authAdapter", null);
+        // ask dedicated adapter
+        AuthAdapterIface authAdapter = (AuthAdapterIface) Kernel.getInstance().getAdaptersMap()
+                .getOrDefault("authAdapter", null);
         if (authAdapter != null) {
             return authAdapter.getUser(token, permanentToken);
         } else {
@@ -311,8 +317,9 @@ public class SecurityFilter extends Filter {
     }
 
     private User getIssuer(String token) throws AuthException {
-        //ask dedicated adapter
-        AuthAdapterIface authAdapter = (AuthAdapterIface) Kernel.getInstance().getAdaptersMap().getOrDefault("authAdapter", null);
+        // ask dedicated adapter
+        AuthAdapterIface authAdapter = (AuthAdapterIface) Kernel.getInstance().getAdaptersMap()
+                .getOrDefault("authAdapter", null);
         if (authAdapter != null) {
             return authAdapter.getIssuer(token);
         } else {

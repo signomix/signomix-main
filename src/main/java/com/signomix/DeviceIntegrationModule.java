@@ -769,6 +769,11 @@ public class DeviceIntegrationModule {
             ArrayList<ChannelData> inputList = prepareChirpstackValues(uplink, scriptingAdapter,
                     device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
             ArrayList<ArrayList> outputList;
+            inputList.forEach(element->{
+                if(element.getName().startsWith("decodererror")){
+                    System.out.println(element.getDeviceEUI()+" "+element.getName()+" "+element.getStringValue());
+                }
+            });
             try {
                 Object[] processingResult = DataProcessor.processValues(
                         inputList,
@@ -873,8 +878,15 @@ public class DeviceIntegrationModule {
 
     ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values) {
         ArrayList<ChannelData> fixedList = new ArrayList<>();
+        //System.out.println(values.size());
         if (values != null && values.size() > 0) {
             for (ChannelData value : values) {
+                //System.out.println(value.getDeviceEUI()+" "+value.getName());
+                //HashMap channels=device.getChannels();
+                //System.out.println("channels.size() "+channels.size());
+                //channels.keySet().forEach(key->{
+                //    System.out.println(key);
+                //});
                 if (device.getChannels().containsKey(value.getName())) {
                     fixedList.add(value);
                 }
@@ -1227,19 +1239,22 @@ public class DeviceIntegrationModule {
             String encoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
         if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
-            if (null != data.getPayload()) {
-                byte[] decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
-                try {
-                    values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(),
-                            userID);
-                } catch (Exception e) {
-                    Kernel.getInstance()
-                            .dispatchEvent(Event.logWarning(
-                                    this.getClass().getSimpleName() + ".prepareTtnValues for device " + deviceID,
-                                    e.getMessage()));
-                    fireEvent(1, deviceID, userID, e.getMessage());
-                    return null;
-                }
+            byte[] decodedPayload={};
+            if(null!=data.getDataJson()){
+                decodedPayload=data.getDataJson().getBytes();
+            }else if (null != data.getPayload()) {
+                decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
+            }
+            try {
+                values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(),
+                        userID);
+            } catch (Exception e) {
+                Kernel.getInstance()
+                        .dispatchEvent(Event.logWarning(
+                                this.getClass().getSimpleName() + ".prepareChirpStackValues for device " + deviceID,
+                                e.getMessage()));
+                fireEvent(1, deviceID, userID, e.getMessage());
+                return null;
             }
         } else {
             for (String payloadFieldName : data.getPayloadFieldNames()) {

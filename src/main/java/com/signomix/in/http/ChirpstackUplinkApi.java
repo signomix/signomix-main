@@ -15,8 +15,6 @@ import com.signomix.iot.chirpstack.uplink.TxInfo;
 import com.signomix.iot.chirpstack.uplink.Uplink;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -169,7 +167,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
             rxInfo.setUplinkID((String) rxObj.get("uplinkID"));
             rxInfo.setName((String) rxObj.get("name"));
             rxInfo.setRssi((long) rxObj.get("rssi"));
-            rxInfo.setLoRaSNR((long) rxObj.get("loRaSNR"));
+            rxInfo.setLoRaSNR((Double) rxObj.get("loRaSNR"));
             locObj = (JsonObject) rxObj.get("location");
             loc = new Location();
             loc.setLatitude((Double) locObj.get("latitude"));
@@ -181,34 +179,8 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         uplink.setRxInfo(rxList);
 
         //data
-        JsonObject data = (JsonObject) o.get("objectJSON");
-        JsonObject dataMap;
-        JsonObject dataFieldsMap;
-        Iterator it = data.keySet().iterator();
-        Iterator it2, it3;
-        String dataName;
-        String dataIndex, dataField;
-        Object dataValue;
-        while (it.hasNext()) {
-            dataName = (String) it.next();
-            dataMap = (JsonObject) data.get(dataName);
-            it2 = dataMap.keySet().iterator();
-            while (it2.hasNext()) {
-                dataIndex = (String) it2.next();
-                dataValue = dataMap.get(dataIndex);
-                if (dataValue instanceof Double) {
-                    uplink.addField(dataName + "_" + dataIndex, (Double) dataValue);
-                } else {
-                    dataFieldsMap = (JsonObject) dataValue;
-                    it3 = dataFieldsMap.keySet().iterator();
-                    while (it3.hasNext()) {
-                        dataField = (String) it3.next();
-                        dataValue = dataFieldsMap.get(dataField);
-                        uplink.addField(dataName + "_" + dataIndex + "_" + dataField, (Double) dataValue);
-                    }
-                }
-            }
-        }
+        String dataString = (String) o.get("objectJSON");
+        uplink.setDataJson(dataString);
         return uplink;
     }
 

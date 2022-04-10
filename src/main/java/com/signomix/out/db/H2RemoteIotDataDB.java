@@ -1232,7 +1232,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values)
             throws ThingsDataException {
+                System.out.println("saving data");
         if (values == null || values.isEmpty()) {
+            System.out.println("no values");
             return;
         }
         int limit = 24;
@@ -1274,6 +1276,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.setDouble(31, deviceState);
             pst.executeUpdate();
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
         }
     }

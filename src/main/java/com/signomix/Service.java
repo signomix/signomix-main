@@ -105,10 +105,7 @@ public class Service extends Kernel {
     ActuatorApi actuatorApi = null;
     ActuatorDataIface actuatorAdapter = null;
 
-    //IotDatabaseIface thingsDB = null;
-    //IotDataStorageIface iotDataDB = null;
-    //ActuatorCommandsDBIface actuatorCommandsDB = null;
-    IotDbDataIface iotDatabase = null;
+    private IotDbDataIface iotDatabase = null;
 
     ScriptingAdapterIface scriptingAdapter = null;
 
@@ -127,6 +124,18 @@ public class Service extends Kernel {
     public Service() {
         super();
     }
+
+    public IotDbDataIface getIotDatabase(){
+        return iotDatabase;
+    }
+    public ActuatorCommandsDBIface getActuatorDatabase(){
+        return (ActuatorCommandsDBIface)iotDatabase;
+    }
+    public ActuatorCommandsDBIface getActuatorCommandsDatabase(){
+        return (ActuatorCommandsDBIface)iotDatabase;
+    }
+
+
 
     @Override
     public void getAdapters() {
@@ -152,10 +161,7 @@ public class Service extends Kernel {
         queueAdapter = (QueueAdapterIface) getRegistered("queueAdapter");
         // IoT
         thingsAdapter = (ThingsDataIface) getRegistered("iotAdapter");
-        //thingsDB = (IotDatabaseIface) getRegistered("iotDB");
-        //iotDataDB = (IotDataStorageIface) getRegistered("iotDataDB");
         dashboardAdapter = (DashboardAdapterIface) getRegistered("dashboardAdapter");
-        //actuatorCommandsDB = (ActuatorCommandsDBIface) getRegistered("actuatorCommandsDB");
         actuatorApi = (ActuatorApi) getRegistered("ActuatorService");
         actuatorAdapter = (ActuatorDataIface) getRegistered("actuatorAdapter");
         scriptingAdapter = (ScriptingAdapterIface) getRegistered("scriptingAdapter");
@@ -195,8 +201,7 @@ public class Service extends Kernel {
         }
         invariants = new Invariants();
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB,
-                /* thingsDB,iotDataDB, actuatorCommandsDB, */
-                shortenerDB, iotDatabase);
+                shortenerDB, getIotDatabase());
         // PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         Kernel.getInstance().handleEvent(
                 new Event(
@@ -444,30 +449,7 @@ public class Service extends Kernel {
         }
     }
 
-    /*
-     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "OPTIONS")
-     * public Object alertCors(Event requestEvent) {
-     * StandardResult result = new StandardResult();
-     * result.setCode(ResponseCode.OK);
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "GET")
-     * public Object alertGet(Event event) {
-     * return AlertModule.getInstance().getAlerts(event, thingsAdapter);
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "AlertService", requestMethod = "DELETE")
-     * public Object alertDelete(Event event) {
-     * String alertId = event.getRequest().pathExt;
-     * if (alertId != null && !alertId.isEmpty()) {
-     * return AlertModule.getInstance().removeAlert(event, thingsAdapter);
-     * } else {
-     * return AlertModule.getInstance().removeAll(event.getRequestParameter("user"),
-     * thingsAdapter);
-     * }
-     * }
-     */
+
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")
     public Object dashboardServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -665,89 +647,14 @@ public class Service extends Kernel {
     public Object handleIotData(NewDataEvent requestEvent) {
         IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         try {
-            //if (null != actuatorCommandsDB) {
-            //    return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
-            //            scriptingAdapter, ttnIntegrationService, actuatorCommandsDB);
-            //} else {
                 return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
-                        scriptingAdapter, ttnIntegrationService, (ActuatorCommandsDBIface) iotDatabase);
-            //}
+                        scriptingAdapter, ttnIntegrationService, getActuatorDatabase());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    /*
-     * 
-     * @HttpAdapterHook(adapterName = "IntegrationService", requestMethod =
-     * "OPTIONS")
-     * public Object iotDataCors(Event requestEvent) {
-     * StandardResult result = new StandardResult();
-     * result.setCode(ResponseCode.OK);
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "IntegrationService", requestMethod = "*")
-     * public Object iotDataAdd(Event event) {
-     * StandardResult result;
-     * try {
-     * result = (StandardResult)
-     * DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter,
-     * userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
-     * } catch (Exception e) {
-     * e.printStackTrace();
-     * return null;
-     * }
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod =
-     * "OPTIONS")
-     * public Object iotSimpleDataCors(Event requestEvent) {
-     * StandardResult result = new StandardResult();
-     * result.setCode(ResponseCode.OK);
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "SimpleIntegrationService", requestMethod =
-     * "*")
-     * public Object iotSimpleDataAdd(Event event) {
-     * StandardResult result;
-     * try {
-     * result = (StandardResult)
-     * DeviceIntegrationModule.getInstance().processIotRequest(event, thingsAdapter,
-     * userAdapter, scriptingAdapter, integrationService, actuatorCommandsDB);
-     * } catch (Exception e) {
-     * e.printStackTrace();
-     * return null;
-     * }
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod =
-     * "OPTIONS")
-     * public Object rawDataCors(Event requestEvent) {
-     * StandardResult result = new StandardResult();
-     * result.setCode(ResponseCode.OK);
-     * return result;
-     * }
-     * 
-     * @HttpAdapterHook(adapterName = "RawIntegrationService", requestMethod = "*")
-     * public Object rawDataAdd(Event event) {
-     * StandardResult result;
-     * try {
-     * result = (StandardResult)
-     * DeviceIntegrationModule.getInstance().processRawRequest(event, thingsAdapter,
-     * userAdapter, scriptingAdapter, rawIntegrationService, actuatorCommandsDB);
-     * } catch (Exception e) {
-     * e.printStackTrace();
-     * return null;
-     * }
-     * return result;
-     * }
-     * 
-     */
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "OPTIONS")
     public Object actuatorCors(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -757,13 +664,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
-        //if (null != actuatorCommandsDB) {
-        //    return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter, actuatorCommandsDB,
-        //            scriptingAdapter);
-        //} else {
             return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter,
-                    (ActuatorCommandsDBIface) iotDatabase, scriptingAdapter);
-        //}
+                    (ActuatorCommandsDBIface) getActuatorCommandsDatabase()), scriptingAdapter);
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
@@ -931,7 +833,6 @@ public class Service extends Kernel {
                         String pageContent = "Registration confirmed.<br>You can go to <a href=/#!login>login page</a> and sign in.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
-                        // result.setData(pageContent);
                         result.setPayload(pageContent.getBytes());
                     }
                 } else {
@@ -968,7 +869,6 @@ public class Service extends Kernel {
                         String pageContent = "Subscription confirmed.<br>Thank you for using <a href='/'>Signomix</a>.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
-                        // result.setData(pageContent);
                         result.setPayload(pageContent.getBytes());
                     }
                 } else {
@@ -1102,9 +1002,8 @@ public class Service extends Kernel {
                     dashboardAdapter,
                     authAdapter,
                     scriptingAdapter,
-                    /*actuatorCommandsDB,*/
                     messageBroker,
-                    iotDatabase);
+                    getIotDatabase());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1128,14 +1027,11 @@ public class Service extends Kernel {
                     authAdapter,
                     authDB,
                     actuatorAdapter,
-                    /*actuatorCommandsDB,*/
                     thingsAdapter,
-                    /*thingsDB,
-                    iotDataDB,*/
                     dashboardAdapter,
                     scriptingAdapter,
                     messageBroker,
-                    iotDatabase);
+                    getIotDatabase());
         } catch (Exception e) {
             e.printStackTrace();
         }

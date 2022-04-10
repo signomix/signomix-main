@@ -4,18 +4,21 @@
  */
 package com.signomix.iot.chirpstack.uplink;
 
-import com.signomix.iot.IotDataIface;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.signomix.iot.IotDataIface;
+import com.signomix.util.HexTool;
 
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class Uplink implements IotDataIface{
+public class Uplink implements IotDataIface {
 
     private String applicationID;
     private String applicationName;
@@ -28,14 +31,24 @@ public class Uplink implements IotDataIface{
 
     private long fPort;
     private String data;
-    private Map<String, Map<String,Object>> object;
-    private HashMap<String, Double> paylodFields=new HashMap<>();
+    private String dataJson;
+
+    private Map<String, Map<String, Object>> object;
+    private HashMap<String, Double> paylodFields = new HashMap<>();
     private long dr;
-    
-    //private boolean authRequired;
-    //private String authKey;
-    
-    public Uplink(){
+
+    // private boolean authRequired;
+    // private String authKey;
+
+    public Uplink() {
+    }
+
+    public String getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
     }
 
     public long getDr() {
@@ -45,8 +58,8 @@ public class Uplink implements IotDataIface{
     public void setDr(long dr) {
         this.dr = dr;
     }
-    
-    public void addField(String name, Double value){
+
+    public void addField(String name, Double value) {
         getPaylodFields().put(name, value);
     }
 
@@ -103,8 +116,13 @@ public class Uplink implements IotDataIface{
      * @param devEUI the devEUI to set
      */
     public void setDevEUI(String devEUI) {
-        //TODO: convert from base64 to hex
+        // TODO: convert from base64 to hex
         this.devEUI = devEUI;
+        try {
+            this.devEUI = HexTool.bytesToHexString(Base64.getDecoder().decode(this.devEUI));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -194,14 +212,14 @@ public class Uplink implements IotDataIface{
     /**
      * @return the object
      */
-    public Map<String, Map<String,Object>> getObject() {
+    public Map<String, Map<String, Object>> getObject() {
         return object;
     }
 
     /**
      * @param object the object to set
      */
-    public void setObject(Map<String, Map<String,Object>> object) {
+    public void setObject(Map<String, Map<String, Object>> object) {
         this.object = object;
     }
 
@@ -217,8 +235,8 @@ public class Uplink implements IotDataIface{
 
     @Override
     public String[] getPayloadFieldNames() {
-        ArrayList<String> arr=new ArrayList<>();
-        getPaylodFields().keySet().forEach(key->{
+        ArrayList<String> arr = new ArrayList<>();
+        getPaylodFields().keySet().forEach(key -> {
             arr.add(key);
         });
         return arr.toArray(new String[arr.size()]);
