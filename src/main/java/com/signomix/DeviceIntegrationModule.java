@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.plaf.basic.BasicGraphicsUtils;
+
 import com.cedarsoftware.util.io.JsonReader;
 import com.signomix.event.IotEvent;
 import com.signomix.in.http.IntegrationApi;
@@ -1236,27 +1238,10 @@ public class DeviceIntegrationModule {
     }
 
     private ArrayList<ChannelData> prepareChirpstackValues(Uplink data, ScriptingAdapterIface scriptingAdapter,
-            String encoderCode, String deviceID, String userID) {
+            String decoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
-        if (data.getPayloadFieldNames() == null || data.getPayloadFieldNames().length == 0) {
-            byte[] decodedPayload={};
-            if(null!=data.getDataJson()){
-                decodedPayload=data.getDataJson().getBytes();
-            }else if (null != data.getPayload()) {
-                decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
-            }
-            try {
-                values = scriptingAdapter.decodeData(decodedPayload, encoderCode, deviceID, data.getTimestamp(),
-                        userID);
-            } catch (Exception e) {
-                Kernel.getInstance()
-                        .dispatchEvent(Event.logWarning(
-                                this.getClass().getSimpleName() + ".prepareChirpStackValues for device " + deviceID,
-                                e.getMessage()));
-                fireEvent(1, deviceID, userID, e.getMessage());
-                return null;
-            }
-        } else {
+        ArrayList<ChannelData> decodedValues = new ArrayList<>();
+        if(null!=data.getPayloadFieldNames()){
             for (String payloadFieldName : data.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
                 mval.setDeviceEUI(data.getDeviceEUI());
@@ -1271,7 +1256,57 @@ public class DeviceIntegrationModule {
                 values.add(mval);
             }
         }
+        if (null!=decoderCode && !decoderCode.isBlank()) {
+            byte[] decodedPayload={};
+            if(null!=data.getDataJson()){
+                decodedPayload=data.getDataJson().getBytes();
+            }else if (null != data.getPayload()) {
+                decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
+            }
+            try {
+                decodedValues = scriptingAdapter.decodeData(decodedPayload, decoderCode, deviceID, data.getTimestamp(),
+                        userID);
+            } catch (Exception e) {
+                Kernel.getInstance()
+                        .dispatchEvent(Event.logWarning(
+                                this.getClass().getSimpleName() + ".prepareChirpStackValues for device " + deviceID,
+                                e.getMessage()));
+                fireEvent(1, deviceID, userID, e.getMessage());
+                return null;
+            }
+        }
+        values=mergeValues(values,decodedValues);
         return values;
+    }
+
+    /**
+     * Replaces values deserialized automatically with values from decoder script and add specific values from decored;
+     * @param basicValues
+     * @param decodedValues
+     * @return
+     */
+    private ArrayList<ChannelData> mergeValues(ArrayList<ChannelData> basicValues, ArrayList<ChannelData> decodedValues){
+        ArrayList<ChannelData> result=new ArrayList<>();
+        String key;
+        ChannelData tmp;
+        boolean found=false;
+        int basicSize=basicValues.size();
+        for(int i=0; i<decodedValues.size(); i++){
+            key=decodedValues.get(i).getName();
+            tmp=decodedValues.get(i);
+            found = false;
+            for(int j=0; j<basicSize; j++){
+                if(basicValues.get(j).getName().equalsIgnoreCase(key)){
+                    found=true;
+                    basicValues.set(j, tmp);
+                }
+            }
+            if(!found){
+                basicValues.add(tmp);
+            }
+            result.add(tmp);
+        }
+        return result;
     }
 
     private ArrayList<ChannelData> decodePayload(IotData2 data, ScriptingAdapterIface scriptingAdapter,

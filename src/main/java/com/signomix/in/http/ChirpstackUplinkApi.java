@@ -4,6 +4,10 @@
  */
 package com.signomix.in.http;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import com.cedarsoftware.util.io.JsonIoException;
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
@@ -13,8 +17,7 @@ import com.signomix.iot.chirpstack.uplink.Location;
 import com.signomix.iot.chirpstack.uplink.RxInfo;
 import com.signomix.iot.chirpstack.uplink.TxInfo;
 import com.signomix.iot.chirpstack.uplink.Uplink;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -68,7 +71,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
      * @return Wrapper object for the event and the port procedure name.
      */
     protected ProcedureCall preprocess(RequestObject request, long rootEventId) {
-        // validation and translation 
+        // validation and translation
         String method = request.method;
         if ("POST".equalsIgnoreCase(method)) {
             return preprocessPost(request, rootEventId);
@@ -96,7 +99,8 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
                         uplink = processObject((JsonObject) JsonReader.jsonToJava(sb.toString(), opts));
                         break;
                     default:
-                        return ProcedureCall.respond(HttpAdapter.SC_NOT_IMPLEMENTED, "not supported serialization type");
+                        return ProcedureCall.respond(HttpAdapter.SC_NOT_IMPLEMENTED,
+                                "not supported serialization type");
                 }
             } catch (JsonIoException e) {
                 e.printStackTrace();
@@ -112,15 +116,14 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
             e.printStackTrace();
             errorMessage = e.getMessage();
         }
-        if (null==errorMessage || errorMessage.isEmpty()) {
+        if (null == errorMessage || errorMessage.isEmpty()) {
             Event ev = new Event(this.getName(), request);
             ev.setRootEventId(rootEventId);
             ev.setPayload(
                     new IotData(uplink)
                             .authRequired(authorizationRequired)
                             .authKey(request.headers.getFirst("Authorization"))
-                            .serializedData(jsonString)
-            );
+                            .serializedData(jsonString));
             UplinkEvent event = new UplinkEvent(ev);
             result = ProcedureCall.forward(event, "processData");
         } else {
@@ -141,20 +144,20 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         uplink.setfPort((long) o.get("fPort"));
         uplink.setDr((long) o.get("dr"));
 
-        //tx
+        // tx
         JsonObject txObj = (JsonObject) o.get("txInfo");
         TxInfo txInfo = new TxInfo();
-        try{
+        try {
             txInfo.setDr((long) txObj.get("dr"));
-        }catch(NullPointerException ex){
-            //dr moved to uplink field
+        } catch (NullPointerException ex) {
+            // dr moved to uplink field
         }
         txInfo.setFrequency((long) txObj.get("frequency"));
         uplink.setTxInfo(txInfo);
 
-        //rx
+        // rx
         ArrayList<RxInfo> rxList = new ArrayList<>();
-        //List<JsonObject> objList = (List) o.get("rxInfo");
+        // List<JsonObject> objList = (List) o.get("rxInfo");
         Object[] jo = (Object[]) o.get("rxInfo");
         JsonObject rxObj, locObj;
         RxInfo rxInfo;
@@ -178,10 +181,42 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         }
         uplink.setRxInfo(rxList);
 
-        //data
+        // data
         String dataString = (String) o.get("objectJSON");
         uplink.setDataJson(dataString);
+        uplink.setPaylodFields(processFields(dataString));
         return uplink;
+    }
+
+    private HashMap<String, Double> processFields(String input) {
+        HashMap<String, Double> fields = new HashMap<>();
+        HashMap opts = new HashMap();
+        opts.put(JsonReader.USE_MAPS, true);
+        JsonObject jo = (JsonObject) JsonReader.jsonToJava(input.toString(), opts);
+        Iterator<String> it = jo.keySet().iterator();
+        String key;
+        Double value = null;
+        Boolean bValue;
+        Object obj;
+        while (it.hasNext()) {
+            key = it.next();
+            value = null;
+            try {
+                value = (Double) jo.get(key);
+            } catch (Exception e) {
+            }
+            if (null == value) {
+                try {
+                    bValue = (Boolean) jo.get(key);
+                    value = bValue ? 1.0 : 0.0;
+                } catch (Exception e) {
+                }
+            }
+            if (null != value) {
+                fields.put(key.toLowerCase(), value);
+            }
+        }
+        return fields;
     }
 
 }

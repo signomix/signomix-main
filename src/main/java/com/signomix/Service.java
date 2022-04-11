@@ -665,7 +665,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
             return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter,
-                    (ActuatorCommandsDBIface) getActuatorCommandsDatabase()), scriptingAdapter);
+                    (ActuatorCommandsDBIface) getActuatorCommandsDatabase(), scriptingAdapter);
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
