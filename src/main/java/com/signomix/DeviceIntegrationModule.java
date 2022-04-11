@@ -1286,7 +1286,7 @@ public class DeviceIntegrationModule {
      * @return
      */
     private ArrayList<ChannelData> mergeValues(ArrayList<ChannelData> basicValues, ArrayList<ChannelData> decodedValues){
-        ArrayList<ChannelData> result=new ArrayList<>();
+        ArrayList<ChannelData> result=basicValues;
         String key;
         ChannelData tmp;
         boolean found=false;
@@ -1298,13 +1298,13 @@ public class DeviceIntegrationModule {
             for(int j=0; j<basicSize; j++){
                 if(basicValues.get(j).getName().equalsIgnoreCase(key)){
                     found=true;
-                    basicValues.set(j, tmp);
+                    result.set(j, tmp);
+                    break;
                 }
             }
             if(!found){
-                basicValues.add(tmp);
+                result.add(tmp);
             }
-            result.add(tmp);
         }
         return result;
     }

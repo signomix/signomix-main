@@ -73,6 +73,9 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
     protected ProcedureCall preprocess(RequestObject request, long rootEventId) {
         // validation and translation
         String method = request.method;
+        if(!request.uri.endsWith("?event=up")){
+            return ProcedureCall.respond(200, "OK");
+        }
         if ("POST".equalsIgnoreCase(method)) {
             return preprocessPost(request, rootEventId);
         } else if ("OPTIONS".equalsIgnoreCase(method)) {
