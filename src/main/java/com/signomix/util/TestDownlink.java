@@ -3,6 +3,8 @@ package com.signomix.util;
 
 import java.util.Base64;
 
+import com.signomix.common.HexTool;
+
 /**
  *
  * @author greg

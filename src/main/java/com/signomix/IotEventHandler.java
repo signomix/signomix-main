@@ -4,12 +4,12 @@
  */
 package com.signomix;
 
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.gui.DashboardAdapterIface;
-import com.signomix.out.iot.ChannelData;
-import com.signomix.out.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.iot.VirtualDevice;

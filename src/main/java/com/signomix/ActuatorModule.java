@@ -6,14 +6,16 @@ package com.signomix;
 
 import com.cedarsoftware.util.io.*;
 import com.signomix.in.http.ActuatorApi;
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 import com.signomix.iot.TtnDownlinkMessage;
 import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.iot.ChannelData;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.StandardResult;
-import com.signomix.out.iot.Device;
+
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import com.signomix.out.notification.CommandWebHookIface;

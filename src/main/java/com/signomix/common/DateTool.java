@@ -1,4 +1,4 @@
-package com.signomix.util;
+package com.signomix.common;
 
 import java.sql.Timestamp;
 import java.time.DateTimeException;

@@ -4,7 +4,7 @@
 */
 package com.signomix.out.notification;
 
-import com.signomix.out.iot.Device;
+import com.signomix.common.iot.Device;
 
 /**
  *

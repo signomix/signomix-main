@@ -4,8 +4,9 @@
  */
 package com.signomix.in.http;
 
+import com.signomix.common.iot.ChannelData;
 import com.signomix.in.http.formatter.kanarek.KanarekFormatter;
-import com.signomix.out.iot.ChannelData;
+
 import java.io.UnsupportedEncodingException;
 import org.cricketmsf.Adapter;
 import java.util.HashMap;

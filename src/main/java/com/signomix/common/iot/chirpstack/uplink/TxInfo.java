@@ -2,7 +2,7 @@
 * Copyright (C) Grzegorz Skorupa 2020.
 * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 */
-package com.signomix.iot.chirpstack.uplink;
+package com.signomix.common.iot.chirpstack.uplink;
 
 /**
  *

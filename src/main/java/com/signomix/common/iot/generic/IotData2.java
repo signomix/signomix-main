@@ -2,22 +2,18 @@
  * Copyright (C) Grzegorz Skorupa 2018.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot.generic;
+package com.signomix.common.iot.generic;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.search.DateTerm;
-
-import com.signomix.iot.IotDataIface;
-import com.signomix.out.iot.ChannelData;
-import com.signomix.util.DateTool;
+import com.signomix.common.DateTool;
+import com.signomix.common.IotDataIface;
+import com.signomix.common.iot.ChannelData;
 
 /**
  *

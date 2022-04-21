@@ -4,8 +4,9 @@
  */
 package com.signomix.out.script;
 
+import com.signomix.common.iot.ChannelData;
 import com.signomix.event.IotEvent;
-import com.signomix.out.iot.ChannelData;
+
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;

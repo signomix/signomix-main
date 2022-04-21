@@ -4,6 +4,8 @@
  */
 package com.signomix.out.iot;
 
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;

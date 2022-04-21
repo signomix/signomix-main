@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.signomix.iot.IotDataIface;
+import com.signomix.common.IotDataIface;
 
 /**
  *

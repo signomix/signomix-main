@@ -2,11 +2,9 @@
  * Copyright (C) Grzegorz Skorupa 2020.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot;
+package com.signomix.common.iot.generic;
 
-import com.signomix.iot.chirpstack.uplink.Uplink;
-import com.signomix.iot.generic.IotData2;
-import com.signomix.iot.ttn3.TtnData;
+import com.signomix.common.iot.chirpstack.uplink.Uplink;
 
 /**
  *

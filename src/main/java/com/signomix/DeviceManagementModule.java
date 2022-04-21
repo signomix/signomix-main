@@ -4,6 +4,7 @@
  */
 package com.signomix;
 
+import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
-import com.signomix.out.iot.Device;
+
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;

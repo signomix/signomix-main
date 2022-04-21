@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
-import com.signomix.iot.IotDataIface;
+import com.signomix.common.IotDataIface;
 
 /**
  *

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.signomix.common.iot.generic.IotData;
 import com.signomix.event.AlertApiEvent;
 import com.signomix.event.IotEvent;
 import com.signomix.event.MailingApiEvent;
@@ -18,7 +19,6 @@ import com.signomix.in.http.ActuatorApi;
 import com.signomix.in.http.KpnApi;
 import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
-import com.signomix.iot.IotData;
 import com.signomix.out.auth.AuthLogic;
 import com.signomix.out.db.ActuatorCommandsDBIface;
 import com.signomix.out.db.IotDbDataIface;

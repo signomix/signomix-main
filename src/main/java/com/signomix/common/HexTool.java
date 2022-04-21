@@ -2,7 +2,7 @@
  * Copyright (C) Grzegorz Skorupa 2019.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.util;
+package com.signomix.common;
 
 /**
  *

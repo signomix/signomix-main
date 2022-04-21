@@ -4,8 +4,8 @@
  */
 package com.signomix.out.db;
 
+import com.signomix.common.iot.Device;
 import com.signomix.out.gui.Dashboard;
-import com.signomix.out.iot.Device;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;

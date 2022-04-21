@@ -2,7 +2,7 @@
  * Copyright (C) Grzegorz Skorupa 2020.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.iot.chirpstack.uplink;
+package com.signomix.common.iot.chirpstack.uplink;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.signomix.iot.IotDataIface;
-import com.signomix.util.HexTool;
+import com.signomix.common.HexTool;
+import com.signomix.common.IotDataIface;
 
 /**
  *

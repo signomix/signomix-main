@@ -11,9 +11,9 @@ import java.util.Map;
 
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
+import com.signomix.common.iot.generic.IotData;
+import com.signomix.common.iot.generic.IotData2;
 import com.signomix.event.NewDataEvent;
-import com.signomix.iot.IotData;
-import com.signomix.iot.generic.IotData2;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;

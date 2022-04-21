@@ -4,8 +4,8 @@
 */
 package com.signomix.out.db;
 
-import com.signomix.out.iot.ChannelData;
-import com.signomix.out.iot.Device;
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.out.iot.ThingsDataException;
 import java.util.List;
 import org.cricketmsf.out.db.KeyValueDBIface;

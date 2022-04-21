@@ -16,7 +16,8 @@
 package com.signomix.in.http.formatter.kanarek;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import com.signomix.out.iot.ChannelData;
+import com.signomix.common.iot.ChannelData;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

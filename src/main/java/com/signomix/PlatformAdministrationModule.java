@@ -4,6 +4,8 @@
  */
 package com.signomix;
 
+import com.signomix.common.iot.Channel;
+import com.signomix.common.iot.Device;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.Dashboard;
@@ -11,8 +13,6 @@ import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.gui.DashboardException;
 import com.signomix.out.gui.Widget;
 import com.signomix.out.iot.ActuatorDataIface;
-import com.signomix.out.iot.Channel;
-import com.signomix.out.iot.Device;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;

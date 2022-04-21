@@ -5,6 +5,10 @@
 package com.signomix.out.iot;
 
 import java.util.List;
+
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
+
 import org.cricketmsf.Event;
 
 /**

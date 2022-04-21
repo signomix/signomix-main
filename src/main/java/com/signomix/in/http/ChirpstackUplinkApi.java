@@ -11,12 +11,12 @@ import java.util.Iterator;
 import com.cedarsoftware.util.io.JsonIoException;
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
+import com.signomix.common.iot.chirpstack.uplink.Location;
+import com.signomix.common.iot.chirpstack.uplink.RxInfo;
+import com.signomix.common.iot.chirpstack.uplink.TxInfo;
+import com.signomix.common.iot.chirpstack.uplink.Uplink;
+import com.signomix.common.iot.generic.IotData;
 import com.signomix.event.UplinkEvent;
-import com.signomix.iot.IotData;
-import com.signomix.iot.chirpstack.uplink.Location;
-import com.signomix.iot.chirpstack.uplink.RxInfo;
-import com.signomix.iot.chirpstack.uplink.TxInfo;
-import com.signomix.iot.chirpstack.uplink.Uplink;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;

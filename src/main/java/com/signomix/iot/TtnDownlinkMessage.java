@@ -4,9 +4,11 @@
  */
 package com.signomix.iot;
 
-import com.signomix.util.HexTool;
 import java.util.Base64;
 import java.util.HashMap;
+
+import com.signomix.common.HexTool;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 

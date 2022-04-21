@@ -4,7 +4,7 @@
  */
 package com.signomix.out.script;
 
-import com.signomix.out.iot.ChannelData;
+import com.signomix.common.iot.ChannelData;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
 import java.util.List;

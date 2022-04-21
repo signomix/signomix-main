@@ -5,14 +5,14 @@
 package com.signomix.out.db;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.out.db.dto.DeviceChannelDto;
 import com.signomix.out.db.dto.DeviceDataDto;
 import com.signomix.out.gui.Dashboard;
 import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.ChannelData;
 import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DataQueryException;
-import com.signomix.out.iot.Device;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;

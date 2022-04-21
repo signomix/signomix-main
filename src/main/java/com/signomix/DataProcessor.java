@@ -4,8 +4,6 @@
  */
 package com.signomix;
 
-import com.signomix.out.iot.ChannelData;
-import com.signomix.out.iot.Device;
 import com.signomix.out.script.ScriptAdapterException;
 import com.signomix.out.script.ScriptResult;
 import com.signomix.out.script.ScriptingAdapterIface;
@@ -14,6 +12,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 
 /**

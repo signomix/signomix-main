@@ -8,8 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
+import com.signomix.common.iot.ChannelData;
 import com.signomix.in.http.formatter.kanarek.KanarekFormatter;
-import com.signomix.out.iot.ChannelData;
 
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;

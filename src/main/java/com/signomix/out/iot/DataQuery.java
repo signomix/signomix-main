@@ -6,7 +6,7 @@ package com.signomix.out.iot;
 
 import java.sql.Timestamp;
 
-import com.signomix.util.DateTool;
+import com.signomix.common.DateTool;
 
 /**
  *

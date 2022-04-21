@@ -2,12 +2,13 @@
  * Copyright (C) Grzegorz Skorupa 2018.
  * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
  */
-package com.signomix.out.iot;
+package com.signomix.common.iot;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+
 import org.cricketmsf.livingdoc.design.BoundedContext;
 
 /**

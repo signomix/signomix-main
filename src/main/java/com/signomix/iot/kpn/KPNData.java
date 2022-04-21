@@ -4,12 +4,12 @@
 */
 package com.signomix.iot.kpn;
 
-import com.signomix.iot.IotDataIface;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+
+import com.signomix.common.IotDataIface;
 
 /**
  *

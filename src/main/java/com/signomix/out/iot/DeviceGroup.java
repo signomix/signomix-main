@@ -7,6 +7,8 @@ package com.signomix.out.iot;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import com.signomix.common.iot.Channel;
+
 /**
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>

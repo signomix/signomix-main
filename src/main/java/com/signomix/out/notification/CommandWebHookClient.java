@@ -4,7 +4,6 @@
  */
 package com.signomix.out.notification;
 
-import com.signomix.out.iot.Device;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,6 +15,9 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.signomix.common.iot.Device;
+
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
