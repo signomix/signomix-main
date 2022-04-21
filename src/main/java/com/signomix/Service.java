@@ -21,8 +21,6 @@ import com.signomix.in.http.TtnApi;
 import com.signomix.iot.IotData;
 import com.signomix.out.auth.AuthLogic;
 import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.db.IotDataStorageIface;
-import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.DashboardAdapterIface;
@@ -128,6 +126,7 @@ public class Service extends Kernel {
     public IotDbDataIface getIotDatabase(){
         return iotDatabase;
     }
+    
     public ActuatorCommandsDBIface getActuatorDatabase(){
         return (ActuatorCommandsDBIface)iotDatabase;
     }

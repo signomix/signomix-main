@@ -5,6 +5,8 @@
 package com.signomix.iot.kpn;
 
 import com.signomix.iot.IotDataIface;
+
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -37,6 +39,11 @@ public class KPNData implements IotDataIface{
     public Instant getTimeField() {
         LocalDateTime ldt = LocalDateTime.parse(DevEUI_uplink.Time);
         return ldt.toInstant(ZoneOffset.UTC);
+    }
+
+    @Override
+    public Timestamp getTimestampUTC() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

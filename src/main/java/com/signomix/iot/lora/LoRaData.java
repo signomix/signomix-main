@@ -1,12 +1,14 @@
-    /**
- * Copyright (C) Grzegorz Skorupa 2018.
- * Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
- */
+/**
+* Copyright (C) Grzegorz Skorupa 2018.
+* Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+*/
 package com.signomix.iot.lora;
 
-import com.signomix.iot.IotDataIface;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+
+import com.signomix.iot.IotDataIface;
 
 /**
  *
@@ -165,12 +167,14 @@ public class LoRaData implements IotDataIface {
 
     @Override
     public String[] getPayloadFieldNames() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 
     @Override
     public Instant getTimeField() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 
     @Override
@@ -179,27 +183,30 @@ public class LoRaData implements IotDataIface {
         try {
             timestamp = Long.parseLong(((LoRaRxInfo) getRxInfo()).getTime());
         } catch (NumberFormatException e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods,
+                                                                           // choose Tools | Templates.
         }
         return timestamp;
     }
 
     @Override
     public Double getDoubleValue(String fieldName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 
     @Override
     public String getStringValue(String fieldName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
-    
+
     @Override
     public void normalize() {
         if (this.devEUI != null) {
             this.devEUI = this.devEUI.toUpperCase();
         }
-        //TODO: gateways?
+        // TODO: gateways?
     }
 
     @Override
@@ -231,6 +238,11 @@ public class LoRaData implements IotDataIface {
     public String getHexPayload() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Timestamp getTimestampUTC() {
+        return new Timestamp(getTimestamp());
     }
 
 }

@@ -4,6 +4,7 @@
  */
 package com.signomix.iot.ttn3;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -186,5 +187,10 @@ public class TtnData extends HashMap implements Map, IotDataIface {
     public String getHexPayload() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Timestamp getTimestampUTC() {
+        return new Timestamp(getTimestamp());
     }
 }

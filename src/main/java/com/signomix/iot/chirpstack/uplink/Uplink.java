@@ -4,6 +4,7 @@
  */
 package com.signomix.iot.chirpstack.uplink;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -309,6 +310,11 @@ public class Uplink implements IotDataIface {
     public String getHexPayload() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Timestamp getTimestampUTC() {
+        return new Timestamp(getTimestamp());
     }
 
 }

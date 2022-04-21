@@ -4,19 +4,17 @@
  */
 package com.signomix.in.http;
 
-import com.signomix.in.http.formatter.kanarek.KanarekFormatter;
-import com.signomix.out.iot.ChannelData;
 import java.io.UnsupportedEncodingException;
-import org.cricketmsf.Adapter;
 import java.util.HashMap;
 import java.util.List;
+
+import com.signomix.in.http.formatter.kanarek.KanarekFormatter;
+import com.signomix.out.iot.ChannelData;
+
+import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.in.http.HttpAdapter;
-import static org.cricketmsf.in.http.HttpAdapter.CSV;
-import static org.cricketmsf.in.http.HttpAdapter.JSON;
-import static org.cricketmsf.in.http.HttpAdapter.TEXT;
-import static org.cricketmsf.in.http.HttpAdapter.XML;
 import org.cricketmsf.in.http.HttpAdapterIface;
 import org.cricketmsf.in.http.JsonFormatter;
 import org.cricketmsf.in.http.Result;

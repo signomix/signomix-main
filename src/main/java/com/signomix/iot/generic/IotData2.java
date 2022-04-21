@@ -4,13 +4,20 @@
  */
 package com.signomix.iot.generic;
 
-import com.signomix.iot.IotDataIface;
-import com.signomix.out.iot.ChannelData;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.mail.search.DateTerm;
+
+import com.signomix.iot.IotDataIface;
+import com.signomix.out.iot.ChannelData;
+import com.signomix.util.DateTool;
 
 /**
  *
@@ -30,6 +37,7 @@ public class IotData2 implements IotDataIface {
     public ArrayList<ChannelData> dataList = new ArrayList<>();
     public String payload = null;
     public String hexPayload = null;
+    private Timestamp timestampUTC;
 
     public IotData2() {
     }
@@ -57,17 +65,12 @@ public class IotData2 implements IotDataIface {
 
     @Override
     public long getTimestamp() {
-        long t;
-        try {
-            return Long.parseLong(timestamp);
-        } catch (NumberFormatException e) {
-            if (null != getTimeField()) {
-                t = getTimeField().toEpochMilli();
-            } else {
-                t = 0;
-            }
-        }
-        return t;
+        return timestampUTC.getTime();
+    }
+
+    @Override
+    public Timestamp getTimestampUTC() {
+        return timestampUTC;
     }
 
     @Override
@@ -116,6 +119,8 @@ public class IotData2 implements IotDataIface {
             }
             payload_fields.set(i, tempMap);
         }
+        // timestamp
+        timestampUTC=DateTool.parseTimestamp(timestamp, time, true);
     }
 
     @Override

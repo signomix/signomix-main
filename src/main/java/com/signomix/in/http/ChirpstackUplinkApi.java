@@ -196,6 +196,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         HashMap opts = new HashMap();
         opts.put(JsonReader.USE_MAPS, true);
         JsonObject jo = (JsonObject) JsonReader.jsonToJava(input.toString(), opts);
+
         Iterator<String> it = jo.keySet().iterator();
         String key;
         Double value = null;

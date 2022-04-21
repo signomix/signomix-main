@@ -6,6 +6,8 @@ package com.signomix.out.iot;
 
 import java.sql.Timestamp;
 
+import com.signomix.util.DateTool;
+
 /**
  *
  * @author greg
@@ -24,7 +26,7 @@ public class DataQuery {
     private String group;
     private Double state;
     private Timestamp fromTs;
-
+    private Timestamp toTs;
 
     public Timestamp getFromTs() {
         return fromTs;
@@ -34,10 +36,8 @@ public class DataQuery {
         return toTs;
     }
 
-    private Timestamp toTs;
-
     public DataQuery() {
-        limit = 1;
+        limit = 0;
         average = 0;
         minimum = 0;
         maximum = 0;
@@ -54,14 +54,15 @@ public class DataQuery {
     public static DataQuery parse(String query) throws DataQueryException {
         // TODO: in case of number format exception - log SEVERE event
         // TODO: parsing exception
+        System.out.println(query);
         DataQuery dq = new DataQuery();
-        String q = query.trim().toLowerCase();
+        String q = query.trim();
         if (q.equalsIgnoreCase("last")) {
             q = "last 1";
         }
         String[] params = q.split(" ");
         for (int i = 0; i < params.length;) {
-            switch (params[i]) {
+            switch (params[i].toLowerCase()) {
             case "last":
                 if(params[i + 1].equals("*") || params[i + 1].equals("0")){
                     dq.setLimit(Integer.MAX_VALUE);
@@ -176,6 +177,13 @@ public class DataQuery {
             dq.maximum = 0;
         } else if (dq.maximum > 0) {
             dq.minimum = 0;
+        }
+        if(dq.limit==0){
+            if(null!=dq.fromTs || null!=dq.toTs){
+                dq.limit=Integer.MAX_VALUE;
+            }else{
+                dq.limit=1;
+            }
         }
         if (dq.average > 0) {
             dq.setLimit(dq.average);
@@ -295,11 +303,7 @@ public class DataQuery {
      * @param fromStr
      */
     public void setFromTs(String fromStr){
-        try{
-            fromTs=Timestamp.valueOf(fromStr.replace("_", " "));
-        }catch(IllegalArgumentException ex){
-            //TODO: handle error
-        }
+        fromTs=DateTool.parseTimestamp(fromStr,null,false);
     }
 
     /**
@@ -307,11 +311,7 @@ public class DataQuery {
      * @param fromStr
      */
     public void setToTs(String toStr){
-        try{
-            toTs=Timestamp.valueOf(toStr.replace("_", " "));
-        }catch(IllegalArgumentException ex){
-            //TODO: handle error
-        }
+        toTs=DateTool.parseTimestamp(toStr, null, false);
     }
 
 }
