@@ -24,6 +24,7 @@ public class IotData2 implements IotDataIface {
     public String applicationID;
     public String dev_eui;
     public String authKey;
+    public boolean authRequired = false;
     // public String callbackurl;
     public String gateway_eui;
     public String time;

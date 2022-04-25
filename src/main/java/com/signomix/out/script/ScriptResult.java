@@ -25,7 +25,7 @@ public class ScriptResult {
     HashMap<String, ArrayList> dataEvents;
     ArrayList<Event> events;
     /**
-     * Each map in the autput list can include data with different timestamps
+     * Each map in the output list can include data with different timestamps
      * This way, output can hold several data points
      */
     ListOfMaps output = new ListOfMaps();

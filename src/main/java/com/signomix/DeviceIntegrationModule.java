@@ -771,9 +771,10 @@ public class DeviceIntegrationModule {
             ArrayList<ChannelData> inputList = prepareChirpstackValues(uplink, scriptingAdapter,
                     device.getEncoderUnescaped(), device.getEUI(), device.getUserID());
             ArrayList<ArrayList> outputList;
-            inputList.forEach(element->{
-                if(element.getName().startsWith("decodererror")){
-                    System.out.println(element.getDeviceEUI()+" "+element.getName()+" "+element.getStringValue());
+            inputList.forEach(element -> {
+                if (element.getName().startsWith("decodererror")) {
+                    System.out
+                            .println(element.getDeviceEUI() + " " + element.getName() + " " + element.getStringValue());
                 }
             });
             try {
@@ -880,15 +881,15 @@ public class DeviceIntegrationModule {
 
     ArrayList<ChannelData> fixValues(Device device, ArrayList<ChannelData> values) {
         ArrayList<ChannelData> fixedList = new ArrayList<>();
-        //System.out.println(values.size());
+        // System.out.println(values.size());
         if (values != null && values.size() > 0) {
             for (ChannelData value : values) {
-                //System.out.println(value.getDeviceEUI()+" "+value.getName());
-                //HashMap channels=device.getChannels();
-                //System.out.println("channels.size() "+channels.size());
-                //channels.keySet().forEach(key->{
-                //    System.out.println(key);
-                //});
+                // System.out.println(value.getDeviceEUI()+" "+value.getName());
+                // HashMap channels=device.getChannels();
+                // System.out.println("channels.size() "+channels.size());
+                // channels.keySet().forEach(key->{
+                // System.out.println(key);
+                // });
                 if (device.getChannels().containsKey(value.getName())) {
                     fixedList.add(value);
                 }
@@ -1241,7 +1242,7 @@ public class DeviceIntegrationModule {
             String decoderCode, String deviceID, String userID) {
         ArrayList<ChannelData> values = new ArrayList<>();
         ArrayList<ChannelData> decodedValues = new ArrayList<>();
-        if(null!=data.getPayloadFieldNames()){
+        if (null != data.getPayloadFieldNames()) {
             for (String payloadFieldName : data.getPayloadFieldNames()) {
                 ChannelData mval = new ChannelData();
                 mval.setDeviceEUI(data.getDeviceEUI());
@@ -1256,11 +1257,11 @@ public class DeviceIntegrationModule {
                 values.add(mval);
             }
         }
-        if (null!=decoderCode && !decoderCode.isBlank()) {
-            byte[] decodedPayload={};
-            if(null!=data.getDataJson()){
-                decodedPayload=data.getDataJson().getBytes();
-            }else if (null != data.getPayload()) {
+        if (null != decoderCode && !decoderCode.isBlank()) {
+            byte[] decodedPayload = {};
+            if (null != data.getDataJson()) {
+                decodedPayload = data.getDataJson().getBytes();
+            } else if (null != data.getPayload()) {
                 decodedPayload = Base64.getDecoder().decode(data.getPayload().getBytes());
             }
             try {
@@ -1275,34 +1276,37 @@ public class DeviceIntegrationModule {
                 return null;
             }
         }
-        values=mergeValues(values,decodedValues);
+        values = mergeValues(values, decodedValues);
         return values;
     }
 
     /**
-     * Replaces values deserialized automatically with values from decoder script and add specific values from decored;
+     * Replaces values deserialized automatically with values from decoder script
+     * and add specific values from decored;
+     * 
      * @param basicValues
      * @param decodedValues
      * @return
      */
-    private ArrayList<ChannelData> mergeValues(ArrayList<ChannelData> basicValues, ArrayList<ChannelData> decodedValues){
-        ArrayList<ChannelData> result=basicValues;
+    private ArrayList<ChannelData> mergeValues(ArrayList<ChannelData> basicValues,
+            ArrayList<ChannelData> decodedValues) {
+        ArrayList<ChannelData> result = basicValues;
         String key;
         ChannelData tmp;
-        boolean found=false;
-        int basicSize=basicValues.size();
-        for(int i=0; i<decodedValues.size(); i++){
-            key=decodedValues.get(i).getName();
-            tmp=decodedValues.get(i);
+        boolean found = false;
+        int basicSize = basicValues.size();
+        for (int i = 0; i < decodedValues.size(); i++) {
+            key = decodedValues.get(i).getName();
+            tmp = decodedValues.get(i);
             found = false;
-            for(int j=0; j<basicSize; j++){
-                if(basicValues.get(j).getName().equalsIgnoreCase(key)){
-                    found=true;
+            for (int j = 0; j < basicSize; j++) {
+                if (basicValues.get(j).getName().equalsIgnoreCase(key)) {
+                    found = true;
                     result.set(j, tmp);
                     break;
                 }
             }
-            if(!found){
+            if (!found) {
                 result.add(tmp);
             }
         }
