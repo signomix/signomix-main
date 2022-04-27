@@ -4,18 +4,6 @@
  */
 package com.signomix.out.db;
 
-import com.cedarsoftware.util.io.JsonWriter;
-import com.signomix.common.iot.ChannelData;
-import com.signomix.common.iot.Device;
-import com.signomix.out.db.dto.DeviceChannelDto;
-import com.signomix.out.db.dto.DeviceDataDto;
-import com.signomix.out.gui.Dashboard;
-import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.DataQuery;
-import com.signomix.out.iot.DataQueryException;
-import com.signomix.out.iot.DeviceGroup;
-import com.signomix.out.iot.DeviceTemplate;
-import com.signomix.out.iot.ThingsDataException;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,9 +15,27 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import com.cedarsoftware.util.io.JsonObject;
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
+import com.signomix.common.iot.virtual.VirtualData;
+import com.signomix.out.db.dto.DeviceChannelDto;
+import com.signomix.out.db.dto.DeviceDataDto;
+import com.signomix.out.gui.Dashboard;
+import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.DataQuery;
+import com.signomix.out.iot.DataQueryException;
+import com.signomix.out.iot.DeviceGroup;
+import com.signomix.out.iot.DeviceTemplate;
+import com.signomix.out.iot.ThingsDataException;
+
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -108,6 +114,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("d18 double,").append("d19 double,").append("d20 double,").append("d21 double,")
                 .append("d22 double,").append("d23 double,").append("d24 double,").append("project varchar,")
                 .append("state double,")
+                .append("PRIMARY KEY (eui,tstamp) );");
+        sb.append("CREATE TABLE IF NOT EXISTS virtualdevicedata (")
+                .append("eui varchar not null,tstamp timestamp not null, data varchar), ")
                 .append("PRIMARY KEY (eui,tstamp) );");
         sb.append("CREATE TABLE IF NOT EXISTS groups (").append("eui varchar primary key,").append("name varchar,")
                 .append("userid varchar,").append("team varchar,").append("channels varchar,")
@@ -349,7 +358,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void updateDevice(Device device) throws ThingsDataException {
-        //Device previous = getDevice(device.getEUI());
+        // Device previous = getDevice(device.getEUI());
         String query = "update devices set name=?,userid=?,type=?,team=?,channels=?,code=?,decoder=?,key=?,description=?,lastseen=?,tinterval=?,lastframe=?,template=?,pattern=?,downlink=?,commandscript=?,appid=?,appeui=?,groups=?,alert=?,devid=?,active=?,project=?,latitude=?,longitude=?,altitude=?,state=?, retention=?, administrators=?, framecheck=? where eui=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, device.getName());
@@ -1419,15 +1428,14 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
     }
 
-
     public List<List> getValues(String userID, String deviceEUI, int limit, DataQuery dataQuery)
             throws ThingsDataException {
-                String query=buildSqlQuery(-1, dataQuery);
+        String query = buildSqlQuery(-1, dataQuery);
         List<String> channels = getDeviceChannels(deviceEUI);
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
         ArrayList row2;
-        System.out.println("SQL QUERY: "+query);
+        System.out.println("SQL QUERY: " + query);
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             int paramIdx = 2;
@@ -1445,10 +1453,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 }
             }
             if (null != dataQuery.getFromTs() && null != dataQuery.getToTs()) {
-                System.out.println("fromTS: "+dataQuery.getFromTs().getTime());
+                System.out.println("fromTS: " + dataQuery.getFromTs().getTime());
                 pst.setTimestamp(paramIdx, dataQuery.getFromTs());
                 paramIdx++;
-                System.out.println("toTS: "+dataQuery.getToTs().getTime());
+                System.out.println("toTS: " + dataQuery.getToTs().getTime());
                 pst.setTimestamp(paramIdx, dataQuery.getToTs());
                 paramIdx++;
             }
@@ -1495,6 +1503,49 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
     }
 
+    private List<List> getVirtualDeviceMeasures(String userID, String deviceEUI, DataQuery dataQuery)
+            throws ThingsDataException {
+        List<List> result = new ArrayList<>();
+        String query = buildSqlQuery(-1, dataQuery);
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+            pst.setString(1, deviceEUI);
+            ResultSet rs = pst.executeQuery();
+            String eui;
+            Timestamp ts;
+            String serializedData;
+            ChannelData cData;
+            ArrayList<ChannelData> channels = new ArrayList<>();
+            String channelName;
+            Double channelValue;
+            while (rs.next()) {
+                eui = rs.getString(1);
+                ts = rs.getTimestamp(2);
+                serializedData = rs.getString(3);
+                Kernel.getInstance().dispatchEvent(Event.logInfo(this, serializedData));
+                JsonObject jo= (JsonObject)JsonReader.jsonToJava(serializedData);
+                VirtualData vd = new VirtualData(eui);
+                vd.timestamp=ts.getTime();
+                JsonObject fields=(JsonObject)jo.get("payload_fields");
+                Iterator<String> it=fields.keySet().iterator();
+                while(it.hasNext()) {
+                    channelName=it.next();
+                    cData = new ChannelData();
+                    cData.setDeviceEUI(eui);
+                    cData.setTimestamp(vd.timestamp);
+                    cData.setName(channelName);
+                    cData.setValue((Double)fields.get(channelName));
+                    channels.add(cData);
+                }
+            }
+            result.add(channels);
+        } catch (SQLException e) {
+            Kernel.getInstance().dispatchEvent(Event.logSevere(this, "problematic query = " + query));
+            e.printStackTrace();
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+        return result;
+    }
+
     @Override
     public List<List> getDeviceMeasures(String userID, String deviceEUI, String dataQuery) throws ThingsDataException {
         DataQuery dq;
@@ -1503,10 +1554,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         } catch (DataQueryException ex) {
             throw new ThingsDataException(ex.getCode(), "DataQuery " + ex.getMessage());
         }
+        if (dq.isVirtual()) {
+            return getVirtualDeviceMeasures(userID, deviceEUI, dq);
+        }
         if (null != dq.getGroup()) {
             return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","), defaultGroupInterval);
         }
-        
+
         int limit = dq.getLimit();
         if (dq.average > 0) {
             limit = dq.average;
@@ -1524,7 +1578,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         if (dq.getNewValue() != null) {
             limit = limit - 1;
         }
-        
+
         if (null == dq.getChannelName() || "*".equals(dq.getChannelName())) {
             // TODO
             result.add(getValues(userID, deviceEUI, limit, dq));
@@ -1658,7 +1712,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         return result;
     }
 
+    private String buildSqlQueryVirtual(DataQuery dq) {
+        String query = "SELECT eui,tstamp,data FROM virtualdevicedata WHERE eui=?";
+        return query;
+    }
+
     private String buildSqlQuery(int channelIndex, DataQuery dq) {
+        if (dq.isVirtual()) {
+            return buildSqlQueryVirtual(dq);
+        }
         String query;
         String defaultQuery;
         if (channelIndex >= 0) {
@@ -1667,8 +1729,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                     + "project,state from devicedata where eui=?";
         } else {
             defaultQuery = "select eui,userid,day,dtime,tstamp,"
-            +"d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24"
-            +" from devicedata where eui=?";
+                    + "d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24"
+                    + " from devicedata where eui=?";
         }
         String projectQuery = " and project=?";
         String stateQuery = " and state=?";

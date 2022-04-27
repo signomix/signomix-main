@@ -27,6 +27,7 @@ public class DataQuery {
     private Double state;
     private Timestamp fromTs;
     private Timestamp toTs;
+    private boolean virtual;
 
     public Timestamp getFromTs() {
         return fromTs;
@@ -49,6 +50,7 @@ public class DataQuery {
         state = null;
         fromTs=null;
         toTs=null;
+        virtual=false;
     }
 
     public static DataQuery parse(String query) throws DataQueryException {
@@ -141,6 +143,10 @@ public class DataQuery {
                 dq.setTimeseries(true);
                 i = i + 1;
                 break;
+            case "virtual":
+                    dq.setVirtual(true);
+                    i = i + 1;
+                    break;
             case "channel":
                 dq.setChannelName(params[i + 1]);
                 i = i + 2;
@@ -192,6 +198,13 @@ public class DataQuery {
         } else if (dq.minimum > 0) {
             dq.setLimit(dq.minimum);
         }
+        if(dq.isVirtual()){
+            dq.setLimit(1);
+            dq.setFromTs(null);
+            dq.setToTs(null);
+            dq.setGroup(null);
+            dq.setProject(null);
+        }
         return dq;
     }
 
@@ -226,6 +239,20 @@ public class DataQuery {
      */
     public void setChannelName(String channelName) {
         this.channelName = channelName;
+    }
+
+    /**
+     * @return the timeseries
+     */
+    public boolean isVirtual() {
+        return virtual;
+    }
+
+    /**
+     * @param timeseries the timeseries to set
+     */
+    public void setVirtual(boolean virtual) {
+        this.virtual = virtual;
     }
 
     /**
