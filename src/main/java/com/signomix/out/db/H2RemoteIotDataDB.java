@@ -116,8 +116,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("state double,")
                 .append("PRIMARY KEY (eui,tstamp) );");
         sb.append("CREATE TABLE IF NOT EXISTS virtualdevicedata (")
-                .append("eui varchar not null,tstamp timestamp not null, data varchar, ")
-                .append("PRIMARY KEY (eui,tstamp) );");
+                .append("eui VARCHAR PRIMARY KEY,tstamp TIMESTAMP NOT NULL, data VARCHAR);");
         sb.append("CREATE TABLE IF NOT EXISTS groups (").append("eui varchar primary key,").append("name varchar,")
                 .append("userid varchar,").append("team varchar,").append("channels varchar,")
                 .append("description varchar,")
