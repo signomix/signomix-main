@@ -1,6 +1,6 @@
 /// default script
 var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
-var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
+var ChannelData = Java.type("com.signomix.common.iot.ChannelData");
 
 //deprecated
 var result=new ScriptResult()
@@ -145,7 +145,7 @@ sgx0.xaddList = function (timestamp) {
 var processData = function (eui, dataReceived, channelReader, userID, dataTimestamp, 
     latitude, longitude, altitude, state, alert,
     devLatitude, devLongitude, devAltitude, newCommand, requestData) {
-    var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
+    var ChannelData = Java.type("com.signomix.common.iot.ChannelData");
     var IotEvent = Java.type("com.signomix.event.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
     var channelData={};
@@ -181,7 +181,7 @@ var processData = function (eui, dataReceived, channelReader, userID, dataTimest
 }
 
 var processRawData = function (eui, requestBody, channelReader, userID, dataTimestamp) {
-    var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
+    var ChannelData = Java.type("com.signomix.common.iot.ChannelData");
     var IotEvent = Java.type("com.signomix.event.IotEvent");
     var ScriptResult = Java.type("com.signomix.out.script.ScriptResult");
     var channelData={};

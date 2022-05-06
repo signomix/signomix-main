@@ -207,7 +207,7 @@ public class Service extends Kernel {
                         this.getClass().getSimpleName(),
                         Event.CATEGORY_GENERIC,
                         "EMAIL_ADMIN_STARTUP",
-                        "+1s",
+                        "+30s",
                         "Signomix service has been started."));
 
         apiGenerator.init(this);

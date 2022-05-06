@@ -87,16 +87,12 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
                 factory.setVirtualHost("/"); //WARNING: Virtual host configured as "/" must be set in Java without "/"
                 connection = factory.newConnection();
                 channel = connection.createChannel();
-                channel.queueDeclare("notifications", true, false, false, null);
-                channel.queueDeclare("mailing", true, false, false, null);
-                channel.queueDeclare("admin_email", true, false, false, null);
+                //channel.queueDeclare("notifications", true, false, false, null);
+                //channel.queueDeclare("mailing", true, false, false, null);
+                //channel.queueDeclare("admin_email", true, false, false, null);
                 ready = true;
             } catch (TimeoutException | IOException ex) {
                 Kernel.getInstance().getLogger().print("connection error: " + ex.getMessage()+ " "+ex.toString());
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex1) {
-                }
             }
         }
     }
@@ -108,6 +104,13 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
 
     @Override
     public String send(MessageEnvelope envelope) {
+        if(!ready){
+            //try {
+            //    Thread.sleep(10000);
+            //} catch (InterruptedException ex1) {
+            //}    
+            init();
+        }
         String encodedMessage;
         ObjectMapper objectMapper = new ObjectMapper();
         try {

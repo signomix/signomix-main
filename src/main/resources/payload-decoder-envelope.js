@@ -26,7 +26,7 @@ function decodeHexData(eui, originalPayload, timestamp) {
 }
 
 var decode = function(eui, payload, timestamp){
-    var ChannelData = Java.type("com.signomix.out.iot.ChannelData");
+    var ChannelData = Java.type("com.signomix.common.iot.ChannelData");
     var List = Java.type("java.util.ArrayList");
     var result = new List();
     //injectedCode

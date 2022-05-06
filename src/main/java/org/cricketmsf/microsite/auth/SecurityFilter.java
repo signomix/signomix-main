@@ -210,6 +210,16 @@ public class SecurityFilter extends Filter {
         SecurityFilterResult result = new SecurityFilterResult();
         result.user = null;
         result.issuer = null;
+        String appKey=(String)parameters.get("appkey");
+        if(null!=appKey){
+            String configuredAppKey=(String)Kernel.getInstance().properties.getOrDefault("application_key","");
+            if(!configuredAppKey.isEmpty() && appKey.equalsIgnoreCase(configuredAppKey)){
+                result.user=new User();
+                result.user.setUid("externalService");
+                result.user.setRole("admin");
+                return result;
+            }
+        }
 
         if (authorizationNotRequired) {
             String inParamsToken = null;
