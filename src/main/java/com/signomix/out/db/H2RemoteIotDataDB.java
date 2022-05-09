@@ -75,6 +75,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), "createStructure()"));
         String query;
         StringBuilder sb = new StringBuilder();
+        sb.append("CREATE SEQUENCE id_seq;");
         sb.append("CREATE TABLE IF NOT EXISTS devicetemplates (").append("eui varchar primary key,")
                 .append("appid varchar,")
                 .append("appeui varchar,").append("type varchar,").append("channels varchar,")
@@ -98,7 +99,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("userid varchar,").append("title varchar,").append("team varchar,")
                 .append("widgets varchar,").append("token varchar,").append("shared boolean,")
                 .append("administrators varchar);");
-        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint primary key,").append("name varchar,")
+        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint default group_seq.nextval primary key ,").append("name varchar,")
                 .append("category varchar,").append("type varchar,").append("deviceeui varchar,")
                 .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
                 .append("serviceid varchar,").append("uuid varchar,").append("calculatedtimepoint bigint,")
@@ -718,7 +719,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         a.setPayload(rs.getString(7));
         a.setTimePoint(rs.getString(8));
         a.setServiceId(rs.getString(9));
-        a.setServiceUuid(UUID.fromString(rs.getString(10)));
+        //a.setServiceUuid(UUID.fromString(rs.getString(10)));
+        a.setServiceUuid(new UUID(0,0));
         a.setCalculatedTimePoint(rs.getLong(11));
         a.setCreatedAt(rs.getLong(12));
         a.setRootEventId(rs.getLong(13));
