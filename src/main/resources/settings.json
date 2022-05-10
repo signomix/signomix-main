@@ -62,6 +62,15 @@
                     }
                 },
                 {
+                    "name": "OrganizationService",
+                    "interfaceName": "HttpAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.in.http.OrganizationApi",
+                    "properties": {
+                        "context": "/api/organization",
+                        "silent-mode": "false"
+                    }
+                },
+                {
                     "name": "RecoveryService",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.in.http.UserApi",
@@ -380,6 +389,14 @@
                     "name": "userAdapter",
                     "interfaceName": "UserAdapterIface",
                     "classFullName": "org.cricketmsf.microsite.out.user.UserEmbededAdapter",
+                    "properties": {
+                        "helper-name": "userDB"
+                    }
+                },
+                {
+                    "name": "organizationAdapter",
+                    "interfaceName": "OrganizationAdapterIface",
+                    "classFullName": "org.cricketmsf.microsite.user.OrganizationAdapter",
                     "properties": {
                         "helper-name": "userDB"
                     }

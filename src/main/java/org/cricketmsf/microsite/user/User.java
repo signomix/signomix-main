@@ -85,6 +85,7 @@ public class User {
     private long credits;
     private boolean autologin;
     private String preferredLanguage;
+    private long organization;
 
     public User() {
         confirmed = false;
@@ -94,6 +95,15 @@ public class User {
         services = 0b0;
         credits = 0;
         autologin = false;
+        organization = 0;
+    }
+
+    public long getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(long organization) {
+        this.organization = organization;
     }
 
     public void clearStatus() {

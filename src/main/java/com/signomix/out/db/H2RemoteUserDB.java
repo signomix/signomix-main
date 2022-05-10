@@ -4,10 +4,8 @@
  */
 package com.signomix.out.db;
 
-import com.cedarsoftware.util.io.JsonWriter;
 import java.io.File;
 import java.io.IOException;
-import org.cricketmsf.out.db.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,11 +15,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.cedarsoftware.util.io.JsonWriter;
+
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.microsite.user.Organization;
 import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.out.archiver.ZipArchiver;
+import org.cricketmsf.out.db.ComparatorIface;
+import org.cricketmsf.out.db.H2RemoteDB;
+import org.cricketmsf.out.db.KeyValueDBException;
+import org.cricketmsf.out.db.SqlDBIface;
 
 /**
  *
@@ -35,7 +41,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
     }
-    
+
     @Override
     public void start() throws KeyValueDBException {
         super.start();
@@ -44,12 +50,14 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
 
     @Override
     public void addTable(String tableName, int maxSize, boolean persistent) throws KeyValueDBException {
-        if (!tableName.equalsIgnoreCase("users")) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!tableName.equalsIgnoreCase("users") || !tableName.equalsIgnoreCase("organizations")) {
+            throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods,
+                                                                           // choose Tools | Templates.
         }
         String query;
         StringBuilder sb = new StringBuilder();
         sb.append("create sequence if not exists user_number_seq;");
+        sb.append("create sequence if not exists org_number_seq;");
         sb.append("create table users (")
                 .append("uid varchar primary key,")
                 .append("type int,")
@@ -72,9 +80,14 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
                 .append("credits bigint,")
                 .append("user_number bigint default user_number_seq.nextval,")
                 .append("autologin boolean,")
-                .append("language varchar)");
+                .append("language varchar,")
+                .append("organization bigint default 0 references organizations);");
+        sb.append("create table organizations (")
+                .append("id bigint default org_number_seq.nextval primary key,")
+                .append("name varchar);");
+        sb.append("insert into organizations (id,name) values (0,'')");
         query = sb.toString();
-        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             boolean updated = pst.executeUpdate() > 0;
             if (!updated) {
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
@@ -83,7 +96,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
     }
-    
+
     @Override
     public File getBackupFile() {
         try {
@@ -112,16 +125,25 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if (tableName.equals("organizations")) {
+            try {
+                putOrganization((Organization) o);
+            } catch (ClassCastException e) {
+                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, "object is not a User");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unsupported table " + tableName);
         }
     }
 
     private void putUser(String tableName, String key, User user) throws KeyValueDBException {
-        String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,            services,phoneprefix,credits,autologin,language) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "merge into ?? (uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,            services,phoneprefix,credits,autologin,language,organization) key (uid) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         query = query.replaceFirst("\\?\\?", tableName);
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
-            //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
             pstmt.setString(1, user.getUid());
             pstmt.setInt(2, user.getType());
             pstmt.setString(3, user.getEmail());
@@ -143,8 +165,24 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             pstmt.setLong(19, user.getCredits());
             pstmt.setBoolean(20, user.isAutologin());
             pstmt.setString(21, user.getPreferredLanguage());
+            pstmt.setLong(22, user.getOrganization());
             int updated = pstmt.executeUpdate();
-            //check?
+            // check?
+        } catch (SQLException e) {
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void putOrganization(Organization organization) throws KeyValueDBException {
+        String query = "merge into organizations (id,name) key (id) values (?,?)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+            pstmt.setLong(1, organization.id);
+            pstmt.setString(2, organization.name);
+            int updated = pstmt.executeUpdate();
+            // check?
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         } catch (Exception e) {
@@ -161,6 +199,8 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
     public Object get(String tableName, String key, Object o) throws KeyValueDBException {
         if (tableName.equals("users")) {
             return getUser(tableName, key, o);
+        } else if (tableName.equals("organizations")) {
+            return getOrganization(key);
         } else {
             return null;
         }
@@ -168,12 +208,11 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
 
     @Override
     public Map getAll(String tableName) throws KeyValueDBException {
-        HashMap<String, User> map = new HashMap<>();
-        //TODO: nie używać, zastąpić konkretnymi search'ami
+        // TODO: nie używać, zastąpić konkretnymi search'ami
         if (tableName.equals("users")) {
-            //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
-            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from users order by uid asc";
-            try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
+            HashMap<String, User> map = new HashMap<>();
+            String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language,organization from users order by uid asc";
+            try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
                     map.put(rs.getString(1), buildUser(rs));
@@ -181,8 +220,21 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             } catch (SQLException e) {
                 throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
             }
+            return map;
+        } else if (tableName.equals("organizations")) {
+            HashMap<String, Organization> map = new HashMap<>();
+            String query = "select id,name from organizations order by id asc";
+            try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    map.put(""+rs.getLong(1), buildOrganization(rs));
+                }
+                return map;
+            } catch (SQLException e) {
+                throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            }
         }
-        return map;
+        return new HashMap<String,Object>();
     }
 
     @Override
@@ -190,18 +242,33 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         String query;
         if (tableName.equals("users")) {
             query = "select uid from " + tableName + " where uid=?";
+            try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+                pstmt.setString(1, key);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    return true;
+                }
+            } catch (SQLException e) {
+                throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            }
+        } else if (tableName.equals("organizations")) {
+            query = "select id from " + tableName + " where id=?";
+            try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+                long id = Long.parseLong(key);
+                pstmt.setLong(1, id);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
+            } catch (SQLException e) {
+                throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            }
         } else {
             throw new KeyValueDBException(KeyValueDBException.TABLE_NOT_EXISTS, "unsupported table " + tableName);
         }
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return true;
-            }
-        } catch (SQLException e) {
-            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
-        }
+
         return false;
     }
 
@@ -210,15 +277,28 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         String query = "delete from ?? where uid = ?".replaceFirst("\\?\\?", tableName);
         boolean updated = false;
         if (tableName.equals("users")) {
-            //query;
+            // query;
+            try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+                pst.setString(1, key);
+                updated = pst.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            }
+        } else if (tableName.equals("organizations")) {
+            query="delete from organizations where id=?";
+            try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+                long id = Long.parseLong(key);
+                pst.setLong(1, id);
+                updated = pst.executeUpdate() > 0;
+            } catch (NumberFormatException e) {
+                throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
+            } catch (SQLException e) {
+                throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            }
+    
         } else {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-        try ( Connection conn = getConnection();  PreparedStatement pst = conn.prepareStatement(query);) {
-            pst.setString(1, key);
-            updated = pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods,
+                                                                           // choose Tools | Templates.
         }
         return updated;
     }
@@ -226,9 +306,10 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
     @Override
     public List search(String tableName, String statement, Object[] parameters) throws KeyValueDBException {
         ArrayList<User> result = new ArrayList<>();
-        String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from " + tableName + " where user_number=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
-            //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+        String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language,organization from "
+                + tableName + " where user_number=?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
             pstmt.setLong(1, (Long) parameters[0]);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -242,11 +323,12 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
 
     @Override
     public List search(String tableName, ComparatorIface ci, Object o) throws KeyValueDBException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 
     User buildUser(ResultSet rs) throws SQLException {
-        //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,number,services,phoneprefix,credits,autologin
+        // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,number,services,phoneprefix,credits,autologin
         User user = new User();
         user.setUid(rs.getString(1));
         user.setType(rs.getInt(2));
@@ -270,14 +352,21 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         user.setCredits(rs.getLong(20));
         user.setAutologin(rs.getBoolean(21));
         user.setPreferredLanguage(rs.getString(22));
+        user.setOrganization(rs.getLong(23));
         return user;
     }
 
+    Organization buildOrganization(ResultSet rs) throws SQLException {
+        // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,number,services,phoneprefix,credits,autologin
+        Organization org=new Organization(rs.getLong(1), rs.getString(2));
+        return org;
+    }
     private Object getUser(String tableName, String key, Object defaultResult) throws KeyValueDBException {
         User user = null;
-        String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language from " + tableName + " where uid=?";
-        try ( Connection conn = getConnection();  PreparedStatement pstmt = conn.prepareStatement(query);) {
-            //uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
+        String query = "select uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin,language,organization from "
+                + tableName + " where uid=?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            // uid,type,email,name,surname,role,secret,password,generalchannel,infochannel,warningchannel,alertchannel,confirmed,unregisterreq,authstatus,created,user_number,services,phoneprefix,credits,autologin
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -291,6 +380,23 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         } else {
             return user;
         }
+    }
+    private Object getOrganization(String key) throws KeyValueDBException {
+        Organization org = null;
+        String query = "select id,name from organizations where id=?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            long id = Long.parseLong(key);
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                org = buildOrganization(rs);
+            }
+        } catch (NumberFormatException e) {
+            throw new KeyValueDBException(KeyValueDBException.UNKNOWN, e.getMessage());
+        } catch (SQLException e) {
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
+            return org;
     }
 
     @Override
@@ -308,7 +414,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             pst.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            //throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+            // throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }
     }
 

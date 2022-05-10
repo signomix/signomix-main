@@ -55,6 +55,7 @@ import org.cricketmsf.microsite.out.queue.QueueAdapterIface;
 import org.cricketmsf.microsite.out.queue.QueueException;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
+import org.cricketmsf.microsite.user.OrganizationAdapterIface;
 import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.microsite.user.UserEvent;
 import org.cricketmsf.out.db.KeyValueDBIface;
@@ -91,6 +92,8 @@ public class Service extends Kernel {
     // user module
     KeyValueDBIface userDB = null;
     UserAdapterIface userAdapter = null;
+    // organization module
+    OrganizationAdapterIface organizationAdapter = null;
     // auth module
     KeyValueDBIface authDB = null;
     AuthAdapterIface authAdapter = null;
@@ -152,6 +155,8 @@ public class Service extends Kernel {
         // user
         userAdapter = (UserAdapterIface) getRegistered("userAdapter");
         userDB = (KeyValueDBIface) getRegistered("userDB");
+        // organization
+        organizationAdapter = (OrganizationAdapterIface) getRegistered("organizationAdapter");
         // auth
         authAdapter = (AuthAdapterIface) getRegistered("authAdapter");
         authDB = (KeyValueDBIface) getRegistered("authDB");
@@ -734,16 +739,6 @@ public class Service extends Kernel {
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation);
     }
 
-    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "start")
-    public Object handleSubscriptionStart(SubscriptionEvent event) {
-        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false);
-    }
-
-    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "end")
-    public Object handleSubscriptionEnd(SubscriptionEvent event) {
-        return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false);
-    }
-
     /**
      * Modify user data or sends password reset link
      *
@@ -779,6 +774,57 @@ public class Service extends Kernel {
                 .equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleDeleteRequest(event, userAdapter, withConfirmation);
     }
+
+    @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "OPTIONS")
+    public Object organizationCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(ResponseCode.OK);
+        return result;
+    }
+
+    /**
+     * Return organization data
+     *
+     * @param event
+     * @return
+     */
+    @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "GET")
+    public Object organizationGet(Event event) {
+        return OrganizationModule.getInstance().handleGetRequest(event, organizationAdapter);
+    }
+
+    @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "POST")
+    public Object organizationAdd(Event event) {
+        return OrganizationModule.getInstance().handleCreateRequest(event, organizationAdapter);
+    }
+
+    /**
+     * Modify organization data or sends password reset link
+     *
+     * @param event
+     * @return
+     */
+    @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "PUT")
+    public Object organizationUpdate(Event event) {
+        try {
+            return OrganizationModule.getInstance().handleUpdateRequest(event, organizationAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Set organization as waiting for removal
+     *
+     * @param event
+     * @return
+     */
+    @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "DELETE")
+    public Object organizationDelete(Event event) {
+        return OrganizationModule.getInstance().handleDeleteRequest(event, organizationAdapter);
+    }
+
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "OPTIONS")
     public Object authCors(Event requestEvent) {
@@ -849,6 +895,16 @@ public class Service extends Kernel {
             e.printStackTrace();
         }
         return result;
+    }
+
+    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "start")
+    public Object handleSubscriptionStart(SubscriptionEvent event) {
+        return UserModule.getInstance().handleSubscribeRequest(event, userAdapter, false);
+    }
+
+    @PortEventClassHook(className = "SubscriptionEvent", procedureName = "end")
+    public Object handleSubscriptionEnd(SubscriptionEvent event) {
+        return UserModule.getInstance().handleUnsubscribeRequest(event, userAdapter, false);
     }
 
     @HttpAdapterHook(adapterName = "SubscriptionConfirmationService", requestMethod = "GET")
