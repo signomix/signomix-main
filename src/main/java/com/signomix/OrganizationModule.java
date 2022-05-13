@@ -45,12 +45,14 @@ public class OrganizationModule extends UserBusinessLogic {
 
     public Object handleGetRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
-        // handle(Event.logFinest(this.getClass().getSimpleName(), request.pathExt));
-        String uid = request.pathExt;
-        String requesterID = request.headers.getFirst("X-user-id");
-        String requesterRole = request.headers.getFirst("X-user-role");
-        long id = -1;
         StandardResult result = new StandardResult();
+        if(!isAdmin(request)){
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            return result;
+        }
+
+        String uid = request.pathExt;
+        long id = -1;
         try {
             if (null != uid && !uid.isEmpty()) {
                 id = Long.parseLong(uid);
@@ -60,14 +62,12 @@ public class OrganizationModule extends UserBusinessLogic {
             return result;
         }
         try {
-            if (uid.isEmpty() && "admin".equals(requesterRole)) {
+            if (uid.isEmpty()) {
                 Map m = organizationAdapter.getAllOrganizations();
                 result.setData(m);
-            } else if ("admin".equals(requesterRole)) {
+            } else {
                 Organization org = (Organization) organizationAdapter.getOrganization(id);
                 result.setData(org);
-            } else {
-                result.setCode(HttpAdapter.SC_FORBIDDEN);
             }
         } catch (UserException e) {
             result.setCode(HttpAdapter.SC_NOT_FOUND);
@@ -78,6 +78,11 @@ public class OrganizationModule extends UserBusinessLogic {
     public Object handleCreateRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
+        if(!isAdmin(request)){
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            return result;
+        }
+
         String uid = request.pathExt;
         if (uid != null && !uid.isEmpty()) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
@@ -106,9 +111,13 @@ public class OrganizationModule extends UserBusinessLogic {
         // TODO: check requester rights
         // only admin can do this and user status must be IS_UNREGISTERING
         RequestObject request = event.getRequest();
+        StandardResult result = new StandardResult();
+        if(!isAdmin(request)){
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            return result;
+        }
         String uid = request.pathExt;
         long id;
-        StandardResult result = new StandardResult();
         if (uid == null) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             return result;
@@ -116,12 +125,17 @@ public class OrganizationModule extends UserBusinessLogic {
             try {
                 id = Long.parseLong(uid);
             } catch (NumberFormatException e) {
+                e.printStackTrace();
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
                 return result;
             }
         }
         try {
             Organization tmpOrg = organizationAdapter.getOrganization(id);
+            if(null==tmpOrg){
+                result.setCode(HttpAdapter.SC_NOT_FOUND);
+                return result;    
+            }
             organizationAdapter.removeOrganization(tmpOrg);
             result.setCode(HttpAdapter.SC_OK);
             result.setData("" + id);
@@ -133,10 +147,13 @@ public class OrganizationModule extends UserBusinessLogic {
 
     public Object handleUpdateRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
-        boolean admin = isAdmin(request);
+        StandardResult result = new StandardResult();
+        if(!isAdmin(request)){
+            result.setCode(HttpAdapter.SC_FORBIDDEN);
+            return result;
+        }
         String uid = request.pathExt;
         long id;
-        StandardResult result = new StandardResult();
         if (uid == null || uid.contains("/")) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             return result;
@@ -144,6 +161,7 @@ public class OrganizationModule extends UserBusinessLogic {
             try {
                 id = Long.parseLong(uid);
             } catch (NumberFormatException e) {
+                e.printStackTrace();
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
                 return result;
             }

@@ -82,11 +82,8 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
         Organization org = organization;
         Random r = new Random(System.currentTimeMillis());
         try {
-            if (getDatabase().containsKey("organizations", ""+org.id)) {
-                throw new UserException(UserException.USER_ALREADY_EXISTS, "cannot register");
-            }
             getDatabase().put("organizations", ""+org.id, org);
-            return getOrganization(org.id);
+            return org;
         } catch (KeyValueDBException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
         }
@@ -106,9 +103,11 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
 
     @Override
     public void removeOrganization(Organization org) throws UserException {
+        if(null==org){
+            return;
+        }
         try {
             getDatabase().remove("organizations", ""+org.id);
-            //TODO: event to remove user's data
         } catch (KeyValueDBException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception e){

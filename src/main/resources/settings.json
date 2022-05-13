@@ -20,7 +20,7 @@
                 "initial-admin-email": "$SIGNOMIX_INITIAL_ADMIN_EMAIL",
                 "initial-admin-secret": "$SIGNOMIX_INITIAL_ADMIN_SECRET",
                 "admin-notification-email": "$SIGNOMIX_ADMIN_NOTIFICATION_EMAIL",
-                "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator *@/api/mailing",
+                "restricted-resources": "DELETE@/api/auth PUT@/api/auth GET@/api/user PUT@/api/user DELETE@/api/user *@/api/organization *@/api/iot *@/api/cm *@/api/dashboard *@/api/alert *@/api/system *@/api/actuator *@/api/mailing",
                 "maintenance-paths": "/api/system /api/cm /api/auth /api/user /admin",
                 "file.upload.maxsize": "5000000",
                 "backup-folder": "./dbdata/backup",
@@ -64,7 +64,7 @@
                 {
                     "name": "OrganizationService",
                     "interfaceName": "HttpAdapterIface",
-                    "classFullName": "org.cricketmsf.microsite.in.http.OrganizationApi",
+                    "classFullName": "com.signomix.in.http.OrganizationApi",
                     "properties": {
                         "context": "/api/organization",
                         "silent-mode": "false"

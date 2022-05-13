@@ -795,7 +795,12 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "POST")
     public Object organizationAdd(Event event) {
+        try{
         return OrganizationModule.getInstance().handleCreateRequest(event, organizationAdapter);
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
