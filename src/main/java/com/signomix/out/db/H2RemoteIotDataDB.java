@@ -36,6 +36,7 @@ import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
 
+import org.apache.qpid.proton.codec.Data;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -99,7 +100,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("userid varchar,").append("title varchar,").append("team varchar,")
                 .append("widgets varchar,").append("token varchar,").append("shared boolean,")
                 .append("administrators varchar);");
-        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint default group_seq.nextval primary key ,").append("name varchar,")
+        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint default group_seq.nextval primary key ,")
+                .append("name varchar,")
                 .append("category varchar,").append("type varchar,").append("deviceeui varchar,")
                 .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
                 .append("serviceid varchar,").append("uuid varchar,").append("calculatedtimepoint bigint,")
@@ -719,8 +721,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         a.setPayload(rs.getString(7));
         a.setTimePoint(rs.getString(8));
         a.setServiceId(rs.getString(9));
-        //a.setServiceUuid(UUID.fromString(rs.getString(10)));
-        a.setServiceUuid(new UUID(0,0));
+        // a.setServiceUuid(UUID.fromString(rs.getString(10)));
+        a.setServiceUuid(new UUID(0, 0));
         a.setCalculatedTimePoint(rs.getLong(11));
         a.setCreatedAt(rs.getLong(12));
         a.setRootEventId(rs.getLong(13));
@@ -1123,9 +1125,32 @@ public class H2RemoteIotDataDB extends H2RemoteDB
      * @throws ThingsDataException
      */
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval)
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+            String dataQuery)
             throws ThingsDataException {
-        return getGroupLastValues(userID, groupEUI, channelNames, interval);
+        DataQuery dq;
+        if (dataQuery.isEmpty()) {
+            dq = new DataQuery();
+            dq.setFromTs("-" + interval + "s");
+        } else {
+            try {
+                dq = DataQuery.parse(dataQuery);
+            } catch (DataQueryException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+        // return getGroupLastValues(userID, groupEUI, channelNames, interval);
+        return getGroupLastValues(userID, groupEUI, channelNames, dq);
+    }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+            DataQuery dataQuery)
+            throws ThingsDataException {
+        // return getGroupLastValues(userID, groupEUI, channelNames, interval);
+        return getGroupLastValues(userID, groupEUI, channelNames, dataQuery);
     }
 
     @Override
@@ -1431,7 +1456,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     public List<List> getValues(String userID, String deviceEUI, int limit, DataQuery dataQuery)
             throws ThingsDataException {
-        String query = buildSqlQuery(-1, dataQuery);
+        String query = buildDeviceDataQuery(-1, dataQuery);
         List<String> channels = getDeviceChannels(deviceEUI);
         List<List> result = new ArrayList<>();
         ArrayList<ChannelData> row;
@@ -1507,7 +1532,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     private List<List> getVirtualDeviceMeasures(String userID, String deviceEUI, DataQuery dataQuery)
             throws ThingsDataException {
         List<List> result = new ArrayList<>();
-        String query = buildSqlQuery(-1, dataQuery);
+        String query = buildDeviceDataQuery(-1, dataQuery);
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
             ResultSet rs = pst.executeQuery();
@@ -1523,18 +1548,18 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 ts = rs.getTimestamp(2);
                 serializedData = rs.getString(3);
                 Kernel.getInstance().dispatchEvent(Event.logInfo(this, serializedData));
-                JsonObject jo= (JsonObject)JsonReader.jsonToJava(serializedData);
+                JsonObject jo = (JsonObject) JsonReader.jsonToJava(serializedData);
                 VirtualData vd = new VirtualData(eui);
-                vd.timestamp=ts.getTime();
-                JsonObject fields=(JsonObject)jo.get("payload_fields");
-                Iterator<String> it=fields.keySet().iterator();
-                while(it.hasNext()) {
-                    channelName=it.next();
+                vd.timestamp = ts.getTime();
+                JsonObject fields = (JsonObject) jo.get("payload_fields");
+                Iterator<String> it = fields.keySet().iterator();
+                while (it.hasNext()) {
+                    channelName = it.next();
                     cData = new ChannelData();
                     cData.setDeviceEUI(eui);
                     cData.setTimestamp(vd.timestamp);
                     cData.setName(channelName);
-                    cData.setValue((Double)fields.get(channelName));
+                    cData.setValue((Double) fields.get(channelName));
                     channels.add(cData);
                 }
             }
@@ -1559,7 +1584,11 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             return getVirtualDeviceMeasures(userID, deviceEUI, dq);
         }
         if (null != dq.getGroup()) {
-            return getValuesOfGroup(userID, dq.getGroup(), dq.getChannelName().split(","), defaultGroupInterval);
+            String channelName=dq.getChannelName();
+            if(null==channelName){
+                channelName="";
+            }
+            return getValuesOfGroup(userID, dq.getGroup(), channelName.split(","), defaultGroupInterval, dq);
         }
 
         int limit = dq.getLimit();
@@ -1718,7 +1747,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         return query;
     }
 
-    private String buildSqlQuery(int channelIndex, DataQuery dq) {
+    private String buildDeviceDataQuery(int channelIndex, DataQuery dq) {
         if (dq.isVirtual()) {
             return buildSqlQueryVirtual(dq);
         }
@@ -1751,6 +1780,34 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         return query;
     }
 
+    private String buildGroupDataQuery(DataQuery dq) {
+        if (dq.isVirtual()) {
+            // TODO
+        }
+        String query = "select eui,userid,day,dtime,tstamp,"
+                + "d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24"
+                + " from devicedata WHERE eui IN (SELECT eui FROM devices WHERE groups like ?)";
+        String projectQuery = " and project=?";
+        String stateQuery = " and state=?";
+        String fromTsPart = " and tstamp>=?";
+        String toTsPart = " and tstamp<=?";
+        String orderPart = " order by eui,tstamp desc";
+        if (null != dq.getProject()) {
+            query = query.concat(projectQuery);
+        }
+        if (null != dq.getState()) {
+            query = query.concat(stateQuery);
+        }
+        if (null != dq.getFromTs()) {
+            query = query.concat(fromTsPart);
+        }
+        if (null != dq.getToTs()) {
+            query = query.concat(toTsPart);
+        }
+        query = query.concat(orderPart);
+        return query;
+    }
+
     private List<ChannelData> getChannelValues(String userID, String deviceEUI, String channel, int resultsLimit,
             DataQuery dataQuery) throws ThingsDataException {
         ArrayList<ChannelData> result = new ArrayList<>();
@@ -1758,7 +1815,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         if (channelIndex < 1) {
             return result;
         }
-        String query = buildSqlQuery(channelIndex, dataQuery);
+        String query = buildDeviceDataQuery(channelIndex, dataQuery);
         int limit = resultsLimit;
         if (requestLimit > 0 && requestLimit < limit) {
             limit = requestLimit;
@@ -2019,6 +2076,134 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.executeUpdate();
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, DataQuery dQuery)
+            throws ThingsDataException {
+        List<String> requestChannels=null;
+        try {
+            requestChannels = Arrays.asList(channelNames);
+            if (null != dQuery.getChannelName()) {
+                requestChannels = dQuery.getChannels();
+            }
+            String group = "%," + groupEUI + ",%";
+            String deviceQuery = "SELECT eui,channels FROM devices WHERE groups like ?;";
+            HashMap<String, List> devices = new HashMap<>();
+            String query = buildGroupDataQuery(dQuery);
+            logger.info(query);
+            List<String> groupChannels = getGroupChannels(groupEUI);
+            if (requestChannels.size() == 0) {
+                logger.error("empty channelNames");
+                requestChannels = groupChannels;
+            }
+            List<List> result = new ArrayList<>();
+            List<ChannelData> row = new ArrayList<>();
+            List<ChannelData> tmpResult = new ArrayList<>();
+            ChannelData cd;
+            logger.debug("{} {} {} {} {}", groupEUI, group, groupChannels.size(), requestChannels.size(), query);
+            try (Connection conn = getConnection();
+                    PreparedStatement pstd = conn.prepareStatement(deviceQuery);
+                    PreparedStatement pst = conn.prepareStatement(query);) {
+                pstd.setString(1, group);
+                ResultSet rs = pstd.executeQuery();
+                while (rs.next()) {
+                    devices.put(rs.getString(1), Arrays.asList(rs.getString(2).split(",")));
+                }
+                pst.setString(1, group);
+                int idx = 1;
+                if (null != dQuery.getProject()) {
+                    idx++;
+                    pst.setString(idx, dQuery.getProject());
+                }
+                if (null != dQuery.getState()) {
+                    idx++;
+                    pst.setDouble(idx, dQuery.getState());
+                }
+                if (null != dQuery.getFromTs()) {
+                    idx++;
+                    pst.setTimestamp(idx, dQuery.getFromTs());
+                }
+                if (null != dQuery.getToTs()) {
+                    idx++;
+                    pst.setTimestamp(idx, dQuery.getToTs());
+                }
+                // query limit should not be used for group queries
+                rs = pst.executeQuery();
+                int channelIndex;
+                String channelName;
+                String devEui;
+                double d;
+                while (rs.next()) {
+                    for (int i = 0; i < groupChannels.size(); i++) {
+                        devEui = rs.getString(1);
+                        channelName = groupChannels.get(i);
+                        channelIndex = devices.get(devEui).indexOf(channelName);
+                        d = rs.getDouble(6 + channelIndex);
+                        if (!rs.wasNull()) {
+                            tmpResult.add(new ChannelData(devEui, channelName, d,
+                                    rs.getTimestamp(5).getTime()));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                logger.error(e.getMessage());
+                throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+                throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
+            }
+            if (tmpResult.isEmpty()) {
+                return result;
+            }
+            String prevEUI = "";
+            long prevTimestamp = 0;
+            int idx;
+            for (int i = 0; i < tmpResult.size(); i++) {
+                cd = tmpResult.get(i);
+                logger.info("ChannelData: {} {} {}", cd.getDeviceEUI(), cd.getName(), cd.getTimestamp());
+                if (!cd.getDeviceEUI().equalsIgnoreCase(prevEUI)) {
+                    if (!row.isEmpty()) {
+                        result.add(row);
+                    }
+                    row = new ArrayList();
+                    for (int j = 0; j < requestChannels.size(); j++) {
+                        row.add(null);
+                    }
+                    idx = requestChannels.indexOf(cd.getName());
+                    if (idx > -1) {
+                        row.set(idx, cd);
+                    }
+                    prevEUI = cd.getDeviceEUI();
+                    prevTimestamp = cd.getTimestamp();
+                } else {
+                    if (prevTimestamp == cd.getTimestamp()) {
+                        idx = requestChannels.indexOf(cd.getName());
+                        if (idx > -1) {
+                            row.set(idx, cd);
+                        }
+                    } else {
+                        // skip prevous measures
+                    }
+                }
+            }
+            if (!row.isEmpty()) {
+                result.add(row);
+            }
+            return result;
+        } catch (Exception e) {
+            StackTraceElement[] ste = e.getStackTrace();
+            if (null != requestChannels) {
+                logger.error("requestChannels[{}]", requestChannels.size());
+            }
+            logger.error("channelNames[{}]", requestChannels.size());
+            logger.error(e.getMessage());
+            for (int i = 0; i < ste.length; i++) {
+                logger.error("{}.{}:{}", e.getStackTrace()[i].getClassName(), e.getStackTrace()[i].getMethodName(),
+                        e.getStackTrace()[i].getLineNumber());
+            }
+            return null;
         }
     }
 

@@ -4,22 +4,23 @@
  */
 package com.signomix;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
-import java.util.ArrayList;
-import java.util.List;
+import com.signomix.out.iot.DeviceGroup;
+import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.ThingsDataIface;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
-
-import com.signomix.out.iot.DeviceGroup;
-import com.signomix.out.iot.ThingsDataException;
-import com.signomix.out.iot.ThingsDataIface;
-import java.util.Base64;
-import java.util.Iterator;
-import java.util.Random;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.user.User;
 
@@ -267,7 +268,8 @@ public class DeviceManagementModule {
                                 String groupID = params[0];
                                 String channels = params[1];
                                 String[] channelNames = channels.split(",");
-                                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                                //result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter,request.parameters));
                                 String format = event.getRequestParameter("format");
                                 if (null != format && !format.isBlank()) {
                                     DeviceGroup group = getGroup(userID, groupID, thingsAdapter);
@@ -363,7 +365,7 @@ public class DeviceManagementModule {
                 } else {
                     channelNames=(String[]) group.getChannels().keySet().toArray(new String[group.getChannels().keySet().size()]);
                 }
-                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
+                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter, request.parameters));
                 if (null != format && !format.isBlank()) {
                     result.setHeader("X-Format", format);
                     result.setHeader("X-Group", groupID);
@@ -691,10 +693,11 @@ public class DeviceManagementModule {
         }
     }
 
-    private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter) {
+    private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter, Map<String,Object> queryParameters) {
         try {
             //return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
-            return thingsAdapter.getLastValuesOfGroup(userID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL);
+            String dataQuery=(String)queryParameters.getOrDefault("query","");
+            return thingsAdapter.getLastValuesOfGroup(userID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL,dataQuery);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return new ArrayList();

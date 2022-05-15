@@ -5,6 +5,9 @@
 package com.signomix.out.iot;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.signomix.common.DateTool;
 
@@ -208,6 +211,9 @@ public class DataQuery {
         return dq;
     }
 
+    public List<String> getChannels(){
+        return (null!=channelName)?(Arrays.asList(channelName.split(","))):new ArrayList<>();
+    }
     /**
      * @return the limit
      */

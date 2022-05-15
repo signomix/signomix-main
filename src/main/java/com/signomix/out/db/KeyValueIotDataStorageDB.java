@@ -206,11 +206,6 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     }
 
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public List<List> getDeviceMeasures(String userID, String deviceEUI, String query) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -218,6 +213,13 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     @Override
     public int getChannelIndex(String deviceEUI, String channel) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+            String dataQuery) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

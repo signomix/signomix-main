@@ -4,15 +4,18 @@
  */
 package com.signomix.out.iot;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.signomix.common.iot.ChannelData;
 import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
 import com.signomix.out.db.IotDataStorageIface;
 import com.signomix.out.db.IotDatabaseIface;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
+
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -351,14 +354,14 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         if (!isGroupAuthorized(userID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, 0);
+        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, 0,"");
     }
     @Override
-    public List<List> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException {
+    public List<List> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
         if (!isGroupAuthorized(userID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, interval);
+        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, interval, dataQuery);
     }
 
     @Override

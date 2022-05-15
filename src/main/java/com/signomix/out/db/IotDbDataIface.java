@@ -4,13 +4,16 @@
  */
 package com.signomix.out.db;
 
+import java.util.List;
+
 import com.signomix.common.iot.ChannelData;
 import com.signomix.common.iot.Device;
 import com.signomix.out.gui.Dashboard;
+import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
-import java.util.List;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.out.db.KeyValueDBIface;
 
@@ -94,8 +97,6 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public List<String> getGroupChannels(String groupEUI) throws ThingsDataException;
 
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException;
-
     public List<String> getDeviceChannels(String deviceEUI) throws ThingsDataException;
 
     public int getChannelIndex(String deviceEUI, String channel) throws ThingsDataException;
@@ -120,6 +121,8 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException; //T
     public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
+    public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
 
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException; //TT
 

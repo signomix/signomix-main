@@ -6,6 +6,7 @@ package com.signomix.out.db;
 
 import com.signomix.common.iot.Device;
 import com.signomix.out.gui.Dashboard;
+import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
@@ -96,7 +97,7 @@ public interface IotDatabaseIface extends KeyValueDBIface {
 
     public List<String> getGroupChannels(String groupEUI) throws ThingsDataException;
     
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException;
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, DataQuery dataQuery) throws ThingsDataException;
 
     public void setDeviceStatus(String eui, Double state) throws ThingsDataException;
     public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException;

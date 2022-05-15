@@ -5,6 +5,7 @@
 package com.signomix.out.iot;
 
 import java.util.List;
+import java.util.Map;
 
 import com.signomix.common.iot.ChannelData;
 import com.signomix.common.iot.Device;
@@ -70,7 +71,7 @@ public interface ThingsDataIface {
     public void modifyGroup(String userID, DeviceGroup group) throws ThingsDataException;
     public void removeGroup(String userID, String groupEUI) throws ThingsDataException;
     public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException;
-    public List<List> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException;
+    public List<List> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException;
 
     public List<DeviceTemplate> getTemplates() throws ThingsDataException;
 }

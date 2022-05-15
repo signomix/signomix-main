@@ -4,17 +4,20 @@
  */
 package com.signomix.out.db;
 
-import com.signomix.common.iot.Device;
-import com.signomix.out.gui.Dashboard;
-import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.AlertOwnerComparator;
-import com.signomix.out.iot.DeviceGroup;
-import com.signomix.out.iot.DeviceTemplate;
-import com.signomix.out.iot.ThingsDataException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.signomix.common.iot.Device;
+import com.signomix.out.gui.Dashboard;
+import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.AlertOwnerComparator;
+import com.signomix.out.iot.DataQuery;
+import com.signomix.out.iot.DeviceGroup;
+import com.signomix.out.iot.DeviceTemplate;
+import com.signomix.out.iot.ThingsDataException;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.out.db.KeyValueDB;
 import org.cricketmsf.out.db.KeyValueDBException;
@@ -396,11 +399,6 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void setDeviceStatus(String eui, Double state) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
@@ -413,6 +411,12 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     @Override
     public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    @Override
+    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+            DataQuery dataQuery) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
