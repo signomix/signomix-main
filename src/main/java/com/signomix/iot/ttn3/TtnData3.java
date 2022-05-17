@@ -22,9 +22,9 @@ public class TtnData3 extends TtnData implements IotDataIface {
     public Long fPort;
     public String frmPayload;
     public Map decodedPayload;
-    public Double latitude=null;
-    public Double longitude=null;
-    public Double altitude=null;
+    public Double latitude = null;
+    public Double longitude = null;
+    public Double altitude = null;
     public Object[] rxMetadata;
     public String rxMetadataJson;
     private long timestamp;
@@ -114,19 +114,19 @@ public class TtnData3 extends TtnData implements IotDataIface {
     public Double getAltitude() {
         return altitude;
     }
-    
-    public String getDownlink(){
+
+    public String getDownlink() {
         return "";
     }
 
-    public long getFrameCounter(){
+    public long getFrameCounter() {
         return 0;
     }
-    
-    public HashMap getPayloadFields(){
-        return (HashMap)decodedPayload;
+
+    public HashMap getPayloadFields() {
+        return (HashMap) decodedPayload;
     }
-    
+
     @Override
     public void normalize() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz");
@@ -140,41 +140,43 @@ public class TtnData3 extends TtnData implements IotDataIface {
         } catch (ParseException ex) {
             receivedUplinkTimestamp = System.currentTimeMillis();
         }
-        Iterator it=decodedPayload.keySet().iterator();
-        String key,subKey;
-        Object element;
-        HashMap tmpMap=new HashMap();
-        while(it.hasNext()){
-            key=(String)it.next();
-            element=decodedPayload.get(key);
-            if(element instanceof Map){
-                Iterator it2=((Map) element).keySet().iterator();
-                while(it2.hasNext()){
-                    subKey=(String)it2.next();
-                    tmpMap.put(key+"_"+subKey, ((Map) element).get(subKey));
+        if (null != decodedPayload) {
+            Iterator it = decodedPayload.keySet().iterator();
+            String key, subKey;
+            Object element;
+            HashMap tmpMap = new HashMap();
+            while (it.hasNext()) {
+                key = (String) it.next();
+                element = decodedPayload.get(key);
+                if (element instanceof Map) {
+                    Iterator it2 = ((Map) element).keySet().iterator();
+                    while (it2.hasNext()) {
+                        subKey = (String) it2.next();
+                        tmpMap.put(key + "_" + subKey, ((Map) element).get(subKey));
+                    }
+                } else {
+                    tmpMap.put(key, element);
                 }
-            }else{
-                tmpMap.put(key, element);
             }
+            decodedPayload.clear();
+            it = tmpMap.keySet().iterator();
+            while (it.hasNext()) {
+                key = (String) it.next();
+                decodedPayload.put(key, tmpMap.get(key));
+            }
+            String[] arr = new String[decodedPayload.size()];
+            Set<String> s = decodedPayload.keySet();
+            int i = 0;
+            for (String x : s) {
+                arr[i++] = x;
+            }
+            payloadFieldNames = arr;
         }
-        decodedPayload.clear();
-        it=tmpMap.keySet().iterator();
-        while(it.hasNext()){
-            key=(String)it.next();
-            decodedPayload.put(key,tmpMap.get(key));
-        }
-        String[] arr = new String[decodedPayload.size()];
-        Set<String> s = decodedPayload.keySet();
-        int i = 0;
-        for (String x : s) {
-            arr[i++] = x;
-        }
-        payloadFieldNames = arr;
         latitude = null;
         longitude = null;
         altitude = null;
-        if(null==deviceEui){
-            deviceEui=deviceId;
+        if (null == deviceEui) {
+            deviceEui = deviceId;
         }
     }
 
