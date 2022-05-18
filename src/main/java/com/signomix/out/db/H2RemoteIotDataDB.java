@@ -76,7 +76,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), "createStructure()"));
         String query;
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE SEQUENCE id_seq;");
+        sb.append("CREATE SEQUENCE IF NOT EXISTS id_seq;");
         sb.append("CREATE TABLE IF NOT EXISTS devicetemplates (").append("eui varchar primary key,")
                 .append("appid varchar,")
                 .append("appeui varchar,").append("type varchar,").append("channels varchar,")
