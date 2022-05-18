@@ -100,7 +100,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("userid varchar,").append("title varchar,").append("team varchar,")
                 .append("widgets varchar,").append("token varchar,").append("shared boolean,")
                 .append("administrators varchar);");
-        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint default group_seq.nextval primary key ,")
+        sb.append("CREATE TABLE IF NOT EXISTS alerts (").append("id bigint default id_seq.nextval primary key ,")
                 .append("name varchar,")
                 .append("category varchar,").append("type varchar,").append("deviceeui varchar,")
                 .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
