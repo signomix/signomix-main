@@ -413,7 +413,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
             DataQuery dataQuery) throws ThingsDataException {
         // TODO Auto-generated method stub
         return null;

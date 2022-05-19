@@ -120,9 +120,9 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException; //T
 
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException; //T
-    public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
-    public List<List> getGroupLastValues(String userID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
+    public List<List<List>> getGroupLastValues(String userID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
+    public List<List<List>> getGroupLastValues(String userID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
+    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
 
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException; //TT
 

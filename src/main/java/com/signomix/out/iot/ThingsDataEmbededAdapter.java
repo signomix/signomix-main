@@ -350,14 +350,14 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
+    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
         if (!isGroupAuthorized(userID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, 0,"");
     }
     @Override
-    public List<List> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
+    public List<List<List>> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
         if (!isGroupAuthorized(userID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }

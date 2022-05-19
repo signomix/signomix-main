@@ -75,10 +75,10 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     }
 
     private void init() {
-        Kernel.getInstance().getLogger().print("initializing");
+        //Kernel.getInstance().getLogger().print("initializing");
+        Kernel.getInstance().getLogger().print("connecting MQ "+host+" "+port);
         while (!isReady()) {
             try {
-                Kernel.getInstance().getLogger().print("connecting "+host+" "+port);
                 ConnectionFactory factory = new ConnectionFactory();
                 factory.setHost(host);
                 factory.setPort(port);
@@ -87,12 +87,13 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
                 factory.setVirtualHost("/"); //WARNING: Virtual host configured as "/" must be set in Java without "/"
                 connection = factory.newConnection();
                 channel = connection.createChannel();
-                //channel.queueDeclare("notifications", true, false, false, null);
-                //channel.queueDeclare("mailing", true, false, false, null);
-                //channel.queueDeclare("admin_email", true, false, false, null);
                 ready = true;
             } catch (TimeoutException | IOException ex) {
                 Kernel.getInstance().getLogger().print("connection error: " + ex.getMessage()+ " "+ex.toString());
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
             }
         }
     }

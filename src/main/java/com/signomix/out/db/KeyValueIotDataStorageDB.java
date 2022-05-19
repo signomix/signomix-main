@@ -216,7 +216,7 @@ public class KeyValueIotDataStorageDB extends KeyValueDB implements IotDataStora
     }
 
     @Override
-    public List<List> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
             String dataQuery) throws ThingsDataException {
         // TODO Auto-generated method stub
         return null;
