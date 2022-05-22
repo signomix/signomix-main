@@ -22,10 +22,21 @@ public class DeviceTemplate {
     private String pattern; //required fields
     private String commandScript;
     private String producer; //producer name
+    private String configuration;
+
+    
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     public DeviceTemplate() {
         super();
+    }
+
+    public String getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
     }
 
     /**

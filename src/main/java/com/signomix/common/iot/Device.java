@@ -68,6 +68,11 @@ public class Device {
     private Double state;
     private long retentionTime;
     private String administrators;
+    private String configuration;
+    private Long orgApplicationId;
+    private String applicationConfig;
+    private Long organizationId;
+
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     /**
@@ -97,7 +102,12 @@ public class Device {
         altitude = 100000d;
         state = 0d;
         administrators="";
+        configuration=null;
+        orgApplicationId=0L;
+        applicationConfig=null;
+        organizationId=0L;
     }
+
 
     public void print() {
         System.out.println("DEVICE: " + getEUI());
@@ -105,6 +115,33 @@ public class Device {
         System.out.println("CHANNELS: " + getChannels().keySet().size());
         System.out.println("CODE: " + getCode());
     }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+    
+    public Long getOrgApplicationId() {
+        return orgApplicationId;
+    }
+
+    public void setOrgApplicationId(Long signomixApplicationId) {
+        this.orgApplicationId = signomixApplicationId;
+    }
+
+    public String getApplicationConfig() {
+        return applicationConfig;
+    }
+
+    public void setApplicationConfig(String applicationConfig) {
+        this.applicationConfig = applicationConfig;
+    }
+
+
 
     public boolean isVirtual() {
         return VIRTUAL.equals(getType());
@@ -645,6 +682,14 @@ public class Device {
      */
     public void setRetentionTime(long retentionTime) {
         this.retentionTime = retentionTime;
+    }
+
+    public String getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
     }
 
 }
