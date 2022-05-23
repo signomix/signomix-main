@@ -31,8 +31,8 @@ import org.cricketmsf.microsite.user.User;
 public class DeviceManagementModule {
 
     private static DeviceManagementModule service;
-    
-    private long DEFAULT_GROUP_INTERVAL=60*60*1000; //60 MINUT
+
+    private long DEFAULT_GROUP_INTERVAL = 60 * 60 * 1000; // 60 MINUT
 
     public static DeviceManagementModule getInstance() {
         if (service == null) {
@@ -44,13 +44,15 @@ public class DeviceManagementModule {
     /**
      *
      */
-    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
-        //TODO: exception handling - send 400 or 403
+    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
+            PlatformAdministrationModule platform) {
+        // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
-        //request.headers.keySet().forEach(key -> System.out.println(key + ":" + request.headers.getFirst(key)));
+        // request.headers.keySet().forEach(key -> System.out.println(key + ":" +
+        // request.headers.getFirst(key)));
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -58,9 +60,9 @@ public class DeviceManagementModule {
             return result;
         }
         try {
-            if (pathExt.isEmpty()) {  // user id is from request header
+            if (pathExt.isEmpty()) { // user id is from request header
                 switch (request.method) {
-                    case "GET":  // get list of user devices
+                    case "GET": // get list of user devices
                         result.setData(getUserDevices(userID, thingsAdapter));
                         break;
                     case "POST": // add new device
@@ -73,8 +75,8 @@ public class DeviceManagementModule {
                             result.setCode(HttpAdapter.SC_CREATED);
                             result.setData(device.getEUI());
                             Kernel.getInstance().dispatchEvent(
-                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.DEVICE_REGISTERED, null, device.getEUI())
-                            );
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT,
+                                            IotEvent.DEVICE_REGISTERED, null, device.getEUI()));
                         } catch (NullPointerException ex) {
                             ex.printStackTrace();
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
@@ -89,8 +91,9 @@ public class DeviceManagementModule {
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
                             if (ex.getCode() == PlatformException.TOO_MANY_USER_DEVICES) {
                                 Kernel.handle(
-                                        new IotEvent(IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED, "unable to add device (limit reached)").addOrigin(userID + "\tSIGNOMIX")
-                                );
+                                        new IotEvent(IotEvent.PLATFORM_DEVICE_LIMIT_EXCEEDED,
+                                                "unable to add device (limit reached)")
+                                                .addOrigin(userID + "\tSIGNOMIX"));
                             }
                             result.setCode(PlatformAdministrationModule.ERR_PAYMENT_REQUIRED);
                             result.setData(ex.getMessage());
@@ -99,35 +102,39 @@ public class DeviceManagementModule {
                     default:
                         result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
                 }
-            } else {  // 
+            } else { //
                 switch (request.method) {
-                    case "GET":  // get device definition or channel data - depending on pathExt
+                    case "GET": // get device definition or channel data - depending on pathExt
                         String query = (String) request.parameters.getOrDefault("query", null);
-                        String params[] = pathExt.split("/"); // pathExt has form: deviceID/channel (so deviceID must be unique)
+                        String params[] = pathExt.split("/"); // pathExt has form: deviceID/channel (so deviceID must be
+                                                              // unique)
                         String tmpUserID = userID;
                         if ("public".equals(tmpUserID)) {
                             tmpUserID = issuerID;
                         }
                         switch (params.length) {
-                            case 2:  //get channel data
-                                // in case of request from shared dashboards we needt to use token issuer ID instead of tuken user ID
-                                //TODO: data query
-                                // zmiana: 
+                            case 2: // get channel data
+                                // in case of request from shared dashboards we needt to use token issuer ID
+                                // instead of tuken user ID
+                                // TODO: data query
+                                // zmiana:
                                 if (null == query) {
-                                    query = "last 1"; //nigdy nie zwracany wszystkich rekordów
-                                }                                //if (null == query) {
-                                //    result.setData(getAllValuesOfChannel(tmpUserID, params[0], params[1], thingsAdapter));
-                                //} else {
-                                result.setData(getValuesOfChannel(tmpUserID, params[0], params[1], query, thingsAdapter));
-                                //}
+                                    query = "last 1"; // nigdy nie zwracany wszystkich rekordów
+                                } // if (null == query) {
+                                // result.setData(getAllValuesOfChannel(tmpUserID, params[0], params[1],
+                                // thingsAdapter));
+                                // } else {
+                                result.setData(
+                                        getValuesOfChannel(tmpUserID, params[0], params[1], query, thingsAdapter));
+                                // }
                                 break;
                             case 1: // get device definition
                                 // get device info
-                                // zmiana: 
+                                // zmiana:
                                 if (query != null) {
                                     result.setData(getValues(tmpUserID, params[0], query, thingsAdapter));
                                     if (query.endsWith("csv.timeseries")) {
-                                        //result.setHeader("Content-type", "text/csv");
+                                        // result.setHeader("Content-type", "text/csv");
                                         result.setFileExtension(".csv");
                                     }
                                 } else {
@@ -151,12 +158,12 @@ public class DeviceManagementModule {
                             thingsAdapter.modifyDevice(userID, device);
                         } catch (ThingsDataException ex) {
                             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
-                            StackTraceElement[] ste=ex.getStackTrace();
-                            for(int i=0; i<ste.length;i++){
-                                String msg="."+ste[i].getMethodName()+":"+ste[i].getLineNumber();
-                                Kernel.handle(Event.logWarning(ste[i].getClassName(),msg));
+                            StackTraceElement[] ste = ex.getStackTrace();
+                            for (int i = 0; i < ste.length; i++) {
+                                String msg = "." + ste[i].getMethodName() + ":" + ste[i].getLineNumber();
+                                Kernel.handle(Event.logWarning(ste[i].getClassName(), msg));
                             }
-                            
+
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                         }
                         break;
@@ -169,8 +176,8 @@ public class DeviceManagementModule {
                         if (dev.getUserID().equals(userID)) {
                             removeDevice(pathExt, thingsAdapter);
                             Kernel.getInstance().dispatchEvent(
-                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.DEVICE_REMOVED, null, dev.getEUI())
-                            );
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT,
+                                            IotEvent.DEVICE_REMOVED, null, dev.getEUI()));
                         } else {
                             result.setCode(HttpAdapter.SC_UNAUTHORIZED);
                         }
@@ -185,13 +192,15 @@ public class DeviceManagementModule {
         return result;
     }
 
-    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
-        //TODO: exception handling - send 400 or 403
+    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
+            PlatformAdministrationModule platform) {
+        // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
-        //request.headers.keySet().forEach(key -> System.out.println(key + ":" + request.headers.getFirst(key)));
+        // request.headers.keySet().forEach(key -> System.out.println(key + ":" +
+        // request.headers.getFirst(key)));
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -200,7 +209,7 @@ public class DeviceManagementModule {
         }
         try {
             switch (request.method) {
-                case "GET":  // get list of user devices
+                case "GET": // get list of user devices
                     result.setData(getTemplates(thingsAdapter));
                     break;
                 default:
@@ -212,12 +221,13 @@ public class DeviceManagementModule {
         return result;
     }
 
-    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
-        //TODO: exception handling - send 400 or 403
+    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
+            PlatformAdministrationModule platform) {
+        // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
-        //String issuerID = request.headers.getFirst("X-issuer-id");
+        // String issuerID = request.headers.getFirst("X-issuer-id");
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -225,15 +235,14 @@ public class DeviceManagementModule {
             return result;
         }
         try {
-            if (pathExt.isEmpty()) {  // user id is from request header
+            if (pathExt.isEmpty()) { // user id is from request header
                 switch (request.method) {
-                    case "GET":  // get list of groups
+                    case "GET": // get list of groups
                         if (null == request.parameters.get("group")) {
                             result.setData(getUserGroups(userID, thingsAdapter));
                         } else {
                             result.setData(
-                                    getGroupDevices(userID, (String) request.parameters.get("group"), thingsAdapter)
-                            );
+                                    getGroupDevices(userID, (String) request.parameters.get("group"), thingsAdapter));
                         }
                         break;
                     case "POST": // add new group
@@ -244,8 +253,8 @@ public class DeviceManagementModule {
                             result.setCode(HttpAdapter.SC_CREATED);
                             result.setData(group.getEUI());
                             Kernel.getInstance().dispatchEvent(
-                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.GROUP_CREATED, null, group.getEUI())
-                            );
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT,
+                                            IotEvent.GROUP_CREATED, null, group.getEUI()));
                         } catch (NullPointerException ex) {
                             Kernel.handle(Event.logWarning(getClass().getSimpleName(), ex.getLocalizedMessage()));
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
@@ -268,8 +277,10 @@ public class DeviceManagementModule {
                                 String groupID = params[0];
                                 String channels = params[1];
                                 String[] channelNames = channels.split(",");
-                                //result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter));
-                                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter,request.parameters));
+                                // result.setData(getValuesOfGroup(userID, groupID, channelNames,
+                                // thingsAdapter));
+                                result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter,
+                                        request.parameters));
                                 String format = event.getRequestParameter("format");
                                 if (null != format && !format.isBlank()) {
                                     DeviceGroup group = getGroup(userID, groupID, thingsAdapter);
@@ -310,8 +321,8 @@ public class DeviceManagementModule {
                         if (gr.getUserID().equals(userID)) {
                             removeGroup(pathExt, thingsAdapter);
                             Kernel.getInstance().dispatchEvent(
-                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT, IotEvent.GROUP_REMOVED, null, gr.getEUI())
-                            );
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT,
+                                            IotEvent.GROUP_REMOVED, null, gr.getEUI()));
                         } else {
                             result.setCode(HttpAdapter.SC_UNAUTHORIZED);
                         }
@@ -326,8 +337,9 @@ public class DeviceManagementModule {
         return result;
     }
 
-    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
-        //TODO: exception handling - send 400 or 403
+    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
+            PlatformAdministrationModule platform) {
+        // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
@@ -363,7 +375,8 @@ public class DeviceManagementModule {
                     channels = params[1];
                     channelNames = channels.split(",");
                 } else {
-                    channelNames=(String[]) group.getChannels().keySet().toArray(new String[group.getChannels().keySet().size()]);
+                    channelNames = (String[]) group.getChannels().keySet()
+                            .toArray(new String[group.getChannels().keySet().size()]);
                 }
                 result.setData(getValuesOfGroup(userID, groupID, channelNames, thingsAdapter, request.parameters));
                 if (null != format && !format.isBlank()) {
@@ -387,7 +400,8 @@ public class DeviceManagementModule {
         try {
             thingsAdapter.removeAllDevices(userId);
         } catch (ThingsDataException ex) {
-            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "unable to clear user data of user " + userId));
+            Kernel.handle(
+                    Event.logSevere(this.getClass().getSimpleName(), "unable to clear user data of user " + userId));
         }
     }
 
@@ -410,7 +424,8 @@ public class DeviceManagementModule {
                     recipents.add(device.getUserID());
                 }
                 for (String recipent : recipents) {
-                    ev = new IotEvent(IotEvent.DEVICE_LOST, "possible device failure").addOrigin(recipent + "\t" + device.getEUI());
+                    ev = new IotEvent(IotEvent.DEVICE_LOST, "possible device failure")
+                            .addOrigin(recipent + "\t" + device.getEUI());
                     Kernel.getInstance().dispatchEvent(ev);
                 }
 
@@ -427,9 +442,10 @@ public class DeviceManagementModule {
     private Device buildDevice(RequestObject request, String userID, Device original) {
         // TODO: what if new definition has some channels removed?
         Device device = new Device();
-        /*request.parameters.keySet().forEach(key -> {
-            System.out.println(key);
-        });
+        /*
+         * request.parameters.keySet().forEach(key -> {
+         * System.out.println(key);
+         * });
          */
         String eui = (String) request.parameters.getOrDefault("eui", "");
         if (eui == null || eui.isEmpty()) {
@@ -565,8 +581,7 @@ public class DeviceManagementModule {
                     Kernel.handle(
                             new IotEvent()
                                     .addType(IotEvent.CHANNEL_REMOVE)
-                                    .addPayload(k + "@" + device.getEUI())
-                    );
+                                    .addPayload(k + "@" + device.getEUI()));
                 }
             });
         }
@@ -580,6 +595,17 @@ public class DeviceManagementModule {
         boolean resetFrames = Boolean.parseBoolean((String) request.parameters.getOrDefault("framesreset", "false"));
         if (resetFrames) {
             device.setLastFrame(-1);
+        }
+
+        try {
+            long organizationId = Long.parseLong((String) request.parameters.get("organization"));
+            device.setOrganizationId(organizationId);
+        } catch (Exception e) {
+        }
+        try {
+            long organizationAppId = Long.parseLong((String) request.parameters.get("organizationapp"));
+            device.setOrgApplicationId(organizationAppId);
+        } catch (Exception e) {
         }
         return device;
     }
@@ -660,19 +686,26 @@ public class DeviceManagementModule {
         }
     }
 
-    /*private List getAllValuesOfChannel(String userID, String deviceEUI, String channelID, ThingsDataIface thingsAdapter) {
-        try {
-            return (ArrayList) thingsAdapter.getAllValues(userID, deviceEUI, channelID);
-        } catch (ThingsDataException ex) {
-            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
-            return new ArrayList();
-        }
-    }*/
-    private List getValuesOfChannel(String userID, String deviceEUI, String channelID, String query, ThingsDataIface thingsAdapter) {
+    /*
+     * private List getAllValuesOfChannel(String userID, String deviceEUI, String
+     * channelID, ThingsDataIface thingsAdapter) {
+     * try {
+     * return (ArrayList) thingsAdapter.getAllValues(userID, deviceEUI, channelID);
+     * } catch (ThingsDataException ex) {
+     * Kernel.handle(Event.logWarning(this.getClass().getSimpleName(),
+     * ex.getMessage()));
+     * return new ArrayList();
+     * }
+     * }
+     */
+    private List getValuesOfChannel(String userID, String deviceEUI, String channelID, String query,
+            ThingsDataIface thingsAdapter) {
         try {
             if (channelID != null && !"$".equals(channelID)) {
-                //Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "channelID parameter is not supported"));
-                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query + " channel " + channelID);
+                // Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "channelID
+                // parameter is not supported"));
+                ArrayList result = (ArrayList) thingsAdapter.getValues(userID, deviceEUI,
+                        query + " channel " + channelID);
                 return result;
             } else {
                 return (ArrayList) thingsAdapter.getValues(userID, deviceEUI, query);
@@ -693,17 +726,19 @@ public class DeviceManagementModule {
         }
     }
 
-    private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter, Map<String,Object> queryParameters) {
+    private List getValuesOfGroup(String userID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter,
+            Map<String, Object> queryParameters) {
         try {
-            //return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
-            String dataQuery=(String)queryParameters.getOrDefault("query","");
-            return thingsAdapter.getLastValuesOfGroup(userID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL,dataQuery);
+            // return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
+            String dataQuery = (String) queryParameters.getOrDefault("query", "");
+            return thingsAdapter.getLastValuesOfGroup(userID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL,
+                    dataQuery);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
             return new ArrayList();
         }
     }
-    
+
     private List getUserDevices(String userID, ThingsDataIface thingsAdapter) {
         try {
             return (ArrayList) thingsAdapter.getUserDevices(userID, true);
@@ -749,62 +784,64 @@ public class DeviceManagementModule {
     }
 
     /*
-    public void writeVirtualState(
-            VirtualDevice vd,
-            Device device,
-            String userID,
-            ThingsDataIface thingsAdapter,
-            VirtualStackIface virtualStackAdapter,
-            ScriptingAdapterIface scriptingAdapter,
-            boolean reset,
-            Double resetValue
-    ) throws ThingsDataException {
-        ArrayList<ChannelData> values = new ArrayList<>();
-        long now = System.currentTimeMillis();
-        VirtualDevice localCopy = virtualStackAdapter.get(vd);
-        ChannelData data = new ChannelData();
-        data.setDeviceEUI(device.getEUI());
-        data.setName("counter");
-        //data.setValue(new Double(virtualStackAdapter.get(vd).get()));
-        data.setValue(new Double(localCopy.get()));
-        data.setTimestamp(now);
-        ChannelData data2 = new ChannelData();
-        data2.setDeviceEUI(device.getEUI());
-        data2.setName("incoming");
-        //data2.setValue(new Double(virtualStackAdapter.get(vd).getInputs()));
-        data2.setValue(new Double(localCopy.getInputs()));
-        data2.setTimestamp(now);
-        ChannelData data3 = new ChannelData();
-        data3.setDeviceEUI(device.getEUI());
-        data3.setName("exiting");
-        //data3.setValue(new Double(virtualStackAdapter.get(vd).getOutputs()));
-        data3.setValue(new Double(localCopy.getOutputs()));
-        data3.setTimestamp(now);
-        values.add(data);
-        values.add(data2);
-        values.add(data3);
-        if (reset) {
-            ChannelData data4 = new ChannelData();
-            data4.setDeviceEUI(device.getEUI());
-            data4.setName("reset");
-            data4.setValue(resetValue);
-            data4.setTimestamp(now);
-            values.add(data4);
-            //thingsAdapter.putData(userID, device.getEUI(), data4.getName(), data4);
-        }
-        //TODO: w putData, dla urządzeń virtual, trzeba wywołać skrypt preprocessora
-        if (thingsAdapter.isAuthorized(userID, device.getEUI())) {
-            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
-        }
-        ArrayList<ChannelData> finalValues = null;
-        try {
-            finalValues = DataProcessor.processValues((ArrayList) values, device, scriptingAdapter);
-        } catch (Exception e) {
-            Kernel.handle(Event.logWarning(this, e.getMessage()));
-        }
-        thingsAdapter.putData(userID, device.getEUI(), values);
-        //thingsAdapter.putVirtualData(userID, device, scriptingAdapter, values);
-        //TODO: use DataProcessor
-    }
+     * public void writeVirtualState(
+     * VirtualDevice vd,
+     * Device device,
+     * String userID,
+     * ThingsDataIface thingsAdapter,
+     * VirtualStackIface virtualStackAdapter,
+     * ScriptingAdapterIface scriptingAdapter,
+     * boolean reset,
+     * Double resetValue
+     * ) throws ThingsDataException {
+     * ArrayList<ChannelData> values = new ArrayList<>();
+     * long now = System.currentTimeMillis();
+     * VirtualDevice localCopy = virtualStackAdapter.get(vd);
+     * ChannelData data = new ChannelData();
+     * data.setDeviceEUI(device.getEUI());
+     * data.setName("counter");
+     * //data.setValue(new Double(virtualStackAdapter.get(vd).get()));
+     * data.setValue(new Double(localCopy.get()));
+     * data.setTimestamp(now);
+     * ChannelData data2 = new ChannelData();
+     * data2.setDeviceEUI(device.getEUI());
+     * data2.setName("incoming");
+     * //data2.setValue(new Double(virtualStackAdapter.get(vd).getInputs()));
+     * data2.setValue(new Double(localCopy.getInputs()));
+     * data2.setTimestamp(now);
+     * ChannelData data3 = new ChannelData();
+     * data3.setDeviceEUI(device.getEUI());
+     * data3.setName("exiting");
+     * //data3.setValue(new Double(virtualStackAdapter.get(vd).getOutputs()));
+     * data3.setValue(new Double(localCopy.getOutputs()));
+     * data3.setTimestamp(now);
+     * values.add(data);
+     * values.add(data2);
+     * values.add(data3);
+     * if (reset) {
+     * ChannelData data4 = new ChannelData();
+     * data4.setDeviceEUI(device.getEUI());
+     * data4.setName("reset");
+     * data4.setValue(resetValue);
+     * data4.setTimestamp(now);
+     * values.add(data4);
+     * //thingsAdapter.putData(userID, device.getEUI(), data4.getName(), data4);
+     * }
+     * //TODO: w putData, dla urządzeń virtual, trzeba wywołać skrypt preprocessora
+     * if (thingsAdapter.isAuthorized(userID, device.getEUI())) {
+     * throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED,
+     * "not authorized");
+     * }
+     * ArrayList<ChannelData> finalValues = null;
+     * try {
+     * finalValues = DataProcessor.processValues((ArrayList) values, device,
+     * scriptingAdapter);
+     * } catch (Exception e) {
+     * Kernel.handle(Event.logWarning(this, e.getMessage()));
+     * }
+     * thingsAdapter.putData(userID, device.getEUI(), values);
+     * //thingsAdapter.putVirtualData(userID, device, scriptingAdapter, values);
+     * //TODO: use DataProcessor
+     * }
      */
 }

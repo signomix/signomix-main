@@ -13,6 +13,7 @@ import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
 import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.application.Application;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.out.db.KeyValueDBIface;
@@ -155,4 +156,12 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public void removeAllLogs(String deviceEUI) throws ThingsDataException;
 
     public List<Event> getAllLogs(String deviceEUI) throws ThingsDataException;
+
+
+    public Application addApplication(Application application) throws ThingsDataException;
+    public void updateApplication(Application application) throws ThingsDataException;
+    public void removeApplication(long id) throws ThingsDataException;
+    public Application getApplication(long id) throws ThingsDataException;
+    public Application getApplication(String name) throws ThingsDataException;
+    public List<Application> getAllApplications() throws ThingsDataException;
 }

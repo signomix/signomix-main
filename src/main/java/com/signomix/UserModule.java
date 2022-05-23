@@ -302,6 +302,12 @@ public class UserModule extends UserBusinessLogic {
             String credits = event.getRequestParameter("credits");
             String autologin = event.getRequestParameter("autologin");
             String preferredLanguage = event.getRequestParameter("preferredLanguage");
+            Long organization = null;
+            try{
+                organization=Long.valueOf(event.getRequestParameter("organization"));
+            }catch(Exception e){
+
+            }
             if (email != null) {
                 user.setEmail(email);
             }
@@ -368,6 +374,9 @@ public class UserModule extends UserBusinessLogic {
                     user.setStatus(User.IS_UNREGISTERING);
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
+            }
+            if (organization != null) {
+                user.setOrganization(organization);
             }
             userAdapter.modify(user);
             //fire event

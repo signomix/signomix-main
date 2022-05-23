@@ -70,6 +70,7 @@ public class OrganizationModule extends UserBusinessLogic {
                 result.setData(org);
             }
         } catch (UserException e) {
+            e.printStackTrace();
             result.setCode(HttpAdapter.SC_NOT_FOUND);
         }
         return result;

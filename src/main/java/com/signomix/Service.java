@@ -27,6 +27,7 @@ import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.Alert;
 import com.signomix.out.iot.ThingsDataIface;
+import com.signomix.out.iot.application.ApplicationAdapterIface;
 import com.signomix.out.mailing.MailingIface;
 import com.signomix.out.notification.MessageBrokerIface;
 import com.signomix.out.notification.dto.MessageEnvelope;
@@ -92,8 +93,10 @@ public class Service extends Kernel {
     // user module
     KeyValueDBIface userDB = null;
     UserAdapterIface userAdapter = null;
-    // organization module
+    // organization adapter
     OrganizationAdapterIface organizationAdapter = null;
+    // application adapter
+    ApplicationAdapterIface applicationAdapter = null;
     // auth module
     KeyValueDBIface authDB = null;
     AuthAdapterIface authAdapter = null;
@@ -157,6 +160,8 @@ public class Service extends Kernel {
         userDB = (KeyValueDBIface) getRegistered("userDB");
         // organization
         organizationAdapter = (OrganizationAdapterIface) getRegistered("organizationAdapter");
+        // application
+        applicationAdapter = (ApplicationAdapterIface) getRegistered("applicationAdapter");
         // auth
         authAdapter = (AuthAdapterIface) getRegistered("authAdapter");
         authDB = (KeyValueDBIface) getRegistered("authDB");
@@ -782,12 +787,6 @@ public class Service extends Kernel {
         return result;
     }
 
-    /**
-     * Return organization data
-     *
-     * @param event
-     * @return
-     */
     @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "GET")
     public Object organizationGet(Event event) {
         return OrganizationModule.getInstance().handleGetRequest(event, organizationAdapter);
@@ -803,12 +802,6 @@ public class Service extends Kernel {
         }
     }
 
-    /**
-     * Modify organization data or sends password reset link
-     *
-     * @param event
-     * @return
-     */
     @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "PUT")
     public Object organizationUpdate(Event event) {
         try {
@@ -819,16 +812,47 @@ public class Service extends Kernel {
         }
     }
 
-    /**
-     * Set organization as waiting for removal
-     *
-     * @param event
-     * @return
-     */
     @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "DELETE")
     public Object organizationDelete(Event event) {
         return OrganizationModule.getInstance().handleDeleteRequest(event, organizationAdapter);
     }
+
+    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "OPTIONS")
+    public Object applicationCors(Event requestEvent) {
+        StandardResult result = new StandardResult();
+        result.setCode(ResponseCode.OK);
+        return result;
+    }
+
+    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "GET")
+    public Object applicationGet(Event event) {
+        return ApplicationModule.getInstance().handleGetRequest(event, applicationAdapter);
+    }
+
+    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "POST")
+    public Object applicationAdd(Event event) {
+        try{
+        return ApplicationModule.getInstance().handleAddApplication(event, applicationAdapter);
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "PUT")
+    public Object applicationUpdate(Event event) {
+        try {
+            return ApplicationModule.getInstance().handleUpdateRequest(event, applicationAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "DELETE")
+    public Object applicationDelete(Event event) {
+        return ApplicationModule.getInstance().handleDeleteRequest(event, applicationAdapter);
+    }    
 
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "OPTIONS")
