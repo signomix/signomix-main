@@ -79,7 +79,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         sb.append("CREATE SEQUENCE IF NOT EXISTS id_seq;");
         sb.append("create table IF NOT EXISTS applications (")
                 .append("id bigint default id_seq.nextval primary key,")
-                .append("organization bigint default 0 references organizations,")
+                //.append("organization bigint default 0 references organizations,")
+                .append("organization bigint default 0,")
                 .append("version bigint default 0,")
                 .append("name varchar UNIQUE, configuration varchar);");
         sb.append("MERGE INTO applications KEY(id) values (0,0,0,'','');");
