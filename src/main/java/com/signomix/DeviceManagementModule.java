@@ -67,7 +67,7 @@ public class DeviceManagementModule {
                         break;
                     case "POST": // add new device
                         User user = users.get(userID);
-                        Device device = buildDevice(request, userID, null);
+                        Device device = buildDevice(request, userID, user.getOrganization(), null);
                         int numberOfDevices = thingsAdapter.getUserDevicesCount(userID);
                         try {
                             platform.checkDevicesLimit(user, numberOfDevices);
@@ -153,7 +153,8 @@ public class DeviceManagementModule {
                         }
                         break;
                     case "PUT": // update device definition
-                        Device device = buildDevice(request, userID, getDevice(userID, pathExt, thingsAdapter));
+                    User user = users.get(userID);
+                        Device device = buildDevice(request, userID, user.getOrganization(), getDevice(userID, pathExt, thingsAdapter));
                         try {
                             thingsAdapter.modifyDevice(userID, device);
                         } catch (ThingsDataException ex) {
@@ -439,7 +440,7 @@ public class DeviceManagementModule {
         return PlatformAdministrationModule.getInstance().createEui(prefix);
     }
 
-    private Device buildDevice(RequestObject request, String userID, Device original) {
+    private Device buildDevice(RequestObject request, String userID, long userOrganization, Device original) {
         // TODO: what if new definition has some channels removed?
         Device device = new Device();
         /*
@@ -597,14 +598,20 @@ public class DeviceManagementModule {
             device.setLastFrame(-1);
         }
 
+        //try {
+        //    long organizationId = Long.parseLong((String) request.parameters.get("organizationId"));
+        //    device.setOrganizationId(organizationId);
+        //} catch (Exception e) {
+        //}
+        device.setOrganizationId(userOrganization);
         try {
-            long organizationId = Long.parseLong((String) request.parameters.get("organization"));
-            device.setOrganizationId(organizationId);
+            long organizationAppId = Long.parseLong((String) request.parameters.get("orgApplicationId"));
+            device.setOrgApplicationId(organizationAppId);
         } catch (Exception e) {
         }
         try {
-            long organizationAppId = Long.parseLong((String) request.parameters.get("organizationapp"));
-            device.setOrgApplicationId(organizationAppId);
+            String config= (String) request.parameters.get("configuration");
+            device.setConfiguration(config);
         } catch (Exception e) {
         }
         return device;

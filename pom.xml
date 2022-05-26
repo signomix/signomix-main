@@ -14,7 +14,7 @@
         <dependency>
             <groupId>org.cricketmsf</groupId>
             <artifactId>cricket</artifactId>
-            <version>1.5.58</version>
+            <version>1.5.59</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -164,4 +164,5 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public Application getApplication(long id) throws ThingsDataException;
     public Application getApplication(String name) throws ThingsDataException;
     public List<Application> getAllApplications() throws ThingsDataException;
+    public List<Application> getApplications(long organizationId) throws ThingsDataException;
 }

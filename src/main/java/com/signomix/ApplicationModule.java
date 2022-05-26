@@ -48,19 +48,34 @@ public class ApplicationModule {
         System.out.println("Application - handleGetRequest");
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if (!isAdmin(request)) {
-            result.setCode(HttpAdapter.SC_FORBIDDEN);
-            return result;
-        }
+        // if (!isAdmin(request)) {
+        // result.setCode(HttpAdapter.SC_FORBIDDEN);
+        // return result;
+        // }
         String uid = request.pathExt;
         long appNumber = -1;
+        String sOrg = event.getRequest().headers.getFirst("X-user-organization");
+        System.out.println("X-user-organization:" + sOrg);
+        long orgId = -1;
+
+        try {
+            orgId = Long.parseLong(sOrg);
+        } catch (Exception e) {
+        }
         try {
             appNumber = Long.parseLong(uid);
-        } catch (ClassCastException | NumberFormatException|NullPointerException e) {
+        } catch (Exception e) {
         }
 
         try {
-            if (appNumber==-1) {
+            if (orgId >= 0 && appNumber == -1) {
+                List m = applicationAdapter.getApplications(orgId);
+                result.setData(m);
+            } else if (orgId == -1 && appNumber == -1) {
+                if (!isAdmin(request)) {
+                    result.setCode(HttpAdapter.SC_FORBIDDEN);
+                    return result;
+                }
                 List m = applicationAdapter.getAllApplications();
                 result.setData(m);
             } else {
@@ -89,19 +104,22 @@ public class ApplicationModule {
         try {
             String name = event.getRequestParameter("name");
             String config = event.getRequestParameter("config");
-            long orgId=Long.parseLong(event.getRequestParameter("organization"));
+            String sOrg = event.getRequest().headers.getFirst("X-user-organization");
+            System.out.println("X-user-organization:" + sOrg);
+            long orgId = Long.parseLong(sOrg);
             long orgVersion;
-            try{
-                orgVersion=Long.parseLong(event.getRequestParameter("version"));
-            }catch(Exception e){
-                orgVersion=parseOrgVersion(event.getRequestParameter("version"));
+            try {
+                orgVersion = Long.parseLong(event.getRequestParameter("version"));
+            } catch (Exception e) {
+                orgVersion = parseOrgVersion(event.getRequestParameter("version"));
             }
             Application app = new Application(null, orgId, orgVersion, name, config);
-            app=applicationAdapter.createApplication(app);
+            app = applicationAdapter.createApplication(app);
             result.setCode(HttpAdapter.SC_OK);
             result.setData(app.id);
         } catch (ThingsDataException ex) {
-            //Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            // Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(),
+            // ex.getMessage()));
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
         }
         return result;
@@ -161,14 +179,14 @@ public class ApplicationModule {
             String name = event.getRequestParameter("name");
             String config = event.getRequestParameter("config");
             long orgVersion;
-            try{
-                orgVersion=Long.parseLong(event.getRequestParameter("version"));
-            }catch(Exception e){
-                orgVersion=parseOrgVersion(event.getRequestParameter("version"));
+            try {
+                orgVersion = Long.parseLong(event.getRequestParameter("version"));
+            } catch (Exception e) {
+                orgVersion = parseOrgVersion(event.getRequestParameter("version"));
             }
-            app.name=name;
-            app.config=config;
-            app.version=orgVersion;
+            app.name = name;
+            app.config = config;
+            app.version = orgVersion;
             applicationAdapter.modifyApplication(app);
             // fire event
             // Kernel.getInstance().dispatchEvent(new ThingsDataEvent(IotEvent.USER_UPDATED,
@@ -185,8 +203,8 @@ public class ApplicationModule {
         return result;
     }
 
-    private long parseOrgVersion(String version){
-        long orgVersion=0;
+    private long parseOrgVersion(String version) {
+        long orgVersion = 0;
 
         return orgVersion;
     }

@@ -103,4 +103,15 @@ public class ApplicationAdapter extends OutboundAdapter implements Adapter, Appl
         }
     }
 
+    @Override
+    public List<Application> getApplications(long organizationId) throws ThingsDataException {
+        ArrayList<Application> list;
+        try {
+            list = (ArrayList<Application>) getDatabase().getApplications(organizationId);
+            return list;
+        } catch (ThingsDataException | ClassCastException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
 }

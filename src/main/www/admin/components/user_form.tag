@@ -26,6 +26,10 @@
                     <input class="form-control" id="type" name="type" type="text" value={ userTypeAsString(user.type) } readonly={ !allowEdit } required>
                 </div>
                 <div class="form-group" if={ adminMode }>
+                     <label for="organization">{ app.texts.user_form.organization[app.language] }</label>
+                    <input class="form-control" id="organization" name="organization" type="text"  value={ user.organization } readonly={ !allowEdit }>
+                </div>
+                <div class="form-group" if={ adminMode }>
                      <label for="role">{ app.texts.user_form.role[app.language] }</label>
                     <input class="form-control" id="role" name="role" type="text"  value={ user.role } readonly={ !allowEdit }>
                 </div>
@@ -243,6 +247,7 @@
             'name':'',
             'surname':'',
             'type': '',
+            'organization': 0,
             'role': '',
             'confirmString': '',
             'confirmed': false,
@@ -389,6 +394,9 @@
             formData.surname = e.target.elements['surname'].value
             if (self.adminMode){
                 formData.type = self.userTypeAsNumber(e.target.elements['type'].value)
+                if (e.target.elements['organization'].value != '') {
+                    formData.organization = e.target.elements['organization'].value
+                }
                 if (e.target.elements['role'].value != '') {
                     formData.role = e.target.elements['role'].value
                 }

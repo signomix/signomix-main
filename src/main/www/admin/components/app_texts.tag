@@ -353,6 +353,12 @@
                 "it": "Preferred language",
                 "fr": "Preferred language",
                 "pl": "Preferowany język"
+            },
+            "organization": {
+                "en": "Organization ID",
+                "it": "Organization ID",
+                "fr": "Organization ID",
+                "pl": "ID organizacji"
             }
         }
     
