@@ -103,17 +103,17 @@ public class ApplicationModule {
         }
         try {
             String name = event.getRequestParameter("name");
-            String config = event.getRequestParameter("config");
+            String config = event.getRequestParameter("configuration");
             String sOrg = event.getRequest().headers.getFirst("X-user-organization");
             System.out.println("X-user-organization:" + sOrg);
             long orgId = Long.parseLong(sOrg);
-            long orgVersion;
+            long version;
             try {
-                orgVersion = Long.parseLong(event.getRequestParameter("version"));
+                version = Long.parseLong(event.getRequestParameter("version"));
             } catch (Exception e) {
-                orgVersion = parseOrgVersion(event.getRequestParameter("version"));
+                version = parseVersion(event.getRequestParameter("version"));
             }
-            Application app = new Application(null, orgId, orgVersion, name, config);
+            Application app = new Application(null, orgId, version, name, config);
             app = applicationAdapter.createApplication(app);
             result.setCode(HttpAdapter.SC_OK);
             result.setData(app.id);
@@ -177,16 +177,16 @@ public class ApplicationModule {
                 return result;
             }
             String name = event.getRequestParameter("name");
-            String config = event.getRequestParameter("config");
-            long orgVersion;
+            String config = event.getRequestParameter("configuration");
+            long version;
             try {
-                orgVersion = Long.parseLong(event.getRequestParameter("version"));
+                version = Long.parseLong(event.getRequestParameter("version"));
             } catch (Exception e) {
-                orgVersion = parseOrgVersion(event.getRequestParameter("version"));
+                version = parseVersion(event.getRequestParameter("version"));
             }
             app.name = name;
             app.config = config;
-            app.version = orgVersion;
+            app.version = version;
             applicationAdapter.modifyApplication(app);
             // fire event
             // Kernel.getInstance().dispatchEvent(new ThingsDataEvent(IotEvent.USER_UPDATED,
@@ -203,7 +203,7 @@ public class ApplicationModule {
         return result;
     }
 
-    private long parseOrgVersion(String version) {
+    private long parseVersion(String version) {
         long orgVersion = 0;
 
         return orgVersion;
