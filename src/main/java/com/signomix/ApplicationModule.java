@@ -185,7 +185,7 @@ public class ApplicationModule {
                 version = parseVersion(event.getRequestParameter("version"));
             }
             app.name = name;
-            app.config = config;
+            app.configuration = config;
             app.version = version;
             applicationAdapter.modifyApplication(app);
             // fire event

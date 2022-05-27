@@ -2477,7 +2477,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.setLong(1, application.organization);
             pst.setLong(2, application.version);
             pst.setString(3, application.name);
-            pst.setString(4, application.config);
+            pst.setString(4, application.configuration);
             pst.executeUpdate();
         } catch (SQLException e) {
             throw new ThingsDataException(e.getErrorCode(), e.getMessage());
@@ -2492,7 +2492,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pst.setLong(1, application.organization);
             pst.setLong(2, application.version);
             pst.setString(3, application.name);
-            pst.setString(4, application.config);
+            pst.setString(4, application.configuration);
             pst.setLong(5, application.id);
             pst.executeUpdate();
         } catch (SQLException e) {
