@@ -83,7 +83,19 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("organization bigint default 0,")
                 .append("version bigint default 0,")
                 .append("name varchar UNIQUE, configuration varchar);");
-        sb.append("MERGE INTO applications KEY(id) values (0,0,0,'','');");
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(sb.toString());) {
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "createStructure() " + e.getMessage()));
+        }
+        try (Connection conn = getConnection();
+                PreparedStatement pst = conn.prepareStatement("INSERT INTO applications values (0,0,0,'','');");) {
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            
+        }
+        sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS devicetemplates (").append("eui varchar primary key,")
                 .append("appid varchar,")
                 .append("appeui varchar,").append("type varchar,").append("channels varchar,")
@@ -683,7 +695,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         // eui,name,userid,type,team,channels,code,decoder,key,description,
         // lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,groups,alert,
         // appeui,devid,active,project,latitude,longitude,altitude,state,retention,administrators,
-        // framecheck,configuration,organization,organizationapp,a.config from devices as d left join applications as a
+        // framecheck,configuration,organization,organizationapp,a.config from devices
+        // as d left join applications as a
         Device d = new Device();
         d.setEUI(rs.getString(1));
         d.setName(rs.getString(2));
@@ -2560,13 +2573,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         return result;
     }
 
-    private String buildDeviceQuery(){
-        String query="SELECT"
-        +" d.eui, d.name, d.userid, d.type, d.team, d.channels, d.code, d.decoder, d.key, d.description, d.lastseen, d.tinterval,"
-        +" d.lastframe, d.template, d.pattern, d.downlink, d.commandscript, d.appid, d.groups, d.alert,"
-        +" d.appeui, d.devid, d.active, d.project, d.latitude, d.longitude, d.altitude, d.state, d.retention,"
-        +" d.administrators, d.framecheck, d.configuration, d.organization, d.organizationapp, a.configuration FROM devices AS d"
-        +" LEFT JOIN applications AS a WHERE d.organizationapp=a.id";
+    private String buildDeviceQuery() {
+        String query = "SELECT"
+                + " d.eui, d.name, d.userid, d.type, d.team, d.channels, d.code, d.decoder, d.key, d.description, d.lastseen, d.tinterval,"
+                + " d.lastframe, d.template, d.pattern, d.downlink, d.commandscript, d.appid, d.groups, d.alert,"
+                + " d.appeui, d.devid, d.active, d.project, d.latitude, d.longitude, d.altitude, d.state, d.retention,"
+                + " d.administrators, d.framecheck, d.configuration, d.organization, d.organizationapp, a.configuration FROM devices AS d"
+                + " LEFT JOIN applications AS a WHERE d.organizationapp=a.id";
         return query;
     }
 
