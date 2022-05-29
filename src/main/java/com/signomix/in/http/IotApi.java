@@ -81,7 +81,7 @@ public class IotApi extends HttpPortedAdapter {
                 dataString = buildParamString(request.parameters);
             } else {
                 StringBuilder sb = new StringBuilder(dataString.trim());
-                sb.insert(1, "{\"@type\":\"com.signomix.iot.IotData2\",");
+                sb.insert(1, "\"@type\":\"com.signomix.iot.IotData2\",");
                 jsonString = sb.toString();
                 try {
                     iotData = (IotData2) JsonReader.jsonToJava(jsonString);
