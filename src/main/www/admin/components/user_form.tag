@@ -457,6 +457,8 @@
                 self.callbackListener.trigger('submitted')
             } else if (text.startsWith('[object MouseEvent')){
                 self.callbackListener.trigger('cancelled')
+            } else if (text.startsWith('[object PointerEvent')){
+                self.callbackListener.trigger('cancelled')
             } else if (text.startsWith('error:409')){
                 alert('This login is already registered!')
             } else{

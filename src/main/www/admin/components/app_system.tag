@@ -183,6 +183,8 @@
             self.dbresponse = JSON.parse(text)
         } else if (text.startsWith('[object MouseEvent')) {
             self.listener.trigger('cancelled')
+        } else if (text.startsWith('[object PointerEvent')) {
+            self.listener.trigger('cancelled')
         } else if (text.startsWith('err:')) {
             self.dbresponse={"error":text}
         }else{
@@ -206,6 +208,8 @@
             }else if (text.startsWith('[')) {
                 self.adapterresponse = JSON.parse(text)
             } else if (text.startsWith('[object MouseEvent')) {
+                self.listener.trigger('cancelled')
+            } else if (text.startsWith('[object PointerEvent')) {
                 self.listener.trigger('cancelled')
             } else if (text.startsWith('err:')) {
                 self.adapterresponse={"error":text}
@@ -233,6 +237,8 @@
         if (text.startsWith('{')) {
             self.status = JSON.parse(text)
         } else if (text.startsWith('[object MouseEvent')) {
+            self.listener.trigger('cancelled')
+        } else if (text.startsWith('[object PionterEvent')) {
             self.listener.trigger('cancelled')
         } else if (text.startsWith('error')) {
             alert(text)

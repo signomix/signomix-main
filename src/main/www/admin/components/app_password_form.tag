@@ -96,6 +96,8 @@
                 self.callbackListener.trigger('passSubmitted')
             } else if (text.startsWith('[object MouseEvent')) {
                 self.callbackListener.trigger('passCancelled')
+            } else if (text.startsWith('[object PointerEvent')) {
+                self.callbackListener.trigger('passCancelled')
             } else {
                 alert(text)
             }

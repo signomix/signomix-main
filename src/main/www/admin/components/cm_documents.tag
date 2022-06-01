@@ -224,6 +224,7 @@
                 readContentList()
             } else if (text.startsWith('error')){
             } else if (text.startsWith('[object MouseEvent')){
+            } else if (text.startsWith('[object PointerEvent')){
             }   
         }
 

@@ -691,12 +691,14 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     Device buildDevice(ResultSet rs) throws SQLException {
-        // select
-        // eui,name,userid,type,team,channels,code,decoder,key,description,
-        // lastseen,tinterval,lastframe,template,pattern,downlink,commandscript,appid,groups,alert,
-        // appeui,devid,active,project,latitude,longitude,altitude,state,retention,administrators,
-        // framecheck,configuration,organization,organizationapp,a.config from devices
-        // as d left join applications as a
+        /*
+        String query = "SELECT"
+        + " d.eui, d.name, d.userid, d.type, d.team, d.channels, d.code, d.decoder, d.key, d.description, d.lastseen, d.tinterval,"
+        + " d.lastframe, d.template, d.pattern, d.downlink, d.commandscript, d.appid, d.groups, d.alert,"
+        + " d.appeui, d.devid, d.active, d.project, d.latitude, d.longitude, d.altitude, d.state, d.retention,"
+        + " d.administrators, d.framecheck, d.configuration, d.organization, d.organizationapp, a.configuration FROM devices AS d"
+        + " LEFT JOIN applications AS a WHERE d.organizationapp=a.id";
+        */
         Device d = new Device();
         d.setEUI(rs.getString(1));
         d.setName(rs.getString(2));
