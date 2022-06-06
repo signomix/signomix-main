@@ -173,7 +173,11 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
             rxInfo.setUplinkID((String) rxObj.get("uplinkID"));
             rxInfo.setName((String) rxObj.get("name"));
             rxInfo.setRssi((long) rxObj.get("rssi"));
-            rxInfo.setLoRaSNR((Double) rxObj.get("loRaSNR"));
+            try{
+                rxInfo.setLoRaSNR((Double) rxObj.get("loRaSNR"));
+            }catch(Exception e){
+                rxInfo.setLoRaSNR(Double.valueOf((Long)rxObj.get("loRaSNR")));
+            }
             locObj = (JsonObject) rxObj.get("location");
             loc = new Location();
             loc.setLatitude((Double) locObj.get("latitude"));
@@ -202,6 +206,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         String key;
         Double value = null;
         Boolean bValue;
+        Long l;
         while (it.hasNext()) {
             key = it.next();
             value = null;
@@ -209,10 +214,12 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
                 value = (Double) jo.get(key);
             } catch (Exception e) {
                 try {
-                    value = Double.valueOf((Long) jo.get(key));
+                    l=(Long) jo.get(key);
+                    value = Double.parseDouble(""+l);
                 } catch (Exception e1) {
                     try {
-                        value = Double.valueOf(Long.parseLong((String)jo.get(key), 16));
+                        l=Long.parseLong((String)jo.get(key), 16);
+                        value = Double.parseDouble(""+l);
                     } catch (Exception e2) {
 
                     }
