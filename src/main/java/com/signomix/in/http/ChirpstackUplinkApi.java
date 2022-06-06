@@ -73,7 +73,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
     protected ProcedureCall preprocess(RequestObject request, long rootEventId) {
         // validation and translation
         String method = request.method;
-        if(!request.uri.endsWith("?event=up")){
+        if (!request.uri.endsWith("?event=up")) {
             return ProcedureCall.respond(200, "OK");
         }
         if ("POST".equalsIgnoreCase(method)) {
@@ -188,6 +188,7 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         String dataString = (String) o.get("objectJSON");
         uplink.setDataJson(dataString);
         uplink.setPaylodFields(processFields(dataString));
+        uplink.setPaylodStringFields(getStringFields(dataString));
         return uplink;
     }
 
@@ -201,13 +202,21 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
         String key;
         Double value = null;
         Boolean bValue;
-        Object obj;
         while (it.hasNext()) {
             key = it.next();
             value = null;
             try {
                 value = (Double) jo.get(key);
             } catch (Exception e) {
+                try {
+                    value = Double.valueOf((Long) jo.get(key));
+                } catch (Exception e1) {
+                    try {
+                        value = Double.valueOf(Long.parseLong((String)jo.get(key), 16));
+                    } catch (Exception e2) {
+
+                    }
+                }
             }
             if (null == value) {
                 try {
@@ -215,6 +224,29 @@ public class ChirpstackUplinkApi extends HttpPortedAdapter {
                     value = bValue ? 1.0 : 0.0;
                 } catch (Exception e) {
                 }
+            }
+            if (null != value) {
+                fields.put(key.toLowerCase(), value);
+            }
+        }
+        return fields;
+    }
+
+    private HashMap<String, String> getStringFields(String input) {
+        HashMap<String, String> fields = new HashMap<>();
+        HashMap opts = new HashMap();
+        opts.put(JsonReader.USE_MAPS, true);
+        JsonObject jo = (JsonObject) JsonReader.jsonToJava(input.toString(), opts);
+
+        Iterator<String> it = jo.keySet().iterator();
+        String key;
+        String value = null;
+        while (it.hasNext()) {
+            key = it.next();
+            value = null;
+            try {
+                value = ""+jo.get(key);
+            } catch (Exception e) {
             }
             if (null != value) {
                 fields.put(key.toLowerCase(), value);

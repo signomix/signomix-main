@@ -36,6 +36,7 @@ public class Uplink implements IotDataIface {
 
     private Map<String, Map<String, Object>> object;
     private HashMap<String, Double> paylodFields = new HashMap<>();
+    private HashMap<String, String> paylodStringFields = new HashMap<>();
     private long dr;
 
     // private boolean authRequired;
@@ -265,7 +266,7 @@ public class Uplink implements IotDataIface {
 
     @Override
     public String getStringValue(String fieldName) {
-        return null;
+        return getPaylodStringFields().get(fieldName);
     }
 
     @Override
@@ -304,6 +305,13 @@ public class Uplink implements IotDataIface {
      */
     public void setPaylodFields(HashMap<String, Double> paylodFields) {
         this.paylodFields = paylodFields;
+    }
+
+    public HashMap<String, String> getPaylodStringFields() {
+        return paylodStringFields;
+    }
+    public void setPaylodStringFields(HashMap<String, String> paylodStringFields) {
+        this.paylodStringFields = paylodStringFields;
     }
 
     @Override
