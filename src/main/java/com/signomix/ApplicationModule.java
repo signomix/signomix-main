@@ -4,17 +4,22 @@
  */
 package com.signomix;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.signomix.out.iot.ThingsDataException;
-import com.signomix.out.iot.application.Application;
-import com.signomix.out.iot.application.ApplicationAdapterIface;
+import javax.print.attribute.HashAttributeSet;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
+import org.cricketmsf.microsite.user.HashMaker;
+
+import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.application.Application;
+import com.signomix.out.iot.application.ApplicationAdapterIface;
 
 /**
  *
@@ -176,17 +181,34 @@ public class ApplicationModule {
                 result.setData("application not found");
                 return result;
             }
-            String name = event.getRequestParameter("name");
-            String config = event.getRequestParameter("configuration");
-            long version;
-            try {
-                version = Long.parseLong(event.getRequestParameter("version"));
-            } catch (Exception e) {
-                version = parseVersion(event.getRequestParameter("version"));
+            HashMap<String,Object> configurationParams=new HashMap<>();
+            Map<String, Object> parameters = event.getRequest().parameters;
+            Iterator<String> it = parameters.keySet().iterator();
+            String key;
+            while (it.hasNext()) {
+                key = it.next();
+                switch (key) {
+                    case "name":
+                        app.name = (String)parameters.get("name");
+                        break;
+                    case "configuration":
+                        app.configuration = (String)parameters.get("configuration");
+                        break;
+                    case "version":
+                        long version;
+                        try {
+                            version = Long.parseLong((String)parameters.get("version"));
+                        } catch (Exception e) {
+                            version = parseVersion((String)parameters.get("version"));
+                        }
+                        app.version = version;
+                        break;
+                    default:
+                        configurationParams.put(key, (String)parameters.get(key));
+                        break;
+                }
             }
-            app.name = name;
-            app.configuration = config;
-            app.version = version;
+            app.updateConfigParemeters(configurationParams);
             applicationAdapter.modifyApplication(app);
             // fire event
             // Kernel.getInstance().dispatchEvent(new ThingsDataEvent(IotEvent.USER_UPDATED,
