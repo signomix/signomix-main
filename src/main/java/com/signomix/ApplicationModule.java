@@ -17,6 +17,7 @@ import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.user.HashMaker;
 
+import com.cedarsoftware.util.io.JsonReader;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.application.Application;
 import com.signomix.out.iot.application.ApplicationAdapterIface;
@@ -227,7 +228,6 @@ public class ApplicationModule {
 
     private long parseVersion(String version) {
         long orgVersion = 0;
-
         return orgVersion;
     }
 
