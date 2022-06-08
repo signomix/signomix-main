@@ -31,16 +31,21 @@ public class Application {
             Map args1 = new HashMap();
             args1.put(JsonReader.USE_MAPS, true);
             JsonReader jr = new JsonReader();
-            Map map = (Map) JsonReader.jsonToJava(this.configuration, args1);
-            Iterator<String> it = map.keySet().iterator();
+            Map configurationMap = (Map) JsonReader.jsonToJava(this.configuration, args1);
+            Iterator<String> it = configurationMap.keySet().iterator();
             String key;
             while (it.hasNext()) {
                 key = it.next();
-                map.put(key, map.get(key));
+                configurationMap.put(key, configurationMap.get(key));
+            }
+            it=newParameters.keySet().iterator();
+            while(it.hasNext()){
+                key=it.next();
+                configurationMap.put(key,newParameters.get(key));
             }
             Map args2 = new HashMap();
             args2.put(JsonWriter.TYPE, false);
-            this.configuration = JsonWriter.objectToJson(map, args2);
+            this.configuration = JsonWriter.objectToJson(configurationMap, args2);
         } catch (Exception e) {
             e.printStackTrace();
         }
