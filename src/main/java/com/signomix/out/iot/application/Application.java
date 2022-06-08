@@ -45,6 +45,7 @@ public class Application {
             }
             Map args2 = new HashMap();
             args2.put(JsonWriter.TYPE, false);
+            args2.put(JsonWriter.PRETTY_PRINT, true);
             this.configuration = JsonWriter.objectToJson(configurationMap, args2);
         } catch (Exception e) {
             e.printStackTrace();
