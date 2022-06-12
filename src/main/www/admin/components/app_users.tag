@@ -22,6 +22,7 @@
                             <th>{app.texts.app_users.t_no[app.language]}</th>
                             <th>{app.texts.app_users.t_uid[app.language]}</th>
                             <th>{app.texts.app_users.t_type[app.language]}</th>
+                            <th>ORGANIZATION</th>
                             <th>{app.texts.app_users.t_role[app.language]}</th>
                             <th>SERVICES</th>
                             <th>CREDITS</th>
@@ -35,7 +36,8 @@
                         <tr each={user in users}>
                             <td>{ user.number }</td>
                             <td>{ user.uid }</td>
-                            <td>{ userTypeAsLetter(user.type) }</td>
+                            <td>{ userTypeAsString(user.type) }</td>
+                            <td>{ user.organization }</td>
                             <td>{ user.role }</td>
                             <td>{ user.services }</td>
                             <td>{ user.credits }</td>
@@ -182,6 +184,42 @@
         }
         self.removing = ''
         readUserList()
+        }
+
+self.userTypeAsString = function(type){
+            switch (type){
+                case 100:
+                    return 'SUBSCRIBER'
+                    break
+                case 8:
+                    return 'SUPERUSER'
+                    break
+                case 7:
+                    return 'EXTENDED'
+                    break
+                case 6:
+                    return 'READONLY'
+                    break
+                case 5:
+                    return 'PRIMARY'
+                    break
+                case 4:
+                    return 'FREE'
+                    break
+                case 3:
+                    return 'DEMO'
+                    break
+                case 2:
+                    return 'APPLICATION'
+                case 1:
+                    return 'OWNER'
+                    break
+                case 0:
+                    return 'USER'
+                    break
+                default:
+                    return 'FREE'
+            }
         }
 
 self.userTypeAsLetter = function(type){

@@ -21,9 +21,17 @@
                     <label for="surname">{ app.texts.user_form.surname[app.language] }</label>
                     <input class="form-control" id="surname" name="surname" type="text" value={ user.surname } readonly={ !allowEdit } required>
                 </div>
-                <div class="form-group" if={ adminMode }>
-                     <label for="type">{ app.texts.user_form.type[app.language] }</label>
-                    <input class="form-control" id="type" name="type" type="text" value={ userTypeAsString(user.type) } readonly={ !allowEdit } required>
+                 <div class="form-group" if={ adminMode }>
+                    <label for="type" class="active">{ app.texts.user_form.type[app.language] }</label>
+                    <select class="form-control" id="type" disabled={!allowEdit} onchange={changeType}>
+                        <option value="text" selected={user.type==4}>FREE</option>
+                        <option value="text" selected={user.type==0}>USER</option>
+                        <option value="text" selected={user.type==5}>PRIMARY</option>
+                        <option value="text" selected={user.type==6}>READONLY</option>
+                        <option value="text" selected={user.type==7}>EXTENDED</option>
+                        <option value="text" selected={user.type==8}>SUPERUSER</option>
+                        <option value="text" selected={user.type==100}>SUBSCRIBER</option>
+                    </select>
                 </div>
                 <div class="form-group" if={ adminMode }>
                      <label for="organization">{ app.texts.user_form.organization[app.language] }</label>
