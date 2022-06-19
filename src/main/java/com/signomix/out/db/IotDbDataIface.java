@@ -26,7 +26,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public void createStructure();
 
-    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException;
+    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException;
 
     public int getUserDevicesCount(String userID) throws ThingsDataException;
 
@@ -42,9 +42,9 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public void updateDevice(Device device) throws ThingsDataException;
 
-    public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException;
+    public boolean isAuthorized(String userID, long organizationID, String deviceEUI) throws ThingsDataException;
 
-    public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException;
+    public boolean isGroupAuthorized(String userID, long organizationID, String groupEUI) throws ThingsDataException;
 
     public void addAlert(Event alert) throws ThingsDataException;
 
@@ -82,7 +82,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public List<Device> getInactiveDevices() throws ThingsDataException;
 
-    public List<Device> getGroupDevices(String userID, String groupID) throws ThingsDataException;
+    public List<Device> getGroupDevices(String userID, long organizationID, String groupID) throws ThingsDataException;
 
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException;
 
@@ -121,9 +121,9 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException; //T
 
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException; //T
-    public List<List<List>> getGroupLastValues(String userID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
-    public List<List<List>> getGroupLastValues(String userID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
-    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
+    public List<List<List>> getGroupLastValues(String userID, long organizationID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
+    public List<List<List>> getGroupLastValues(String userID, long organizationID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
+    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
 
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException; //TT
 

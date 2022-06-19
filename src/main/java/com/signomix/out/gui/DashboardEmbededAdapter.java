@@ -142,6 +142,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         }
     }
 
+    /*
     @Override
     public boolean isAuthorized(String userID, String dashboardID) throws DashboardException {
         try {
@@ -150,6 +151,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
     }
+*/
 
     @Override
     public void removeUserDashboards(String userID) throws DashboardException {

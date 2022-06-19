@@ -63,7 +63,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
+        if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         //TODO: dla urządzeń wirtualnych uruchomić skrypt preprocessora
@@ -73,7 +73,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     @Override
     //REMOVE
     public void putData(String userID, String deviceEUI, String project, Double deviceState, String channel, ChannelData value) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
+        if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         ArrayList<ChannelData> list = new ArrayList<>();
@@ -92,7 +92,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
      */
     @Override
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
+        if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return getDataStorage().getLastValue(userID, deviceEUI, channel);
@@ -172,6 +172,10 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException {
         return getIotDB().getDevice(userId, deviceEUI, withShared);
     }
+    @Override
+    public boolean checkAccess(String userId, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException {
+        return getIotDB().checkAccess(userId, deviceEUI, organizationID, withShared);
+    }
 
     @Override
     public Device getDevice(String deviceEUI) throws ThingsDataException {
@@ -179,13 +183,13 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
-        return getIotDB().getUserDevices(userID, withShared);
+    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException {
+        return getIotDB().getUserDevices(userID, organizationID, withShared);
     }
 
     @Override
-    public List<Device> getGroupDevices(String userID, String group) throws ThingsDataException {
-        return getIotDB().getGroupDevices(userID, group);
+    public List<Device> getGroupDevices(String userID, long organizationID, String group) throws ThingsDataException {
+        return getIotDB().getGroupDevices(userID, organizationID, group);
     }
 
     @Override
@@ -200,7 +204,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
+        if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
         return getDataStorage().getLastValues(userID, deviceEUI);
@@ -233,13 +237,13 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
-        return getIotDB().isAuthorized(userID, deviceEUI);
+    public boolean isAuthorized(String userID, long organizationID, String deviceEUI) throws ThingsDataException {
+        return getIotDB().isAuthorized(userID, organizationID, deviceEUI);
     }
 
     @Override
-    public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
-        return getIotDB().isGroupAuthorized(userID, groupEUI);
+    public boolean isGroupAuthorized(String userID, long organizationID, String groupEUI) throws ThingsDataException {
+        return getIotDB().isGroupAuthorized(userID, organizationID, groupEUI);
     }
 
     @Override
@@ -350,18 +354,18 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames) throws ThingsDataException {
-        if (!isGroupAuthorized(userID, groupEUI)) {
+    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames) throws ThingsDataException {
+        if (!isGroupAuthorized(userID, organizationID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, 0,"");
+        return getDataStorage().getValuesOfGroup(userID, organizationID, groupEUI, channelNames, 0,"");
     }
     @Override
-    public List<List<List>> getLastValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
-        if (!isGroupAuthorized(userID, groupEUI)) {
+    public List<List<List>> getLastValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
+        if (!isGroupAuthorized(userID, organizationID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        return getDataStorage().getValuesOfGroup(userID, groupEUI, channelNames, interval, dataQuery);
+        return getDataStorage().getValuesOfGroup(userID, organizationID, groupEUI, channelNames, interval, dataQuery);
     }
 
     @Override

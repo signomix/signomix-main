@@ -21,5 +21,5 @@ public interface DashboardAdapterIface {
     public Dashboard getDashboardByName(String userId, String dashboardName) throws DashboardException;
     public List<Dashboard> getUserDashboards(String userID) throws DashboardException;
     public Map<String,Dashboard> getUserDashboardsMap(String userID) throws DashboardException;
-    public boolean isAuthorized(String userIF, String dashboardID) throws DashboardException;
+    //public boolean isAuthorized(String userID, String dashboardID) throws DashboardException;
 }

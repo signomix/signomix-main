@@ -23,6 +23,15 @@ public class DeviceGroup {
     private HashMap channels;
     private String description;
     private boolean open;
+    private long organization;
+
+    public long getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(long organization) {
+        this.organization = organization;
+    }
 
     //TODO: change uid to uidHex and add validation (is it hex value)
     public DeviceGroup() {

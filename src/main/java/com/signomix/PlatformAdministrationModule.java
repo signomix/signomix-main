@@ -903,7 +903,7 @@ public class PlatformAdministrationModule {
                         if ("ALL".equalsIgnoreCase(dataCategory) || "DASHBOARDS".equalsIgnoreCase(dataCategory)) {
                             dashboardAdapter.removeUserDashboards(uid);
                         }
-                        devices = thingsAdapter.getUserDevices(uid, false);
+                        devices = thingsAdapter.getUserDevices(uid, -1, false);
                         if ("ALL".equalsIgnoreCase(dataCategory) || "CHANNELS".equalsIgnoreCase(dataCategory) || "DEVICES".equalsIgnoreCase(dataCategory)) {
                             for (int j = 0; j < devices.size(); j++) {
                                 thingsAdapter.removeAllChannels(devices.get(j).getEUI());
@@ -993,7 +993,7 @@ public class PlatformAdministrationModule {
                     }
                 }
                 thingsAdapter.removeUserAlerts(uid, tooOldPoint);
-                devices = thingsAdapter.getUserDevices(uid, false);
+                devices = thingsAdapter.getUserDevices(uid, -1, false);
                 for (int j = 0; j < devices.size(); j++) {
                     thingsAdapter.clearAllChannels(devices.get(j).getEUI(), tooOldPoint);
                     try {
@@ -1053,7 +1053,7 @@ public class PlatformAdministrationModule {
                     }
                 }
                 thingsAdapter.removeUserAlertsLimit(uid, limit);
-                devices = thingsAdapter.getUserDevices(uid, false);
+                devices = thingsAdapter.getUserDevices(uid, -1, false);
                 for (int j = 0; j < devices.size(); j++) {
                     thingsAdapter.clearAllChannelsLimit(devices.get(j).getEUI(), limit);
                     try {

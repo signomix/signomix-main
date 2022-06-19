@@ -32,7 +32,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     public void createStructure(){
     }
     @Override
-    public List<Device> getUserDevices(String userID, boolean withShared) throws ThingsDataException {
+    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException {
         try {
             Map map = getAll("devices");
             ArrayList list = new ArrayList();
@@ -95,7 +95,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public boolean isAuthorized(String userID, String deviceEUI) throws ThingsDataException {
+    public boolean isAuthorized(String userID, long organizationID, String deviceEUI) throws ThingsDataException {
         //if("public".equalsIgnoreCase(userID)){
         //    return true;
         //}
@@ -201,7 +201,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeAllDevices(String userID) throws ThingsDataException {
-        List devices = getUserDevices(userID, false);
+        List devices = getUserDevices(userID, -1, false);
         Device d;
         for (int i = 0; i < devices.size(); i++) {
             d = (Device) devices.get(i);
@@ -354,7 +354,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public List<Device> getGroupDevices(String userID, String groupID) throws ThingsDataException {
+    public List<Device> getGroupDevices(String userID, long organizationID, String groupID) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -389,7 +389,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public boolean isGroupAuthorized(String userID, String groupEUI) throws ThingsDataException {
+    public boolean isGroupAuthorized(String userID, long organizationID, String groupEUI) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -413,10 +413,16 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     @Override
-    public List<List<List>> getValuesOfGroup(String userID, String groupEUI, String[] channelNames, long interval,
+    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval,
             DataQuery dataQuery) throws ThingsDataException {
         // TODO Auto-generated method stub
         return null;
+    }
+    @Override
+    public boolean checkAccess(String userID, String deviceEUI, long organizationID, boolean withShared)
+            throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }
