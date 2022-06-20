@@ -59,6 +59,7 @@ public class User {
     public static final int IS_ACTIVE = 1;
     public static final int IS_UNREGISTERING = 2;
     public static final int IS_LOCKED = 3;
+    public static final int IS_CREATED = 10;
 
     public static final int SERVICE_SMS = 0b00000001;
     public static final int SERVICE_NEW = 0b00000010; //not used
