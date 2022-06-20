@@ -51,17 +51,13 @@ public class ApplicationModule {
     }
 
     public Object handleGetRequest(Event event, ApplicationAdapterIface applicationAdapter) {
-        System.out.println("Application - handleGetRequest");
+        //System.out.println("Application - handleGetRequest");
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        // if (!isAdmin(request)) {
-        // result.setCode(HttpAdapter.SC_FORBIDDEN);
-        // return result;
-        // }
         String uid = request.pathExt;
         long appNumber = -1;
         String sOrg = event.getRequest().headers.getFirst("X-user-organization");
-        System.out.println("X-user-organization:" + sOrg);
+        //System.out.println("X-user-organization:" + sOrg);
         long orgId = -1;
 
         try {
@@ -111,7 +107,7 @@ public class ApplicationModule {
             String name = event.getRequestParameter("name");
             String config = event.getRequestParameter("configuration");
             String sOrg = event.getRequest().headers.getFirst("X-user-organization");
-            System.out.println("X-user-organization:" + sOrg);
+            //System.out.println("X-user-organization:" + sOrg);
             long orgId = Long.parseLong(sOrg);
             long version;
             try {

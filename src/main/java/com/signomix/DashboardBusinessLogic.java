@@ -41,11 +41,8 @@ public class DashboardBusinessLogic {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
-        //request.headers.keySet().forEach(key -> Kernel.handle(Event.logFine(this,key + ":" + request.headers.getFirst(key))));
         String dashboardId = request.pathExt; //
         boolean byName = Boolean.parseBoolean((String) request.parameters.getOrDefault("name", ""));
-        System.out.println("PATHEXT=" + dashboardId);
-        System.out.println("BYNAME="+byName);
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             result.setData("user not recognized");
@@ -111,7 +108,7 @@ public class DashboardBusinessLogic {
         jsonString
                 = "{\"@type\":\"com.signomix.out.gui.Dashboard\","
                 + jsonString.substring(jsonString.indexOf("{") + 1);
-        System.out.println(jsonString);
+        //System.out.println(jsonString);
         Dashboard dashboard = null;
         try {
             dashboard = (Dashboard) JsonReader.jsonToJava(jsonString);
@@ -122,7 +119,6 @@ public class DashboardBusinessLogic {
         if (null == dashboard.getId() || dashboard.getId().isEmpty()) {
             dashboard.setId(PlatformAdministrationModule.getInstance().createEui("S-"));
         }
-        //System.out.println("DASHBOARD:" + dashboard.getId());
         return dashboard;
     }
 

@@ -1153,7 +1153,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.CONFLICT,
                     "group " + group.getEUI() + " is already defined");
         }
-        String query = "insert into groups (eui,name,userid,team,channels,description,administrators) values(?,?,?,?,?,?,?)";
+        String query = "insert into groups (eui,name,userid,team,channels,description,administrators,organization) values(?,?,?,?,?,?,?,?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getEUI());
             pstmt.setString(2, group.getName());
@@ -1162,6 +1162,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(5, group.getChannelsAsString());
             pstmt.setString(6, group.getDescription());
             pstmt.setString(7, group.getAdministrators());
+            pstmt.setLong(8, group.getOrganization());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,
@@ -1176,7 +1177,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void updateGroup(DeviceGroup group) throws ThingsDataException {
-        String query = "update groups set name=?,userid=?,team=?,channels=?,description=?,administrators=? where eui=?";
+        String query = "update groups set name=?,userid=?,team=?,channels=?,description=?,administrators=?, organization=? where eui=?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, group.getName());
             pstmt.setString(2, group.getUserID());
@@ -1184,7 +1185,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             pstmt.setString(4, group.getChannelsAsString());
             pstmt.setString(5, group.getDescription());
             pstmt.setString(6, group.getAdministrators());
-            pstmt.setString(7, group.getEUI());
+            pstmt.setLong(7, group.getOrganization());
+            pstmt.setString(8, group.getEUI());
             int updated = pstmt.executeUpdate();
             if (updated < 1) {
                 throw new ThingsDataException(ThingsDataException.BAD_REQUEST,

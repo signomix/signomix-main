@@ -346,7 +346,7 @@ public class SecurityFilter extends Filter {
                 result = checkRequest(exchange);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("message:" + e.getMessage());
+                //System.out.println("message:" + e.getMessage());
                 exchange.sendResponseHeaders(400, e.getMessage().length());
                 exchange.getResponseBody().write(e.getMessage().getBytes());
                 exchange.getResponseBody().close();

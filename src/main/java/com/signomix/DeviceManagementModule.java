@@ -55,10 +55,6 @@ public class DeviceManagementModule {
         try{
             organizationID=Long.parseLong(request.headers.getFirst("X-user-organization").trim());
         }catch(Exception e){}
-        System.out.println("ORGANIZATION ID: "+organizationID);
-        System.out.println("USER ID: "+userID);
-        // request.headers.keySet().forEach(key -> System.out.println(key + ":" +
-        // request.headers.getFirst(key)));
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -216,8 +212,6 @@ public class DeviceManagementModule {
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
-        // request.headers.keySet().forEach(key -> System.out.println(key + ":" +
-        // request.headers.getFirst(key)));
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -469,11 +463,6 @@ public class DeviceManagementModule {
     private Device buildDevice(RequestObject request, String userID, long userOrganization, Device original) {
         // TODO: what if new definition has some channels removed?
         Device device = new Device();
-        /*
-         * request.parameters.keySet().forEach(key -> {
-         * System.out.println(key);
-         * });
-         */
         String eui = (String) request.parameters.getOrDefault("eui", "");
         if (eui == null || eui.isEmpty()) {
             eui = createEui("S-");
@@ -772,6 +761,10 @@ public class DeviceManagementModule {
     private List getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter,
             Map<String, Object> queryParameters) {
         try {
+            if(!thingsAdapter.isGroupAuthorized(userID, organizationID, groupEUI)){
+                Kernel.handle(Event.logFine(this.getClass().getSimpleName(), "not authorized"));
+                return new ArrayList();
+            }
             // return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
             String dataQuery = (String) queryParameters.getOrDefault("query", "");
             return thingsAdapter.getLastValuesOfGroup(userID, organizationID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL,

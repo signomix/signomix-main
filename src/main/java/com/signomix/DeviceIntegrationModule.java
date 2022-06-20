@@ -189,7 +189,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
@@ -535,7 +535,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
@@ -647,7 +647,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
@@ -773,8 +773,7 @@ public class DeviceIntegrationModule {
             ArrayList<ArrayList> outputList;
             inputList.forEach(element -> {
                 if (element.getName().startsWith("decodererror")) {
-                    System.out
-                            .println(element.getDeviceEUI() + " " + element.getName() + " " + element.getStringValue());
+                    //System.out.println(element.getDeviceEUI() + " " + element.getName() + " " + element.getStringValue());
                 }
             });
             try {
@@ -794,7 +793,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
@@ -846,7 +845,7 @@ public class DeviceIntegrationModule {
                         fixValues(device, outputList.get(i)));
             }
             if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                 thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
             }
         } catch (Exception e) {
@@ -859,7 +858,7 @@ public class DeviceIntegrationModule {
         Event command = ActuatorModule.getInstance().getCommand(device.getEUI(), actuatorCommandsDB);
         if (null != command) {
             String commandPayload = (String) command.getPayload();
-            System.out.println("EVENT CATEGORY TYPE:" + command.getCategory() + " " + command.getType());
+            //System.out.println("EVENT CATEGORY TYPE:" + command.getCategory() + " " + command.getType());
             if (IotEvent.ACTUATOR_HEXCMD.equals(command.getType())) {
                 String rawCmd = new String(Base64.getEncoder().encode(HexTool.hexStringToByteArray(commandPayload)));
                 result.setPayload(rawCmd.getBytes());
@@ -997,7 +996,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.isActive() && device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                     thingsAdapter.updateDeviceState(device.getEUI(), (Double) processingResult[1]);
                 }
             } catch (Exception e) {
@@ -1405,7 +1404,7 @@ public class DeviceIntegrationModule {
                             fixValues(device, outputList.get(i)));
                 }
                 if (device.getState().compareTo((Double) processingResult[1]) != 0) {
-                    System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
+                    //System.out.println("DEVICE STATE " + device.getState() + " " + (Double) processingResult[1]);
                 }
             } catch (Exception e) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, e.getMessage()));
