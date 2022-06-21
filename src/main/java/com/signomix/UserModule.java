@@ -175,6 +175,7 @@ public class UserModule extends UserBusinessLogic {
                     newUser.setUnregisterRequested(true);
                     Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, newUser.getUid()));
                 } else if (newUser.getStatus() == User.IS_CREATED) {
+                    // TODO: only OWNER user type is authorized to do this
                     String payload = "";
                     Token token = authAdapter.createPermanentToken(newUser.getUid(), "", true, payload);
                     newUser.setConfirmString(token.getToken());
@@ -322,6 +323,13 @@ public class UserModule extends UserBusinessLogic {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             return result;
         }
+        System.out.println("X-user-type: "+request.headers.getFirst("X-user-type"));
+        String issuerId = request.headers.getFirst("X-user-id");
+        User issuer = null;
+        try {
+            issuer = userAdapter.get(issuerId);
+        } catch (UserException ex) {
+        }
         try {
             User user = userAdapter.get(uid);
             if (user == null) {
@@ -420,7 +428,8 @@ public class UserModule extends UserBusinessLogic {
                 }
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
             }
-            if (organization != null) {
+            if (null != organization && null != issuer && issuer.getType() == User.OWNER
+                    && user.getOrganization() != organization) {
                 user.setOrganization(organization);
             }
             try {
@@ -428,14 +437,16 @@ public class UserModule extends UserBusinessLogic {
             } catch (Exception e) {
             }
             if (null != status && user.getStatus() != status) {
-                user.setStatus(status);
-                if (user.getStatus() == User.IS_ACTIVE) {
+                if (status == User.IS_ACTIVE) {
+                    user.setStatus(status);
                     user.setConfirmed(true);
                     Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, user.getNumber()));
-                } else if (user.getStatus() == User.IS_UNREGISTERING) {
+                } else if (status == User.IS_UNREGISTERING) {
+                    user.setStatus(status);
                     user.setUnregisterRequested(true);
                     Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, user.getUid()));
-                } else if (user.getStatus() == User.IS_CREATED) {
+                } else if (status == User.IS_CREATED && null != issuer && issuer.getType() == User.OWNER) {
+                    user.setStatus(status);
                     String payload = "";
                     Token token = authAdapter.createPermanentToken(user.getUid(), "", true, payload);
                     user.setConfirmString(token.getToken());
