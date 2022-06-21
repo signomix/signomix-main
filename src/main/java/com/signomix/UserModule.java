@@ -4,20 +4,28 @@
  */
 package com.signomix;
 
-import com.signomix.event.SignomixUserEvent;
-import com.signomix.event.IotEvent;
-import com.signomix.event.SubscriptionEvent;
-import com.signomix.out.notification.NotificationIface;
 import java.util.List;
-import org.cricketmsf.microsite.user.*;
 import java.util.Map;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
+import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
+import org.cricketmsf.microsite.out.auth.AuthException;
+import org.cricketmsf.microsite.out.auth.Token;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
+import org.cricketmsf.microsite.user.HashMaker;
+import org.cricketmsf.microsite.user.User;
+import org.cricketmsf.microsite.user.UserBusinessLogic;
+import org.cricketmsf.microsite.user.UserEvent;
+
+import com.signomix.event.IotEvent;
+import com.signomix.event.SignomixUserEvent;
+import com.signomix.event.SubscriptionEvent;
+import com.signomix.out.notification.NotificationIface;
 
 /**
  *
@@ -36,7 +44,7 @@ public class UserModule extends UserBusinessLogic {
 
     private boolean isAdmin(RequestObject request) {
         List<String> requesterRoles = request.headers.get("X-user-role");
-        //String requesterRole = request.headers.getFirst("X-user-role");
+        // String requesterRole = request.headers.getFirst("X-user-role");
         boolean admin = false;
         for (int i = 0; i < requesterRoles.size(); i++) {
             if ("admin".equals(requesterRoles.get(i))) {
@@ -50,7 +58,7 @@ public class UserModule extends UserBusinessLogic {
     @Override
     public Object handleGetRequest(Event event, UserAdapterIface userAdapter) {
         RequestObject request = event.getRequest();
-        //handle(Event.logFinest(this.getClass().getSimpleName(), request.pathExt));
+        // handle(Event.logFinest(this.getClass().getSimpleName(), request.pathExt));
         String uid = request.pathExt;
         String requesterID = request.headers.getFirst("X-user-id");
         String requesterRole = request.headers.getFirst("X-user-role");
@@ -89,12 +97,13 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
-        //TODO: check requester rights
-        //only admin can set: role or type differ than default (plus APPLICATION type)
+    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation,
+            AuthAdapterIface authAdapter) {
+        // TODO: check requester rights
+        // only admin can set: role or type differ than default (plus APPLICATION type)
         RequestObject request = event.getRequest();
-        //handle(Event.logFinest(this.getClass().getSimpleName(), request.pathExt));
-        //System.out.println("X-cms-user="+request.headers.getFirst("X-user-id"));
+        // handle(Event.logFinest(this.getClass().getSimpleName(), request.pathExt));
+        // System.out.println("X-cms-user="+request.headers.getFirst("X-user-id"));
         StandardResult result = new StandardResult();
         String uid = request.pathExt;
         if (uid != null && !uid.isEmpty()) {
@@ -131,6 +140,13 @@ public class UserModule extends UserBusinessLogic {
             newUser.setInfoNotificationChannel(event.getRequestParameter("infoNotifications"));
             newUser.setWarningNotificationChannel(event.getRequestParameter("warningNotifications"));
             newUser.setAlertNotificationChannel(event.getRequestParameter("alertNotifications"));
+            Integer status = null;
+            Long organization = null;
+            try {
+                organization = Long.valueOf(event.getRequestParameter("organization"));
+            } catch (Exception e) {
+
+            }
             // validate
             boolean valid = true;
             if (!(newUser.getUid() != null && !newUser.getUid().isEmpty())) {
@@ -142,23 +158,45 @@ public class UserModule extends UserBusinessLogic {
             if (!(newUser.getPassword() != null && !newUser.getPassword().isEmpty())) {
                 valid = false;
             }
+            if (organization != null) {
+                newUser.setOrganization(organization);
+            }
+            try {
+                status = Integer.parseInt(event.getRequestParameter("authStatus"));
+            } catch (Exception e) {
+            }
+            if (null != status) {
+                newUser.setStatus(status);
+                if (newUser.getStatus() == User.IS_ACTIVE) {
+                    newUser.setConfirmed(true);
+                    Kernel.getInstance()
+                            .dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, newUser.getNumber()));
+                } else if (newUser.getStatus() == User.IS_UNREGISTERING) {
+                    newUser.setUnregisterRequested(true);
+                    Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, newUser.getUid()));
+                } else if (newUser.getStatus() == User.IS_CREATED) {
+                    String payload = "";
+                    Token token = authAdapter.createPermanentToken(newUser.getUid(), "", true, payload);
+                    newUser.setConfirmString(token.getToken());
+                }
+            }
             if (!valid) {
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);
                 result.setMessage("lack of required parameters");
                 return result;
             }
-            //newUser = verifyNotificationsConfig(newUser, telegramNotifier);
+            // newUser = verifyNotificationsConfig(newUser, telegramNotifier);
             newUser = userAdapter.register(newUser);
             if (withConfirmation) {
                 result.setCode(HttpAdapter.SC_ACCEPTED);
-                //fire event to send "need confirmation" email
+                // fire event to send "need confirmation" email
                 UserEvent ev = new UserEvent(UserEvent.USER_REGISTERED, newUser.getUid());
                 ev.setTimePoint("+5s");
                 Kernel.getInstance().dispatchEvent(ev);
             } else {
                 userAdapter.confirmRegistration(newUser.getUid());
                 result.setCode(HttpAdapter.SC_CREATED);
-                //fire event to send "welcome" email
+                // fire event to send "welcome" email
                 Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, newUser.getNumber()));
             }
             result.setData(newUser.getUid());
@@ -173,12 +211,15 @@ public class UserModule extends UserBusinessLogic {
             e.printStackTrace();
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(e.getMessage());
+        } catch (AuthException ex) {
+            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+            result.setMessage("unable to create token");
         }
         return result;
     }
 
     public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
-        SubscriptionEvent sev=(SubscriptionEvent)event;
+        SubscriptionEvent sev = (SubscriptionEvent) event;
         StandardResult result = new StandardResult();
         try {
             User newUser = new User();
@@ -207,15 +248,16 @@ public class UserModule extends UserBusinessLogic {
             newUser = userAdapter.register(newUser);
             if (withConfirmation) {
                 result.setCode(HttpAdapter.SC_ACCEPTED);
-                //fire event to send "need confirmation" email
+                // fire event to send "need confirmation" email
                 UserEvent ev = new UserEvent(SignomixUserEvent.SUBSCRIBER_REGISTERED, newUser.getUid());
                 ev.setTimePoint("+5s");
                 Kernel.getInstance().dispatchEvent(ev);
             } else {
                 userAdapter.confirmRegistration(newUser.getUid());
                 result.setCode(HttpAdapter.SC_CREATED);
-                //fire event to send "welcome" email
-                Kernel.getInstance().dispatchEvent(new UserEvent(SignomixUserEvent.SUBSCRIBER_REG_CONFIRMED, newUser.getNumber()));
+                // fire event to send "welcome" email
+                Kernel.getInstance()
+                        .dispatchEvent(new UserEvent(SignomixUserEvent.SUBSCRIBER_REG_CONFIRMED, newUser.getNumber()));
             }
             result.setData(newUser.getUid());
         } catch (UserException e) {
@@ -232,8 +274,9 @@ public class UserModule extends UserBusinessLogic {
         }
         return result;
     }
+
     public Object handleUnsubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
-        SubscriptionEvent sev=(SubscriptionEvent)event;
+        SubscriptionEvent sev = (SubscriptionEvent) event;
         StandardResult result = new StandardResult();
         try {
             userAdapter.remove(sev.userId);
@@ -246,8 +289,8 @@ public class UserModule extends UserBusinessLogic {
 
     @Override
     public Object handleDeleteRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
-        //TODO: check requester rights
-        //only admin can do this and user status must be IS_UNREGISTERING
+        // TODO: check requester rights
+        // only admin can do this and user status must be IS_UNREGISTERING
         RequestObject request = event.getRequest();
         String uid = request.pathExt;
         StandardResult result = new StandardResult();
@@ -258,7 +301,8 @@ public class UserModule extends UserBusinessLogic {
         try {
             User tmpUser = userAdapter.get(uid);
             userAdapter.remove(uid);
-            Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DELETED, tmpUser.getNumber() + " " + tmpUser.getUid()));
+            Kernel.getInstance()
+                    .dispatchEvent(new UserEvent(UserEvent.USER_DELETED, tmpUser.getNumber() + " " + tmpUser.getUid()));
             result.setCode(HttpAdapter.SC_OK);
             result.setData(uid);
         } catch (UserException e) {
@@ -267,9 +311,9 @@ public class UserModule extends UserBusinessLogic {
         return result;
     }
 
-    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter) {
-        //TODO: check requester rights
-        //only admin can set: role or type differ than default
+    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter, AuthAdapterIface authAdapter) {
+        // TODO: check requester rights
+        // only admin can set: role or type differ than default
         RequestObject request = event.getRequest();
         boolean admin = isAdmin(request);
         String uid = request.pathExt;
@@ -303,9 +347,10 @@ public class UserModule extends UserBusinessLogic {
             String autologin = event.getRequestParameter("autologin");
             String preferredLanguage = event.getRequestParameter("preferredLanguage");
             Long organization = null;
-            try{
-                organization=Long.valueOf(event.getRequestParameter("organization"));
-            }catch(Exception e){
+            Integer status = null;
+            try {
+                organization = Long.valueOf(event.getRequestParameter("organization"));
+            } catch (Exception e) {
 
             }
             if (email != null) {
@@ -367,9 +412,9 @@ public class UserModule extends UserBusinessLogic {
                 user.setAlertNotificationChannel(alertNotifications);
             }
             if (unregisterRequested != null) {
-                //is this new request?
+                // is this new request?
                 if (!user.isUnregisterRequested() && "true".equalsIgnoreCase(unregisterRequested)) {
-                    //fire event
+                    // fire event
                     Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, user.getUid()));
                     user.setStatus(User.IS_UNREGISTERING);
                 }
@@ -378,8 +423,26 @@ public class UserModule extends UserBusinessLogic {
             if (organization != null) {
                 user.setOrganization(organization);
             }
+            try {
+                status = Integer.parseInt(event.getRequestParameter("authStatus"));
+            } catch (Exception e) {
+            }
+            if (null != status && user.getStatus() != status) {
+                user.setStatus(status);
+                if (user.getStatus() == User.IS_ACTIVE) {
+                    user.setConfirmed(true);
+                    Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, user.getNumber()));
+                } else if (user.getStatus() == User.IS_UNREGISTERING) {
+                    user.setUnregisterRequested(true);
+                    Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, user.getUid()));
+                } else if (user.getStatus() == User.IS_CREATED) {
+                    String payload = "";
+                    Token token = authAdapter.createPermanentToken(user.getUid(), "", true, payload);
+                    user.setConfirmString(token.getToken());
+                }
+            }
             userAdapter.modify(user);
-            //fire event
+            // fire event
             Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));
             result.setCode(HttpAdapter.SC_OK);
             result.setData(user);
@@ -430,7 +493,7 @@ public class UserModule extends UserBusinessLogic {
     }
 
     public User verifyNotificationsConfig(User user, NotificationIface telegramNotifier) {
-        //String chatID = telegramNotifier.getChatID(recipent);
+        // String chatID = telegramNotifier.getChatID(recipent);
         String telegramUserID;
         String telegramChatID;
         if (null == user.getGeneralNotificationChannel()) {
@@ -488,6 +551,7 @@ public class UserModule extends UserBusinessLogic {
     }
 
     private void createNotification(String userID, String message) {
-        Kernel.getInstance().dispatchEvent(new IotEvent().addType(IotEvent.GENERAL).addPayload(message).addOrigin(userID + "\t_"));
+        Kernel.getInstance()
+                .dispatchEvent(new IotEvent().addType(IotEvent.GENERAL).addPayload(message).addOrigin(userID + "\t_"));
     }
 }

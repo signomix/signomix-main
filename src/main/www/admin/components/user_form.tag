@@ -33,6 +33,29 @@
                         <option value="text" selected={user.type==100}>SUBSCRIBER</option>
                     </select>
                 </div>
+                
+                <div class="form-group">
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">{ app.texts.user_form.preferredLanguage[app.language] }</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage1" value="pl" checked={user.preferredLanguage=='pl'}>
+                    <label class="form-check-label" for="preferredLanguage1">Polski</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage2" value="en" checked={user.preferredLanguage=='en'}>
+                    <label class="form-check-label" for="preferredLanguage2">English</label>
+                </div>  
+                </div>
+
+                <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="autologin" disabled={ !allowEdit } checked={ user.autologin }>
+                    <label class="form-check-label" for="autologin">{ app.texts.user_form.autologin[app.language] }</label>
+                </div>
+                </div>
+
+
                 <div class="form-group" if={ adminMode }>
                      <label for="organization">{ app.texts.user_form.organization[app.language] }</label>
                     <input class="form-control" id="organization" name="organization" type="text"  value={ user.organization } readonly={ !allowEdit }>
@@ -202,29 +225,33 @@
                     <label for="confirmString">{ app.texts.user_form.confirmString[app.language] }</label>
                     <input class="form-control" id="confirmString" name="confirmString" type="text" value={ user.confirmString } readonly={ true }>
                 </div>
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label">{ app.texts.user_form.preferredLanguage[app.language] }</label>
+                
+                <div class="form-group">
+                <div class="form-check">
+                    <label class="form-check-label">{ app.texts.user_form.status[app.language] }</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage1" value="pl" checked={user.preferredLanguage=='pl'}>
-                    <label class="form-check-label" for="preferredLanguage1">Polski</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="status" id="status0" value="0" checked={user.authStatus===0}>
+                    <label class="form-check-label" for="status0">{ app.texts.user_form.status_0[app.language] }</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="preferredLanguage" id="preferredLanguage2" value="en" checked={user.preferredLanguage=='en'}>
-                    <label class="form-check-label" for="preferredLanguage2">English</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="status" id="status10" value="10" checked={user.authStatus===10}>
+                    <label class="form-check-label" for="status10">{ app.texts.user_form.status_10[app.language] }</label>
                 </div>  
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="true" id="autologin" disabled={ !allowEdit } checked={ user.autologin }>
-                    <label class="form-check-label" for="autologin">{ app.texts.user_form.autologin[app.language] }</label>
+                    <input class="form-check-input" type="radio" name="status" id="status1" value="1" checked={user.authStatus===1}>
+                    <label class="form-check-label" for="status1">{ app.texts.user_form.status_1[app.language] }</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="true" id="confirmed" disabled={ !allowEdit || !adminMode } checked={ user.confirmed }>
-                    <label class="form-check-label" for="confirmed">{ app.texts.user_form.confirmed[app.language] }</label>
+                    <input class="form-check-input" type="radio" name="status" id="status2" value="2" checked={user.authStatus===2}>
+                    <label class="form-check-label" for="status2">{ app.texts.user_form.status_2[app.language] }</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="true" id="unregisterRequested" disabled={ true } checked={ user.unregisterRequested }>
-                    <label class="form-check-label" for="unregisterRequested">{ app.texts.user_form.unregisterRequested[app.language] }</label>
+                    <input class="form-check-input" type="radio" name="status" id="status3" value="3" checked={user.authStatus===3}>
+                    <label class="form-check-label" for="status3">{ app.texts.user_form.status_3[app.language] }</label>
                 </div>
+                </div>
+
                 <div class="form-group">
                     <label>{ app.texts.user_form.number[app.language] } {user.number}</label>
                 </div>
@@ -269,7 +296,8 @@
             'phonePrefix':'',
             'credits':0,
             'autologin':false,
-            'preferredLanguage':'en'
+            'preferredLanguage':'en',
+            'authStatus': 10
         }
 
         globalEvents.on('data:submitted', function(event){
@@ -440,12 +468,14 @@
             }
             
             if (e.target.elements['confirmString'].value != '') {formData.confirmString = e.target.elements['confirmString'].value}
-            if (e.target.elements['confirmed'].checked) {formData.confirmed = 'true'}else{formData.confirmed = 'false'}
+            //if (e.target.elements['confirmed'].checked) {formData.confirmed = 'true'}else{formData.confirmed = 'false'}
             if (self.mode == 'create') {
                 formData.password = generatePassword()
             }
             formData.preferredLanguage = e.target.elements['preferredLanguage'].value
-            if (e.target.elements['unregisterRequested'].checked) {formData.unregisterRequested = e.target.elements['unregisterRequested'].value}
+            console.log(e.target.elements['status'])
+            formData.authStatus = e.target.elements['status'].value
+            //if (e.target.elements['unregisterRequested'].checked) {formData.unregisterRequested = e.target.elements['unregisterRequested'].value}
             if (e.target.elements['autologin'].checked) {formData.autologin = 'true'}else{formData.autologin = 'false'}
             app.log(JSON.stringify(formData))
             urlPath = ''

@@ -741,7 +741,7 @@ public class Service extends Kernel {
     public Object userAdd(Event event) {
         boolean withConfirmation = "true"
                 .equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
-        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation);
+        return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, authAdapter);
     }
 
     /**
@@ -755,7 +755,7 @@ public class Service extends Kernel {
         String resetPassEmail = event.getRequestParameter("resetpass");
         try {
             if (resetPassEmail == null || resetPassEmail.isEmpty()) {
-                return UserModule.getInstance().handleUpdateRequest(event, userAdapter);
+                return UserModule.getInstance().handleUpdateRequest(event, userAdapter, authAdapter);
             } else {
                 String userName = event.getRequestParameter("name");
                 return CustomerModule.getInstance().handleResetRequest(event, userName, resetPassEmail, userAdapter,

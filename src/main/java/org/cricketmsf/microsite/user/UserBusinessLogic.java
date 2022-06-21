@@ -6,13 +6,18 @@ package org.cricketmsf.microsite.user;
 
 import java.util.List;
 import java.util.Map;
+
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
+import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
+import org.cricketmsf.microsite.out.auth.Token;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
+
+import com.signomix.Service;
 
 /**
  *
@@ -66,7 +71,7 @@ public class UserBusinessLogic {
         return result;
     }
 
-    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
+    public Object handleRegisterRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation, AuthAdapterIface authAdapter) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default (plus APPLICATION type)
         RequestObject request = event.getRequest();
@@ -172,7 +177,7 @@ public class UserBusinessLogic {
         return result;
     }
 
-    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter) {
+    public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter, AuthAdapterIface authAdapter) {
         //TODO: check requester rights
         //only admin can set: role or type differ than default
         RequestObject request = event.getRequest();
@@ -200,6 +205,7 @@ public class UserBusinessLogic {
             String warningNotifications = event.getRequestParameter("warningNotifications");
             String alertNotifications = event.getRequestParameter("alertNotifications");
             String unregisterRequested = event.getRequestParameter("unregisterRequested");
+            int status=-1;
             if (email != null) {
                 user.setEmail(email);
             }
@@ -247,6 +253,20 @@ public class UserBusinessLogic {
                 user.setUnregisterRequested("true".equalsIgnoreCase(unregisterRequested));
             }
             //user = verifyNotificationsConfig(user, telegramNotifier);
+            try{
+                status=Integer.parseInt(event.getRequestParameter("authStatus"));
+            }catch(Exception e){
+            }
+            if(status>-1 && user.getStatus()!=status){
+                user.setStatus(status);
+                if(user.getStatus()==User.IS_ACTIVE){
+                    user.setConfirmed(true);
+                    Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, user.getNumber()));
+                }else if(user.getStatus()==User.IS_UNREGISTERING){
+                    user.setUnregisterRequested(true);
+                    Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_DEL_SHEDULED, user.getUid()));
+                }
+            }
             userAdapter.modify(user);
             //fire event
             Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));

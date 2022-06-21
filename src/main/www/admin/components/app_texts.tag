@@ -359,6 +359,42 @@
                 "it": "Organization ID",
                 "fr": "Organization ID",
                 "pl": "ID organizacji"
+            },
+            "status": {
+                "en": "User status",
+                "it": "User status",
+                "fr": "User status",
+                "pl": "Status użytkownika"
+            },
+            "status_0": {
+                "en": "Waiting for confirmation (0)",
+                "it": "Waiting for confirmation (0)",
+                "fr": "Waiting for confirmation (0)",
+                "pl": "Oczekujący na potwierdzenie (0)"
+            },
+            "status_10": {
+                "en": "Waiting to activate (10)",
+                "it": "Waiting to activate (10)",
+                "fr": "Waiting to activate (10)",
+                "pl": "Oczekujący na aktywację (10)"
+            },
+            "status_1": {
+                "en": "Active (1)",
+                "it": "Active (1)",
+                "fr": "Active (1)",
+                "pl": "Aktywny (1)"
+            },
+            "status_2": {
+                "en": "Under deregistration (2)",
+                "it": "Under deregistration (2)",
+                "fr": "Under deregistration (2)",
+                "pl": "W trakcie wyrejestrowywania (2)"
+            },
+            "status_3": {
+                "en": "Locked (3)",
+                "it": "Locked (2)",
+                "fr": "Locked (2)",
+                "pl": "Zablokowany (2)"
             }
         }
     
