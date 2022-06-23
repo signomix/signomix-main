@@ -449,7 +449,8 @@ public class UserModule extends UserBusinessLogic {
                     user.setStatus(status);
                     String payload = "";
                     Token token = authAdapter.createPermanentToken(user.getUid(), "", true, payload);
-                    user.setConfirmString(token.getToken());
+                    String link = Kernel.getInstance().properties.getOrDefault("serviceurl", "") + "/app/?tid=" + token.getToken() + "#!rwt";
+                    user.setConfirmString(link);
                 }
             }
             userAdapter.modify(user);
