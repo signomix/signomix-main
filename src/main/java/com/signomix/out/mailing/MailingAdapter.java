@@ -10,21 +10,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.signomix.out.notification.MessageBrokerIface;
-import com.signomix.out.notification.dto.MessageEnvelope;
-
 import org.cricketmsf.Adapter;
 import org.cricketmsf.in.http.ResponseCode;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.cms.CmsException;
 import org.cricketmsf.microsite.cms.CmsIface;
 import org.cricketmsf.microsite.cms.Document;
-import org.cricketmsf.microsite.out.notification.EmailSenderIface;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.out.OutboundAdapter;
 import org.slf4j.LoggerFactory;
+
+import com.signomix.out.notification.MessageBrokerIface;
+import com.signomix.out.notification.dto.MessageEnvelope;
 
 /**
  *
@@ -39,6 +38,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
     private String reportPath;
     private String reportLanguage;
     private String reportTesterRoleName;
+    private String welcomeDocId;
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -49,6 +49,8 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         logger.info("\treports-language: " + reportLanguage);
         reportTesterRoleName = (String) properties.getOrDefault("tester-role-name", MAILING_TESTER_ROLE_NAME);
         logger.info("\ttester-role-name: " + reportTesterRoleName);
+        welcomeDocId=(String) properties.get("welcome-document-id");
+        logger.info("\twelcome-document-id: " + welcomeDocId);
     }
 
     @Override
@@ -136,6 +138,45 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         }
     }
 
+    @Override
+    public Object sendWelcomeDocument(
+            User user,
+            CmsIface cmsAdapter,
+            MessageBrokerIface externalNotificator) {
+        try {
+            StandardResult result = new StandardResult();
+            Document documentPl = null;
+            Document documentEn = null;
+            try {
+                documentPl = cmsAdapter.getDocument(welcomeDocId, "pl", "published", null);
+                documentEn = cmsAdapter.getDocument(welcomeDocId, "en", "published", null);
+            } catch (CmsException ex) {
+                logger.warn(ex.getMessage());
+            }
+            if (null == documentPl && null == documentEn) {
+                result.setCode(ResponseCode.NOT_FOUND);
+                result.setMessage("document not found");
+                result.setPayload("document not found".getBytes());
+                return result;
+            }
+            if (null == user.getEmail() || user.getEmail().isBlank()) {
+                result.setCode(ResponseCode.NOT_FOUND);
+                result.setMessage("e-mail not set");
+                result.setPayload("e-mail not set".getBytes());
+                return result;
+            }
+            if ("pl".equalsIgnoreCase(user.getPreferredLanguage()) && null != documentPl) {
+                sendDocument(user, documentPl, externalNotificator);
+            } else if (null != documentEn) {
+                sendDocument(user, documentEn, externalNotificator);
+            }
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private void saveReport(CmsIface cmsAdapter, String docUid, String target, String reportContent) {
         if (null == reportPath) {
             logger.info("report path not configured");
@@ -162,6 +203,9 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
     }
 
     private boolean send(User user, Document doc, MessageBrokerIface externalNotificator) {
+        if (null == externalNotificator) {
+            return false;
+        }
         String topic;
         String content;
         try {
@@ -171,22 +215,42 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             content = content.replaceFirst("\\$user.name", user.getName());
             content = content.replaceFirst("\\$mailing.name", user.getSurname());
             content = content.replaceFirst("\\$user.uid", user.getUid());
-            System.out.println("to: " + user.getEmail());
-            System.out.println("subject: " + topic);
-            System.out.println(content);
-            if (null != externalNotificator) {
-                User userStub = new User();
-                userStub.setEmail(user.getEmail());
-                MessageEnvelope envelope = new MessageEnvelope();
-                envelope.subject = topic;
-                envelope.message = content;
-                envelope.user = userStub;
-                envelope.type = MessageEnvelope.MAILING;
-                externalNotificator.send(envelope);
-                return true;
-            }else{
-                return false;
-            }
+            User userStub = new User();
+            userStub.setEmail(user.getEmail());
+            MessageEnvelope envelope = new MessageEnvelope();
+            envelope.subject = topic;
+            envelope.message = content;
+            envelope.user = userStub;
+            envelope.type = MessageEnvelope.MAILING;
+            externalNotificator.send(envelope);
+            return true;
+        } catch (UnsupportedEncodingException ex) {
+            logger.warn(ex.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sendDocument(User user, Document doc, MessageBrokerIface externalNotificator) {
+        if (null == externalNotificator) {
+            return false;
+        }
+        String topic;
+        String content;
+        try {
+            topic = URLDecoder.decode(doc.getTitle(), "UTF-8");
+            content = URLDecoder.decode(doc.getContent(), "UTF-8");
+
+            content = content.replaceFirst("\\$user.name", user.getName());
+            content = content.replaceFirst("\\$user.uid", user.getUid());
+            User userStub = new User();
+            userStub.setEmail(user.getEmail());
+            MessageEnvelope envelope = new MessageEnvelope();
+            envelope.subject = topic;
+            envelope.message = content;
+            envelope.user = userStub;
+            envelope.type = MessageEnvelope.DIRECT_EMAIL;
+            externalNotificator.send(envelope);
+            return true;
         } catch (UnsupportedEncodingException ex) {
             logger.warn(ex.getMessage());
             return false;

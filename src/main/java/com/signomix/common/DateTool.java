@@ -3,10 +3,13 @@ package com.signomix.common;
 import java.sql.Timestamp;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public class DateTool {
     public static Timestamp parseTimestamp(String input, String secondaryInput, boolean useSystemTimeOnError) {
@@ -17,8 +20,19 @@ public class DateTool {
         Timestamp ts = null;
         if (input.startsWith("-")) {
             int multiplicand = 1;
-            long millis = Long.parseLong(input.substring(1, input.length() - 1));
-            switch (input.charAt(input.length() - 1)) {
+            int zonePosition=input.indexOf("-", 1);
+            char unitSymbol;
+            long millis;
+            String zoneId="";
+            if(zonePosition==-1){
+                millis = Long.parseLong(input.substring(1, input.length() - 1));  
+                unitSymbol=input.charAt(input.length()-1);
+            }else{
+                millis = Long.parseLong(input.substring(1, 2));  
+                unitSymbol=input.charAt(2);
+                zoneId=input.substring(zonePosition+1);
+            }
+            switch (unitSymbol) {
                 case 'd':
                     multiplicand = 86400 * 1000;
                     break;
@@ -31,8 +45,15 @@ public class DateTool {
                 default: // seconds
                     multiplicand = 1000;
             }
-            ts = new Timestamp(System.currentTimeMillis() - millis * multiplicand);
-            return ts;
+            if(millis==0 && multiplicand == 86400 * 1000){
+                ts = new Timestamp(getStartOfDayAsUTC(zoneId));
+                return ts;
+            }else if(millis==0 && multiplicand != 86400 * 1000){
+                // cannot be parsed (parsing error) - actual timestamp will be returned 
+            }else{
+                ts = new Timestamp(System.currentTimeMillis() - millis * multiplicand);
+                return ts;
+            }
         } else {
             try {
                 ts = new Timestamp(Long.parseLong(timeString));
@@ -70,5 +91,9 @@ public class DateTool {
         ZonedDateTime zdtInstanceAtOffset = ZonedDateTime.parse(input, formatter);
         ZonedDateTime zdtInstanceAtUTC = zdtInstanceAtOffset.withZoneSameInstant(ZoneOffset.UTC);
         return Timestamp.from(zdtInstanceAtUTC.toInstant());
+    }
+
+    public static long getStartOfDayAsUTC(String zoneId){
+        return Date.from(LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.UTC)).getTime();
     }
 }
