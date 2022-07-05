@@ -52,8 +52,12 @@ public class DeviceManagementModule {
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
         long organizationID = -1;
+        long userType=-1;
         try{
             organizationID=Long.parseLong(request.headers.getFirst("X-user-organization").trim());
+        }catch(Exception e){}
+        try{
+            userType=Long.parseLong(request.headers.getFirst("X-user-type").trim());
         }catch(Exception e){}
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
@@ -116,7 +120,7 @@ public class DeviceManagementModule {
                         if ("public".equals(tmpUserID)) {
                             tmpUserID = issuerID;
                         }
-                        boolean hasAccess = checkAccess(tmpUserID, deviceEUI, organizationID, thingsAdapter);
+                        boolean hasAccess = checkAccess(tmpUserID, userType, deviceEUI, organizationID, thingsAdapter);
                         if (!hasAccess) {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                             result.setData("not found");
@@ -149,7 +153,7 @@ public class DeviceManagementModule {
                                         result.setFileExtension(".csv");
                                     }
                                 } else {
-                                    Device device = getDevice(userID, deviceEUI, thingsAdapter);
+                                    Device device = getDevice(userID, userType, deviceEUI, thingsAdapter);
                                     if (device != null) {
                                         result.setData(device);
                                     } else {
@@ -166,7 +170,7 @@ public class DeviceManagementModule {
                     case "PUT": // update device definition
                         User user = users.get(userID);
                         Device device = buildDevice(request, userID, user.getOrganization(),
-                                getDevice(userID, pathExt, thingsAdapter));
+                                getDevice(userID, -1, pathExt, thingsAdapter));
                         try {
                             thingsAdapter.modifyDevice(userID, device);
                         } catch (ThingsDataException ex) {
@@ -185,7 +189,7 @@ public class DeviceManagementModule {
                         if (null != eui) {
                             eui = eui.toUpperCase();
                         }
-                        Device dev = getDevice(userID, eui, thingsAdapter);
+                        Device dev = getDevice(userID, -1, eui, thingsAdapter);
                         if (dev.getUserID().equals(userID)) {
                             removeDevice(pathExt, thingsAdapter);
                             Kernel.getInstance().dispatchEvent(
@@ -671,18 +675,18 @@ public class DeviceManagementModule {
         return group;
     }
 
-    private Device getDevice(String userID, String deviceEUI, ThingsDataIface thingsAdapter) {
+    private Device getDevice(String userID, long userType, String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.getDevice(userID, deviceEUI, true);
+            return thingsAdapter.getDevice(userID, userType, deviceEUI, true);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
         return null;
     }
 
-    private boolean checkAccess(String userID, String deviceEUI, long organizationID, ThingsDataIface thingsAdapter) {
+    private boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.checkAccess(userID, deviceEUI, organizationID, true);
+            return thingsAdapter.checkAccess(userID, userType, deviceEUI, organizationID, true);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }

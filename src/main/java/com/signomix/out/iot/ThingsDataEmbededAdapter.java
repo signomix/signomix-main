@@ -110,7 +110,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     @Override
     public void modifyDevice(String userID, Device device) throws ThingsDataException {
         //Device previous = getDevice(userID, device.getEUI(), false);
-        Device previous = getDevice(userID, device.getEUI(), true);
+        Device previous = getDevice(userID, -1, device.getEUI(), true);
         if (previous == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         }else{
@@ -169,12 +169,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException {
-        return getIotDB().getDevice(userId, deviceEUI, withShared);
+    public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
+        return getIotDB().getDevice(userId, userType, deviceEUI, withShared);
     }
     @Override
-    public boolean checkAccess(String userId, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException {
-        return getIotDB().checkAccess(userId, deviceEUI, organizationID, withShared);
+    public boolean checkAccess(String userId, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException {
+        return getIotDB().checkAccess(userId, userType, deviceEUI, organizationID, withShared);
     }
 
     @Override

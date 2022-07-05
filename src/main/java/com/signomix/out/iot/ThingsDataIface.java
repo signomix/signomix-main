@@ -38,8 +38,8 @@ public interface ThingsDataIface {
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink, String deviceID) throws ThingsDataException;
     public void updateAlertStatus(String id, int status) throws ThingsDataException;
     public void updateDeviceState(String id, Double state) throws ThingsDataException;
-    public Device getDevice(String userId, String deviceEUI, boolean withShared) throws ThingsDataException;
-    public boolean checkAccess(String userId, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException;
+    public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
+    public boolean checkAccess(String userId, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
     public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException;
     public List<Device> getGroupDevices(String userID, long organizationID, String group) throws ThingsDataException;

@@ -40,6 +40,7 @@ import com.signomix.out.iot.application.Application;
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
+import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.out.archiver.ZipArchiver;
 import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
@@ -294,10 +295,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException {
+    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
 
         String query;
-        if (withShared) {
+        if(User.APPLICATION == userType){
+            query = buildDeviceQuery()
+            + " AND (upper(d.eui)=upper(?)";
+        }else if (withShared) {
             query = buildDeviceQuery()
                     + " AND ( upper(d.eui)=upper(?) and (d.userid = ? or d.team like ? or d.administrators like ?))";
         } else {
@@ -306,9 +310,16 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, deviceEUI);
             pstmt.setString(2, userID);
-            if (withShared) {
+            if(User.APPLICATION == userType){
+                pstmt.setString(1, deviceEUI);
+            }else if (withShared) {
+                pstmt.setString(1, deviceEUI);
+                pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
                 pstmt.setString(4, "%," + userID + ",%");
+            }else{
+                pstmt.setString(1, deviceEUI);
+                pstmt.setString(2, userID);
             }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -323,11 +334,13 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public boolean checkAccess(String userID, String deviceEUI, long organizationID, boolean withShared)
+    public boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, boolean withShared)
             throws ThingsDataException {
 
         String query = "select eui from devices ";
-        if (withShared && organizationID == 0) {
+        if (User.APPLICATION == userType) {
+            query=query+" WHERE eui=?";
+        } else if (withShared && organizationID == 0) {
             query = query
                     + " WHERE upper(eui)=upper(?) and (userid = ? or team like ? or administrators like ?)";
         } else if (withShared && organizationID > 0) {
@@ -337,7 +350,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             query = query + " WHERE (upper(eui)=upper(?) and userid = ?)";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            if (withShared && organizationID == 0) {
+            if (User.APPLICATION == userType) {
+                pstmt.setString(1, deviceEUI);
+            }else if (withShared && organizationID == 0) {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
@@ -378,7 +393,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public void putDevice(Device device) throws ThingsDataException {
-        if (getDevice(device.getUserID(), device.getEUI(), false) != null) {
+        if (getDevice(device.getUserID(), -1, device.getEUI(), false) != null) {
             throw new ThingsDataException(ThingsDataException.CONFLICT,
                     "device " + device.getEUI() + " is already defined");
         }
@@ -528,7 +543,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            
+
             if (userID == null) {
                 pstmt.setString(1, deviceEUI);
             } else if (organizationID == -1) {
@@ -536,7 +551,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
                 pstmt.setString(4, "%," + userID + ",%");
-            } else{
+            } else {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setLong(2, organizationID);
             }
@@ -557,20 +572,20 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public boolean isGroupAuthorized(String userID, long organizationID, String groupEUI) throws ThingsDataException {
         String query;
-        if(null!=userID && organizationID<0){
-            query= "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ? or administrators like ?)";
-        }else if(null!=userID && organizationID>-1){
-            query= "select eui from groups where upper(eui) = upper(?) and organization=?";
-        }else{
+        if (null != userID && organizationID < 0) {
+            query = "select eui from groups where upper(eui) = upper(?) and (userid=? or team like ? or administrators like ?)";
+        } else if (null != userID && organizationID > -1) {
+            query = "select eui from groups where upper(eui) = upper(?) and organization=?";
+        } else {
             return false;
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, groupEUI);
-            if (userID != null && organizationID<0) {
+            if (userID != null && organizationID < 0) {
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
                 pstmt.setString(4, "%," + userID + ",%");
-            }else{
+            } else {
                 pstmt.setLong(2, organizationID);
             }
             ResultSet rs = pstmt.executeQuery();
