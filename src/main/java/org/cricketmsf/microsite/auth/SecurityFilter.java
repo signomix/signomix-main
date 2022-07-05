@@ -217,6 +217,7 @@ public class SecurityFilter extends Filter {
                 result.user=new User();
                 result.user.setUid("externalService");
                 result.user.setRole("admin");
+                result.user.setType(User.APPLICATION);
                 return result;
             }
         }
