@@ -308,8 +308,6 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             query = buildDeviceQuery() + " AND (upper(d.eui)=upper(?) and d.userid = ?)";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, deviceEUI);
-            pstmt.setString(2, userID);
             if(User.APPLICATION == userType){
                 pstmt.setString(1, deviceEUI);
             }else if (withShared) {
