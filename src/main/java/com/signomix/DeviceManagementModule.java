@@ -57,6 +57,7 @@ public class DeviceManagementModule {
             organizationID=Long.parseLong(request.headers.getFirst("X-user-organization").trim());
         }catch(Exception e){}
         try{
+            System.out.println("USER TYPE:"+request.headers.getFirst("X-user-type").trim());
             userType=Long.parseLong(request.headers.getFirst("X-user-type").trim());
         }catch(Exception e){}
         String pathExt = request.pathExt;
