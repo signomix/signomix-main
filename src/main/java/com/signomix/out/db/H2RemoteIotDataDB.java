@@ -300,7 +300,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         String query;
         if(User.APPLICATION == userType){
             query = buildDeviceQuery()
-            + " AND (upper(d.eui)=upper(?)";
+            + " AND (upper(d.eui)=upper(?))";
         }else if (withShared) {
             query = buildDeviceQuery()
                     + " AND ( upper(d.eui)=upper(?) and (d.userid = ? or d.team like ? or d.administrators like ?))";
