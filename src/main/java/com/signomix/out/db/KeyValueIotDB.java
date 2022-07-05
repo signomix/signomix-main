@@ -51,7 +51,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public Device getDevice(String userID, String deviceEUI, boolean withShared) throws ThingsDataException {
+    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
         Device device = getDevice(deviceEUI);
         if (device != null && !(device.getUserID().equals(userID) || device.getTeam().contains("," + userID + ","))) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
@@ -419,7 +419,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         return null;
     }
     @Override
-    public boolean checkAccess(String userID, String deviceEUI, long organizationID, boolean withShared)
+    public boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, boolean withShared)
             throws ThingsDataException {
         // TODO Auto-generated method stub
         return false;

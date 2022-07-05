@@ -68,7 +68,7 @@ public class ActuatorModule {
             eui = eui.toUpperCase();
         }
         try {
-            device = thingsAdapter.getDevice(userID, eui, false);
+            device = thingsAdapter.getDevice(userID, -1, eui, false);
         } catch (ThingsDataException ex) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());

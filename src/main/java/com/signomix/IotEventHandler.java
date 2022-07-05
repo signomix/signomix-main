@@ -181,7 +181,7 @@ public class IotEventHandler {
                     try {
                         sourceDevice = thingsAdapter.getDevice(sourceDeviceEui);
                         if (null != sourceDevice) {
-                            device = thingsAdapter.getDevice(sourceDevice.getUserID(), deviceEUI, false);
+                            device = thingsAdapter.getDevice(sourceDevice.getUserID(), -1, deviceEUI, false);
                         }
                     } catch (ThingsDataException ex) {
                         Kernel.getInstance().dispatchEvent(
