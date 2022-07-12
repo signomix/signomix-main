@@ -31,6 +31,7 @@ public class DataQuery {
     private Timestamp fromTs;
     private Timestamp toTs;
     private boolean virtual;
+    private boolean dateParamPresent;
 
     public Timestamp getFromTs() {
         return fromTs;
@@ -51,14 +52,16 @@ public class DataQuery {
         newValue = null;
         group = null;
         state = null;
-        fromTs=null;
-        toTs=null;
+        fromTs=new Timestamp(0);
+        toTs=new Timestamp(System.currentTimeMillis());
         virtual=false;
+        dateParamPresent=false;
     }
 
     public static DataQuery parse(String query) throws DataQueryException {
         // TODO: in case of number format exception - log SEVERE event
         // TODO: parsing exception
+        // TODO: 'to' or 'from' parameter removes 'last' (setLimit(0))
         System.out.println(query);
         DataQuery dq = new DataQuery();
         String q = query.trim();
@@ -171,10 +174,12 @@ public class DataQuery {
             case "from":
                 dq.setFromTs(params[i + 1]);
                 i = i + 2;
+                dq.setLimit(0);
                 break;
             case "to":
                 dq.setToTs(params[i + 1]);
                 i = i + 2;
+                dq.setLimit(0);
                 break;
             default:
                 throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
@@ -225,6 +230,9 @@ public class DataQuery {
      * @param limit the limit to set
      */
     public void setLimit(int limit) {
+        if(dateParamPresent){
+            return;
+        }
         this.limit = limit;
     }
 
@@ -337,6 +345,7 @@ public class DataQuery {
      */
     public void setFromTs(String fromStr){
         fromTs=DateTool.parseTimestamp(fromStr,null,false);
+        dateParamPresent=true;
     }
 
     /**
@@ -344,7 +353,8 @@ public class DataQuery {
      * @param fromStr
      */
     public void setToTs(String toStr){
-        toTs=DateTool.parseTimestamp(toStr, null, false);
+        toTs=DateTool.parseTimestamp(toStr, null, true);
+        dateParamPresent=true;
     }
 
 }
