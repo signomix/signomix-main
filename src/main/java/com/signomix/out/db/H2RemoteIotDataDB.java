@@ -1910,10 +1910,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             query = query.concat(stateQuery);
         }
         if (null != dq.getFromTs() && null != dq.getToTs()) {
-            System.out.println(query);
             query = query.concat(wherePart);
         }
         query = query.concat(orderPart);
+        System.out.println(query);
         return query;
     }
 
@@ -1961,8 +1961,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         if (requestLimit > 0 && requestLimit < limit) {
             limit = requestLimit;
         }
-        // Kernel.getInstance().dispatchEvent(Event.logInfo(this, "getChannelValues
-        // QUERY: " + query));
+        Kernel.getInstance().dispatchEvent(Event.logInfo(this, "getChannelValues QUERY: " + query));
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setString(1, deviceEUI);
 
