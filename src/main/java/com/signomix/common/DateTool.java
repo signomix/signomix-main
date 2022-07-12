@@ -13,9 +13,9 @@ import java.util.Date;
 
 public class DateTool {
     public static Timestamp parseTimestamp(String input, String secondaryInput, boolean useSystemTimeOnError) {
-        // if(null==input||input.isEmpty()){
-        // return null;
-        // }
+        if(null==input||input.isEmpty()){
+            return null;
+        }
         String timeString = input.replace('~', '+');
         Timestamp ts = null;
         if (input.startsWith("-")) {

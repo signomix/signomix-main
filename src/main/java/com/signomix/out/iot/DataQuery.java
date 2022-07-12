@@ -52,10 +52,10 @@ public class DataQuery {
         newValue = null;
         group = null;
         state = null;
-        fromTs=new Timestamp(0);
-        toTs=new Timestamp(System.currentTimeMillis());
-        virtual=false;
-        dateParamPresent=false;
+        fromTs = new Timestamp(0);
+        toTs = new Timestamp(System.currentTimeMillis());
+        virtual = false;
+        dateParamPresent = false;
     }
 
     public static DataQuery parse(String query) throws DataQueryException {
@@ -71,118 +71,119 @@ public class DataQuery {
         String[] params = q.split(" ");
         for (int i = 0; i < params.length;) {
             switch (params[i].toLowerCase()) {
-            case "last":
-                if(params[i + 1].equals("*") || params[i + 1].equals("0")){
-                    dq.setLimit(Integer.MAX_VALUE);
-                }else{
-                    dq.setLimit(Integer.parseInt(params[i + 1]));
-                }
-                i = i + 2;
-                break;
-            case "average":
-                dq.average = Integer.parseInt(params[i + 1]);
-                if (params.length > i + 2) {
-                    try {
-                        dq.setNewValue(Double.parseDouble(params[i + 2]));
-                        i = i + 3;
-                    } catch (NumberFormatException ex) {
+                case "last":
+                    if (params[i + 1].equals("*") || params[i + 1].equals("0")) {
+                        dq.setLimit(Integer.MAX_VALUE);
+                    } else {
+                        dq.setLimit(Integer.parseInt(params[i + 1]));
+                    }
+                    i = i + 2;
+                    break;
+                case "average":
+                    dq.average = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
                         i = i + 2;
                     }
-                } else {
-                    i = i + 2;
-                }
-                break;
-            case "minimum":
-                dq.minimum = Integer.parseInt(params[i + 1]);
-                if (params.length > i + 2) {
-                    try {
-                        dq.setNewValue(Double.parseDouble(params[i + 2]));
-                        i = i + 3;
-                    } catch (NumberFormatException ex) {
+                    break;
+                case "minimum":
+                    dq.minimum = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
                         i = i + 2;
                     }
-                } else {
-                    i = i + 2;
-                }
-                break;
-            case "maximum":
-                dq.maximum = Integer.parseInt(params[i + 1]);
-                if (params.length > i + 2) {
-                    try {
-                        dq.setNewValue(Double.parseDouble(params[i + 2]));
-                        i = i + 3;
-                    } catch (NumberFormatException ex) {
+                    break;
+                case "maximum":
+                    dq.maximum = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
                         i = i + 2;
                     }
-                } else {
-                    i = i + 2;
-                }
-                break;
-            case "sum":
-                dq.summary = Integer.parseInt(params[i + 1]);
-                if (params.length > i + 2) {
-                    try {
-                        dq.setNewValue(Double.parseDouble(params[i + 2]));
-                        i = i + 3;
-                    } catch (NumberFormatException ex) {
+                    break;
+                case "sum":
+                    dq.summary = Integer.parseInt(params[i + 1]);
+                    if (params.length > i + 2) {
+                        try {
+                            dq.setNewValue(Double.parseDouble(params[i + 2]));
+                            i = i + 3;
+                        } catch (NumberFormatException ex) {
+                            i = i + 2;
+                        }
+                    } else {
                         i = i + 2;
                     }
-                } else {
+                    break;
+                case "project":
+                    dq.setProject(params[i + 1]);
                     i = i + 2;
+                    break;
+                case "state": {
+                    try {
+                        dq.setState(Double.parseDouble(params[i + 1]));
+                    } catch (NumberFormatException e) {
+                        // TODO:inform user about wrong query selector
+                    }
+                    i = i + 2;
+                    break;
                 }
-                break;
-            case "project":
-                dq.setProject(params[i + 1]);
-                i = i + 2;
-                break;
-            case "state": {
-                try {
-                    dq.setState(Double.parseDouble(params[i + 1]));
-                } catch (NumberFormatException e) {
-                    // TODO:inform user about wrong query selector
-                }
-                i = i + 2;
-                break;
-            }
-            case "timeseries":
-            case "csv.timeseries":
-                dq.setTimeseries(true);
-                i = i + 1;
-                break;
-            case "virtual":
+                case "timeseries":
+                case "csv.timeseries":
+                    dq.setTimeseries(true);
+                    i = i + 1;
+                    break;
+                case "virtual":
                     dq.setVirtual(true);
                     i = i + 1;
                     break;
-            case "channel":
-                dq.setChannelName(params[i + 1]);
-                i = i + 2;
-                break;
-            case "group":
-                dq.setGroup(params[i + 1]);
-                i = i + 2;
-                break;
-            case "new": {
-                try {
-                    Double n = Double.parseDouble(params[i + 1]);
-                    dq.setNewValue(n);
-                } catch (NumberFormatException e) {
-                    // TODO:inform user about wrong query selector
+                case "channel":
+                    dq.setChannelName(params[i + 1]);
+                    i = i + 2;
+                    break;
+                case "group":
+                    dq.setGroup(params[i + 1]);
+                    i = i + 2;
+                    break;
+                case "new": {
+                    try {
+                        Double n = Double.parseDouble(params[i + 1]);
+                        dq.setNewValue(n);
+                    } catch (NumberFormatException e) {
+                        // TODO:inform user about wrong query selector
+                    }
+                    i = i + 2;
+                    break;
                 }
-                i = i + 2;
-                break;
-            }
-            case "from":
-                dq.setFromTs(params[i + 1]);
-                i = i + 2;
-                dq.setLimit(0);
-                break;
-            case "to":
-                dq.setToTs(params[i + 1]);
-                i = i + 2;
-                dq.setLimit(0);
-                break;
-            default:
-                throw new DataQueryException(DataQueryException.PARSING_EXCEPTION, "unrecognized word " + params[i]);
+                case "from":
+                    dq.setFromTs(params[i + 1]);
+                    i = i + 2;
+                    dq.setLimit(0);
+                    break;
+                case "to":
+                    dq.setToTs(params[i + 1]);
+                    i = i + 2;
+                    dq.setLimit(0);
+                    break;
+                default:
+                    throw new DataQueryException(DataQueryException.PARSING_EXCEPTION,
+                            "unrecognized word " + params[i]);
             }
         }
 
@@ -192,11 +193,11 @@ public class DataQuery {
         } else if (dq.maximum > 0) {
             dq.minimum = 0;
         }
-        if(dq.limit==0){
-            if(null!=dq.fromTs || null!=dq.toTs){
-                dq.limit=Integer.MAX_VALUE;
-            }else{
-                dq.limit=1;
+        if (dq.limit == 0) {
+            if (null != dq.fromTs || null != dq.toTs) {
+                dq.limit = Integer.MAX_VALUE;
+            } else {
+                dq.limit = 1;
             }
         }
         if (dq.average > 0) {
@@ -206,7 +207,7 @@ public class DataQuery {
         } else if (dq.minimum > 0) {
             dq.setLimit(dq.minimum);
         }
-        if(dq.isVirtual()){
+        if (dq.isVirtual()) {
             dq.setLimit(1);
             dq.setFromTs(null);
             dq.setToTs(null);
@@ -216,9 +217,10 @@ public class DataQuery {
         return dq;
     }
 
-    public List<String> getChannels(){
-        return (null!=channelName)?(Arrays.asList(channelName.split(","))):new ArrayList<>();
+    public List<String> getChannels() {
+        return (null != channelName) ? (Arrays.asList(channelName.split(","))) : new ArrayList<>();
     }
+
     /**
      * @return the limit
      */
@@ -230,7 +232,7 @@ public class DataQuery {
      * @param limit the limit to set
      */
     public void setLimit(int limit) {
-        if(dateParamPresent){
+        if (dateParamPresent) {
             return;
         }
         this.limit = limit;
@@ -341,20 +343,34 @@ public class DataQuery {
 
     /**
      * Parses date provided in yyyy-mm-dd_hh:mm:ss format
+     * 
      * @param fromStr
      */
-    public void setFromTs(String fromStr){
-        fromTs=DateTool.parseTimestamp(fromStr,null,false);
-        dateParamPresent=true;
+    public void setFromTs(String fromStr) {
+        try {
+            fromTs = DateTool.parseTimestamp(fromStr, null, false);
+            if(null!=fromTs){
+                dateParamPresent = true;
+            }
+        } catch (Exception ex) {
+            
+        }
     }
 
     /**
      * Parses date provided in yyyy-mm-dd_hh:mm:ss format
+     * 
      * @param fromStr
      */
-    public void setToTs(String toStr){
-        toTs=DateTool.parseTimestamp(toStr, null, true);
-        dateParamPresent=true;
+    public void setToTs(String toStr) {
+        try {
+            toTs = DateTool.parseTimestamp(toStr, null, true);
+            if(null!=toTs){
+                dateParamPresent = true;
+            }
+        } catch (Exception ex) {
+
+        }
     }
 
 }
