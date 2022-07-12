@@ -98,9 +98,10 @@ public class DateTool {
     }
 
     public static long getStartOfDayAsUTC(String zoneId) {
-        //long result2 = Date.from(LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.UTC)).getTime();
+        long result2 = LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
         long result = Timestamp.valueOf(LocalDate.now(ZoneId.of(zoneId)).atStartOfDay()).getTime();
         System.out.println("day start "+zoneId+": "+result);
+        System.out.println("day start2 "+zoneId+": "+result2);
         return result;
     }
 }
