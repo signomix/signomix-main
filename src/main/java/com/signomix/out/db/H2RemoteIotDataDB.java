@@ -1910,6 +1910,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             query = query.concat(stateQuery);
         }
         if (null != dq.getFromTs() && null != dq.getToTs()) {
+            System.out.println(query);
             query = query.concat(wherePart);
         }
         query = query.concat(orderPart);

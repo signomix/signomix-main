@@ -125,7 +125,6 @@ public class DateTool {
                 .atZone(ZoneId.of(zoneId));
         long offset = startOfDayInEurope2.getOffset().getTotalSeconds() * 1000;
         result=Timestamp.valueOf(startOfDayInEurope2.toLocalDateTime()).getTime() - offset;
-        System.out.println("day start "+zoneId+": "+result);
         return result;
     }
 }
