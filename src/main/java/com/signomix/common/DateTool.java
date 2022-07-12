@@ -4,16 +4,16 @@ import java.sql.Timestamp;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 
 public class DateTool {
     public static Timestamp parseTimestamp(String input, String secondaryInput, boolean useSystemTimeOnError) {
-        if(null==input||input.isEmpty()){
+        if (null == input || input.isEmpty()) {
             return null;
         }
         String timeString = input.replace('~', '+');
@@ -97,18 +97,35 @@ public class DateTool {
         return Timestamp.from(zdtInstanceAtUTC.toInstant());
     }
 
+    /*
+     * public static long getStartOfDayAsUTC(String zoneId) {
+     * try{
+     * long result2 =
+     * LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.UTC).
+     * toEpochMilli();
+     * long result =
+     * Timestamp.valueOf(LocalDate.now(ZoneId.of(zoneId)).atStartOfDay()).getTime();
+     * long result3 =
+     * LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.of(
+     * zoneId)).toEpochMilli();
+     * System.out.println("day start "+zoneId+": "+result);
+     * System.out.println("day start2 "+zoneId+": "+result2);
+     * System.out.println("day start3 "+zoneId+": "+result3);
+     * return result;
+     * }catch(Exception ex){
+     * ex.printStackTrace();
+     * return 0;
+     * }
+     * }
+     */
     public static long getStartOfDayAsUTC(String zoneId) {
-        try{
-        long result2 = LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
-        long result = Timestamp.valueOf(LocalDate.now(ZoneId.of(zoneId)).atStartOfDay()).getTime();
-        long result3 =  LocalDate.now(ZoneId.of(zoneId)).atStartOfDay().toInstant(ZoneOffset.of(zoneId)).toEpochMilli();
+        long result;
+        LocalDate localDate = LocalDate.now(ZoneId.of(zoneId));
+        ZonedDateTime startOfDayInEurope2 = localDate.atTime(LocalTime.MIN)
+                .atZone(ZoneId.of(zoneId));
+        long offset = startOfDayInEurope2.getOffset().getTotalSeconds() * 1000;
+        result=Timestamp.valueOf(startOfDayInEurope2.toLocalDateTime()).getTime() - offset;
         System.out.println("day start "+zoneId+": "+result);
-        System.out.println("day start2 "+zoneId+": "+result2);
-        System.out.println("day start3 "+zoneId+": "+result3);
         return result;
-        }catch(Exception ex){
-            ex.printStackTrace();
-            return null;
-        }
     }
 }
