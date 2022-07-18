@@ -62,7 +62,7 @@ public class User {
     public static final int IS_CREATED = 10;
 
     public static final int SERVICE_SMS = 0b00000001;
-    public static final int SERVICE_NEW = 0b00000010; //not used
+    public static final int SERVICE_NEW = 0b00000010; // not used
 
     private Integer type = FREE;
     private String uid;
@@ -86,7 +86,8 @@ public class User {
     private long credits;
     private boolean autologin;
     private String preferredLanguage;
-    private long organization;
+    private long organi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zation;
+    private String sessionToken;
 
     public User() {
         confirmed = false;
@@ -96,7 +97,8 @@ public class User {
         services = 0b0;
         credits = 0;
         autologin = false;
-        organization = 0;
+        organization = 0L;
+        sessionToken = null;
     }
 
     public long getOrganization() {
@@ -241,7 +243,7 @@ public class User {
      */
     public void setPassword(String password) {
         this.password = password;
-        //this.password = password;
+        // this.password = password;
     }
 
     public boolean checkPassword(String passToCheck) {
@@ -313,7 +315,7 @@ public class User {
     public void setStatus(int status) {
         this.authStatus = status;
     }
-    
+
     public int getAuthStatus() {
         return authStatus;
     }
@@ -379,6 +381,14 @@ public class User {
      */
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
+    }
+
+    public String getSessionToken() {
+        return sessionToken;
     }
 
     /**
