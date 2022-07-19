@@ -86,7 +86,7 @@ public class User {
     private long credits;
     private boolean autologin;
     private String preferredLanguage;
-    private long organi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zation;
+    private long organization;
     private String sessionToken;
 
     public User() {

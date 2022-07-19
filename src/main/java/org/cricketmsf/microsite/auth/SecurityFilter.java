@@ -347,9 +347,12 @@ public class SecurityFilter extends Filter {
                 result = checkRequest(exchange);
             } catch (Exception e) {
                 e.printStackTrace();
-                //System.out.println("message:" + e.getMessage());
-                exchange.sendResponseHeaders(400, e.getMessage().length());
-                exchange.getResponseBody().write(e.getMessage().getBytes());
+                String message=e.getMessage();
+                    if(null==message) {
+                        message="";
+                    }
+                exchange.sendResponseHeaders(400, message.length());
+                exchange.getResponseBody().write(message.getBytes());
                 exchange.getResponseBody().close();
                 exchange.close();
             }
@@ -369,8 +372,13 @@ public class SecurityFilter extends Filter {
                         chain.doFilter(exchange);
                     }
                 } catch (Exception e) {
-                    exchange.sendResponseHeaders(400, e.getMessage().length());
-                    exchange.getResponseBody().write(e.getMessage().getBytes());
+                    e.printStackTrace();
+                    String message=e.getMessage();
+                    if(null==message) {
+                        message="";
+                    }
+                    exchange.sendResponseHeaders(400, message.length());
+                    exchange.getResponseBody().write(message.getBytes());
                     exchange.getResponseBody().close();
                     exchange.close();
                 }
