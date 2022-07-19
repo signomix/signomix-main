@@ -39,6 +39,9 @@ public class AuthLogic extends AuthBusinessLogic {
             if (null != withData) {
                 String appKey = (String) Service.getInstance().getProperties().getOrDefault("application_key", "");
                 String requestAppKey = (String) request.parameters.getOrDefault("appkey", "defaultValue");
+                if(null==requestAppKey){
+                    requestAppKey=request.headers.getFirst("X-app-key");
+                }
                 if (!appKey.equals(requestAppKey)) {
                     Kernel.getInstance().dispatchEvent(Event.logInfo(this.getClass().getSimpleName(),
                             "Wrong app key " + appKey + "!=" + requestAppKey));

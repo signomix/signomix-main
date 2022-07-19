@@ -211,6 +211,9 @@ public class SecurityFilter extends Filter {
         result.user = null;
         result.issuer = null;
         String appKey=(String)parameters.get("appkey");
+        if(null==appKey){
+            appKey=exchange.getRequestHeaders().getFirst("X-app-key");
+        }
         if(null!=appKey){
             String configuredAppKey=(String)Kernel.getInstance().properties.getOrDefault("application_key","");
             if(!configuredAppKey.isEmpty() && appKey.equalsIgnoreCase(configuredAppKey)){
