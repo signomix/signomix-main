@@ -52,14 +52,16 @@ public class DeviceManagementModule {
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
         long organizationID = -1;
-        long userType=-1;
-        try{
-            organizationID=Long.parseLong(request.headers.getFirst("X-user-organization").trim());
-        }catch(Exception e){}
-        try{
-            System.out.println("USER TYPE:"+request.headers.getFirst("X-user-type").trim());
-            userType=Long.parseLong(request.headers.getFirst("X-user-type").trim());
-        }catch(Exception e){}
+        long userType = -1;
+        try {
+            organizationID = Long.parseLong(request.headers.getFirst("X-user-organization").trim());
+        } catch (Exception e) {
+        }
+        try {
+            System.out.println("USER TYPE:" + request.headers.getFirst("X-user-type").trim());
+            userType = Long.parseLong(request.headers.getFirst("X-user-type").trim());
+        } catch (Exception e) {
+        }
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
@@ -117,7 +119,7 @@ public class DeviceManagementModule {
                                                               // unique)
                         String tmpUserID = userID;
                         String deviceEUI = params[0];
-                        String deviceChannel=null;
+                        String deviceChannel = null;
                         if ("public".equals(tmpUserID)) {
                             tmpUserID = issuerID;
                         }
@@ -129,7 +131,7 @@ public class DeviceManagementModule {
                         }
                         switch (params.length) {
                             case 2: // get channel data
-                                deviceChannel=params[1];
+                                deviceChannel = params[1];
                                 // in case of request from shared dashboards we needt to use token issuer ID
                                 // instead of tuken user ID
                                 // TODO: data query
@@ -245,14 +247,15 @@ public class DeviceManagementModule {
         String userID = request.headers.getFirst("X-user-id");
         String issuerID = request.headers.getFirst("X-issuer-id");
         long organizationID = -1;
-        try{
-            organizationID=Long.parseLong(request.headers.getFirst("X-user-organization").trim());
-        }catch(Exception e){}
+        try {
+            organizationID = Long.parseLong(request.headers.getFirst("X-user-organization").trim());
+        } catch (Exception e) {
+        }
         String tmpUserID;
-        if("public".equals(userID)){
-            tmpUserID=issuerID;
-        }else{
-            tmpUserID=userID;
+        if ("public".equals(userID)) {
+            tmpUserID = issuerID;
+        } else {
+            tmpUserID = userID;
         }
         String pathExt = request.pathExt;
         if (userID == null || userID.isEmpty()) {
@@ -268,7 +271,8 @@ public class DeviceManagementModule {
                             result.setData(getUserGroups(userID, thingsAdapter));
                         } else {
                             result.setData(
-                                    getGroupDevices(tmpUserID, organizationID, (String) request.parameters.get("group"), thingsAdapter));
+                                    getGroupDevices(tmpUserID, organizationID, (String) request.parameters.get("group"),
+                                            thingsAdapter));
                         }
                         break;
                     case "POST": // add new group
@@ -305,7 +309,8 @@ public class DeviceManagementModule {
                                 String[] channelNames = channels.split(",");
                                 // result.setData(getValuesOfGroup(userID, groupID, channelNames,
                                 // thingsAdapter));
-                                result.setData(getValuesOfGroup(tmpUserID, organizationID, groupID, channelNames, thingsAdapter,
+                                result.setData(getValuesOfGroup(tmpUserID, organizationID, groupID, channelNames,
+                                        thingsAdapter,
                                         request.parameters));
                                 String format = event.getRequestParameter("format");
                                 if (null != format && !format.isBlank()) {
@@ -476,16 +481,49 @@ public class DeviceManagementModule {
         device.setEUI(eui);
         if (original != null) {
             device.setEUI(original.getEUI());
+            device.setType(original.getType());
+            device.setUserID(original.getUserID());
+            device.setKey(original.getKey());
+            device.setName(original.getName());
+            device.setApplicationEUI(original.getApplicationEUI());
+            device.setApplicationID(original.getApplicationID());
+            device.setTeam(original.getTeam());
+            device.setAdministrators(original.getAdministrators());
+            device.setDescription(original.getDescription());
+            device.setTransmissionInterval(original.getTransmissionInterval());
+            device.setProject(original.getProject());
+            device.setActive(original.isActive());
+            device.setLatitude(original.getLatitude());
+            device.setLongitude(original.getLongitude());
+            device.setAltitude(original.getAltitude());
+            device.setState(original.getState());
+            device.setRetentionTime(original.getRetentionTime());
+            device.setCode(original.getCode());
+            device.setEncoder(original.getEncoder());
+            device.setGroups(original.getGroups());
+            device.setDownlink(original.getDownlink());
+            device.setCheckFrames(original.isCheckFrames());
+            device.setOrgApplicationId(original.getOrgApplicationId());
+            device.setConfiguration(original.getConfiguration());
+        } else {
+            Random r = new Random(System.currentTimeMillis());
+            device.setKey(Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
         }
-        device.setType((String) request.parameters.getOrDefault("type", "GENERIC"));
-        device.setUserID(userID);
+        String newType = (String) request.parameters.getOrDefault("type", "");
+        if (!newType.isEmpty()) {
+            device.setType(newType);
+        }
+        if (null != userID && !userID.isEmpty()) {
+            device.setUserID(userID);
+        }
 
         String newKey = (String) request.parameters.getOrDefault("key", "");
         if (newKey != null && !newKey.isEmpty()) {
             device.setKey(newKey);
         } else {
-            Random r = new Random(System.currentTimeMillis());
-            device.setKey(Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
+            // Random r = new Random(System.currentTimeMillis());
+            // device.setKey(Base64.getEncoder().withoutPadding().encodeToString(("" +
+            // r.nextLong()).getBytes()));
         }
 
         String newName = (String) request.parameters.getOrDefault("name", "");
@@ -514,19 +552,23 @@ public class DeviceManagementModule {
         if (newDescription != null && !newDescription.isEmpty()) {
             device.setDescription(newDescription);
         }
-        device.setChannels((String) request.parameters.get("channels"));
 
         String newInterval = (String) request.parameters.getOrDefault("transmissionInterval", "");
-        try {
-            device.setTransmissionInterval(Long.parseLong(newInterval));
-        } catch (NullPointerException | NumberFormatException e) {
+        if (!newInterval.isEmpty()) {
+            try {
+                device.setTransmissionInterval(Long.parseLong(newInterval));
+            } catch (NullPointerException | NumberFormatException e) {
+            }
         }
 
         String newProject = (String) request.parameters.getOrDefault("project", "");
-        device.setProject(newProject);
+        if (!newProject.isEmpty()) {
+            device.setProject(newProject);
+        }
         String newActive = (String) request.parameters.getOrDefault("active", "true");
-        device.setActive(Boolean.parseBoolean(newActive));
-
+        if (!newActive.isEmpty()) {
+            device.setActive(Boolean.parseBoolean(newActive));
+        }
         String newLatitude = (String) request.parameters.getOrDefault("latitude", "");
         if (newLatitude != null && !newLatitude.isEmpty()) {
             try {
@@ -594,17 +636,23 @@ public class DeviceManagementModule {
         if (newDownlink != null && !newDownlink.isEmpty()) {
             device.setDownlink(newDownlink);
         }
-        if (original != null) {
-            original.getChannels().forEach((k, v) -> {
-                if (!device.getChannels().containsKey(k)) {
-                    // if existing channel is not set for new device
-                    // send event to remove it from the database
-                    Kernel.handle(
-                            new IotEvent()
-                                    .addType(IotEvent.CHANNEL_REMOVE)
-                                    .addPayload(k + "@" + device.getEUI()));
-                }
-            });
+        String newChannels = (String) request.parameters.get("channels");
+        if (null != newChannels) {
+            device.setChannels(newChannels);
+            if (original != null) {
+                original.getChannels().forEach((k, v) -> {
+                    if (!device.getChannels().containsKey(k)) {
+                        // if existing channel is not set for new device
+                        // send event to remove it from the database
+                        Kernel.handle(
+                                new IotEvent()
+                                        .addType(IotEvent.CHANNEL_REMOVE)
+                                        .addPayload(k + "@" + device.getEUI()));
+                    }
+                });
+            }
+        }else{
+            device.setChannels(original.getChannelsAsString());
         }
 
         // frame control
@@ -632,7 +680,9 @@ public class DeviceManagementModule {
         }
         try {
             String config = (String) request.parameters.get("configuration");
-            device.setConfiguration(config);
+            if (null != config) {
+                device.setConfiguration(config);
+            }
         } catch (Exception e) {
         }
         return device;
@@ -685,7 +735,8 @@ public class DeviceManagementModule {
         return null;
     }
 
-    private boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, ThingsDataIface thingsAdapter) {
+    private boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID,
+            ThingsDataIface thingsAdapter) {
         try {
             return thingsAdapter.checkAccess(userID, userType, deviceEUI, organizationID, true);
         } catch (ThingsDataException ex) {
@@ -763,16 +814,18 @@ public class DeviceManagementModule {
         }
     }
 
-    private List getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, ThingsDataIface thingsAdapter,
+    private List getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames,
+            ThingsDataIface thingsAdapter,
             Map<String, Object> queryParameters) {
         try {
-            if(!thingsAdapter.isGroupAuthorized(userID, organizationID, groupEUI)){
+            if (!thingsAdapter.isGroupAuthorized(userID, organizationID, groupEUI)) {
                 Kernel.handle(Event.logFine(this.getClass().getSimpleName(), "not authorized"));
                 return new ArrayList();
             }
             // return thingsAdapter.getValuesOfGroup(userID, groupEUI, channelNames);
             String dataQuery = (String) queryParameters.getOrDefault("query", "");
-            return thingsAdapter.getLastValuesOfGroup(userID, organizationID, groupEUI, channelNames, DEFAULT_GROUP_INTERVAL,
+            return thingsAdapter.getLastValuesOfGroup(userID, organizationID, groupEUI, channelNames,
+                    DEFAULT_GROUP_INTERVAL,
                     dataQuery);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
