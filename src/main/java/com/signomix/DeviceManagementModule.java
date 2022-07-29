@@ -530,7 +530,7 @@ public class DeviceManagementModule {
         if (newName != null && !newName.isEmpty()) {
             device.setName(newName);
         } else {
-            device.setName(device.getEUI());
+            //device.setName(device.getEUI());
         }
         String newAppEUI = (String) request.parameters.getOrDefault("appeui", "");
         if (newAppEUI != null && !newAppEUI.isEmpty()) {
