@@ -424,5 +424,11 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         // TODO Auto-generated method stub
         return false;
     }
+    @Override
+    public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status,
+            Integer statusExt, String downlink) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

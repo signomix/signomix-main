@@ -38,6 +38,7 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public void putDevice(Device device) throws ThingsDataException;
 
     public void updateDevice(Device device) throws ThingsDataException;
+    public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status, Integer statusExt, String downlink) throws ThingsDataException;
 
     //public void removeDevice(Device device) throws ThingsDataException;
 

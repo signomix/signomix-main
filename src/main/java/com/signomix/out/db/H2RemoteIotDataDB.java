@@ -2690,4 +2690,11 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     }
 
+    @Override
+    public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status,
+            Integer statusExt, String downlink) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

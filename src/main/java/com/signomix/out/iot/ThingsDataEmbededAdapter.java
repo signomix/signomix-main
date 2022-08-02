@@ -143,7 +143,8 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setAlertStatus(Device.OK);
         dev.setDeviceID(deviceID);
         getIotDB().updateDevice(dev); 
-        //TODO: getIotDB().setDeviceStatus(EUI, lastSeen, frameCounter, downlink, Device.OK, deviceID);
+        //TODO
+        getIotDB().updateDeviceStatus(deviceID, lastSeen, frameCounter, Device.OK, null, null, downlink);
     }
 
     @Override
@@ -155,6 +156,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setAlertStatus(newAlertStatus);
         getIotDB().updateDevice(dev);
         //TODO: getIotDB().setDeviceAlertStatus(EUI, newAlertStatus);
+        getIotDB().updateDeviceStatus(EUI, null, null, newAlertStatus, null, null, null);
     }
 
     @Override
@@ -166,6 +168,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setState(newState);
         getIotDB().updateDevice(dev);
         //TODO: getIotDB().setDeviceStatus(EUI, newState);
+        getIotDB().updateDeviceStatus(EUI, null, null, null, newState, null, null);
     }
 
     @Override
