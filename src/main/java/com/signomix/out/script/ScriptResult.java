@@ -78,6 +78,7 @@ public class ScriptResult {
         dataEvents.put(deviceName, list);
     }
 
+/*
     public void addCommand(String toDevice, String fromDevice, String payload, boolean hexRepresentation, boolean overwrite) {
         //events.add(new Event(this.getClass().getSimpleName(), Event.CATEGORY_GENERIC, "COMMAND", null, payload));
         IotEvent event = new IotEvent();
@@ -94,6 +95,34 @@ public class ScriptResult {
             prefix="&";
         }
         if(hexRepresentation){
+            event.setPayload(prefix+payload);
+        }else{
+            event.setPayload(prefix+Base64.getEncoder().encodeToString(payload.getBytes()));
+        }
+        events.add(event);
+    }
+*/
+    public void addCommand(String toDevice, String fromDevice, String payload, int representation, boolean overwrite) {
+        int PLAIN_VER = 0;
+        int HEX_VER = 1;
+        int ENCODED_VER =2;
+
+        IotEvent event = new IotEvent();
+        event.setOrigin(fromDevice+"@"+toDevice);
+        if (HEX_VER==representation) {
+            event.setType(IotEvent.ACTUATOR_HEXCMD);
+        } else if(PLAIN_VER==representation){
+            event.setType(IotEvent.ACTUATOR_PLAINCMD);
+        }else{
+            event.setType(IotEvent.ACTUATOR_CMD);
+        }
+        String prefix;
+        if(overwrite){
+            prefix="#";
+        }else{
+            prefix="&";
+        }
+        if(ENCODED_VER!=representation){
             event.setPayload(prefix+payload);
         }else{
             event.setPayload(prefix+Base64.getEncoder().encodeToString(payload.getBytes()));

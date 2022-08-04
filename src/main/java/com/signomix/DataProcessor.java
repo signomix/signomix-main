@@ -23,36 +23,37 @@ import com.signomix.event.IotEvent;
  */
 public class DataProcessor {
 
-//    public static ArrayList<ArrayList> processValues(ArrayList<ChannelData> listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp,
-//            Double latitude, Double longitude, Double altitude) throws Exception {
+    // public static ArrayList<ArrayList> processValues(ArrayList<ChannelData>
+    // listOfValues, Device device, ScriptingAdapterIface scriptingAdapter, long
+    // dataTimestamp,
+    // Double latitude, Double longitude, Double altitude) throws Exception {
     public static Object[] processValues(
-            ArrayList<ChannelData> listOfValues, 
-            Device device, 
-            ScriptingAdapterIface scriptingAdapter, 
+            ArrayList<ChannelData> listOfValues,
+            Device device,
+            ScriptingAdapterIface scriptingAdapter,
             long dataTimestamp,
-            Double latitude, 
-            Double longitude, 
-            Double altitude, 
-            String requestData, 
-            String command
-    ) throws Exception {
+            Double latitude,
+            Double longitude,
+            Double altitude,
+            String requestData,
+            String command) throws Exception {
         ScriptResult scriptResult = null;
         try {
             scriptResult = scriptingAdapter.processData(
-                    listOfValues, 
-                    device.getCodeUnescaped(), 
-                    device.getEUI(), 
-                    device.getUserID(), 
+                    listOfValues,
+                    device.getCodeUnescaped(),
+                    device.getEUI(),
+                    device.getUserID(),
                     dataTimestamp,
-                    latitude, 
-                    longitude, 
-                    altitude, 
+                    latitude,
+                    longitude,
+                    altitude,
                     device.getState(),
-                    device.getAlertStatus(), 
-                    device.getLatitude(), 
-                    device.getLongitude(), 
-                    device.getAltitude(), 
-                    command, 
+                    device.getAlertStatus(),
+                    device.getLatitude(),
+                    device.getLongitude(),
+                    device.getAltitude(),
+                    command,
                     requestData);
         } catch (ScriptAdapterException e) {
             e.printStackTrace();
@@ -61,12 +62,14 @@ public class DataProcessor {
         if (scriptResult == null) {
             throw new Exception("preprocessor script returns null result");
         }
-        ArrayList<ArrayList> finalValues=scriptResult.getOutput();
+        ArrayList<ArrayList> finalValues = scriptResult.getOutput();
         ArrayList<Event> events = scriptResult.getEvents();
         HashMap<String, String> recipients;
-        //commands and notifications
+        // commands and notifications
         for (int i = 0; i < events.size(); i++) {
-            if (IotEvent.ACTUATOR_CMD.equals(events.get(i).getType()) || IotEvent.ACTUATOR_HEXCMD.equals(events.get(i).getType())) {
+            if (IotEvent.ACTUATOR_CMD.equals(events.get(i).getType())
+                    || IotEvent.ACTUATOR_HEXCMD.equals(events.get(i).getType())
+                    || IotEvent.ACTUATOR_PLAINCMD.equals(events.get(i).getType())) {
                 Kernel.getLogger().log(events.get(i));
                 Kernel.getInstance().dispatchEvent(events.get(i));
             } else {
@@ -88,7 +91,7 @@ public class DataProcessor {
                 }
             }
         }
-        //data events
+        // data events
         HashMap<String, ArrayList> dataEvents = scriptResult.getDataEvents();
         ArrayList<Event> el;
         for (String key : dataEvents.keySet()) {
@@ -96,24 +99,26 @@ public class DataProcessor {
             Event newEvent;
             if (el.size() > 0) {
                 newEvent = el.get(0).clone();
-                //newEvent.setOrigin(device.getUserID());
-                String payload="";
+                // newEvent.setOrigin(device.getUserID());
+                String payload = "";
                 for (int i = 0; i < el.size(); i++) {
-                    payload=payload+";"+el.get(i).getPayload();
+                    payload = payload + ";" + el.get(i).getPayload();
                 }
-                payload=payload.substring(1);
+                payload = payload.substring(1);
                 newEvent.setPayload(payload);
                 Kernel.getInstance().dispatchEvent(newEvent);
             }
         }
-        Object[] result = {finalValues,scriptResult.getDeviceState()};
+        Object[] result = { finalValues, scriptResult.getDeviceState() };
         return result;
     }
 
-    public static ArrayList<ChannelData> processRawValues(String requestBody, Device device, ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
+    public static ArrayList<ChannelData> processRawValues(String requestBody, Device device,
+            ScriptingAdapterIface scriptingAdapter, long dataTimestamp) throws Exception {
         ScriptResult scriptResult = null;
         try {
-            scriptResult = scriptingAdapter.processRawData(requestBody, device.getCodeUnescaped(), device.getEUI(), device.getUserID(), dataTimestamp);
+            scriptResult = scriptingAdapter.processRawData(requestBody, device.getCodeUnescaped(), device.getEUI(),
+                    device.getUserID(), dataTimestamp);
         } catch (ScriptAdapterException e) {
             throw new Exception(e.getMessage());
         }
@@ -122,7 +127,7 @@ public class DataProcessor {
         }
         ArrayList<ChannelData> finalValues = scriptResult.getMeasures();
         ArrayList<Event> events = scriptResult.getEvents();
-        //Event ev;
+        // Event ev;
         HashMap<String, String> recipients;
         for (int i = 0; i < events.size(); i++) {
             if (Event.CATEGORY_GENERIC.equals(events.get(i).getCategory())) {
@@ -148,7 +153,7 @@ public class DataProcessor {
                 }
             }
         }
-        //data events
+        // data events
         HashMap<String, ArrayList> dataEvents = scriptResult.getDataEvents();
         ArrayList<Event> el;
         for (String key : dataEvents.keySet()) {
@@ -157,11 +162,11 @@ public class DataProcessor {
             if (el.size() > 0) {
                 newEvent = el.get(0).clone();
                 newEvent.setOrigin(device.getUserID());
-                String payload="";
+                String payload = "";
                 for (int i = 0; i < el.size(); i++) {
-                    payload=payload+";"+el.get(i).getPayload();
+                    payload = payload + ";" + el.get(i).getPayload();
                 }
-                payload=payload.substring(1);
+                payload = payload.substring(1);
                 newEvent.setPayload(payload);
                 Kernel.getInstance().dispatchEvent(newEvent);
             }

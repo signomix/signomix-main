@@ -24,6 +24,7 @@ public class IotEvent extends Event {
     public static final String VIRTUAL_DATA = "VIRTUAL_DATA";
     public static final String ACTUATOR_CMD = "ACTUATOR_CMD";
     public static final String ACTUATOR_HEXCMD = "ACTUATOR_HEXCMD";
+    public static final String ACTUATOR_PLAINCMD = "ACTUATOR_PLAINCMD";
 
     public static final String CHANNEL_REMOVE = "CHANNEL_REMOVE";
     public static final String DEVICE_REGISTERED = "DEVICE_REGISTERED";

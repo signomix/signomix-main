@@ -23,12 +23,16 @@ sgx0.accept = function (name) {
 }
 sgx0.addCommand = function (targetEUI, payload, overwrite) {
     //JSON payload
-    this.result.addCommand(targetEUI, this.eui, payload, false, overwrite);
+    this.result.addCommand(targetEUI, this.eui, payload, 2, overwrite);
+}
+sgx0.addPlainCommand = function (targetEUI, payload, overwrite) {
+    //JSON payload
+    this.result.addCommand(targetEUI, this.eui, payload, 0, overwrite);
 }
 sgx0.addHexCommand = function (targetEUI, payload, overwrite) {
     //for TTN devices payload must be String representing byte array as hex values
     //eg. 00FFAA01
-    this.result.addCommand(targetEUI, this.eui, payload, true, overwrite);
+    this.result.addCommand(targetEUI, this.eui, payload, 1, overwrite);
 }
 sgx0.addNotification = function (newType, newMessage) {
     //this.result.log(">>>>"+newType+">>"+newMessage+">>");
