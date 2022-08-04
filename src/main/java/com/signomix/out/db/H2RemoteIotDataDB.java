@@ -2028,11 +2028,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             overwriteMode = true;
         }
         command = command.substring(1);
+        String origin=commandEvent.getOrigin();
+        if(null==origin||origin.isEmpty()){
+            origin=deviceEUI;
+        }
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, commandEvent.getId());
             pst.setString(2, commandEvent.getCategory());
             pst.setString(3, commandEvent.getType());
-            pst.setString(4, deviceEUI);
+            pst.setString(4, origin);
             pst.setString(5, command);
             pst.setLong(6, commandEvent.getCreatedAt());
             pst.executeUpdate();
