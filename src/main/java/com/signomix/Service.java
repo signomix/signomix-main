@@ -142,6 +142,10 @@ public class Service extends Kernel {
             commandIdBytes = Short.parseShort((String) getProperties().getOrDefault("command_id_size", "0"));
         } catch (Exception e) {
         }
+        // default is long type (8 bytes)
+        if(commandIdBytes==0){
+            return getEventId();
+        }
         if (null == commandIdSeed) {
             long seed = 0;
             try {
@@ -165,7 +169,7 @@ public class Service extends Kernel {
                         seed = 0;
                     }
                     break;
-                default:
+                default: //default per device ID is 8 bytes
                     if (seed == Long.MAX_VALUE) {
                         seed = 0;
                     }
