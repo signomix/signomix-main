@@ -29,7 +29,8 @@
                 "servicetitle": "$SIGNOMIX_TITLE",
                 "ga-tracking-id": "$GATRACKINGID",
                 "monitoring_device": "signomix_int_monitor",
-                "application_key":"$SIGNOMIX_APP_KEY"
+                "application_key":"$SIGNOMIX_APP_KEY",
+                "command_id_size":"$SIGNOMIX_COMMAND_ID_SIZE"
             },
             "ports": [
                 {

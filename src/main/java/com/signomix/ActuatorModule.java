@@ -191,6 +191,7 @@ public class ActuatorModule {
             } else if (device.getType().equals(Device.EXTERNAL)) {
                 done = sendToWebhook(device, payload.substring(1), hexagonalRepresentation);
             }
+            event.setId(((Service)Kernel.getInstance()).getCommandId(deviceEUI));
             if (done) {
                 actuatorCommandsDB.putCommandLog(event.getOrigin(), event);
             } else {

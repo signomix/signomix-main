@@ -7,31 +7,7 @@ package com.signomix;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.signomix.common.iot.generic.IotData;
-import com.signomix.event.AlertApiEvent;
-import com.signomix.event.IotEvent;
-import com.signomix.event.MailingApiEvent;
-import com.signomix.event.NewDataEvent;
-import com.signomix.event.SubscriptionEvent;
-import com.signomix.event.UplinkEvent;
-import com.signomix.in.http.ActuatorApi;
-import com.signomix.in.http.KpnApi;
-import com.signomix.in.http.LoRaApi;
-import com.signomix.in.http.TtnApi;
-import com.signomix.out.auth.AuthLogic;
-import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.db.IotDbDataIface;
-import com.signomix.out.db.ShortenerDBIface;
-import com.signomix.out.gui.DashboardAdapterIface;
-import com.signomix.out.iot.ActuatorDataIface;
-import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.ThingsDataIface;
-import com.signomix.out.iot.application.ApplicationAdapterIface;
-import com.signomix.out.mailing.MailingIface;
-import com.signomix.out.notification.MessageBrokerIface;
-import com.signomix.out.notification.dto.MessageEnvelope;
-import com.signomix.out.script.ScriptingAdapterIface;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -62,6 +38,33 @@ import org.cricketmsf.microsite.user.UserEvent;
 import org.cricketmsf.out.db.KeyValueDBIface;
 import org.cricketmsf.out.file.FileReaderAdapterIface;
 import org.cricketmsf.out.log.LoggerAdapterIface;
+
+import com.signomix.common.iot.generic.IotData;
+import com.signomix.event.AlertApiEvent;
+import com.signomix.event.IotEvent;
+import com.signomix.event.MailingApiEvent;
+import com.signomix.event.NewDataEvent;
+import com.signomix.event.SubscriptionEvent;
+import com.signomix.event.UplinkEvent;
+import com.signomix.in.http.ActuatorApi;
+import com.signomix.in.http.KpnApi;
+import com.signomix.in.http.LoRaApi;
+import com.signomix.in.http.TtnApi;
+import com.signomix.out.auth.AuthLogic;
+import com.signomix.out.db.ActuatorCommandsDBIface;
+import com.signomix.out.db.IotDatabaseIface;
+import com.signomix.out.db.IotDbDataIface;
+import com.signomix.out.db.ShortenerDBIface;
+import com.signomix.out.gui.DashboardAdapterIface;
+import com.signomix.out.iot.ActuatorDataIface;
+import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.ThingsDataIface;
+import com.signomix.out.iot.application.ApplicationAdapterIface;
+import com.signomix.out.mailing.MailingIface;
+import com.signomix.out.notification.MessageBrokerIface;
+import com.signomix.out.notification.dto.MessageEnvelope;
+import com.signomix.out.script.ScriptingAdapterIface;
 
 /**
  * EchoService
@@ -125,22 +128,93 @@ public class Service extends Kernel {
     ShortenerDBIface shortenerDB = null;
     OpenApiIface apiGenerator = null;
 
+    private static AtomicLong commandIdSeed = null;
+
+    /**
+     * Returns next unique identifier for command (IotEvent).
+     *
+     * @return next unique identifier
+     */
+    public synchronized long getCommandId(String deviceEui) {
+        // TODO: max value policy: 2,4,8 bytes (unsigned)
+        short commandIdBytes = 0;
+        try {
+            commandIdBytes = Short.parseShort((String) getProperties().getOrDefault("command_id_size", "0"));
+        } catch (Exception e) {
+        }
+        if (null == commandIdSeed) {
+            long seed = 0;
+            try {
+                if (null == deviceEui) {
+                    seed = getActuatorCommandsDatabase().getMaxCommandId();
+                } else {
+                    seed = getActuatorCommandsDatabase().getMaxCommandId(deviceEui);
+                }
+            } catch (ThingsDataException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            switch (commandIdBytes) {
+                case 2:
+                    if (seed >= 65535L) {
+                        seed = 0;
+                    }
+                    break;
+                case 4:
+                    if (seed >= 4294967295L) {
+                        seed = 0;
+                    }
+                    break;
+                default:
+                    if (seed == Long.MAX_VALUE) {
+                        seed = 0;
+                    }
+            }
+            commandIdSeed = new AtomicLong(seed);
+        }
+        long value = commandIdSeed.get();
+        long newValue;
+        switch (commandIdBytes) {
+            case 2:
+                if (value >= 65535L) {
+                    newValue = 1;
+                } else {
+                    newValue = value + 1;
+                }
+                break;
+            case 4:
+                if (value >= 4294967295L) {
+                    newValue = 1;
+                } else {
+                    newValue = value + 1;
+                }
+                break;
+            default:
+                if (value == Long.MAX_VALUE) {
+                    newValue = 1;
+                } else {
+                    newValue = value + 1;
+                }
+        }
+        commandIdSeed.set(newValue);
+        return newValue;
+    }
+
     public Service() {
         super();
     }
 
-    public IotDbDataIface getIotDatabase(){
+    public IotDbDataIface getIotDatabase() {
         return iotDatabase;
     }
-    
-    public ActuatorCommandsDBIface getActuatorDatabase(){
-        return (ActuatorCommandsDBIface)iotDatabase;
-    }
-    public ActuatorCommandsDBIface getActuatorCommandsDatabase(){
-        return (ActuatorCommandsDBIface)iotDatabase;
+
+    public ActuatorCommandsDBIface getActuatorDatabase() {
+        return (ActuatorCommandsDBIface) iotDatabase;
     }
 
-
+    public ActuatorCommandsDBIface getActuatorCommandsDatabase() {
+        return (ActuatorCommandsDBIface) iotDatabase;
+    }
 
     @Override
     public void getAdapters() {
@@ -184,7 +258,7 @@ public class Service extends Kernel {
         shortenerDB = (ShortenerDBIface) getRegistered("ShortenerDB");
         apiGenerator = (OpenApiIface) getRegistered("OpenApi");
     }
-    
+
     @Override
     public void runInitTasks() {
         try {
@@ -458,7 +532,6 @@ public class Service extends Kernel {
         }
     }
 
-
     @HttpAdapterHook(adapterName = "DashboardService", requestMethod = "OPTIONS")
     public Object dashboardServiceOptions(Event requestEvent) {
         StandardResult result = new StandardResult();
@@ -656,8 +729,8 @@ public class Service extends Kernel {
     public Object handleIotData(NewDataEvent requestEvent) {
         IotData data = (IotData) requestEvent.getOriginalEvent().getPayload();
         try {
-                return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
-                        scriptingAdapter, ttnIntegrationService, getActuatorDatabase());
+            return DeviceIntegrationModule.getInstance().processGenericRequest(data, thingsAdapter, userAdapter,
+                    scriptingAdapter, ttnIntegrationService, getActuatorDatabase());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -673,8 +746,8 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ActuatorService", requestMethod = "*")
     public Object actuatorHandle(Event event) {
-            return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter,
-                    (ActuatorCommandsDBIface) getActuatorCommandsDatabase(), scriptingAdapter);
+        return ActuatorModule.getInstance().processRequest(event, actuatorApi, thingsAdapter,
+                (ActuatorCommandsDBIface) getActuatorCommandsDatabase(), scriptingAdapter);
     }
 
     @HttpAdapterHook(adapterName = "LoRaUplinkService", requestMethod = "*")
@@ -794,9 +867,9 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "OrganizationService", requestMethod = "POST")
     public Object organizationAdd(Event event) {
-        try{
-        return OrganizationModule.getInstance().handleCreateRequest(event, organizationAdapter);
-        }catch(Exception e){
+        try {
+            return OrganizationModule.getInstance().handleCreateRequest(event, organizationAdapter);
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -831,9 +904,9 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "POST")
     public Object applicationAdd(Event event) {
-        try{
-        return ApplicationModule.getInstance().handleAddApplication(event, applicationAdapter);
-        }catch(Exception e){
+        try {
+            return ApplicationModule.getInstance().handleAddApplication(event, applicationAdapter);
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -852,8 +925,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "DELETE")
     public Object applicationDelete(Event event) {
         return ApplicationModule.getInstance().handleDeleteRequest(event, applicationAdapter);
-    }    
-
+    }
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "OPTIONS")
     public Object authCors(Event requestEvent) {

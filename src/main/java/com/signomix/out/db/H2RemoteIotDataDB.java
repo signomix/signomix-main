@@ -2099,6 +2099,52 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
+    public long getMaxCommandId() throws ThingsDataException {
+        String query = "SELECT  max(commands.id), max(commandslog.id) FROM commands CROSS JOIN commandslog";
+        long result = 0;
+        long v1=0;
+        long v2=0;
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                v1=rs.getLong(1);
+                v1=rs.getLong(2);
+            }
+            if(v1>v2){
+                result=v1;
+            }else{
+                result=v2;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+        return result;
+    }
+    @Override
+    public long getMaxCommandId(String deviceEui) throws ThingsDataException {
+        String query = "SELECT  max(commands.id), max(commandslog.id) FROM commands CROSS JOIN commandslog "
+        +"WHERE commands.origin=commandslog.origin AND commands.origin like %@"+deviceEui;
+        long result = 0;
+        long v1=0;
+        long v2=0;
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                v1=rs.getLong(1);
+                v1=rs.getLong(2);
+            }
+            if(v1>v2){
+                result=v1;
+            }else{
+                result=v2;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+        return result;
+    }
+
+    @Override
     public Event previewDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
                                                                        // Tools | Templates.

@@ -25,6 +25,9 @@ public interface ActuatorCommandsDBIface extends KeyValueDBIface {
      */
     public Event getFirstCommand(String deviceEUI) throws ThingsDataException;
 
+    public long getMaxCommandId() throws ThingsDataException;
+    public long getMaxCommandId(String deviceEui) throws ThingsDataException;
+
     public Event previewDeviceCommand(String deviceEUI, Event commandEvent) throws ThingsDataException;
 
     public void clearAllCommands(String deviceEUI, long checkPoint) throws ThingsDataException;

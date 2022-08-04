@@ -104,4 +104,16 @@ public class KeyValueCommandsDB extends KeyValueDB implements ActuatorCommandsDB
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public long getMaxCommandId() throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getMaxCommandId(String deviceEui) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }
