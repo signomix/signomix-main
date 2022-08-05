@@ -117,6 +117,9 @@ public class PlatformAdministrationModule {
                 case "config":
                     result = getServiceConfig();
                     break;
+                case "commandid":
+                    result = getNewCommandId(event.getRequestParameter("eui"));
+                    break;
                 case "dbclean":
                     // we want to run database maintenance in separated thread, so we need to fire event
                     Kernel.getInstance().dispatchEvent(
@@ -177,6 +180,12 @@ public class PlatformAdministrationModule {
         } else {
             result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
         }
+        return result;
+    }
+
+    private StandardResult getNewCommandId(String deviceEui) {
+        StandardResult result = new StandardResult();
+        result.setData(((Service)Kernel.getInstance()).getCommandId(deviceEui));
         return result;
     }
 
