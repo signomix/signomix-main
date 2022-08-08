@@ -143,11 +143,13 @@ public class Service extends Kernel {
         } catch (Exception e) {
         }
         // default is long type (8 bytes)
+        System.out.println("1: "+commandIdBytes);
         if(commandIdBytes==0){
             return getEventId();
         }
         if (null == commandIdSeed) {
             long seed = 0;
+            System.out.println("2: "+deviceEui);
             try {
                 if (null == deviceEui) {
                     seed = getActuatorCommandsDatabase().getMaxCommandId();
@@ -158,6 +160,7 @@ public class Service extends Kernel {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            System.out.println("3: "+seed);
             switch (commandIdBytes) {
                 case 2:
                     if (seed >= 65535L) {
@@ -174,9 +177,11 @@ public class Service extends Kernel {
                         seed = 0;
                     }
             }
+            System.out.println("4: "+seed);
             commandIdSeed = new AtomicLong(seed);
         }
         long value = commandIdSeed.get();
+        System.out.println("5: "+value);
         long newValue;
         switch (commandIdBytes) {
             case 2:
@@ -200,6 +205,7 @@ public class Service extends Kernel {
                     newValue = value + 1;
                 }
         }
+        System.out.println("6: "+newValue);
         commandIdSeed.set(newValue);
         return newValue;
     }

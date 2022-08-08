@@ -2116,6 +2116,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 result=v2;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
         return result;
@@ -2139,6 +2140,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 result=v2;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
         return result;
