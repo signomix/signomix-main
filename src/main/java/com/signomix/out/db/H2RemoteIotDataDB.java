@@ -2105,18 +2105,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         +" UNION ALL"
         +" SELECT max(id) as mid FROM commandslog)";
         long result = 0;
-        long v1=0;
-        long v2=0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                v1=rs.getLong(1);
-                v1=rs.getLong(2);
-            }
-            if(v1>v2){
-                result=v1;
-            }else{
-                result=v2;
+                result=rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2131,18 +2123,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         +" UNION ALL"
         +" SELECT max(id) as mid FROM commandslog WHERE origin like '%@"+deviceEui+"')";
         long result = 0;
-        long v1=0;
-        long v2=0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                v1=rs.getLong(1);
-                v1=rs.getLong(2);
-            }
-            if(v1>v2){
-                result=v1;
-            }else{
-                result=v2;
+                result=rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
