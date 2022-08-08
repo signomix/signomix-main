@@ -66,7 +66,7 @@ public class ActuatorModule {
                 hexPayload = true;
                 type = 1;
             } else if (eui.endsWith("/plain")) {
-                eui = eui.substring(0, eui.length() - 4);
+                eui = eui.substring(0, eui.length() - 6);
                 hexPayload = true;
                 type = 0;
             }
