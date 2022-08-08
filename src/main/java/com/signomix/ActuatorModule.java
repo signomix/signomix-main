@@ -35,6 +35,9 @@ import org.cricketmsf.out.http.Request;
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
 public class ActuatorModule {
+    public static int PLAIN_COMMAND = 0;
+    public static int HEX_COMMAND = 1;
+    public static int JSON_COMMAND = 2;
 
     private static ActuatorModule logic;
 
@@ -142,7 +145,8 @@ public class ActuatorModule {
 
     public void processCommand(
             Event event,
-            boolean hexagonalRepresentation,
+            // boolean hexagonalRepresentation,
+            int type,
             ActuatorCommandsDBIface actuatorCommandsDB,
             ThingsDataIface thingsAdapter,
             ScriptingAdapterIface scriptingAdapter) {
@@ -177,7 +181,7 @@ public class ActuatorModule {
                 }
 
             } else if (device.getType().equals(Device.TTN)) {
-                done = sendToTtn(device, payload.substring(1), hexagonalRepresentation);
+                done = sendToTtn(device, payload.substring(1), type == HEX_COMMAND);
             } else if (device.getType().equals(Device.LORA)) {
                 // TODO: not implemented
                 done = true;
@@ -189,9 +193,9 @@ public class ActuatorModule {
                 // data transfer.
                 done = false;
             } else if (device.getType().equals(Device.EXTERNAL)) {
-                done = sendToWebhook(device, payload.substring(1), hexagonalRepresentation);
+                done = sendToWebhook(device, payload.substring(1), type==HEX_COMMAND);
             }
-            event.setId(((Service)Kernel.getInstance()).getCommandId(deviceEUI));
+            event.setId(((Service) Kernel.getInstance()).getCommandId(deviceEUI));
             if (done) {
                 actuatorCommandsDB.putCommandLog(event.getOrigin(), event);
             } else {

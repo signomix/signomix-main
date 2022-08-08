@@ -228,22 +228,16 @@ public class IotEventHandler {
                     }
                     break;
                 case IotEvent.ACTUATOR_CMD:
-                    //if (null != actuatorCommandsDB) {
-                    //    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB, thingsAdapter,
-                    //            scriptingAdapter);
-                    //} else {
-                        ActuatorModule.getInstance().processCommand(event, false, (ActuatorCommandsDBIface) iotDB,
+                        ActuatorModule.getInstance().processCommand(event, ActuatorModule.JSON_COMMAND, (ActuatorCommandsDBIface) iotDB,
                                 thingsAdapter, scriptingAdapter);
-                    //}
                     break;
                 case IotEvent.ACTUATOR_HEXCMD:
-                    //if (null != actuatorCommandsDB) {
-                    //    ActuatorModule.getInstance().processCommand(event, true, actuatorCommandsDB, thingsAdapter,
-                    //            scriptingAdapter);
-                    //} else {
-                        ActuatorModule.getInstance().processCommand(event, true, (ActuatorCommandsDBIface) iotDB,
+                        ActuatorModule.getInstance().processCommand(event, ActuatorModule.HEX_COMMAND, (ActuatorCommandsDBIface) iotDB,
                                 thingsAdapter, scriptingAdapter);
-                    //}
+                    break;
+                    case IotEvent.ACTUATOR_PLAINCMD:
+                        ActuatorModule.getInstance().processCommand(event, ActuatorModule.PLAIN_COMMAND, (ActuatorCommandsDBIface) iotDB,
+                                thingsAdapter, scriptingAdapter);
                     break;
                 case IotEvent.PLATFORM_MONITORING:
                     String eui = (String) kernel.getProperties().getOrDefault("monitoring_device", "");
@@ -255,13 +249,8 @@ public class IotEventHandler {
                         }
                         if (null != d) {
                             event.setOrigin("@" + eui); // source@target
-                            //if (null != actuatorCommandsDB) {
-                            //    ActuatorModule.getInstance().processCommand(event, false, actuatorCommandsDB,
-                            //            thingsAdapter, scriptingAdapter);
-                            //} else {
-                                ActuatorModule.getInstance().processCommand(event, false,
+                                ActuatorModule.getInstance().processCommand(event, ActuatorModule.JSON_COMMAND,
                                         (ActuatorCommandsDBIface) iotDB, thingsAdapter, scriptingAdapter);
-                            //}
                         }
                     }
                     break;
