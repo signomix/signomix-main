@@ -2100,7 +2100,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public long getMaxCommandId() throws ThingsDataException {
-        String query = "SELECT  max(commands.id), max(commandslog.id) FROM commands CROSS JOIN commandslog";
+        String query="SELECT MAX(mid) "
+        +"FROM (SELECT max(id) as mid FROM commands"
+        +" UNION ALL"
+        +" SELECT max(id) as mid FROM commandslog)";
         long result = 0;
         long v1=0;
         long v2=0;
@@ -2123,8 +2126,10 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
     @Override
     public long getMaxCommandId(String deviceEui) throws ThingsDataException {
-        String query = "SELECT  max(commands.id), max(commandslog.id) FROM commands CROSS JOIN commandslog "
-        +"WHERE commands.origin=commandslog.origin AND commands.origin like %@"+deviceEui;
+        String query="SELECT MAX(mid) "
+        +"FROM (SELECT max(id) as mid FROM commands WHERE origin like '%@"+deviceEui+"'"
+        +" UNION ALL"
+        +" SELECT max(id) as mid FROM commandslog WHERE origin like '%@"+deviceEui+"')";
         long result = 0;
         long v1=0;
         long v2=0;
