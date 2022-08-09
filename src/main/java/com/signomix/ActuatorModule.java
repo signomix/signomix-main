@@ -174,6 +174,8 @@ public class ActuatorModule {
                     done = sendToVirtual(device, payload.substring(1), thingsAdapter, scriptingAdapter);
                 } else if (null == sourceDevice && event.getType().equals(IotEvent.PLATFORM_MONITORING)) {
                     done = sendToVirtual(device, payload, thingsAdapter, scriptingAdapter);
+                }else if(null != sourceDevice && sourceDevice.getEUI().equalsIgnoreCase(device.getEUI())){
+                    done = false;
                 } else {
                     Kernel.getInstance()
                             .dispatchEvent(Event.logWarning(this, "blocked command from virtual to virtual device"));
