@@ -123,7 +123,7 @@ public class ActuatorModule {
         StandardResult result = new StandardResult();
 
         IotEvent event = new IotEvent();
-        event.setOrigin("@" + device.getEUI());
+        event.setOrigin(device.getEUI()+"@" + device.getEUI());
         switch (type) {
             case 1:
                 event.setType(IotEvent.ACTUATOR_HEXCMD);
