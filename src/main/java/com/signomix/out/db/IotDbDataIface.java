@@ -31,6 +31,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public int getUserDevicesCount(String userID) throws ThingsDataException;
 
     public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
+    public boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException;
 
     public Device getDevice(String deviceEUI) throws ThingsDataException;
 
@@ -123,7 +124,6 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public List<List> getLastValues(String userID, String deviceEUI) throws ThingsDataException; //T
     public List<List<List>> getGroupLastValues(String userID, long organizationID, String groupEUI, String[] channelNames, long secondsBack) throws ThingsDataException; //T
     public List<List<List>> getGroupLastValues(String userID, long organizationID, String groupEUI, String[] channelNames, DataQuery dQuery) throws ThingsDataException;
-    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval, DataQuery dQuery) throws ThingsDataException;
 
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException; //TT
 
@@ -165,4 +165,13 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public Application getApplication(String name) throws ThingsDataException;
     public List<Application> getAllApplications() throws ThingsDataException;
     public List<Application> getApplications(long organizationId) throws ThingsDataException;
+
+    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval, DataQuery dataQuery) throws ThingsDataException;
+
+    public void setDeviceStatus(String eui, Double state) throws ThingsDataException;
+    public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException;
+    public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException;
+    public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status, Integer statusExt, String downlink) throws ThingsDataException;
+    public Device getDeviceStatus(String eui) throws ThingsDataException;
+
 }

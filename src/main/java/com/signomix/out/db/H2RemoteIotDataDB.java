@@ -165,6 +165,17 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("payload varchar,")
                 .append("createdat bigint);");
         sb.append("CREATE INDEX IF NOT EXISTS idxcommandslog on commandslog(origin);");
+        sb.append("CREATE TABLE IF NOT EXISTS devicestatuses (")
+                .append("eui VARCHAR NOT NULL,")
+                .append("downlink VARCHAR DEFAULT '',")
+                .append("alert NUMBER DEFAULT 0,")
+                .append("status BIGINT DEFAULT 0,")
+                .append("lastseen BIGINT DEFAULT 0,")
+                .append("lastframe BIGINT DEFAULT 0,")
+                .append("commandstatus BIGINT DEFAULT 0,")
+                .append("tstamp TIMESTAMP NOT NULL)")
+                ;
+        sb.append("CREATE INDEX IF NOT EXISTS idxdevicestatuses ON devicestatuses(eui,tstamp);");
         query = sb.toString();
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.executeUpdate();
@@ -295,27 +306,28 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
+    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared)
+            throws ThingsDataException {
 
         String query;
-        if(User.APPLICATION == userType){
+        if (User.APPLICATION == userType) {
             query = buildDeviceQuery()
-            + " AND (upper(d.eui)=upper(?))";
-        }else if (withShared) {
+                    + " AND (upper(d.eui)=upper(?))";
+        } else if (withShared) {
             query = buildDeviceQuery()
                     + " AND ( upper(d.eui)=upper(?) and (d.userid = ? or d.team like ? or d.administrators like ?))";
         } else {
             query = buildDeviceQuery() + " AND (upper(d.eui)=upper(?) and d.userid = ?)";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            if(User.APPLICATION == userType){
+            if (User.APPLICATION == userType) {
                 pstmt.setString(1, deviceEUI);
-            }else if (withShared) {
+            } else if (withShared) {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
                 pstmt.setString(4, "%," + userID + ",%");
-            }else{
+            } else {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
             }
@@ -337,7 +349,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
         String query = "select eui from devices ";
         if (User.APPLICATION == userType) {
-            query=query+" WHERE eui=?";
+            query = query + " WHERE eui=?";
         } else if (withShared && organizationID == 0) {
             query = query
                     + " WHERE upper(eui)=upper(?) and (userid = ? or team like ? or administrators like ?)";
@@ -350,7 +362,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             if (User.APPLICATION == userType) {
                 pstmt.setString(1, deviceEUI);
-            }else if (withShared && organizationID == 0) {
+            } else if (withShared && organizationID == 0) {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
@@ -2028,9 +2040,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             overwriteMode = true;
         }
         command = command.substring(1);
-        String origin=commandEvent.getOrigin();
-        if(null==origin||origin.isEmpty()){
-            origin=deviceEUI;
+        String origin = commandEvent.getOrigin();
+        if (null == origin || origin.isEmpty()) {
+            origin = deviceEUI;
         }
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, commandEvent.getId());
@@ -2100,15 +2112,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public long getMaxCommandId() throws ThingsDataException {
-        String query="SELECT MAX(mid) "
-        +"FROM (SELECT max(id) as mid FROM commands"
-        +" UNION ALL"
-        +" SELECT max(id) as mid FROM commandslog)";
+        String query = "SELECT MAX(mid) "
+                + "FROM (SELECT max(id) as mid FROM commands"
+                + " UNION ALL"
+                + " SELECT max(id) as mid FROM commandslog)";
         long result = 0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                result=rs.getLong(1);
+                result = rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2116,17 +2128,18 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
         return result;
     }
+
     @Override
     public long getMaxCommandId(String deviceEui) throws ThingsDataException {
-        String query="SELECT MAX(mid) "
-        +"FROM (SELECT max(id) as mid FROM commands WHERE origin like '%@"+deviceEui+"'"
-        +" UNION ALL"
-        +" SELECT max(id) as mid FROM commandslog WHERE origin like '%@"+deviceEui+"')";
+        String query = "SELECT MAX(mid) "
+                + "FROM (SELECT max(id) as mid FROM commands WHERE origin like '%@" + deviceEui + "'"
+                + " UNION ALL"
+                + " SELECT max(id) as mid FROM commandslog WHERE origin like '%@" + deviceEui + "')";
         long result = 0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                result=rs.getLong(1);
+                result = rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2594,25 +2607,6 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public void setDeviceStatus(String eui, Double state) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus,
-            String deviceID) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
-                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public Application addApplication(Application application) throws ThingsDataException {
         String query = "INSERT INTO APPLICATIONS (organization,version,name,configuration) values (?,?,?,?);";
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
@@ -2732,10 +2726,57 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
+    public void setDeviceStatus(String eui, Double state) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from
+                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from
+                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus,
+            String deviceID) throws ThingsDataException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from
+                                                                       // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+
+    @Override
     public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status,
             Integer statusExt, String downlink) throws ThingsDataException {
         // TODO Auto-generated method stub
-        
+
+    }
+
+    @Override
+    public Device getDeviceStatus(String deviceEUI) throws ThingsDataException {
+        String query = "SELECT eui,downlink,alert,status,lastseen,lastframe,commandstatus FROM devicestatuses WHERE eui=? ORDER BY tstamp DESC limit 1";
+        if (deviceEUI == null || deviceEUI.isEmpty()) {
+            return null;
+        }
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, deviceEUI);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Device device = new Device();
+                device.setEUI(rs.getString(1));
+                device.setDownlink(rs.getString(2));
+                device.setAlertStatus(rs.getShort(3));
+                device.setState(rs.getDouble(4));
+                device.setLastSeen(rs.getLong(5));
+                device.setLastFrame(rs.getLong(6));
+                //device.setCommandStatus(rs.getLong(7));
+                return device;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
     }
 
 }

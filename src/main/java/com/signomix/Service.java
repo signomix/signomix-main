@@ -39,6 +39,7 @@ import org.cricketmsf.out.db.KeyValueDBIface;
 import org.cricketmsf.out.file.FileReaderAdapterIface;
 import org.cricketmsf.out.log.LoggerAdapterIface;
 
+import com.signomix.common.DeviceStatusLoaderIface;
 import com.signomix.common.iot.generic.IotData;
 import com.signomix.event.AlertApiEvent;
 import com.signomix.event.IotEvent;
@@ -52,6 +53,7 @@ import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.out.auth.AuthLogic;
 import com.signomix.out.db.ActuatorCommandsDBIface;
+import com.signomix.out.db.H2DeviceStatusLoader;
 import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
@@ -129,6 +131,12 @@ public class Service extends Kernel {
     OpenApiIface apiGenerator = null;
 
     private static AtomicLong commandIdSeed = null;
+
+    private DeviceStatusLoaderIface deviceStatusLoader=null;
+
+    public DeviceStatusLoaderIface getDeviceStatusLoader(){
+        return deviceStatusLoader;
+    }
 
     /**
      * Returns next unique identifier for command (IotEvent).
@@ -289,6 +297,7 @@ public class Service extends Kernel {
         invariants = new Invariants();
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB,
                 shortenerDB, getIotDatabase());
+        deviceStatusLoader=new H2DeviceStatusLoader(getIotDatabase());
         // PlatformAdministrationModule.getInstance().readPlatformConfig(database);
         Kernel.getInstance().handleEvent(
                 new Event(

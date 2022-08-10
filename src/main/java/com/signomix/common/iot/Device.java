@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 
 import org.cricketmsf.livingdoc.design.BoundedContext;
 
+import com.signomix.common.DeviceStatusLoaderIface;
+
 /**
  * Description
  *
@@ -33,6 +35,9 @@ public class Device {
     public static int OK = 1;
     public static int FAILURE = 2;
 
+    public static long LASTSEEN_NOTSET = -1;
+    public static long LASTFRAME_NOTSET = -1;
+
     private String template;
 
     /**
@@ -50,28 +55,32 @@ public class Device {
     private String code; // JavaScript data preprocessor code
     private String encoder; // JavaScript to decode LoRa payload
     private String description;
-    private long lastSeen;
     private long transmissionInterval;
-    private long lastFrame;
     private boolean checkFrames;
     private String pattern; //not used
-    private String downlink;
     private String commandScript;
     private String groups;
-    private int alertStatus;
     private String deviceID; // TTN: devAddress
     private boolean active;
     private String project;
     private Double latitude;
     private Double longitude;
     private Double altitude;
-    private Double state;
     private long retentionTime;
     private String administrators;
     private String configuration;
     private Long orgApplicationId;
     private String applicationConfig;
     private Long organizationId;
+
+    //device status fields
+    private long lastSeen;
+    private long lastFrame;
+    private String downlink;
+    private int alertStatus;
+    private Double state;
+
+    private DeviceStatusLoaderIface loader;
 
 
     //TODO: change uid to uidHex and add validation (is it hex value)
@@ -89,25 +98,32 @@ public class Device {
         encoder = null;
         key = null;
         description = "";
-        lastSeen = -1;
         transmissionInterval = 0; //10 minutes
-        lastFrame = -1;
         checkFrames = true;
-        alertStatus = UNKNOWN;
+
         deviceID = "";
         project = "";
         active = true;
         latitude = 100000d;
         longitude = 100000d;
         altitude = 100000d;
-        state = 0d;
         administrators="";
         configuration=null;
         orgApplicationId=0L;
         applicationConfig=null;
         organizationId=0L;
+
+        // lazy-loaded field
+        lastSeen = LASTSEEN_NOTSET;
+        lastFrame = LASTFRAME_NOTSET;
+        alertStatus = UNKNOWN;
+        state = null;
+        downlink=null;
     }
 
+    public void setLoader(DeviceStatusLoaderIface loader){
+        this.loader=loader;
+    }
 
     public void print() {
         System.out.println("DEVICE: " + getEUI());
@@ -338,6 +354,9 @@ public class Device {
      * @return the lastSeen
      */
     public long getLastSeen() {
+        if(lastSeen==LASTSEEN_NOTSET){
+            loader.updateDevice(this);
+        }
         return lastSeen;
     }
 
@@ -426,6 +445,9 @@ public class Device {
      * @return the lastFrame
      */
     public long getLastFrame() {
+        if(lastFrame==LASTFRAME_NOTSET){
+            loader.updateDevice(this);
+        }
         return lastFrame;
     }
 
@@ -482,6 +504,9 @@ public class Device {
      * @return the downlink
      */
     public String getDownlink() {
+        if(downlink==null){
+            loader.updateDevice(this);
+        }
         return downlink;
     }
 
@@ -660,6 +685,9 @@ public class Device {
      * @return the state
      */
     public Double getState() {
+        if(state==null){
+            loader.updateDevice(this);
+        }
         return state;
     }
 
