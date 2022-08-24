@@ -426,7 +426,7 @@
                     "properties": {
                         "helper-name": "authDB",
                         "helper-name-2": "userAdapter",
-                        "token-timeout": "600"
+                        "token-timeout": "1800"
                     }
                 },
                 {
@@ -439,8 +439,8 @@
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "content",
-                        "user": "sa",
-                        "password": "",
+                        "user": "$SIGNOMIX_DATABASE_USER",
+                        "password": "$SIGNOMIX_DATABASE_PASSWORD",
                         "cache-size": "1000"
                     }
                 },
@@ -456,8 +456,8 @@
                         "encrypted": "false",
                         "filePassword": "",
                         "name": "user",
-                        "user": "sa",
-                        "password": "",
+                        "user": "$SIGNOMIX_DATABASE_USER",
+                        "password": "$SIGNOMIX_DATABASE_PASSWORD",
                         "cache-size": "1000"
                     }
                 },
@@ -471,8 +471,8 @@
                         "test-query": "select * from serviceversion",
                         "version": "1",
                         "name": "auth",
-                        "user": "sa",
-                        "password": "",
+                        "user": "$SIGNOMIX_DATABASE_USER",
+                        "password": "$SIGNOMIX_DATABASE_PASSWORD",
                         "cache-size": "1000"
                     }
                 },
@@ -547,8 +547,8 @@
                         "encrypted": "false",
                         "filePassword":"",
                         "name": "user",
-                        "user": "sa",
-                        "password": "",
+                        "user": "$SIGNOMIX_DATABASE_USER",
+                        "password": "$SIGNOMIX_DATABASE_PASSWORD",
                         "cache-size": "1000"
                     }
                 },
@@ -634,8 +634,8 @@
                         "encrypted": "false",
                         "filePassword":"",
                         "name": "user",
-                        "user": "sa",
-                        "password": "",
+                        "user": "$SIGNOMIX_DATABASE_USER",
+                        "password": "$SIGNOMIX_DATABASE_PASSWORD",
                         "cache-size": "1000"
                     }
                 },
