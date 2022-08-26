@@ -58,7 +58,11 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         StringBuilder sb = new StringBuilder();
         sb.append("create sequence if not exists user_number_seq;");
         sb.append("create sequence if not exists org_number_seq;");
-        sb.append("create table users (")
+        sb.append("create table if not exists organizations (")
+                .append("id bigint default org_number_seq.nextval primary key,")
+                .append("name varchar);");
+        sb.append("insert into organizations (id,name) values (0,'');");
+        sb.append("create table if not exists users (")
                 .append("uid varchar primary key,")
                 .append("type int,")
                 .append("email varchar,")
@@ -82,10 +86,6 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
                 .append("autologin boolean,")
                 .append("language varchar,")
                 .append("organization bigint default 0 references organizations);");
-        sb.append("create table organizations (")
-                .append("id bigint default org_number_seq.nextval primary key,")
-                .append("name varchar);");
-        sb.append("insert into organizations (id,name) values (0,'')");
         query = sb.toString();
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             boolean updated = pst.executeUpdate() > 0;
