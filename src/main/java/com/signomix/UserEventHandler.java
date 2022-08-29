@@ -153,9 +153,9 @@ public class UserEventHandler {
         }
         MailingIface mailingAdapter = ((Service) kernel).mailingAdapter;
         CmsIface cmsAdapter = ((Service) kernel).cms;
-        String uid = (String) event.getPayload();
+        Long userNumber = (Long) event.getPayload();
         try {
-            User user = userAdapter.get(uid);
+            User user = userAdapter.getByNumber(userNumber);
             mailingAdapter.sendWelcomeDocument(user, cmsAdapter, externalNotificator);
         } catch (UserException ex) {
             Kernel.getInstance().dispatchEvent(Event.logWarning("User not found", ex.getMessage()));
