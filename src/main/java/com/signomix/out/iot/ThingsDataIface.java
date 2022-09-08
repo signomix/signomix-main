@@ -35,6 +35,7 @@ public interface ThingsDataIface {
     public boolean isGroupAuthorized(String userID, long organizationID, String groupEUI) throws ThingsDataException;
     public void putDevice(String userID, Device device) throws ThingsDataException;
     public void modifyDevice(String userID, Device device) throws ThingsDataException;
+    public void modifyDevice(String userID, long userType, Device device) throws ThingsDataException;
     public void updateHealthStatus(String id, long lastSeen, long frameCounter, String downlink, String deviceID) throws ThingsDataException;
     public void updateAlertStatus(String id, int status) throws ThingsDataException;
     public void updateDeviceState(String id, Double state) throws ThingsDataException;

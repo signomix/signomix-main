@@ -109,12 +109,18 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void modifyDevice(String userID, Device device) throws ThingsDataException {
+        modifyDevice(userID, -1, device);
+    }
+
+    @Override
+    public void modifyDevice(String userID, long userType, Device device) throws ThingsDataException {
         //Device previous = getDevice(userID, device.getEUI(), false);
-        Device previous = getDevice(userID, -1, device.getEUI(), true);
+        Device previous = getDevice(userID, userType, device.getEUI(), true);
         if (previous == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         }else{
-            device.setUserID(previous.getUserID()); //UserID override protection if modified by the admin.
+            device.setUserID(previous.getUserID()); //override protection if modified by the admin or by externalService
+            device.setOrganizationId(previous.getOrganizationId()); //override protection if modified by the admin or by externalService
         }
         //TODO: what to do when list of channels has been changed?
         getIotDB().updateDevice(device);

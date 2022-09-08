@@ -172,10 +172,21 @@ public class DeviceManagementModule {
                         break;
                     case "PUT": // update device definition
                         User user = users.get(userID);
-                        Device device = buildDevice(request, userID, user.getOrganization(),
-                                getDevice(userID, -1, pathExt, thingsAdapter));
+                        long organization=-1;
+                        long tmpUserType=-1;
+                        if(null!=user){
+                            organization=user.getOrganization();
+                        }else if("externalService".equals(userID)){
+                            organization=-100;
+                            tmpUserType=User.APPLICATION;
+                        }else{
+                            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "user not found"));
+                            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                        }
+                        Device device = buildDevice(request, userID, organization,
+                                getDevice(userID, tmpUserType, pathExt, thingsAdapter));
                         try {
-                            thingsAdapter.modifyDevice(userID, device);
+                            thingsAdapter.modifyDevice(userID, userType, device);
                         } catch (ThingsDataException ex) {
                             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                             StackTraceElement[] ste = ex.getStackTrace();
