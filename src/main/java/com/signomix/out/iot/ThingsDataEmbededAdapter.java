@@ -187,6 +187,11 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
+        return getIotDB().getDevice(deviceEUI, secretKey);
+    }
+
+    @Override
     public Device getDevice(String deviceEUI) throws ThingsDataException {
         return getIotDB().getDevice(deviceEUI);
     }

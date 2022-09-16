@@ -388,6 +388,27 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
+    @Override
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
+        String query = buildDeviceQuery() + " AND upper(d.eui) = upper(?) AND key=? AND userid=''";
+        System.out.println(query);
+        if (deviceEUI == null || deviceEUI.isEmpty()) {
+            return null;
+        }
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, deviceEUI);
+            pstmt.setString(2, secretKey);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Device device = buildDevice(rs);
+                return device;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
 
     @Override
     public void putDevice(Device device) throws ThingsDataException {

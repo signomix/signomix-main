@@ -61,7 +61,6 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
         sb.append("create table if not exists organizations (")
                 .append("id bigint default org_number_seq.nextval primary key,")
                 .append("name varchar);");
-        sb.append("insert into organizations (id,name) values (0,'');");
         sb.append("create table if not exists users (")
                 .append("uid varchar primary key,")
                 .append("type int,")
@@ -92,6 +91,12 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             if (!updated) {
                 throw new KeyValueDBException(KeyValueDBException.CANNOT_CREATE, "unable to create table " + tableName);
             }
+        } catch (SQLException e) {
+            throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
+        }
+        query="insert into organizations (id,name) values (0,'');";
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+            pst.executeUpdate();
         } catch (SQLException e) {
             throw new KeyValueDBException(e.getErrorCode(), e.getMessage());
         }

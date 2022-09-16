@@ -92,6 +92,13 @@ public class UserBusinessLogic {
             newUser.setType(User.FREE);
             newUser.setRole("");
             newUser.setPassword(HashMaker.md5Java(event.getRequestParameter("password")));
+            long organization=-1;
+            try{
+                organization=Long.parseLong(event.getRequestParameter("organization"));
+            }catch(Exception e){}
+            if(organization>0){
+                newUser.setOrganization(organization);
+            }
             String type = event.getRequestParameter("type");
             if (null != type) {
                 switch (type.toUpperCase()) {

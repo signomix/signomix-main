@@ -112,6 +112,7 @@ public class DeviceManagementModule {
                         result.setCode(HttpAdapter.SC_METHOD_NOT_ALLOWED);
                 }
             } else { //
+                String secret = (String) request.parameters.getOrDefault("key", "");
                 switch (request.method) {
                     case "GET": // get device definition or channel data - depending on pathExt
                         String query = (String) request.parameters.getOrDefault("query", null);
@@ -123,11 +124,14 @@ public class DeviceManagementModule {
                         if ("public".equals(tmpUserID)) {
                             tmpUserID = issuerID;
                         }
-                        boolean hasAccess = checkAccess(tmpUserID, userType, deviceEUI, organizationID, thingsAdapter);
-                        if (!hasAccess) {
-                            result.setCode(HttpAdapter.SC_NOT_FOUND);
-                            result.setData("not found");
-                            return result;
+                        if (!(params.length == 1 && !secret.isEmpty())) {
+                            boolean hasAccess = checkAccess(tmpUserID, userType, deviceEUI, organizationID,
+                                    thingsAdapter);
+                            if (!hasAccess) {
+                                result.setCode(HttpAdapter.SC_NOT_FOUND);
+                                result.setData("not found");
+                                return result;
+                            }
                         }
                         switch (params.length) {
                             case 2: // get channel data
@@ -156,7 +160,14 @@ public class DeviceManagementModule {
                                         result.setFileExtension(".csv");
                                     }
                                 } else {
-                                    Device device = getDevice(userID, userType, deviceEUI, thingsAdapter);
+                                    Device device;
+                                    System.out.println("KEY:" + secret);
+                                    if (secret.isEmpty()) {
+                                        device = getDevice(userID, userType, pathExt, thingsAdapter);
+                                    } else {
+                                        device = getDevice(pathExt, secret, thingsAdapter);
+                                    }
+                                    // Device device = getDevice(userID, userType, deviceEUI, thingsAdapter);
                                     if (device != null) {
                                         result.setData(device);
                                     } else {
@@ -172,30 +183,40 @@ public class DeviceManagementModule {
                         break;
                     case "PUT": // update device definition
                         User user = users.get(userID);
-                        long organization=-1;
-                        long tmpUserType=-1;
-                        if(null!=user){
-                            organization=user.getOrganization();
-                        }else if("externalService".equals(userID)){
-                            organization=-100;
-                            tmpUserType=User.APPLICATION;
-                        }else{
+                        long organization = -1;
+                        long tmpUserType = -1;
+                        if (null != user) {
+                            organization = user.getOrganization();
+                        } else if ("externalService".equals(userID)) {
+                            organization = -100;
+                            tmpUserType = User.APPLICATION;
+                        } else {
                             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "user not found"));
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                         }
-                        Device device = buildDevice(request, userID, organization,
-                                getDevice(userID, tmpUserType, pathExt, thingsAdapter));
-                        try {
-                            thingsAdapter.modifyDevice(userID, userType, device);
-                        } catch (ThingsDataException ex) {
-                            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
-                            StackTraceElement[] ste = ex.getStackTrace();
-                            for (int i = 0; i < ste.length; i++) {
-                                String msg = "." + ste[i].getMethodName() + ":" + ste[i].getLineNumber();
-                                Kernel.handle(Event.logWarning(ste[i].getClassName(), msg));
-                            }
+                        Device device;
+                        if (secret.isEmpty()) {
+                            device = buildDevice(request, userID, organization,
+                                    getDevice(userID, tmpUserType, pathExt, thingsAdapter));
+                        } else {
+                            device = buildDevice(request, userID, organization,
+                                    getDevice(pathExt, secret, thingsAdapter));
+                        }
+                        if (null == device) {
+                            result.setCode(HttpAdapter.SC_NOT_FOUND);
+                        } else {
+                            try {
+                                thingsAdapter.modifyDevice(userID, userType, device);
+                            } catch (ThingsDataException ex) {
+                                Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+                                StackTraceElement[] ste = ex.getStackTrace();
+                                for (int i = 0; i < ste.length; i++) {
+                                    String msg = "." + ste[i].getMethodName() + ":" + ste[i].getLineNumber();
+                                    Kernel.handle(Event.logWarning(ste[i].getClassName(), msg));
+                                }
 
-                            result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                            }
                         }
                         break;
                     case "DELETE": // remove device and its channels
@@ -541,7 +562,7 @@ public class DeviceManagementModule {
         if (newName != null && !newName.isEmpty()) {
             device.setName(newName);
         } else {
-            //device.setName(device.getEUI());
+            // device.setName(device.getEUI());
         }
         String newAppEUI = (String) request.parameters.getOrDefault("appeui", "");
         if (newAppEUI != null && !newAppEUI.isEmpty()) {
@@ -662,7 +683,7 @@ public class DeviceManagementModule {
                     }
                 });
             }
-        }else{
+        } else {
             device.setChannels(original.getChannelsAsString());
         }
 
@@ -740,6 +761,15 @@ public class DeviceManagementModule {
     private Device getDevice(String userID, long userType, String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
             return thingsAdapter.getDevice(userID, userType, deviceEUI, true);
+        } catch (ThingsDataException ex) {
+            Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+        }
+        return null;
+    }
+
+    private Device getDevice(String deviceEUI, String secretKey, ThingsDataIface thingsAdapter) {
+        try {
+            return thingsAdapter.getDevice(deviceEUI, secretKey);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }

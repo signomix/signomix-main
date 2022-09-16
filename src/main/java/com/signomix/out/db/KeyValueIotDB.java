@@ -430,5 +430,10 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
         // TODO Auto-generated method stub
         
     }
+    @Override
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

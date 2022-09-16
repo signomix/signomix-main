@@ -33,6 +33,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
     public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
 
     public Device getDevice(String deviceEUI) throws ThingsDataException;
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException;
 
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException;
 

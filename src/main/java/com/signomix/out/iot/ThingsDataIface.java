@@ -40,6 +40,7 @@ public interface ThingsDataIface {
     public void updateAlertStatus(String id, int status) throws ThingsDataException;
     public void updateDeviceState(String id, Double state) throws ThingsDataException;
     public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException;
     public boolean checkAccess(String userId, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException;
     public Device getDevice(String deviceEUI) throws ThingsDataException;
     public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException;
