@@ -206,7 +206,7 @@ public class DeviceManagementModule {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                         } else {
                             try {
-                                thingsAdapter.modifyDevice(userID, userType, device);
+                                thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
                             } catch (ThingsDataException ex) {
                                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                                 StackTraceElement[] ste = ex.getStackTrace();

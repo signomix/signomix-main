@@ -58,21 +58,23 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
             e.printStackTrace();
             Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), e.getMessage()));
         }
-        monitoringDeviceEui=(String) Kernel.getInstance().getProperties().get("monitoring_device");
+        monitoringDeviceEui = (String) Kernel.getInstance().getProperties().get("monitoring_device");
     }
 
     @Override
-    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values) throws ThingsDataException {
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, List<ChannelData> values)
+            throws ThingsDataException {
         if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        //TODO: dla urządzeń wirtualnych uruchomić skrypt preprocessora
+        // TODO: dla urządzeń wirtualnych uruchomić skrypt preprocessora
         getDataStorage().putData(userID, deviceEUI, project, deviceState, values);
     }
 
     @Override
-    //REMOVE
-    public void putData(String userID, String deviceEUI, String project, Double deviceState, String channel, ChannelData value) throws ThingsDataException {
+    // REMOVE
+    public void putData(String userID, String deviceEUI, String project, Double deviceState, String channel,
+            ChannelData value) throws ThingsDataException {
         if (!isAuthorized(userID, -1, deviceEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
@@ -82,13 +84,15 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     /*
-    @Override
-    public List<ChannelData> getAllValues(String userID, String deviceEUI, String channel) throws ThingsDataException {
-        if (!isAuthorized(userID, deviceEUI)) {
-            throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
-        }
-        return getDataStorage().getAllValues(userID, deviceEUI, channel);
-    }
+     * @Override
+     * public List<ChannelData> getAllValues(String userID, String deviceEUI, String
+     * channel) throws ThingsDataException {
+     * if (!isAuthorized(userID, deviceEUI)) {
+     * throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED,
+     * "not authorized");
+     * }
+     * return getDataStorage().getAllValues(userID, deviceEUI, channel);
+     * }
      */
     @Override
     public ChannelData getLastValue(String userID, String deviceEUI, String channel) throws ThingsDataException {
@@ -109,35 +113,43 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void modifyDevice(String userID, Device device) throws ThingsDataException {
-        modifyDevice(userID, -1, device);
+        modifyDevice(userID, -1, device, false);
     }
 
     @Override
-    public void modifyDevice(String userID, long userType, Device device) throws ThingsDataException {
-        //Device previous = getDevice(userID, device.getEUI(), false);
+    public void modifyDevice(String userID, long userType, Device device, boolean force) throws ThingsDataException {
+        // Device previous = getDevice(userID, device.getEUI(), false);
         Device previous = getDevice(userID, userType, device.getEUI(), true);
         if (previous == null) {
-            throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
-        }else{
-            device.setUserID(previous.getUserID()); //override protection if modified by the admin or by externalService
-            device.setOrganizationId(previous.getOrganizationId()); //override protection if modified by the admin or by externalService
+            if (!force) {
+                throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
+            }
+        } else {
+            device.setUserID(previous.getUserID()); // override protection if modified by the admin or by
+                                                    // externalService
+            device.setOrganizationId(previous.getOrganizationId()); // override protection if modified by the admin or
+                                                                    // by externalService
         }
-        //TODO: what to do when list of channels has been changed?
+        // TODO: what to do when list of channels has been changed?
         getIotDB().updateDevice(device);
-        if (getDataStorage().updateDeviceChannels(device, previous) > 0) {
-            IotEvent event = new IotEvent(IotEvent.INFO, "all data channels have been removed because of the device channels modification");
-            event.setOrigin(userID + "\t" + device.getEUI());
-            Kernel.getInstance().dispatchEvent(event);
+        if (null != previous) {
+            if (getDataStorage().updateDeviceChannels(device, previous) > 0) {
+                IotEvent event = new IotEvent(IotEvent.INFO,
+                        "all data channels have been removed because of the device channels modification");
+                event.setOrigin(userID + "\t" + device.getEUI());
+                Kernel.getInstance().dispatchEvent(event);
+            }
         }
     }
 
     @Override
-    public void updateHealthStatus(String EUI, long lastSeen, long frameCounter, String downlink, String deviceID) throws ThingsDataException {
+    public void updateHealthStatus(String EUI, long lastSeen, long frameCounter, String downlink, String deviceID)
+            throws ThingsDataException {
         Device dev = getDevice(EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
-        } else if(null!=monitoringDeviceEui){
-            logger.debug("virtual data to {} {}",EUI,monitoringDeviceEui);
+        } else if (null != monitoringDeviceEui) {
+            logger.debug("virtual data to {} {}", EUI, monitoringDeviceEui);
             if (!EUI.equalsIgnoreCase(monitoringDeviceEui)) {
                 String cmd = Base64.getEncoder().encodeToString("datareceived".getBytes());
                 Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.PLATFORM_MONITORING, cmd));
@@ -148,8 +160,8 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         dev.setDownlink(downlink);
         dev.setAlertStatus(Device.OK);
         dev.setDeviceID(deviceID);
-        getIotDB().updateDevice(dev); 
-        //TODO
+        getIotDB().updateDevice(dev);
+        // TODO
         getIotDB().updateDeviceStatus(deviceID, lastSeen, frameCounter, Device.OK, null, null, downlink);
     }
 
@@ -161,7 +173,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         }
         dev.setAlertStatus(newAlertStatus);
         getIotDB().updateDevice(dev);
-        //TODO: getIotDB().setDeviceAlertStatus(EUI, newAlertStatus);
+        // TODO: getIotDB().setDeviceAlertStatus(EUI, newAlertStatus);
         getIotDB().updateDeviceStatus(EUI, null, null, newAlertStatus, null, null, null);
     }
 
@@ -173,16 +185,19 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         }
         dev.setState(newState);
         getIotDB().updateDevice(dev);
-        //TODO: getIotDB().setDeviceStatus(EUI, newState);
+        // TODO: getIotDB().setDeviceStatus(EUI, newState);
         getIotDB().updateDeviceStatus(EUI, null, null, null, newState, null, null);
     }
 
     @Override
-    public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
+    public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared)
+            throws ThingsDataException {
         return getIotDB().getDevice(userId, userType, deviceEUI, withShared);
     }
+
     @Override
-    public boolean checkAccess(String userId, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException {
+    public boolean checkAccess(String userId, long userType, String deviceEUI, long organizationID, boolean withShared)
+            throws ThingsDataException {
         return getIotDB().checkAccess(userId, userType, deviceEUI, organizationID, withShared);
     }
 
@@ -197,7 +212,8 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException {
+    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared)
+            throws ThingsDataException {
         return getIotDB().getUserDevices(userID, organizationID, withShared);
     }
 
@@ -237,13 +253,15 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
      * @throws ThingsDataException
      *
      * @Override public List<List> getValues(String userID, String deviceEUI,
-     * String channel, String query) throws ThingsDataException { if
-     * (!isAuthorized(userID, deviceEUI)) { throw new
-     * ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not
-     * authorized"); } //TODO: if we query more than 1 channel (channels
-     * sepatated with "," then resulting channel data could be unsynchronized
-     * //TODO: there should be additional option to synchdonize data lists
-     * return getDataStorage().getValues(userID, deviceEUI, channel, query); }
+     *           String channel, String query) throws ThingsDataException { if
+     *           (!isAuthorized(userID, deviceEUI)) { throw new
+     *           ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not
+     *           authorized"); } //TODO: if we query more than 1 channel (channels
+     *           sepatated with "," then resulting channel data could be
+     *           unsynchronized
+     *           //TODO: there should be additional option to synchdonize data lists
+     *           return getDataStorage().getValues(userID, deviceEUI, channel,
+     *           query); }
      */
     @Override
     public List<List> getValues(String userID, String deviceEUI, String query) throws ThingsDataException {
@@ -350,10 +368,10 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
         DeviceGroup previous = getGroup(userID, group.getEUI());
         if (previous == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "group not found");
-        }else{
-            group.setUserID(previous.getUserID()); //UserID override protection if modified by the admin.
+        } else {
+            group.setUserID(previous.getUserID()); // UserID override protection if modified by the admin.
         }
-        //TODO: what to do when list of channels has been changed?
+        // TODO: what to do when list of channels has been changed?
         getIotDB().updateGroup(group);
     }
 
@@ -368,14 +386,17 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames) throws ThingsDataException {
+    public List<List<List>> getValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames)
+            throws ThingsDataException {
         if (!isGroupAuthorized(userID, organizationID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
-        return getDataStorage().getValuesOfGroup(userID, organizationID, groupEUI, channelNames, 0,"");
+        return getDataStorage().getValuesOfGroup(userID, organizationID, groupEUI, channelNames, 0, "");
     }
+
     @Override
-    public List<List<List>> getLastValuesOfGroup(String userID, long organizationID, String groupEUI, String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
+    public List<List<List>> getLastValuesOfGroup(String userID, long organizationID, String groupEUI,
+            String[] channelNames, long interval, String dataQuery) throws ThingsDataException {
         if (!isGroupAuthorized(userID, organizationID, groupEUI)) {
             throw new ThingsDataException(ThingsDataException.NOT_AUTHORIZED, "not authorized");
         }
@@ -384,11 +405,13 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void clearAllChannelsLimit(String deviceEUI, long limit) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 
     @Override
     public void removeUserAlertsLimit(String userId, long limit) throws ThingsDataException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+                                                                       // Tools | Templates.
     }
 }
