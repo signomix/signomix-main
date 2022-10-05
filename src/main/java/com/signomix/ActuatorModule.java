@@ -138,7 +138,13 @@ public class ActuatorModule {
          * leading "#" - overwrite previous command if still not send,
          * leading "&" - send command after previously registered
          */
-        event.setPayload("#" + request.body.trim());
+        String payload=request.body.trim();
+        if(payload.indexOf("&")<0 && payload.indexOf("#")<0){
+            event.setPayload("#" + payload);
+        }else{
+            event.setPayload(payload);
+        }
+        
         Kernel.getInstance().dispatchEvent(event);
         return result;
     }
