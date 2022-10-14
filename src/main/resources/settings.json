@@ -30,7 +30,9 @@
                 "ga-tracking-id": "$GATRACKINGID",
                 "monitoring_device": "signomix_int_monitor",
                 "application_key":"$SIGNOMIX_APP_KEY",
-                "command_id_size":"$SIGNOMIX_COMMAND_ID_SIZE"
+                "command_id_size":"$SIGNOMIX_COMMAND_ID_SIZE",
+                "defaultUserType": "$SIGNOMIX_USER_TYPE_DEFAULT",
+                "defaultUserRole": "$SIGNOMIX_USER_ROLE_DEFAULT"
             },
             "ports": [
                 {

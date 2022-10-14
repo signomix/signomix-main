@@ -110,18 +110,26 @@ public class UserModule extends UserBusinessLogic {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             return result;
         }
+        boolean admin=isAdmin(request);
         try {
+            String defaultRole=(String)Kernel.getInstance().properties.getOrDefault("defaultUserRole", "");
+            String defaultType=(String)Kernel.getInstance().properties.getOrDefault("defaultUserType", "");
             User newUser = new User();
             newUser.setUid(event.getRequestParameter("uid"));
             newUser.setEmail(event.getRequestParameter("email"));
             newUser.setName(event.getRequestParameter("name"));
             newUser.setSurname(event.getRequestParameter("surname"));
             newUser.setPreferredLanguage(event.getRequestParameter("preferredLanguage"));
-            newUser.setType(User.FREE);
-            newUser.setRole("");
+            
             newUser.setPassword(HashMaker.md5Java(event.getRequestParameter("password")));
+            String role = event.getRequestParameter("role");
+            if (null != role && admin) {
+                newUser.setRole(role);
+            }else{
+                newUser.setRole(defaultRole);
+            }
             String type = event.getRequestParameter("type");
-            if (null != type) {
+            if (null != type && admin) {
                 switch (type.toUpperCase()) {
                     case "APPLICATION":
                         newUser.setType(User.APPLICATION);
@@ -134,7 +142,7 @@ public class UserModule extends UserBusinessLogic {
                         break;
                 }
             } else {
-                newUser.setType(User.FREE);
+                newUser.setType(getUserTypeByName(defaultType));
             }
             newUser.setGeneralNotificationChannel(event.getRequestParameter("generalNotifications"));
             newUser.setInfoNotificationChannel(event.getRequestParameter("infoNotifications"));
@@ -217,6 +225,23 @@ public class UserModule extends UserBusinessLogic {
             result.setMessage("unable to create token");
         }
         return result;
+    }
+
+    private int getUserTypeByName(String typeName){
+        switch(typeName.toUpperCase()){
+            case "FREE":
+            return User.FREE;
+            case "EXTENDED":
+            return User.EXTENDED;
+            case "STANDARD":
+            return User.USER;
+            case "SPECIAL":
+            return User.SUPERUSER;
+            case "ADMIN":
+            return User.OWNER;
+            default:
+            return User.FREE;
+        }
     }
 
     public Object handleSubscribeRequest(Event event, UserAdapterIface userAdapter, boolean withConfirmation) {
