@@ -149,12 +149,14 @@ public class UserModule extends UserBusinessLogic {
             newUser.setWarningNotificationChannel(event.getRequestParameter("warningNotifications"));
             newUser.setAlertNotificationChannel(event.getRequestParameter("alertNotifications"));
             Integer status = null;
-            Long organization = null;
+            Long organization = 0L;
+            /*
+            //TODO: TO BE IMPLEMENTED
             try {
                 organization = Long.valueOf(event.getRequestParameter("organization"));
             } catch (Exception e) {
-
             }
+            */
             // validate
             boolean valid = true;
             if (!(newUser.getUid() != null && !newUser.getUid().isEmpty())) {
