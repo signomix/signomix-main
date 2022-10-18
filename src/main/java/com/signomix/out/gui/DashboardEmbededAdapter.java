@@ -77,7 +77,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
 
     @Override
     public void modifyDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter) throws DashboardException {
-        if (!userID.equals(dashboard.getUserID())) {
+        if (!dashboard.getUserID().isEmpty() && !userID.equals(dashboard.getUserID())) {
             throw new DashboardException(DashboardException.NOT_AUTHORIZED, "user IDs not match");
         }
         Dashboard original;
@@ -85,7 +85,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             original = getIotDB().getDashboard(userID, dashboard.getId());
             if (original == null) {
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
-            }else{
+            }else if(!original.getUserID().isEmpty()){
                 dashboard.setUserID(original.getUserID()); //UserID override protection if modified by the admin.
             }
             if (original.isShared() && !dashboard.isShared()) {

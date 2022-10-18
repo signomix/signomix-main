@@ -964,7 +964,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException {
         boolean publicUser = "public".equalsIgnoreCase(userID);
-        String query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where id=? and (userid=? or team like ? or administrators like ? ";
+        String query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where id=? and (userid='' or userid=? or team like ? or administrators like ? ";
         if (publicUser) {
             query = query.concat("or shared=true)");
         } else {
@@ -1681,6 +1681,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             }
             return result;
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
@@ -2333,6 +2334,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             logger.error(e.getMessage());
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         } catch (Exception ex) {
+            ex.printStackTrace();
             logger.error(ex.getMessage());
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, ex.getMessage());
         }
