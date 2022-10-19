@@ -62,6 +62,7 @@ public class KanarekFormatter {
         args.put(JsonWriter.SKIP_NULL_FIELDS, true);
         args.put(JsonWriter.TYPE, false);
         KanarekDto kdto = new KanarekDto();
+        ChannelData cdata;
         String ownerName = result.getHeaders().getFirst("X-Group-Name");
         String groupHref = result.getHeaders().getFirst("X-Group-Dashboard-Href");
         if (result.getData() instanceof List) {
@@ -76,25 +77,37 @@ public class KanarekFormatter {
                     if (null != groupHref) {
                         kStation.href = groupHref;
                     }
-                    List<ChannelData> channels = (List<ChannelData>) data.get(i);
-                    kStation.id = kStation.id = Long.parseLong(channels.get(0).getDeviceEUI(), 16);
-                    kStation.name = channels.get(0).getDeviceEUI();
+                    if(((List) data.get(i)).size()<1){
+                        continue;
+                    }
+                    List channels = (List)((List) data.get(i)).get(0);
+                    if(channels.size()<1){
+                        continue;
+                    }
+                    cdata=(ChannelData)channels.get(0);
+                    try{
+                        kStation.id = Long.parseLong((cdata).getDeviceEUI(), 16);
+                    }catch(Exception e){
+                        logger.warn("malformed station EUI: "+e.getMessage());
+                    }
+                    kStation.name = cdata.getDeviceEUI();
                     for (int j = 0; j < channels.size(); j++) {
                         //kStation.href="";
-                        channelName = channels.get(j).getName();
+                        cdata=(ChannelData)channels.get(j);
+                        channelName = cdata.getName();
                         switch (channelName.toUpperCase()) {
                             case "LATITUDE":
                             case "GPS_LATITUDE":
                             case "LAT":
-                                kStation.lat = channels.get(j).getValue();
+                                kStation.lat = cdata.getValue();
                                 break;
                             case "LONGITUDE":
                             case "GPS_LONGITUDE":
                             case "LON":
-                                kStation.lon = channels.get(j).getValue();
+                                kStation.lon = cdata.getValue();
                                 break;
                             default:
-                                KanarekValue kv=new KanarekValue(channelName, channels.get(j).getValue(), channels.get(j).getTimestamp());
+                                KanarekValue kv=new KanarekValue(channelName, cdata.getValue(), cdata.getTimestamp());
                                 if(null!=kv.type){
                                     kStation.values.add(kv);
                                 }
@@ -106,6 +119,7 @@ public class KanarekFormatter {
                         logger.warn("Unable to add Kanarek Station data - requred values not set.");
                     }
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                     logger.warn(ex.getMessage());
                 }
             }
