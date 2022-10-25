@@ -46,13 +46,14 @@ public class OrganizationModule extends UserBusinessLogic {
     public Object handleGetRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if(!isAdmin(request)){
+        if (!isAdmin(request)) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             return result;
         }
 
         String uid = request.pathExt;
         long id = -1;
+        String code = (String) request.parameters.get("code");
         try {
             if (null != uid && !uid.isEmpty()) {
                 id = Long.parseLong(uid);
@@ -62,11 +63,16 @@ public class OrganizationModule extends UserBusinessLogic {
             return result;
         }
         try {
-            if (uid.isEmpty()) {
+            if (id == -1 && null == code) {
                 Map m = organizationAdapter.getAllOrganizations();
                 result.setData(m);
             } else {
-                Organization org = (Organization) organizationAdapter.getOrganization(id);
+                Organization org;
+                if (null == code) {
+                    org = (Organization) organizationAdapter.getOrganization(id);
+                } else {
+                    org = (Organization) organizationAdapter.getOrganizationByCode(code);
+                }
                 result.setData(org);
             }
         } catch (UserException e) {
@@ -79,7 +85,7 @@ public class OrganizationModule extends UserBusinessLogic {
     public Object handleCreateRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if(!isAdmin(request)){
+        if (!isAdmin(request)) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             return result;
         }
@@ -90,7 +96,11 @@ public class OrganizationModule extends UserBusinessLogic {
             return result;
         }
         try {
-            Organization newOrg = new Organization(null, event.getRequestParameter("name"));
+            Organization newOrg = new Organization(
+                    null,
+                    event.getRequestParameter("code"),
+                    event.getRequestParameter("name"),
+                    event.getRequestParameter("description"));
             newOrg = organizationAdapter.createOrganization(newOrg);
             result.setData(newOrg.id);
         } catch (UserException e) {
@@ -113,7 +123,7 @@ public class OrganizationModule extends UserBusinessLogic {
         // only admin can do this and user status must be IS_UNREGISTERING
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if(!isAdmin(request)){
+        if (!isAdmin(request)) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             return result;
         }
@@ -133,9 +143,9 @@ public class OrganizationModule extends UserBusinessLogic {
         }
         try {
             Organization tmpOrg = organizationAdapter.getOrganization(id);
-            if(null==tmpOrg){
+            if (null == tmpOrg) {
                 result.setCode(HttpAdapter.SC_NOT_FOUND);
-                return result;    
+                return result;
             }
             organizationAdapter.removeOrganization(tmpOrg);
             result.setCode(HttpAdapter.SC_OK);
@@ -149,7 +159,7 @@ public class OrganizationModule extends UserBusinessLogic {
     public Object handleUpdateRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if(!isAdmin(request)){
+        if (!isAdmin(request)) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             return result;
         }

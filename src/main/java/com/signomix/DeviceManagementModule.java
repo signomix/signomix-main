@@ -201,6 +201,7 @@ public class DeviceManagementModule {
                         } else {
                             device = buildDevice(request, userID, organization,
                                     getDevice(pathExt, secret, thingsAdapter));
+                            device.setActive(true);
                         }
                         if (null == device) {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);

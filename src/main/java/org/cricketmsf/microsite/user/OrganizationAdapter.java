@@ -59,13 +59,13 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
     public Organization getOrganization(long id) throws UserException {
         Organization org;
         try {
-            org = (Organization) getDatabase().get("organizations", ""+id);
+            org = (Organization) getDatabase().get("organizations", "" + id);
             return org;
         } catch (KeyValueDBException | ClassCastException | NullPointerException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
         }
     }
-    
+
     @Override
     public Map getAllOrganizations() throws UserException {
         HashMap<String, Organization> map;
@@ -82,7 +82,7 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
         Organization org = organization;
         Random r = new Random(System.currentTimeMillis());
         try {
-            getDatabase().put("organizations", ""+org.id, org);
+            getDatabase().put("organizations", "" + org.id, org);
             return org;
         } catch (KeyValueDBException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
@@ -92,10 +92,10 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
     @Override
     public void modifyOrganization(Organization org) throws UserException {
         try {
-            if(!getDatabase().containsKey("organizations", ""+org.id)){
+            if (!getDatabase().containsKey("organizations", "" + org.id)) {
                 throw new UserException(UserException.UNKNOWN_USER, "organization not found");
             }
-            getDatabase().put("organizations", ""+org.id, org);
+            getDatabase().put("organizations", "" + org.id, org);
         } catch (KeyValueDBException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
         }
@@ -103,15 +103,28 @@ public class OrganizationAdapter extends OutboundAdapter implements Adapter, Org
 
     @Override
     public void removeOrganization(Organization org) throws UserException {
-        if(null==org){
+        if (null == org) {
             return;
         }
         try {
-            getDatabase().remove("organizations", ""+org.id);
+            getDatabase().remove("organizations", "" + org.id);
         } catch (KeyValueDBException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
+    public Organization getOrganizationByCode(String code) throws UserException {
+        Organization org;
+        Object[] parameters = { code };
+        try {
+            List result = getDatabase().search("organizations", "", parameters);
+            org = (Organization) result.get(0);
+            return org;
+        } catch (KeyValueDBException | ClassCastException | NullPointerException e) {
             throw new UserException(UserException.HELPER_EXCEPTION, e.getMessage());
         }
     }

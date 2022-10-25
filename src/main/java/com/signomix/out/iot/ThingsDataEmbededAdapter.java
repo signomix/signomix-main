@@ -118,13 +118,12 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void modifyDevice(String userID, long userType, Device device, boolean force) throws ThingsDataException {
-        // Device previous = getDevice(userID, device.getEUI(), false);
-        Device previous = getDevice(userID, userType, device.getEUI(), true);
-        if (previous == null) {
-            if (!force) {
+        Device previous=null;
+        if (!force) {
+            previous = getDevice(userID, userType, device.getEUI(), true);
+            if (previous == null) {
                 throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
             }
-        } else {
             device.setUserID(previous.getUserID()); // override protection if modified by the admin or by
                                                     // externalService
             device.setOrganizationId(previous.getOrganizationId()); // override protection if modified by the admin or
