@@ -211,11 +211,8 @@ public class DeviceManagementModule {
                             try {
                                 thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
                                 if(!secret.isEmpty()){
-                                    System.out.println("updating user's organization");
                                     user.setOrganization(device.getOrganizationId());
                                     users.modify(user);
-                                }else{
-                                    System.out.println("not updating user's organization");
                                 }
                             } catch (ThingsDataException | UserException ex) {
                                 ex.printStackTrace();

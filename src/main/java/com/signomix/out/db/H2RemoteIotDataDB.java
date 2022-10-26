@@ -241,7 +241,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         if (withShared && organizationID == 0) {
             query = query + " AND (d.userid = ? or d.team like ? or d.administrators like ?)";
         } else if (withShared && organizationID > 0) {
-            query = query + " AND organization=?";
+            query = query + " AND d.organization=?";
         } else {
             query = buildDeviceQuery() + " AND d.userid = ?";
         }
