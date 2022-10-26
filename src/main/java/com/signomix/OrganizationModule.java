@@ -46,7 +46,8 @@ public class OrganizationModule extends UserBusinessLogic {
     public Object handleGetRequest(Event event, OrganizationAdapterIface organizationAdapter) {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
-        if (!isAdmin(request)) {
+        boolean restrictedRead=false; //TODO: configuration per deployment
+        if (restrictedRead && !isAdmin(request)) {
             result.setCode(HttpAdapter.SC_FORBIDDEN);
             return result;
         }
