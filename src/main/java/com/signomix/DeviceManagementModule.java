@@ -699,13 +699,18 @@ public class DeviceManagementModule {
             device.setLastFrame(-1);
         }
 
-        // try {
-        // long organizationId = Long.parseLong((String)
-        // request.parameters.get("organizationId"));
-        // device.setOrganizationId(organizationId);
-        // } catch (Exception e) {
-        // }
-        device.setOrganizationId(userOrganization);
+        long organizationId=0;
+        try {
+            organizationId = Long.parseLong((String) request.parameters.get("organizationId"));
+            device.setOrganizationId(organizationId);
+        } catch (Exception e) {
+        }
+        if(organizationId!=0 && userOrganization==0){
+            device.setOrganizationId(organizationId);
+        }else{
+            device.setOrganizationId(userOrganization);
+        }
+        //TODO: orgApplicationId from the organization set in the previous step
         try {
             long organizationAppId = Long.parseLong((String) request.parameters.get("orgApplicationId"));
             device.setOrgApplicationId(organizationAppId);
