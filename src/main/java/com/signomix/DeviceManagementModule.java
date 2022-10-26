@@ -211,7 +211,7 @@ public class DeviceManagementModule {
                             try {
                                 thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
                                 if(!secret.isEmpty()){
-                                    user.setOrganization(organization);
+                                    user.setOrganization(device.getOrganizationId());
                                     users.modify(user);
                                 }
                             } catch (ThingsDataException | UserException ex) {
