@@ -22,6 +22,7 @@ import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
+import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
 
 /**
@@ -202,13 +203,18 @@ public class DeviceManagementModule {
                             device = buildDevice(request, userID, organization,
                                     getDevice(pathExt, secret, thingsAdapter));
                             device.setActive(true);
+
                         }
                         if (null == device) {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                         } else {
                             try {
                                 thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
-                            } catch (ThingsDataException ex) {
+                                if(!secret.isEmpty()){
+                                    user.setOrganization(organization);
+                                    users.modify(user);
+                                }
+                            } catch (ThingsDataException | UserException ex) {
                                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                                 StackTraceElement[] ste = ex.getStackTrace();
                                 for (int i = 0; i < ste.length; i++) {
