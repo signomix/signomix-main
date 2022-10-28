@@ -121,7 +121,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
             return null;
         }
         try {
-            channel.basicPublish("", eventsQueue, null, encodedMessage.getBytes());
+            channel.basicPublish("events", "#", null, encodedMessage.getBytes());
         } catch (IOException ex) {
             ex.printStackTrace();
         }
