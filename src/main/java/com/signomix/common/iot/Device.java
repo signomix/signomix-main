@@ -9,14 +9,11 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import org.cricketmsf.livingdoc.design.BoundedContext;
-
 /**
  * Description
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-@BoundedContext
 public class Device {
 
     public static String GENERIC = "GENERIC";

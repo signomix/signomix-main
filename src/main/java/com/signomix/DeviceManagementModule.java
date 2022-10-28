@@ -10,12 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.signomix.common.iot.Device;
-import com.signomix.event.IotEvent;
-import com.signomix.out.iot.DeviceGroup;
-import com.signomix.out.iot.ThingsDataException;
-import com.signomix.out.iot.ThingsDataIface;
-
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -24,6 +18,13 @@ import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
+
+import com.signomix.common.iot.Device;
+import com.signomix.event.IotEvent;
+import com.signomix.out.iot.DeviceGroup;
+import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.ThingsDataIface;
+import com.signomix.out.notification.dto.EventEnvelope;
 
 /**
  *
@@ -210,10 +211,12 @@ public class DeviceManagementModule {
                         } else {
                             try {
                                 thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
-                                if(!secret.isEmpty()){
+                                if (!secret.isEmpty()) {
                                     user.setOrganization(device.getOrganizationId());
                                     users.modify(user);
                                 }
+                                sendToQueue(EventEnvelope.DEVICE, device.getEUI(), "update");
+
                             } catch (ThingsDataException | UserException ex) {
                                 ex.printStackTrace();
                                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
@@ -250,6 +253,17 @@ public class DeviceManagementModule {
             e.printStackTrace();
         }
         return result;
+    }
+
+    /*
+     * Sends EventEnvelope to "events" queue.
+     */
+    private void sendToQueue(String type, String id, String payload) {
+        EventEnvelope eventWrapper = new EventEnvelope();
+        eventWrapper.type = type;
+        eventWrapper.id = id;
+        eventWrapper.payload = payload;
+        ((Service) Kernel.getInstance()).messageBroker.send(eventWrapper);
     }
 
     public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
@@ -706,18 +720,18 @@ public class DeviceManagementModule {
             device.setLastFrame(-1);
         }
 
-        long organizationId=0;
+        long organizationId = 0;
         try {
             organizationId = Long.parseLong((String) request.parameters.get("organizationId"));
             device.setOrganizationId(organizationId);
         } catch (Exception e) {
         }
-        if(organizationId!=0 && userOrganization==0){
+        if (organizationId != 0 && userOrganization == 0) {
             device.setOrganizationId(organizationId);
-        }else{
+        } else {
             device.setOrganizationId(userOrganization);
         }
-        //TODO: orgApplicationId from the organization set in the previous step
+        // TODO: orgApplicationId from the organization set in the previous step
         try {
             long organizationAppId = Long.parseLong((String) request.parameters.get("orgApplicationId"));
             device.setOrgApplicationId(organizationAppId);

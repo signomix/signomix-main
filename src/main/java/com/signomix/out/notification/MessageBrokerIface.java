@@ -4,10 +4,12 @@
  */
 package com.signomix.out.notification;
 
+import com.signomix.out.notification.dto.EventEnvelope;
 import com.signomix.out.notification.dto.MessageEnvelope;
 
 public interface MessageBrokerIface {
 
     public boolean isReady();
     public String send(MessageEnvelope messageWrapper);
+    public String send(EventEnvelope messageWrapper);
 }

@@ -1,19 +1,22 @@
 package com.signomix.out.queue;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
+
+import org.cricketmsf.Adapter;
+import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
+import org.cricketmsf.out.OutboundAdapter;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.signomix.out.notification.MessageBrokerIface;
+import com.signomix.out.notification.dto.EventEnvelope;
 import com.signomix.out.notification.dto.MessageEnvelope;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.TimeoutException;
-import org.cricketmsf.Adapter;
-import org.cricketmsf.Event;
-import org.cricketmsf.Kernel;
-import org.cricketmsf.out.OutboundAdapter;
 
 public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIface, Adapter {
 
@@ -28,6 +31,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     private String notificationQueue = "notifications";
     private String mailingQueue = "mailing";
     private String adminEmailQueue = "admin_email";
+    private String eventsQueue = "events";
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -75,8 +79,8 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     }
 
     private void init() {
-        //Kernel.getInstance().getLogger().print("initializing");
-        Kernel.getInstance().getLogger().print("connecting MQ "+host+" "+port);
+        // Kernel.getInstance().getLogger().print("initializing");
+        Kernel.getInstance().getLogger().print("connecting MQ " + host + " " + port);
         while (!isReady()) {
             try {
                 ConnectionFactory factory = new ConnectionFactory();
@@ -84,12 +88,12 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
                 factory.setPort(port);
                 factory.setUsername(userName);
                 factory.setPassword(password);
-                factory.setVirtualHost("/"); //WARNING: Virtual host configured as "/" must be set in Java without "/"
+                factory.setVirtualHost("/"); // WARNING: Virtual host configured as "/" must be set in Java without "/"
                 connection = factory.newConnection();
                 channel = connection.createChannel();
                 ready = true;
             } catch (TimeoutException | IOException ex) {
-                Kernel.getInstance().getLogger().print("connection error: " + ex.getMessage()+ " "+ex.toString());
+                Kernel.getInstance().getLogger().print("connection error: " + ex.getMessage() + " " + ex.toString());
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -104,12 +108,29 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     }
 
     @Override
+    public String send(EventEnvelope envelope) {
+        if (!ready) {
+            init();
+        }
+        String encodedMessage;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            encodedMessage = objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException ex) {
+            Kernel.getInstance().dispatchEvent(Event.logWarning(this, ex.getMessage()));
+            return null;
+        }
+        try {
+            channel.basicPublish("", eventsQueue, null, encodedMessage.getBytes());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public String send(MessageEnvelope envelope) {
-        if(!ready){
-            //try {
-            //    Thread.sleep(10000);
-            //} catch (InterruptedException ex1) {
-            //}    
+        if (!ready) {
             init();
         }
         String encodedMessage;
@@ -142,7 +163,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
         return null;
     }
 
-    //@Override
+    // @Override
     private void sendNotification(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
@@ -155,7 +176,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
     }
 
-    //@Override
+    // @Override
     private void sendMailing(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
@@ -168,7 +189,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
     }
 
-    //@Override
+    // @Override
     private void sendAdminEmail(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
