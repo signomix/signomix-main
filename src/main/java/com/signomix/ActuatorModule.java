@@ -75,8 +75,18 @@ public class ActuatorModule {
             }
             eui = eui.toUpperCase();
         }
+        /*System.out.println("HEADERS:");
+        request.headers.keySet().forEach(key->{
+            System.out.println(key+":"+request.headers.getFirst(key));
+        });
+        */
         try {
-            device = thingsAdapter.getDevice(userID, -1, eui, false);
+            long userType=-1;
+            try{
+                userType=Long.parseLong(request.headers.getFirst("X-user-type"));
+            }catch(Exception e){
+            }
+            device = thingsAdapter.getDevice(userID, userType, eui, false);
         } catch (ThingsDataException ex) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());

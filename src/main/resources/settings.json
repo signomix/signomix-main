@@ -317,7 +317,7 @@
                     "classFullName": "com.signomix.in.http.ActuatorApi",
                     "properties": {
                         "context": "/api/actuator",
-                        "dump-request": "true",
+                        "dump-request": "false",
                         "silent-mode": "false"
                     }
                 },
