@@ -6,10 +6,12 @@ package com.signomix;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
@@ -18,6 +20,7 @@ import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
 import org.cricketmsf.microsite.user.User;
+import org.cricketmsf.out.OutboundAdapter;
 
 import com.signomix.common.iot.Device;
 import com.signomix.event.IotEvent;
@@ -30,24 +33,30 @@ import com.signomix.out.notification.dto.EventEnvelope;
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class DeviceManagementModule {
+public class DeviceManagementModule extends OutboundAdapter implements DeviceManagementLogicIface, Adapter{
 
     private static DeviceManagementModule service;
 
     private long DEFAULT_GROUP_INTERVAL = 60 * 60 * 1000; // 60 MINUT
 
+    /* 
     public static DeviceManagementModule getInstance() {
         if (service == null) {
             service = new DeviceManagementModule();
         }
         return service;
     }
+    */
 
+    @Override
+    public void loadProperties(HashMap<String, String> properties, String adapterName) {
+        super.loadProperties(properties, adapterName);
+    }
     /**
      *
      */
-    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
-            PlatformAdministrationModule platform) {
+    @Override
+    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -266,8 +275,7 @@ public class DeviceManagementModule {
         ((Service) Kernel.getInstance()).messageBroker.send(eventWrapper);
     }
 
-    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
-            PlatformAdministrationModule platform) {
+    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -293,8 +301,7 @@ public class DeviceManagementModule {
         return result;
     }
 
-    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
-            PlatformAdministrationModule platform) {
+    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -422,8 +429,7 @@ public class DeviceManagementModule {
         return result;
     }
 
-    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users,
-            PlatformAdministrationModule platform) {
+    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();

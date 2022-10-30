@@ -83,7 +83,8 @@ public class UserEventHandler {
                 gdprLogger.log(Event.logInfo(event.getId(), "DELETED USER " + tmpPayload[0] + " " + tmpPayload[1]));
                 String uid = (String) event.getPayload();
                 AlertModule.getInstance().removeAll(uid, thingsAdapter);
-                DeviceManagementModule.getInstance().removeUserData(uid, thingsAdapter); // devices and channels
+                ((Service)Kernel.getInstance()).deviceLogic.removeUserData(uid, thingsAdapter); // devices and channels
+                //DeviceManagementModule.getInstance().removeUserData(uid, thingsAdapter); // devices and channels
                 DashboardBusinessLogic.getInstance().removeUserDashboards(uid, dashboardAdapter);
                 break;
             case UserEvent.USER_RESET_PASSWORD:

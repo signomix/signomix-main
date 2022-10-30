@@ -36,6 +36,16 @@
             },
             "ports": [
                 {
+                    "name": "DeviceLogic",
+                    "interfaceName": "DeviceManagementLogicIface",
+                    "classFullName": "com.signomix.DeviceManagementModule",
+                    "properties": {
+                        "context": "/gt",
+                        "dump-request": "true",
+                        "silent-mode": "false"
+                    }
+                },
+                {
                     "name": "goto",
                     "interfaceName": "HttpAdapterIface",
                     "classFullName": "org.cricketmsf.in.http.StandardHttpAdapter",

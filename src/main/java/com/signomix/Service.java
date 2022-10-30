@@ -77,6 +77,9 @@ public class Service extends Kernel {
     // service parameters
     Invariants invariants = null;
 
+    //Business domain
+    DeviceManagementLogicIface deviceLogic = null;
+
     // adapterClasses
     LoggerAdapterIface logAdapter = null;
     LoggerAdapterIface gdprLogger = null;
@@ -229,6 +232,8 @@ public class Service extends Kernel {
         scheduler = (SchedulerIface) getRegistered("scheduler");
         htmlAdapter = (HtmlGenAdapterIface) getRegistered("WwwService");
         fileReader = (FileReaderAdapterIface) getRegistered("FileReader");
+        // business domain
+        deviceLogic = (DeviceManagementLogicIface) getRegistered("DeviceLogic");
         // cms
         cmsFileReader = (FileReaderAdapterIface) getRegistered("CmsFileReader");
         cmsDatabase = (KeyValueDBIface) getRegistered("cmsDB");

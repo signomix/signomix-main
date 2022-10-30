@@ -133,7 +133,8 @@ public class SystemEventHandler {
                                 /* thingsDB, iotDataDB, actuatorCommandsDB, */ iotDB);
                 break;
             case "CHECK_DEVICES":
-                DeviceManagementModule.getInstance().checkStatus(thingsAdapter);
+                ((Service)Kernel.getInstance()).deviceLogic.checkStatus(thingsAdapter);
+                //DeviceManagementModule.getInstance().checkStatus(thingsAdapter);
                 break;
             default:
                 kernel.handleEvent(Event.logWarning("Don't know how to handle type " + event.getType(),
