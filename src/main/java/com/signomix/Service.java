@@ -133,6 +133,13 @@ public class Service extends Kernel {
 
     private static AtomicLong commandIdSeed = null;
 
+    // port getters
+    public MessageBrokerIface getMessageBroker(){
+        return messageBroker;
+    }
+
+
+    
     /**
      * Returns next unique identifier for command (IotEvent).
      *
