@@ -40,9 +40,6 @@
                     "interfaceName": "DeviceManagementLogicIface",
                     "classFullName": "com.signomix.DeviceManagementModule",
                     "properties": {
-                        "context": "/gt",
-                        "dump-request": "true",
-                        "silent-mode": "false"
                     }
                 },
                 {
