@@ -608,28 +608,28 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "GET")
     public Object deviceServiceGet(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+        StandardResult result = (StandardResult) deviceLogic.processDeviceEvent(event, thingsAdapter,
                 userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "POST")
     public Object deviceServicePost(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+        StandardResult result = (StandardResult) deviceLogic.processDeviceEvent(event, thingsAdapter,
                 userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "PUT")
     public Object deviceServicePut(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+        StandardResult result = (StandardResult) deviceLogic.processDeviceEvent(event, thingsAdapter,
                 userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "DELETE")
     public Object deviceServiceDelete(Event event) {
-        StandardResult result = (StandardResult) new DeviceManagementModule().processDeviceEvent(event, thingsAdapter,
+        StandardResult result = (StandardResult) deviceLogic.processDeviceEvent(event, thingsAdapter,
                 userAdapter, PlatformAdministrationModule.getInstance());
         return result;
     }
@@ -643,7 +643,7 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "GroupPublicationService", requestMethod = "GET")
     public Object groupPublicationServiceGet(Event event) {
-        return new DeviceManagementModule().processGroupPublicationEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processGroupPublicationEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
@@ -656,25 +656,25 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "GET")
     public Object groupServiceGet(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processGroupEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "POST")
     public Object groupServicePost(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processGroupEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "PUT")
     public Object groupServicePut(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processGroupEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
     @HttpAdapterHook(adapterName = "GroupService", requestMethod = "DELETE")
     public Object groupServiceDelete(Event event) {
-        return new DeviceManagementModule().processGroupEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processGroupEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
@@ -687,7 +687,7 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "TemplateService", requestMethod = "*")
     public Object templateServiceHandle(Event event) {
-        return new DeviceManagementModule().processTemplateEvent(event, thingsAdapter, userAdapter,
+        return deviceLogic.processTemplateEvent(event, thingsAdapter, userAdapter,
                 PlatformAdministrationModule.getInstance());
     }
 
