@@ -68,11 +68,11 @@ public interface IotDatabaseIface extends KeyValueDBIface {
 
     public void removeUserDashboards(String userID) throws ThingsDataException;
 
-    public List<Dashboard> getUserDashboards(String userID, boolean withShared) throws ThingsDataException;
+    public List<Dashboard> getUserDashboards(String userID, boolean withShared, boolean adminRole) throws ThingsDataException;
 
     public void removeDashboard(String userID, String dashboardID) throws ThingsDataException;
 
-    public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException;
+    public Dashboard getDashboard(String userID, String dashboardID, boolean adminRole) throws ThingsDataException;
     
     public Dashboard getDashboardByName(String userID, String dashboardName) throws ThingsDataException;
 

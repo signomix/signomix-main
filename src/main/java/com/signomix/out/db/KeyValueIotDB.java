@@ -235,7 +235,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
 
     @Override
     public void removeUserDashboards(String userID) throws ThingsDataException {
-        List dashboards = getUserDashboards(userID, false);
+        List dashboards = getUserDashboards(userID, false, false);
         Dashboard d;
         for (int i = 0; i < dashboards.size(); i++) {
             d = (Dashboard) dashboards.get(i);
@@ -244,7 +244,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public List<Dashboard> getUserDashboards(String userID, boolean withShared) throws ThingsDataException {
+    public List<Dashboard> getUserDashboards(String userID, boolean withShared, boolean adminRole) throws ThingsDataException {
         try {
             Map<String, Dashboard> map = getAll("dashboards");
             ArrayList<Dashboard> result = new ArrayList<>();
@@ -277,7 +277,7 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
 
     @Override
-    public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException {
+    public Dashboard getDashboard(String userID, String dashboardID, boolean adminRole) throws ThingsDataException {
         try {
             Dashboard dashboard = (Dashboard) get("dashboards", dashboardID);
             //System.out.println("DASHBOARD="+);

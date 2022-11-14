@@ -14,12 +14,12 @@ import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
  */
 public interface DashboardAdapterIface {
     public void addDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter) throws DashboardException;
-    public void modifyDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter) throws DashboardException;
+    public void modifyDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter, boolean adminRole) throws DashboardException;
     public void removeDashboard(String userID, String dashboardID) throws DashboardException;
     public void removeUserDashboards(String userID) throws DashboardException;
-    public Dashboard getDashboard(String userId, String dashboardID) throws DashboardException;
+    public Dashboard getDashboard(String userId, String dashboardID, boolean adminRole) throws DashboardException;
     public Dashboard getDashboardByName(String userId, String dashboardName) throws DashboardException;
-    public List<Dashboard> getUserDashboards(String userID) throws DashboardException;
-    public Map<String,Dashboard> getUserDashboardsMap(String userID) throws DashboardException;
+    public List<Dashboard> getUserDashboards(String userID, boolean adminRole) throws DashboardException;
+    public Map<String,Dashboard> getUserDashboardsMap(String userID, boolean adminRole) throws DashboardException;
     //public boolean isAuthorized(String userID, String dashboardID) throws DashboardException;
 }

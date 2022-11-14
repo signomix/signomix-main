@@ -295,27 +295,28 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException {
+    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared)
+            throws ThingsDataException {
 
         String query;
-        if(User.APPLICATION == userType){
+        if (User.APPLICATION == userType) {
             query = buildDeviceQuery()
-            + " AND (upper(d.eui)=upper(?))";
-        }else if (withShared) {
+                    + " AND (upper(d.eui)=upper(?))";
+        } else if (withShared) {
             query = buildDeviceQuery()
                     + " AND ( upper(d.eui)=upper(?) and (d.userid = ? or d.team like ? or d.administrators like ?))";
         } else {
             query = buildDeviceQuery() + " AND (upper(d.eui)=upper(?) and d.userid = ?)";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            if(User.APPLICATION == userType){
+            if (User.APPLICATION == userType) {
                 pstmt.setString(1, deviceEUI);
-            }else if (withShared) {
+            } else if (withShared) {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
                 pstmt.setString(4, "%," + userID + ",%");
-            }else{
+            } else {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
             }
@@ -337,7 +338,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
         String query = "select eui from devices ";
         if (User.APPLICATION == userType) {
-            query=query+" WHERE eui=?";
+            query = query + " WHERE eui=?";
         } else if (withShared && organizationID == 0) {
             query = query
                     + " WHERE upper(eui)=upper(?) and (userid = ? or team like ? or administrators like ?)";
@@ -350,7 +351,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             if (User.APPLICATION == userType) {
                 pstmt.setString(1, deviceEUI);
-            }else if (withShared && organizationID == 0) {
+            } else if (withShared && organizationID == 0) {
                 pstmt.setString(1, deviceEUI);
                 pstmt.setString(2, userID);
                 pstmt.setString(3, "%," + userID + ",%");
@@ -388,6 +389,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
+
     @Override
     public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
         String query = buildDeviceQuery() + " AND upper(d.eui) = upper(?) AND key=? AND userid=''";
@@ -922,18 +924,23 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public List<Dashboard> getUserDashboards(String userID, boolean withShared) throws ThingsDataException {
+    public List<Dashboard> getUserDashboards(String userID, boolean withShared, boolean adminRole)
+            throws ThingsDataException {
         String query;
-        if (withShared) {
+        if (adminRole) {
+            query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards";
+        } else if (withShared) {
             query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where userid=? or team like ? or administrators like ?";
         } else {
             query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where userid=?";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, userID);
-            if (withShared) {
-                pstmt.setString(2, "%," + userID + ",%");
-                pstmt.setString(3, "%," + userID + ",%");
+            if (!adminRole) {
+                pstmt.setString(1, userID);
+                if (withShared) {
+                    pstmt.setString(2, "%," + userID + ",%");
+                    pstmt.setString(3, "%," + userID + ",%");
+                }
             }
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Dashboard> list = new ArrayList<>();
@@ -962,19 +969,23 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public Dashboard getDashboard(String userID, String dashboardID) throws ThingsDataException {
+    public Dashboard getDashboard(String userID, String dashboardID, boolean adminRole) throws ThingsDataException {
         boolean publicUser = "public".equalsIgnoreCase(userID);
         String query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where id=? and (userid='' or userid=? or team like ? or administrators like ? ";
-        if (publicUser) {
+        if (adminRole) {
+            query = "select id,name,userid,title,team,widgets,token,shared,administrators from dashboards where id=?";
+        } else if (publicUser) {
             query = query.concat("or shared=true)");
         } else {
             query = query.concat(")");
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, dashboardID);
-            pstmt.setString(2, userID);
-            pstmt.setString(3, "%," + userID + ",%");
-            pstmt.setString(4, "%," + userID + ",%");
+            if (!adminRole) {
+                pstmt.setString(2, userID);
+                pstmt.setString(3, "%," + userID + ",%");
+                pstmt.setString(4, "%," + userID + ",%");
+            }
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 return buildDashboard(rs);
@@ -2050,9 +2061,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             overwriteMode = true;
         }
         command = command.substring(1);
-        String origin=commandEvent.getOrigin();
-        if(null==origin||origin.isEmpty()){
-            origin=deviceEUI;
+        String origin = commandEvent.getOrigin();
+        if (null == origin || origin.isEmpty()) {
+            origin = deviceEUI;
         }
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             pst.setLong(1, commandEvent.getId());
@@ -2122,15 +2133,15 @@ public class H2RemoteIotDataDB extends H2RemoteDB
 
     @Override
     public long getMaxCommandId() throws ThingsDataException {
-        String query="SELECT MAX(mid) "
-        +"FROM (SELECT max(id) as mid FROM commands"
-        +" UNION ALL"
-        +" SELECT max(id) as mid FROM commandslog)";
+        String query = "SELECT MAX(mid) "
+                + "FROM (SELECT max(id) as mid FROM commands"
+                + " UNION ALL"
+                + " SELECT max(id) as mid FROM commandslog)";
         long result = 0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                result=rs.getLong(1);
+                result = rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2138,17 +2149,18 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
         return result;
     }
+
     @Override
     public long getMaxCommandId(String deviceEui) throws ThingsDataException {
-        String query="SELECT MAX(mid) "
-        +"FROM (SELECT max(id) as mid FROM commands WHERE origin like '%@"+deviceEui+"'"
-        +" UNION ALL"
-        +" SELECT max(id) as mid FROM commandslog WHERE origin like '%@"+deviceEui+"')";
+        String query = "SELECT MAX(mid) "
+                + "FROM (SELECT max(id) as mid FROM commands WHERE origin like '%@" + deviceEui + "'"
+                + " UNION ALL"
+                + " SELECT max(id) as mid FROM commandslog WHERE origin like '%@" + deviceEui + "')";
         long result = 0;
         try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                result=rs.getLong(1);
+                result = rs.getLong(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2758,7 +2770,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     public void updateDeviceStatus(String eui, Long lastSeen, Long lastFrame, Integer alertStatus, Double status,
             Integer statusExt, String downlink) throws ThingsDataException {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

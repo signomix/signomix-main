@@ -39,7 +39,6 @@ public class ApplicationModule {
 
     private boolean isAdmin(RequestObject request) {
         List<String> requesterRoles = request.headers.get("X-user-role");
-        // String requesterRole = request.headers.getFirst("X-user-role");
         boolean admin = false;
         for (int i = 0; i < requesterRoles.size(); i++) {
             if ("admin".equals(requesterRoles.get(i))) {

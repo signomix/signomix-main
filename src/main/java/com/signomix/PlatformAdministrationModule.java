@@ -503,7 +503,7 @@ public class PlatformAdministrationModule {
                 if (null == iotDB.getDeviceChannels("IOT-EMULATOR")) {
                     iotDB.updateDeviceChannels(device, null);
                 }
-                if (null == iotDB.getDashboard("tester1", "IOT-EMULATOR")) {
+                if (null == iotDB.getDashboard("tester1", "IOT-EMULATOR", true)) {
                     iotDB.addDashboard(dashboard);
                 }
                 if (null == iotDB.getGroup("test")) {

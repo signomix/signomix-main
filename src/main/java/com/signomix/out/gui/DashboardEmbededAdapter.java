@@ -27,7 +27,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
 
     private String helperAdapterName;
     private String userAdapterName;
-    //private KeyValueDBIface database = null;
+    // private KeyValueDBIface database = null;
     private UserAdapterIface userAdapter = null;
 
     @Override
@@ -38,12 +38,15 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         Kernel.getInstance().getLogger().print("\thelper-name2: " + userAdapterName);
     }
 
-    /*private KeyValueDBIface getDatabase() {
-        if (database == null) {
-            database = (KeyValueDBIface) Kernel.getInstance().getAdaptersMap().get(helperAdapterName);
-        }
-        return database;
-    }*/
+    /*
+     * private KeyValueDBIface getDatabase() {
+     * if (database == null) {
+     * database = (KeyValueDBIface)
+     * Kernel.getInstance().getAdaptersMap().get(helperAdapterName);
+     * }
+     * return database;
+     * }
+     */
 
     private IotDatabaseIface getIotDB() {
         return (IotDatabaseIface) Kernel.getInstance().getAdaptersMap().get(helperAdapterName);
@@ -57,7 +60,8 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public void addDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter) throws DashboardException {
+    public void addDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter)
+            throws DashboardException {
         if (!userID.equals(dashboard.getUserID())) {
             throw new DashboardException(DashboardException.NOT_AUTHORIZED, "user IDs not match");
         }
@@ -67,7 +71,8 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
             }
             if (dashboard.isShared()) {
                 dashboard.setSharedToken(createSharedToken(userID, dashboard.getId(), authAdapter));
-                Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
+                Kernel.getInstance()
+                        .dispatchEvent(new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
             }
             getIotDB().addDashboard(dashboard);
         } catch (ThingsDataException ex) {
@@ -76,23 +81,26 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public void modifyDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter) throws DashboardException {
+    public void modifyDashboard(String userID, Dashboard dashboard, AuthAdapterIface authAdapter, boolean adminRole)
+            throws DashboardException {
         if (!dashboard.getUserID().isEmpty() && !userID.equals(dashboard.getUserID())) {
             throw new DashboardException(DashboardException.NOT_AUTHORIZED, "user IDs not match");
         }
         Dashboard original;
         try {
-            original = getIotDB().getDashboard(userID, dashboard.getId());
+            original = getIotDB().getDashboard(userID, dashboard.getId(), adminRole);
             if (original == null) {
                 throw new DashboardException(DashboardException.NOT_FOUND, "dashboard ID not found");
-            }else if(!original.getUserID().isEmpty()){
-                dashboard.setUserID(original.getUserID()); //UserID override protection if modified by the admin.
+            } else if (!original.getUserID().isEmpty()) {
+                dashboard.setUserID(original.getUserID()); // UserID override protection if modified by the admin.
             }
             if (original.isShared() && !dashboard.isShared()) {
-                Kernel.getInstance().handle((Event) new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));
+                Kernel.getInstance()
+                        .handle((Event) new IotEvent(IotEvent.DASHBOARD_UNSHARED, this, original.getSharedToken()));
             } else if (dashboard.isShared() && !original.isShared()) {
                 dashboard.setSharedToken(createSharedToken(userID, dashboard.getId(), authAdapter));
-                Kernel.getInstance().handle((Event) new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
+                Kernel.getInstance()
+                        .handle((Event) new IotEvent(IotEvent.DASHBOARD_SHARED, this, dashboard.getSharedToken()));
             } else if (dashboard.isShared() && original.isShared()) {
                 dashboard.setSharedToken(original.getSharedToken());
             }
@@ -105,7 +113,7 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     @Override
     public void removeDashboard(String userID, String dashboardID) throws DashboardException {
         try {
-            Dashboard d = getIotDB().getDashboard(userID, dashboardID);
+            Dashboard d = getIotDB().getDashboard(userID, dashboardID, false);
             getIotDB().removeDashboard(userID, dashboardID);
             if (d != null && d.isShared()) {
                 Kernel.getInstance().dispatchEvent(new IotEvent(IotEvent.DASHBOARD_REMOVED, this, d.getSharedToken()));
@@ -116,9 +124,9 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public Dashboard getDashboard(String userId, String dashboardID) throws DashboardException {
+    public Dashboard getDashboard(String userId, String dashboardID, boolean adminRole) throws DashboardException {
         try {
-            return getIotDB().getDashboard(userId, dashboardID);
+            return getIotDB().getDashboard(userId, dashboardID, adminRole);
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
@@ -134,24 +142,26 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public List<Dashboard> getUserDashboards(String userID) throws DashboardException {
+    public List<Dashboard> getUserDashboards(String userID, boolean adminRole) throws DashboardException {
         try {
-            return getIotDB().getUserDashboards(userID, true);
+            return getIotDB().getUserDashboards(userID, true, adminRole);
         } catch (ThingsDataException ex) {
             throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
         }
     }
 
     /*
-    @Override
-    public boolean isAuthorized(String userID, String dashboardID) throws DashboardException {
-        try {
-            return getIotDB().isAuthorized(userID, dashboardID);
-        } catch (ThingsDataException ex) {
-            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
-        }
-    }
-*/
+     * @Override
+     * public boolean isAuthorized(String userID, String dashboardID) throws
+     * DashboardException {
+     * try {
+     * return getIotDB().isAuthorized(userID, dashboardID);
+     * } catch (ThingsDataException ex) {
+     * throw new DashboardException(DashboardException.HELPER_EXCEPTION,
+     * ex.getMessage());
+     * }
+     * }
+     */
 
     @Override
     public void removeUserDashboards(String userID) throws DashboardException {
@@ -163,17 +173,22 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
     }
 
     @Override
-    public Map<String, Dashboard> getUserDashboardsMap(String userID) throws DashboardException {
-        //TODO: team allowed to use dashboard
+    public Map<String, Dashboard> getUserDashboardsMap(String userID, boolean adminRole) throws DashboardException {
+        // TODO: team allowed to use dashboard
         HashMap<String, Dashboard> map = new HashMap();
-        List<Dashboard> list = getUserDashboards(userID);
-        for (int i = 0; i < list.size(); i++) {
-            map.put(list.get(i).getId(), list.get(i));
+        try {
+            List<Dashboard> list = getUserDashboards(userID, adminRole);
+            for (int i = 0; i < list.size(); i++) {
+                map.put(list.get(i).getId(), list.get(i));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return map;
     }
 
-    private String createSharedToken(String userID, String dashboardID, AuthAdapterIface authAdapter) throws DashboardException {
+    private String createSharedToken(String userID, String dashboardID, AuthAdapterIface authAdapter)
+            throws DashboardException {
         try {
             return authAdapter.createPermanentToken("public", userID, true, dashboardID).getToken();
         } catch (AuthException ex) {

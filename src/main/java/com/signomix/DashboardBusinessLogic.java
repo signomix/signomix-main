@@ -4,18 +4,21 @@
  */
 package com.signomix;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.signomix.out.gui.Dashboard;
-import com.signomix.out.gui.DashboardException;
+import java.util.List;
+
 import org.cricketmsf.Event;
+import org.cricketmsf.Kernel;
 import org.cricketmsf.RequestObject;
 import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
+import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.signomix.out.gui.Dashboard;
 import com.signomix.out.gui.DashboardAdapterIface;
+import com.signomix.out.gui.DashboardException;
 import com.signomix.out.iot.ThingsDataException;
 import com.signomix.out.iot.ThingsDataIface;
-import org.cricketmsf.Kernel;
-import org.cricketmsf.microsite.out.auth.AuthAdapterIface;
 
 /**
  *
@@ -32,6 +35,18 @@ public class DashboardBusinessLogic {
         return service;
     }
 
+    private boolean isAdmin(RequestObject request) {
+        List<String> requesterRoles = request.headers.get("X-user-role");
+        boolean admin = false;
+        for (int i = 0; i < requesterRoles.size(); i++) {
+            if ("admin".equals(requesterRoles.get(i))) {
+                admin = true;
+                break;
+            }
+        }
+        return admin;
+    }
+
     /**
      *
      */
@@ -41,6 +56,7 @@ public class DashboardBusinessLogic {
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
         String userID = request.headers.getFirst("X-user-id");
+        boolean admin=isAdmin(request);
         String dashboardId = request.pathExt; //
         boolean byName = Boolean.parseBoolean((String) request.parameters.getOrDefault("name", ""));
         if (userID == null || userID.isEmpty()) {
@@ -54,14 +70,13 @@ public class DashboardBusinessLogic {
             switch (request.method.toUpperCase()) {
                 case "GET":
                     if (dashboardId.isEmpty()) {
-                        //result.setData(dashboardAdapter.getUserDashboards(userID));
-                        result.setData(dashboardAdapter.getUserDashboardsMap(userID));
+                        result.setData(dashboardAdapter.getUserDashboardsMap(userID, admin));
                     } else {
                         if (byName) {
                             dashboardId=dashboardId.substring(0, dashboardId.length()-1);
                             result.setData(dashboardAdapter.getDashboardByName(userID, dashboardId));
                         } else {
-                            result.setData(dashboardAdapter.getDashboard(userID, dashboardId));
+                            result.setData(dashboardAdapter.getDashboard(userID, dashboardId,admin));
                         }
                     }
                     break;
@@ -73,7 +88,7 @@ public class DashboardBusinessLogic {
                     break;
                 case "PUT":
                     d = deserialize(userID, request);
-                    dashboardAdapter.modifyDashboard(userID, d.normalize(), authAdapter);
+                    dashboardAdapter.modifyDashboard(userID, d.normalize(), authAdapter, admin);
                     result.setCode(HttpAdapter.SC_OK);
                     result.setData(d);
                     break;
