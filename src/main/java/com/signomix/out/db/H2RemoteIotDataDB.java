@@ -20,23 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-import com.signomix.common.iot.ChannelData;
-import com.signomix.common.iot.Device;
-import com.signomix.common.iot.virtual.VirtualData;
-import com.signomix.out.db.dto.DeviceChannelDto;
-import com.signomix.out.db.dto.DeviceDataDto;
-import com.signomix.out.gui.Dashboard;
-import com.signomix.out.iot.Alert;
-import com.signomix.out.iot.DataQuery;
-import com.signomix.out.iot.DataQueryException;
-import com.signomix.out.iot.DeviceGroup;
-import com.signomix.out.iot.DeviceTemplate;
-import com.signomix.out.iot.ThingsDataException;
-import com.signomix.out.iot.application.Application;
-
 import org.cricketmsf.Adapter;
 import org.cricketmsf.Event;
 import org.cricketmsf.Kernel;
@@ -46,6 +29,24 @@ import org.cricketmsf.out.db.H2RemoteDB;
 import org.cricketmsf.out.db.KeyValueDBException;
 import org.cricketmsf.out.db.SqlDBIface;
 import org.slf4j.LoggerFactory;
+
+import com.cedarsoftware.util.io.JsonObject;
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+import com.signomix.common.iot.ChannelData;
+import com.signomix.common.iot.Device;
+import com.signomix.common.iot.virtual.VirtualData;
+import com.signomix.out.db.dto.DeviceChannelDto;
+import com.signomix.out.db.dto.DeviceDataDto;
+import com.signomix.out.gui.Dashboard;
+import com.signomix.out.gui.DashboardTemplate;
+import com.signomix.out.iot.Alert;
+import com.signomix.out.iot.DataQuery;
+import com.signomix.out.iot.DataQueryException;
+import com.signomix.out.iot.DeviceGroup;
+import com.signomix.out.iot.DeviceTemplate;
+import com.signomix.out.iot.ThingsDataException;
+import com.signomix.out.iot.application.Application;
 
 public class H2RemoteIotDataDB extends H2RemoteDB
         implements SqlDBIface, IotDbDataIface, ActuatorCommandsDBIface, IotDatabaseIface, IotDataStorageIface,
@@ -103,6 +104,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("code varchar,").append("decoder varchar,").append("description varchar,")
                 .append("tinterval bigint,").append("pattern varchar,").append("commandscript varchar,")
                 .append("producer varchar,").append("configuration varchar);");
+        sb.append("CREATE TABLE IF NOT EXISTS dashboardtemplates (").append("id varchar primary key,")
+                .append("title varchar,")
+                .append("widgets varchar);");
         sb.append("CREATE TABLE IF NOT EXISTS devices (")
                 .append("eui varchar primary key,").append("name varchar,")
                 .append("userid varchar,").append("type varchar,").append("team varchar,")
@@ -2771,6 +2775,25 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             Integer statusExt, String downlink) throws ThingsDataException {
         // TODO Auto-generated method stub
 
+    }
+
+    public DashboardTemplate getDashboardTemplate(String id)  throws ThingsDataException{
+        String query = "select id,title,widgets from dashboardtemplates where id=?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                DashboardTemplate template=new DashboardTemplate();
+                template.setId(id);
+                template.setTitle(rs.getString(2));
+                template.setWidgetsFromJson(rs.getString(3));
+                return template;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
     }
 
 }

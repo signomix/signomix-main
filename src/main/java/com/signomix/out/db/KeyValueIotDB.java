@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.signomix.common.iot.Device;
 import com.signomix.out.gui.Dashboard;
+import com.signomix.out.gui.DashboardTemplate;
 import com.signomix.out.iot.Alert;
 import com.signomix.out.iot.AlertOwnerComparator;
 import com.signomix.out.iot.DataQuery;
@@ -432,6 +433,11 @@ public class KeyValueIotDB extends KeyValueDB implements IotDatabaseIface {
     }
     @Override
     public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    @Override
+    public DashboardTemplate getDashboardTemplate(String id) throws ThingsDataException {
         // TODO Auto-generated method stub
         return null;
     }

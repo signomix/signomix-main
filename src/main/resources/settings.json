@@ -585,7 +585,8 @@
                     "interfaceName": "MailingIface",
                     "classFullName": "com.signomix.out.mailing.MailingAdapter",
                     "properties": {
-                        "reports-path": "/reports"
+                        "reports-path": "/reports",
+                        "welcome-document-id": "/mailing/automation/welcome"
                     }
                 },
                 {

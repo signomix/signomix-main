@@ -22,4 +22,5 @@ public interface DashboardAdapterIface {
     public List<Dashboard> getUserDashboards(String userID, boolean adminRole) throws DashboardException;
     public Map<String,Dashboard> getUserDashboardsMap(String userID, boolean adminRole) throws DashboardException;
     //public boolean isAuthorized(String userID, String dashboardID) throws DashboardException;
+    public DashboardTemplate getDashboardTemplate(String id) throws DashboardException;
 }

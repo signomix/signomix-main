@@ -11,6 +11,7 @@ import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.Dashboard;
 import com.signomix.out.gui.DashboardAdapterIface;
 import com.signomix.out.gui.DashboardException;
+import com.signomix.out.gui.DashboardTemplate;
 import com.signomix.out.gui.Widget;
 import com.signomix.out.iot.ActuatorDataIface;
 import com.signomix.out.iot.DeviceGroup;
@@ -121,16 +122,15 @@ public class PlatformAdministrationModule {
                     result = getNewCommandId(event.getRequestParameter("eui"));
                     break;
                 case "dbclean":
-                    // we want to run database maintenance in separated thread, so we need to fire event
+                    // we want to run database maintenance in separated thread, so we need to fire
+                    // event
                     Kernel.getInstance().dispatchEvent(
                             new Event(
                                     this.getClass().getSimpleName(),
                                     Event.CATEGORY_GENERIC,
                                     "CLEAR_DATA",
                                     "+5s",
-                                    event.getRequestParameter("category") + "," + event.getRequestParameter("type")
-                            )
-                    );
+                                    event.getRequestParameter("category") + "," + event.getRequestParameter("type")));
                     result.setCode(HttpAdapter.SC_ACCEPTED);
                     break;
                 case "shutdown":
@@ -142,9 +142,7 @@ public class PlatformAdministrationModule {
                                     Event.CATEGORY_GENERIC,
                                     "SHUTDOWN",
                                     "+5s",
-                                    ""
-                            )
-                    );
+                                    ""));
                     break;
                 default:
                     result.setCode(HttpAdapter.SC_BAD_REQUEST);
@@ -185,7 +183,7 @@ public class PlatformAdministrationModule {
 
     private StandardResult getNewCommandId(String deviceEui) {
         StandardResult result = new StandardResult();
-        result.setData(((Service)Kernel.getInstance()).getCommandId(deviceEui));
+        result.setData(((Service) Kernel.getInstance()).getCommandId(deviceEui));
         return result;
     }
 
@@ -216,13 +214,12 @@ public class PlatformAdministrationModule {
             KeyValueDBIface userDB,
             KeyValueDBIface authDB,
             /*
-            IotDatabaseIface thingsDB,
-            IotDataStorageIface iotDataDB,
-            ActuatorCommandsDBIface actuatorCommandsDB,
-            */
+             * IotDatabaseIface thingsDB,
+             * IotDataStorageIface iotDataDB,
+             * ActuatorCommandsDBIface actuatorCommandsDB,
+             */
             ShortenerDBIface shortenerDB,
-            IotDbDataIface iotDB
-    ) {
+            IotDbDataIface iotDB) {
 
         // SYSTEM key parameters and limits
         try {
@@ -250,11 +247,14 @@ public class PlatformAdministrationModule {
             backupFolder = backupFolder.concat(System.getProperty("file.separator"));
         }
         // web moduleName CACHE
-        /*try {
-            database.addTable("webcache", (int) getPlatformConfig().get("webCacheSize"), false);
-        } catch (ClassCastException | KeyValueDBException e) {
-            Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
-        }*/
+        /*
+         * try {
+         * database.addTable("webcache", (int) getPlatformConfig().get("webCacheSize"),
+         * false);
+         * } catch (ClassCastException | KeyValueDBException e) {
+         * Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+         * }
+         */
         // web moduleName CACHE
         try {
             database.addTable("webcache_pl", (int) getPlatformConfig().get("webCacheSize"), false);
@@ -299,13 +299,16 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
         }
         try {
-            String initialAdminEmail = (String) Kernel.getInstance().getProperties().getOrDefault("initial-admin-email", "");
-            String initialAdminPassword = (String) Kernel.getInstance().getProperties().getOrDefault("initial-admin-secret", "");
+            String initialAdminEmail = (String) Kernel.getInstance().getProperties().getOrDefault("initial-admin-email",
+                    "");
+            String initialAdminPassword = (String) Kernel.getInstance().getProperties()
+                    .getOrDefault("initial-admin-secret", "");
             if (initialAdminEmail.isEmpty() || initialAdminPassword.isEmpty()) {
-                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "initial-admin-email or initial-admin-secret properties not set. Stop the server now!"));
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(),
+                        "initial-admin-email or initial-admin-secret properties not set. Stop the server now!"));
             }
             User newUser;
-            //create admin account
+            // create admin account
             if (!userDB.containsKey("users", "admin")) {
                 newUser = new User();
                 newUser.setUid("admin");
@@ -315,12 +318,13 @@ public class PlatformAdministrationModule {
                 newUser.setPreferredLanguage("en");
                 newUser.setPassword(HashMaker.md5Java(initialAdminPassword));
                 Random r = new Random(System.currentTimeMillis());
-                newUser.setConfirmString(Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
+                newUser.setConfirmString(
+                        Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
                 // no confirmation necessary for initial admin account
                 newUser.setConfirmed(true);
                 userDB.put("users", newUser.getUid(), newUser);
             }
-            //create test account
+            // create test account
             if (!userDB.containsKey("users", "tester1")) {
                 newUser = new User();
                 newUser.setUid("tester1");
@@ -336,7 +340,7 @@ public class PlatformAdministrationModule {
                 newUser.setConfirmed(true);
                 userDB.put("users", newUser.getUid(), newUser);
             }
-            //create user demo
+            // create user demo
             if (Kernel.getInstance().getName().toLowerCase(Locale.getDefault()).contains("demo")) {
                 if (!userDB.containsKey("users", "demo")) {
                     newUser = new User();
@@ -354,7 +358,7 @@ public class PlatformAdministrationModule {
             }
 
             if (!userDB.containsKey("users", "public")) {
-                //create user public
+                // create user public
                 newUser = new User();
                 newUser.setUid("public");
                 newUser.setEmail("");
@@ -378,13 +382,19 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
         }
         try {
-            authDB.addTable("ptokens", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true); //permanent tokens used to share dashboard
+            authDB.addTable("ptokens",
+                    (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true); // permanent
+                                                                                                                   // tokens
+                                                                                                                   // used
+                                                                                                                   // to
+                                                                                                                   // share
+                                                                                                                   // dashboard
         } catch (ClassCastException | KeyValueDBException e) {
             Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
         }
 
         // IoT
-        //TODO: configurable number of devices
+        // TODO: configurable number of devices
         LinkedHashMap<String, Channel> channels;
         Channel ch;
 
@@ -511,58 +521,72 @@ public class PlatformAdministrationModule {
                 }
             } catch (ThingsDataException ex) {
                 ex.printStackTrace();
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
         /*
-        if (null!=thingsDB && null!=iotDataDB) {
-            try {
-                thingsDB.addTable("devicetemplates", 100, true);
-                thingsDB.addTable("devices", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-                thingsDB.addTable("dashboards", 3 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-                thingsDB.addTable("alerts", 100 * (int) platformConfig.get("maxUsers"), true);
-                thingsDB.addTable("groups", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-                iotDataDB.addTable("devicedata", 1000 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-                iotDataDB.addTable("devicechannels", 2 * (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-
-                thingsDB.addDeviceTemplate(template); //demo device
-                iotDataDB.updateDeviceChannels(device, null);
-                thingsDB.putDevice(device);
-                thingsDB.addDashboard(dashboard);
-                thingsDB.putGroup(dg);
-            } catch (ClassCastException | KeyValueDBException | ThingsDataException e) {
-                e.printStackTrace();
-                Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
-            } catch (Exception e) {
-                e.printStackTrace();
-                Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
-            }
-
-        }
-        
-
-        // IoT actuator commands (storing events with actuator commands)
-        if (actuatorCommandsDB != null) {
-            try {
-                actuatorCommandsDB.addTable("commands", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers"), true);
-            } catch (ClassCastException | KeyValueDBException e) {
-                e.printStackTrace();
-                Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-            try {
-                actuatorCommandsDB.addTable("commandslog", (int) platformConfig.get("primaryDevicesLimit") * (int) platformConfig.get("maxUsers") * 100, true);
-            } catch (ClassCastException | KeyValueDBException e) {
-                e.printStackTrace();
-                Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        */
+         * if (null!=thingsDB && null!=iotDataDB) {
+         * try {
+         * thingsDB.addTable("devicetemplates", 100, true);
+         * thingsDB.addTable("devices", 2 * (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers"), true);
+         * thingsDB.addTable("dashboards", 3 * (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers"), true);
+         * thingsDB.addTable("alerts", 100 * (int) platformConfig.get("maxUsers"),
+         * true);
+         * thingsDB.addTable("groups", (int) platformConfig.get("primaryDevicesLimit") *
+         * (int) platformConfig.get("maxUsers"), true);
+         * iotDataDB.addTable("devicedata", 1000 * (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers"), true);
+         * iotDataDB.addTable("devicechannels", 2 * (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers"), true);
+         * 
+         * thingsDB.addDeviceTemplate(template); //demo device
+         * iotDataDB.updateDeviceChannels(device, null);
+         * thingsDB.putDevice(device);
+         * thingsDB.addDashboard(dashboard);
+         * thingsDB.putGroup(dg);
+         * } catch (ClassCastException | KeyValueDBException | ThingsDataException e) {
+         * e.printStackTrace();
+         * Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
+         * } catch (Exception e) {
+         * e.printStackTrace();
+         * Kernel.handle(Event.logWarning(getClass().getSimpleName(), e.getMessage()));
+         * }
+         * 
+         * }
+         * 
+         * 
+         * // IoT actuator commands (storing events with actuator commands)
+         * if (actuatorCommandsDB != null) {
+         * try {
+         * actuatorCommandsDB.addTable("commands", (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers"), true);
+         * } catch (ClassCastException | KeyValueDBException e) {
+         * e.printStackTrace();
+         * Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+         * } catch (Exception e){
+         * e.printStackTrace();
+         * }
+         * try {
+         * actuatorCommandsDB.addTable("commandslog", (int)
+         * platformConfig.get("primaryDevicesLimit") * (int)
+         * platformConfig.get("maxUsers") * 100, true);
+         * } catch (ClassCastException | KeyValueDBException e) {
+         * e.printStackTrace();
+         * Kernel.handle(Event.logInfo(getClass().getSimpleName(), e.getMessage()));
+         * } catch (Exception e){
+         * e.printStackTrace();
+         * }
+         * }
+         */
 
         if (shortenerDB != null) {
             try {
@@ -570,7 +594,7 @@ public class PlatformAdministrationModule {
             } catch (KeyValueDBException ex) {
                 ex.printStackTrace();
                 Kernel.handle(Event.logInfo(getClass().getSimpleName(), ex.getMessage()));
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -590,13 +614,15 @@ public class PlatformAdministrationModule {
                 params = tasks[i].split(",");
                 if (params.length == 6) {
                     scheduler.handleEvent(
-                            new Event(params[1], params[2], params[3], params[4], params[5]).putName(params[0]), false, true);
+                            new Event(params[1], params[2], params[3], params[4], params[5]).putName(params[0]), false,
+                            true);
                 }
             }
         }
     }
 
-    public void buildDefaultDashboard(String deviceId, ThingsDataIface thingsAdapter, DashboardAdapterIface dashboardAdapter, AuthAdapterIface authAdapter) {
+    public void buildDefaultDashboard(String deviceId, ThingsDataIface thingsAdapter,
+            DashboardAdapterIface dashboardAdapter, AuthAdapterIface authAdapter) {
         Device device = null;
         try {
             device = thingsAdapter.getDevice(deviceId);
@@ -608,24 +634,36 @@ public class PlatformAdministrationModule {
             return;
         }
 
-        Dashboard dashboard = new Dashboard(deviceId);
-        Widget widget;
-        Channel chnl;
-        HashMap channels = device.getChannels();
-        Iterator itr = channels.keySet().iterator();
-        while (itr.hasNext()) {
-            chnl = (Channel) channels.get(itr.next());
-            widget = new Widget();
-            widget.setName(chnl.getName());
-            widget.setTitle(chnl.getName());
-            widget.setType("symbol");
-            widget.setDev_id(deviceId);
-            widget.setChannel(chnl.getName());
-            widget.setQuery("");
-            widget.setRange("");
-            widget.setDescription("");
-            widget.setUnitName(guessChannelUnit(chnl.getName()));
-            dashboard.addWidget(widget);
+        String dashboardTemplateId = device.getTemplate();
+        Dashboard dashboard = new Dashboard(device.getEUI());
+        DashboardTemplate dTemplate=null;
+        if (null != dashboardTemplateId) {
+            try {
+                dTemplate = dashboardAdapter.getDashboardTemplate(dashboardTemplateId);
+                dashboard.applyTemplate(dTemplate, deviceId);
+            } catch (DashboardException ex) {
+                Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
+            }
+        } 
+        if(null==dTemplate) {
+            Widget widget;
+            Channel chnl;
+            HashMap channels = device.getChannels();
+            Iterator itr = channels.keySet().iterator();
+            while (itr.hasNext()) {
+                chnl = (Channel) channels.get(itr.next());
+                widget = new Widget();
+                widget.setName(chnl.getName());
+                widget.setTitle(chnl.getName());
+                widget.setType("symbol");
+                widget.setDev_id(deviceId);
+                widget.setChannel(chnl.getName());
+                widget.setQuery("");
+                widget.setRange("");
+                widget.setDescription("");
+                widget.setUnitName(guessChannelUnit(chnl.getName()));
+                dashboard.addWidget(widget);
+            }
         }
         dashboard.setName(deviceId);
         dashboard.setId(deviceId);
@@ -656,11 +694,12 @@ public class PlatformAdministrationModule {
             KeyValueDBIface userDB,
             KeyValueDBIface authDB,
             KeyValueDBIface cmsDB,
-            /*IotDatabaseIface thingsDB,
-            IotDataStorageIface iotDataDB,
-            ActuatorCommandsDBIface actuatorCommandsDB,*/
-            IotDbDataIface iotDB
-    ) {
+            /*
+             * IotDatabaseIface thingsDB,
+             * IotDataStorageIface iotDataDB,
+             * ActuatorCommandsDBIface actuatorCommandsDB,
+             */
+            IotDbDataIface iotDB) {
         String prefix = backupDaily ? getDateString() : "";
         try {
             database.backup(backupFolder + prefix + database.getBackupFileName());
@@ -683,43 +722,44 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
         }
         /*
-        if(null!=thingsDB){
-        try {
-            thingsDB.backup(backupFolder + prefix + thingsDB.getBackupFileName());
-        } catch (KeyValueDBException ex) {
-            Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+         * if(null!=thingsDB){
+         * try {
+         * thingsDB.backup(backupFolder + prefix + thingsDB.getBackupFileName());
+         * } catch (KeyValueDBException ex) {
+         * Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+         * }
+         * }
+         * if(null!=iotDataDB){
+         * try {
+         * iotDataDB.backup(backupFolder + prefix + iotDataDB.getBackupFileName());
+         * } catch (KeyValueDBException ex) {
+         * Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+         * }
+         * }
+         * if(null!=actuatorCommandsDB){
+         * try {
+         * actuatorCommandsDB.backup(backupFolder + prefix +
+         * actuatorCommandsDB.getBackupFileName());
+         * } catch (KeyValueDBException ex) {
+         * Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+         * }
+         * }
+         */
+        if (null != iotDB) {
+            try {
+                iotDB.backup(backupFolder + prefix + iotDB.getBackupFileName());
+            } catch (KeyValueDBException ex) {
+                Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
+            }
         }
-        }
-        if(null!=iotDataDB){
-        try {
-            iotDataDB.backup(backupFolder + prefix + iotDataDB.getBackupFileName());
-        } catch (KeyValueDBException ex) {
-            Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
-        }
-        }
-        if(null!=actuatorCommandsDB){
-        try {
-            actuatorCommandsDB.backup(backupFolder + prefix + actuatorCommandsDB.getBackupFileName());
-        } catch (KeyValueDBException ex) {
-            Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
-        }
-        }
-        */
-        if(null!=iotDB){
-        try {
-            iotDB.backup(backupFolder + prefix + iotDB.getBackupFileName());
-        } catch (KeyValueDBException ex) {
-            Kernel.handle(Event.logSevere(this, "backup error - " + ex.getMessage()));
-        }
-        }
-        //TODO: scheduler
-        //TODO: queue DB
+        // TODO: scheduler
+        // TODO: queue DB
         Kernel.handle(Event.logInfo(this, "database backup done"));
     }
 
     public void clearUserData(String userId) {
         Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), "method clearUserData not implemented"));
-        //devices, channels, dashboards, alerts
+        // devices, channels, dashboards, alerts
     }
 
     public void clearData(
@@ -733,7 +773,7 @@ public class PlatformAdministrationModule {
             DashboardAdapterIface dashboardAdapter,
             ActuatorDataIface actuatorAdapter) {
 
-        //System.out.println("CLEARDATA:" + dataCategory + "," + userType);
+        // System.out.println("CLEARDATA:" + dataCategory + "," + userType);
         clearExpiredTokens(database);
         if (demoMode) {
             clearAllUsersData(userType, dataCategory, userAdapter, thingsAdapter, dashboardAdapter, actuatorAdapter);
@@ -867,7 +907,7 @@ public class PlatformAdministrationModule {
 
     private void clearAllUsersData(String userType, String dataCategory, UserAdapterIface userAdapter,
             ThingsDataIface thingsAdapter, DashboardAdapterIface dashboardAdapter, ActuatorDataIface actuatorAdapter) {
-        //clear user data (cascade: alerts, devices, dashboards, users)
+        // clear user data (cascade: alerts, devices, dashboards, users)
         int userTypeToRemove = -1;
         switch (userType.toUpperCase()) {
             case "USER":
@@ -913,7 +953,8 @@ public class PlatformAdministrationModule {
                             dashboardAdapter.removeUserDashboards(uid);
                         }
                         devices = thingsAdapter.getUserDevices(uid, -1, false);
-                        if ("ALL".equalsIgnoreCase(dataCategory) || "CHANNELS".equalsIgnoreCase(dataCategory) || "DEVICES".equalsIgnoreCase(dataCategory)) {
+                        if ("ALL".equalsIgnoreCase(dataCategory) || "CHANNELS".equalsIgnoreCase(dataCategory)
+                                || "DEVICES".equalsIgnoreCase(dataCategory)) {
                             for (int j = 0; j < devices.size(); j++) {
                                 thingsAdapter.removeAllChannels(devices.get(j).getEUI());
                             }
@@ -941,8 +982,9 @@ public class PlatformAdministrationModule {
             String uid;
             while (it.hasNext()) {
                 uid = (String) it.next();
-                //remove users when registration is not confirmed after two days
-                if (!((User) users.get(uid)).isConfirmed() && (System.currentTimeMillis() - ((User) users.get(uid)).getCreatedAt() > TWO_DAYS)) {
+                // remove users when registration is not confirmed after two days
+                if (!((User) users.get(uid)).isConfirmed()
+                        && (System.currentTimeMillis() - ((User) users.get(uid)).getCreatedAt() > TWO_DAYS)) {
                     userAdapter.remove((String) uid);
                 }
             }
@@ -959,7 +1001,8 @@ public class PlatformAdministrationModule {
      * @param thingsAdapter
      * @param dashboardAdapter
      */
-    private void clearOldData(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
+    private void clearOldData(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter,
+            ActuatorDataIface actuatorAdapter) {
         // data retention
         // how long data is kept in signomix depends on user userType
         long ONE_DAY = 24 * 3600 * 1000;
@@ -1013,7 +1056,8 @@ public class PlatformAdministrationModule {
                 }
             }
         } catch (ClassCastException | UserException | ThingsDataException ex) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName() + ".clearOldData()", ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(
+                    Event.logSevere(this.getClass().getSimpleName() + ".clearOldData()", ex.getMessage()));
             ex.printStackTrace();
         }
     }
@@ -1026,7 +1070,8 @@ public class PlatformAdministrationModule {
      * @param thingsAdapter
      * @param dashboardAdapter
      */
-    private void clearDataExceedingLimit(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter, ActuatorDataIface actuatorAdapter) {
+    private void clearDataExceedingLimit(boolean demoMode, UserAdapterIface userAdapter, ThingsDataIface thingsAdapter,
+            ActuatorDataIface actuatorAdapter) {
         try {
             Map users = userAdapter.getAll();
             List<Device> devices;
@@ -1073,7 +1118,8 @@ public class PlatformAdministrationModule {
                 }
             }
         } catch (ClassCastException | UserException | ThingsDataException ex) {
-            Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName() + ".clearTooMuchData()", ex.getMessage()));
+            Kernel.getInstance().dispatchEvent(
+                    Event.logSevere(this.getClass().getSimpleName() + ".clearTooMuchData()", ex.getMessage()));
             ex.printStackTrace();
         }
     }

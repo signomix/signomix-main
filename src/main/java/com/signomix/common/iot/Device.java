@@ -94,9 +94,9 @@ public class Device {
         deviceID = "";
         project = "";
         active = true;
-        latitude = 100000d;
-        longitude = 100000d;
-        altitude = 100000d;
+        latitude = 0d;
+        longitude = 0d;
+        altitude = 0d;
         state = 0d;
         administrators="";
         configuration=null;

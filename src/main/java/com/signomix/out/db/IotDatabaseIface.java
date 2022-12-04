@@ -6,6 +6,7 @@ package com.signomix.out.db;
 
 import com.signomix.common.iot.Device;
 import com.signomix.out.gui.Dashboard;
+import com.signomix.out.gui.DashboardTemplate;
 import com.signomix.out.iot.DataQuery;
 import com.signomix.out.iot.DeviceGroup;
 import com.signomix.out.iot.DeviceTemplate;
@@ -106,4 +107,6 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     public void setDeviceStatus(String eui, long lastSeen, long frameCounter, String downlink, int alertStatus, String deviceID) throws ThingsDataException;
     
     public void setDeviceAlertStatus(String eui, int status) throws ThingsDataException;
+
+    public DashboardTemplate getDashboardTemplate(String id)  throws ThingsDataException;
 }

@@ -4,6 +4,8 @@
 */
 package com.signomix.out.gui;
 
+import java.text.Format;
+
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -15,6 +17,7 @@ public class Widget {
     private String name;
     private String dev_id;
     private String channel;
+    private String channelTranslated;
     private String type;
     private String query;
     private String range;
@@ -23,13 +26,106 @@ public class Widget {
     private String unitName;
     private int width;
     private String group;
+    private boolean modified;
+    private String chartOption;
+    private String app_id;
+    private String format;
+    private String commandType;
+    private String role;
+    private String unit;
+    private String rounding;
+    private String icon;
+    private String config;
     
     public Widget(){
         width=1;
+        modified=false;
     }
     
     public Widget(String userID, String name){
         width=1;
+        modified=false;
+    }
+    
+
+    public String getChartOption() {
+        return chartOption;
+    }
+
+    public void setChartOption(String chartOption) {
+        this.chartOption = chartOption;
+    }
+
+    public String getApp_id() {
+        return app_id;
+    }
+
+    public void setApp_id(String app_id) {
+        this.app_id = app_id;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getCommandType() {
+        return commandType;
+    }
+
+    public void setCommandType(String commandType) {
+        this.commandType = commandType;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String getRounding() {
+        return rounding;
+    }
+
+    public void setRounding(String rounding) {
+        this.rounding = rounding;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config;
+    }
+
+    public String getChannelTranslated() {
+        return channelTranslated;
+    }
+
+    public void setChannelTranslated(String channelTranslated) {
+        this.channelTranslated = channelTranslated;
     }
 
     /**
@@ -202,6 +298,14 @@ public class Widget {
     
     public void normalize(){
         setChannel(channel);
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 
 }

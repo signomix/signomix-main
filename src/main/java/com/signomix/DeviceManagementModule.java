@@ -19,6 +19,7 @@ import org.cricketmsf.in.http.HttpAdapter;
 import org.cricketmsf.in.http.StandardResult;
 import org.cricketmsf.microsite.out.user.UserAdapterIface;
 import org.cricketmsf.microsite.out.user.UserException;
+import org.cricketmsf.microsite.user.OrganizationAdapterIface;
 import org.cricketmsf.microsite.user.User;
 import org.cricketmsf.out.OutboundAdapter;
 
@@ -56,7 +57,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
      *
      */
     @Override
-    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+    public Object processDeviceEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, OrganizationAdapterIface organizations, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -219,14 +220,18 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                         } else {
                             try {
-                                thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty());
-                                if (!secret.isEmpty()) {
+                                if(null==organizations.getOrganization(device.getOrganizationId())){
+                                    result.setCode(409);
+                                    return result;
+                                }
+                                thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty()); //TODO: error when updating device
+                                if (!secret.isEmpty()) { 
                                     user.setOrganization(device.getOrganizationId());
-                                    users.modify(user);
+                                    users.modify(user); //TODO: error when updating device
                                 }
                                 sendToQueue(EventEnvelope.DEVICE, device.getEUI(), "update");
 
-                            } catch (ThingsDataException | UserException ex) {
+                            } catch (ThingsDataException | UserException  ex) {
                                 ex.printStackTrace();
                                 Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
                                 StackTraceElement[] ste = ex.getStackTrace();
@@ -234,8 +239,13 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                                     String msg = "." + ste[i].getMethodName() + ":" + ste[i].getLineNumber();
                                     Kernel.handle(Event.logWarning(ste[i].getClassName(), msg));
                                 }
-
-                                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                                String msg=ex.getMessage().toUpperCase();
+                                if(msg.contains("REFERENTIAL INTEGRITY CONSTRAINT VIOLATION")
+                                && (msg.contains("APPLICATIONS(ID)") || msg.contains("ORGANIZATIONS(ID)") )){
+                                    result.setCode(409);
+                                }else{
+                                    result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                                }
                             }
                         }
                         break;
@@ -275,7 +285,8 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         ((Service) Kernel.getInstance()).messageBroker.send(eventWrapper);
     }
 
-    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+    @Override
+    public Object processTemplateEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, OrganizationAdapterIface organizations, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -301,7 +312,8 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         return result;
     }
 
-    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+    @Override
+    public Object processGroupEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, OrganizationAdapterIface organizations, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -429,7 +441,8 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         return result;
     }
 
-    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, PlatformAdministrationModule platform) {
+    @Override
+    public Object processGroupPublicationEvent(Event event, ThingsDataIface thingsAdapter, UserAdapterIface users, OrganizationAdapterIface organizations, PlatformAdministrationModule platform) {
         // TODO: exception handling - send 400 or 403
         RequestObject request = event.getRequest();
         StandardResult result = new StandardResult();
@@ -565,6 +578,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
             device.setCheckFrames(original.isCheckFrames());
             device.setOrgApplicationId(original.getOrgApplicationId());
             device.setConfiguration(original.getConfiguration());
+            device.setTemplate(original.getTemplate());
         } else {
             Random r = new Random(System.currentTimeMillis());
             device.setKey(Base64.getEncoder().withoutPadding().encodeToString(("" + r.nextLong()).getBytes()));
@@ -572,6 +586,13 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         String newType = (String) request.parameters.getOrDefault("type", "");
         if (!newType.isEmpty()) {
             device.setType(newType);
+        }
+        if (null != userID && !userID.isEmpty()) {
+            device.setUserID(userID);
+        }
+        String newTemplate = (String) request.parameters.getOrDefault("template", "");
+        if (!newTemplate.isEmpty()) {
+            device.setTemplate(newTemplate);
         }
         if (null != userID && !userID.isEmpty()) {
             device.setUserID(userID);

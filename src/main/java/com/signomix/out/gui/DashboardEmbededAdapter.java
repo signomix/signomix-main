@@ -196,4 +196,13 @@ public class DashboardEmbededAdapter extends OutboundAdapter implements Adapter,
         }
     }
 
+    @Override
+    public DashboardTemplate getDashboardTemplate(String id) throws DashboardException {
+        try {
+            return getIotDB().getDashboardTemplate(id);
+        } catch (ThingsDataException ex) {
+            throw new DashboardException(DashboardException.HELPER_EXCEPTION, ex.getMessage());
+        }
+    }
+
 }

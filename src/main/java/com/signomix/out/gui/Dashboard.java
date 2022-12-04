@@ -36,6 +36,14 @@ public class Dashboard {
         widgets = new ArrayList<>();
     }
 
+    public void applyTemplate(DashboardTemplate template, String deviceEui){
+        ArrayList<Widget> widgets=template.getWidgets();
+        widgets.forEach(widget->{
+            widget.setDev_id(deviceEui);
+        });
+        setWidgets(widgets);
+    }
+
     public void addWidget(Widget widget) {
         widgets.add(widget);
     }
