@@ -34,25 +34,17 @@ import com.signomix.out.notification.dto.EventEnvelope;
  *
  * @author Grzegorz Skorupa <g.skorupa at gmail.com>
  */
-public class DeviceManagementModule extends OutboundAdapter implements DeviceManagementLogicIface, Adapter{
+public class DeviceManagementModule extends OutboundAdapter implements DeviceManagementLogicIface, Adapter {
 
     private static DeviceManagementModule service;
 
     private long DEFAULT_GROUP_INTERVAL = 60 * 60 * 1000; // 60 MINUT
 
-    /* 
-    public static DeviceManagementModule getInstance() {
-        if (service == null) {
-            service = new DeviceManagementModule();
-        }
-        return service;
-    }
-    */
-
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
         super.loadProperties(properties, adapterName);
     }
+
     /**
      *
      */
@@ -207,25 +199,26 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                             result.setCode(HttpAdapter.SC_BAD_REQUEST);
                         }
                         Device device;
+                        Device actualDevice;
                         if (secret.isEmpty()) {
-                            device = buildDevice(request, userID, organization,
-                                    getDevice(userID, tmpUserType, pathExt, thingsAdapter));
+                            actualDevice = getDevice(userID, tmpUserType, pathExt, thingsAdapter);
+                            device = buildDevice(request, userID, organization, actualDevice);
                         } else {
-                            device = buildDevice(request, userID, organization,
-                                    getDevice(pathExt, secret, thingsAdapter));
+                            actualDevice = getDevice(pathExt, secret, thingsAdapter);
+                            device = buildDevice(request, userID, organization, actualDevice);
                             device.setActive(true);
-
                         }
                         if (null == device) {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                         } else {
                             try {
                                 if(null==organizations.getOrganization(device.getOrganizationId())){
+                                    Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), "device organization not found, organizationId="+device.getOrganizationId()));
                                     result.setCode(409);
                                     return result;
                                 }
                                 thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty()); //TODO: error when updating device
-                                if (!secret.isEmpty()) { 
+                                if (!secret.isEmpty()) {
                                     user.setOrganization(device.getOrganizationId());
                                     users.modify(user); //TODO: error when updating device
                                 }
@@ -242,6 +235,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                                 String msg=ex.getMessage().toUpperCase();
                                 if(msg.contains("REFERENTIAL INTEGRITY CONSTRAINT VIOLATION")
                                 && (msg.contains("APPLICATIONS(ID)") || msg.contains("ORGANIZATIONS(ID)") )){
+                                    Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), "device organizationId="+device.getOrganizationId()+" "+msg));
                                     result.setCode(409);
                                 }else{
                                     result.setCode(HttpAdapter.SC_BAD_REQUEST);

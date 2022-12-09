@@ -245,7 +245,7 @@ public class H2RemoteUserDB extends H2RemoteDB implements SqlDBIface, Adapter {
             return map;
         } else if (tableName.equals("organizations")) {
             HashMap<String, Organization> map = new HashMap<>();
-            String query = "select id,name from organizations order by id asc";
+            String query = "select id,code,name,description from organizations order by id asc";
             try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
