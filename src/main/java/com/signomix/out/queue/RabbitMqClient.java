@@ -31,7 +31,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     private String notificationQueue = "notifications";
     private String mailingQueue = "mailing";
     private String adminEmailQueue = "admin_email";
-    private String eventsQueue = "events";
+    private String eventsExchange = "events";
 
     @Override
     public void loadProperties(HashMap<String, String> properties, String adapterName) {
@@ -121,7 +121,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
             return null;
         }
         try {
-            channel.basicPublish("events", "#", null, encodedMessage.getBytes());
+            channel.basicPublish(eventsExchange, "#", null, encodedMessage.getBytes());
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -152,6 +152,9 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
                 sendNotification(encodedMessage);
                 break;
             case "MAILING":
+                sendMailing(encodedMessage);
+                break;
+            case "NEXTMAILING":
                 sendMailing(encodedMessage);
                 break;
             case "ADMIN_EMAIL":

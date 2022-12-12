@@ -4,6 +4,8 @@
  */
 package com.signomix;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -63,15 +65,34 @@ public class UserModule extends UserBusinessLogic {
         String requesterID = request.headers.getFirst("X-user-id");
         String requesterRole = request.headers.getFirst("X-user-role");
         long userNumber = -1;
+        String role=(String) request.parameters.getOrDefault("role", "");
         try {
             userNumber = Long.parseLong((String) request.parameters.getOrDefault("n", ""));
         } catch (ClassCastException | NumberFormatException e) {
         }
         StandardResult result = new StandardResult();
         try {
-            if (uid.isEmpty() && "admin".equals(requesterRole)) {
-                Map m = userAdapter.getAll();
-                result.setData(m);
+            if (uid.isEmpty() && ("admin".equals(requesterRole)||"externalService".equalsIgnoreCase(uid))) {
+                if(role.isEmpty()){
+                    Map m = userAdapter.getAll();
+                    result.setData(m);
+                }else{
+                    Map m = userAdapter.getAll();
+                    ArrayList<User> list=new ArrayList<>();
+                    Iterator it=m.keySet().iterator();
+                    User u;
+                    while(it.hasNext()){
+                        u=(User)m.get(it.next());
+                        if("nosub".equalsIgnoreCase(role) && !u.hasRole("subscriber")){
+                            list.add(u);
+                        }else if("*".equals(role)){
+                            list.add(u);
+                        }else if(u.hasRole(role)){
+                            list.add(u);
+                        }
+                    }
+                    result.setData(list);
+                }
             } else if (uid.equals(requesterID) || "admin".equals(requesterRole)) {
                 User u = (User) userAdapter.get(uid);
                 result.setData(u);

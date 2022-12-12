@@ -49,11 +49,25 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         logger.info("\treports-language: " + reportLanguage);
         reportTesterRoleName = (String) properties.getOrDefault("tester-role-name", MAILING_TESTER_ROLE_NAME);
         logger.info("\ttester-role-name: " + reportTesterRoleName);
-        welcomeDocId=(String) properties.get("welcome-document-id");
+        welcomeDocId = (String) properties.get("welcome-document-id");
         logger.info("\twelcome-document-id: " + welcomeDocId);
     }
 
     @Override
+    public Object sendMailing(
+            String docUid,
+            String target,
+            UserAdapterIface userAdapter,
+            CmsIface cmsAdapter,
+            MessageBrokerIface externalNotificator) {
+                StandardResult result = new StandardResult();
+                User userStub=new User();
+                userStub.setRole(target);
+                send(userStub, docUid, externalNotificator);
+                return result;
+            }
+
+    /* @Override
     public Object sendMailing(
             String docUid,
             String target,
@@ -137,7 +151,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             return null;
         }
     }
-
+ */
     @Override
     public Object sendWelcomeDocument(
             User user,
@@ -202,7 +216,20 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
         }
     }
 
-    private boolean send(User user, Document doc, MessageBrokerIface externalNotificator) {
+    private boolean send(User userStub, String docUid, MessageBrokerIface externalNotificator) {
+        if (null == externalNotificator) {
+            return false;
+        }
+        MessageEnvelope envelope = new MessageEnvelope();
+        envelope.subject = "";
+        envelope.message = docUid;
+        envelope.user = userStub;
+        envelope.type = MessageEnvelope.NEXTMAILING;
+        externalNotificator.send(envelope);
+        return true;
+    }
+
+    /* private boolean send(User user, Document doc, MessageBrokerIface externalNotificator) {
         if (null == externalNotificator) {
             return false;
         }
@@ -228,7 +255,7 @@ public class MailingAdapter extends OutboundAdapter implements MailingIface, Ada
             logger.warn(ex.getMessage());
             return false;
         }
-    }
+    } */
 
     private boolean sendDocument(User user, Document doc, MessageBrokerIface externalNotificator) {
         if (null == externalNotificator) {
