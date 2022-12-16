@@ -668,10 +668,13 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                 ex.printStackTrace();
             }
         }
-        String newState = (String) request.parameters.getOrDefault("state", "");
-        if (newState != null && !newState.isEmpty()) {
+        String newStatus = (String) request.parameters.getOrDefault("status", "");
+        if(newStatus.isEmpty()){
+            newStatus = (String) request.parameters.getOrDefault("state", "");
+        }
+        if (newStatus != null && !newStatus.isEmpty()) {
             try {
-                device.setState(Double.parseDouble(newState.trim()));
+                device.setState(Double.parseDouble(newStatus.trim()));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
