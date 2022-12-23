@@ -302,14 +302,15 @@ public class Service extends Kernel {
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB,
                 shortenerDB, getIotDatabase());
         // PlatformAdministrationModule.getInstance().readPlatformConfig(database);
+        /* 
         Kernel.getInstance().handleEvent(
                 new Event(
                         this.getClass().getSimpleName(),
                         Event.CATEGORY_GENERIC,
                         "EMAIL_ADMIN_STARTUP",
                         "+30s",
-                        "Signomix service has been started."));
-
+                        "Signomix service has been started.")); 
+        */
         apiGenerator.init(this);
         setInitialized(true);
     }
@@ -335,7 +336,7 @@ public class Service extends Kernel {
 
     @Override
     public void shutdown() {
-        String subject = "Signomix - shutdown";
+        /* String subject = "Signomix - shutdown";
         String text = "Signomix service is going down.";
         if (null != messageBroker) {
             MessageEnvelope message = new MessageEnvelope();
@@ -346,7 +347,7 @@ public class Service extends Kernel {
             user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
             message.user = user;
             messageBroker.send(message);
-        }
+        } */
         super.shutdown();
     }
 
