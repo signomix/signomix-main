@@ -152,15 +152,21 @@ public class UserEventHandler {
         if (null == externalNotificator) {
             return;
         }
-        MailingIface mailingAdapter = ((Service) kernel).mailingAdapter;
-        CmsIface cmsAdapter = ((Service) kernel).cms;
         Long userNumber = (Long) event.getPayload();
+        /* MailingIface mailingAdapter = ((Service) kernel).mailingAdapter;
+        CmsIface cmsAdapter = ((Service) kernel).cms;
         try {
             User user = userAdapter.getByNumber(userNumber);
             mailingAdapter.sendWelcomeDocument(user, cmsAdapter, externalNotificator);
         } catch (UserException ex) {
             Kernel.getInstance().dispatchEvent(Event.logWarning("User not found", ex.getMessage()));
-        }
+        } */
+        MessageEnvelope envelope = new MessageEnvelope();
+            envelope.user = new User();
+            envelope.user.setNumber(userNumber);
+            envelope.type = MessageEnvelope.DIRECT_MAILING;
+            externalNotificator.send(envelope);
+            
     }
 
     private static void sendSubscriptionConfirmEmail(User user, Kernel kernel) {

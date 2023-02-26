@@ -46,6 +46,10 @@ public class UserModule extends UserBusinessLogic {
 
     private boolean isAdmin(RequestObject request) {
         List<String> requesterRoles = request.headers.get("X-user-role");
+        if(null==requesterRoles){
+            // in case of self registering
+            return false;
+        }
         // String requesterRole = request.headers.getFirst("X-user-role");
         boolean admin = false;
         for (int i = 0; i < requesterRoles.size(); i++) {
@@ -198,7 +202,7 @@ public class UserModule extends UserBusinessLogic {
             }
             if (null != status) {
                 newUser.setStatus(status);
-                if (newUser.getStatus() == User.IS_ACTIVE) {
+                if (newUser.getStatus() == User.IS_ACTIVE && admin) {
                     newUser.setConfirmed(true);
                     Kernel.getInstance()
                             .dispatchEvent(new UserEvent(UserEvent.USER_REG_CONFIRMED, newUser.getNumber()));
@@ -211,6 +215,10 @@ public class UserModule extends UserBusinessLogic {
                     Token token = authAdapter.createPermanentToken(newUser.getUid(), "", true, payload);
                     newUser.setConfirmString(token.getToken());
                 }
+            }else{
+                String payload = "";
+                    Token token = authAdapter.createPermanentToken(newUser.getUid(), "", true, payload);
+                    newUser.setConfirmString(token.getToken());
             }
             if (!valid) {
                 result.setCode(HttpAdapter.SC_BAD_REQUEST);

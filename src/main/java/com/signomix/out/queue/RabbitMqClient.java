@@ -29,8 +29,6 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     private String userName = "user";
     private String password = "user";
     private String notificationQueue = "notifications";
-    private String mailingQueue = "mailing";
-    private String adminEmailQueue = "admin_email";
     private String eventsExchange = "events";
 
     @Override
@@ -48,18 +46,14 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
         if (password.startsWith("$")) {
             this.password = System.getenv(password.substring(1));
         }
-        mailingQueue = properties.getOrDefault("queue-mailing", mailingQueue);
-        if (mailingQueue.startsWith("$")) {
-            this.mailingQueue = System.getenv(mailingQueue.substring(1));
-        }
         notificationQueue = properties.getOrDefault("queue-notifications", notificationQueue);
         if (notificationQueue.startsWith("$")) {
             this.notificationQueue = System.getenv(notificationQueue.substring(1));
         }
-        adminEmailQueue = properties.getOrDefault("queue-admin-email", adminEmailQueue);
+        /* adminEmailQueue = properties.getOrDefault("queue-admin-email", adminEmailQueue);
         if (adminEmailQueue.startsWith("$")) {
             this.adminEmailQueue = System.getenv(adminEmailQueue.substring(1));
-        }
+        } */
         try {
             String sPort = properties.getOrDefault("port", "" + port);
             if (sPort.startsWith("$")) {
@@ -73,8 +67,6 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
         Kernel.getInstance().getLogger().print("\tport: " + port);
         Kernel.getInstance().getLogger().print("\tuser: " + userName);
         Kernel.getInstance().getLogger().print("\tqueue-notification: " + notificationQueue);
-        Kernel.getInstance().getLogger().print("\tqueue-mailing: " + mailingQueue);
-        Kernel.getInstance().getLogger().print("\tqueue-admin-email: " + adminEmailQueue);
         init();
     }
 
@@ -151,15 +143,9 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
             case "DIRECT_EMAIL":
                 sendNotification(encodedMessage);
                 break;
-            case "MAILING":
-                sendMailing(encodedMessage);
-                break;
-            case "NEXTMAILING":
-                sendMailing(encodedMessage);
-                break;
-            case "ADMIN_EMAIL":
+            /* case "ADMIN_EMAIL":
                 sendAdminEmail(encodedMessage);
-                break;
+                break; */
             default:
                 break;
         }
@@ -180,20 +166,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
     }
 
     // @Override
-    private void sendMailing(String message) {
-        Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
-        while (!ready) {
-        }
-        try {
-            channel.basicPublish("", mailingQueue, null, message.getBytes());
-        } catch (IOException ex) {
-
-        }
-        Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
-    }
-
-    // @Override
-    private void sendAdminEmail(String message) {
+    /* private void sendAdminEmail(String message) {
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, message));
         while (!ready) {
         }
@@ -203,7 +176,7 @@ public class RabbitMqClient extends OutboundAdapter implements MessageBrokerIfac
 
         }
         Kernel.getInstance().dispatchEvent(Event.logInfo(this, "message sent"));
-    }
+    } */
 
     @Override
     public void destroy() {

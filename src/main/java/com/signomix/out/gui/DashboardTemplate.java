@@ -91,6 +91,7 @@ public class DashboardTemplate {
             w.setName((String) m.get("name"));
             w.setDev_id((String) m.get("dev_id"));
             w.setChannel((String) m.get("channel"));
+            w.setChartOption((String) m.get("chartOption"));
             w.setChannelTranslated((String) m.get("channelTranslated"));
             w.setType((String) m.get("type"));
             w.setTitle((String) m.get("title"));

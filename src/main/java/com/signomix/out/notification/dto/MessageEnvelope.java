@@ -15,6 +15,7 @@ public class MessageEnvelope {
     public static final String DIRECT_EMAIL = "DIRECT_EMAIL";
     public static final String MAILING = "MAILING";
     public static final String NEXTMAILING = "NEXTMAILING";
+    public static final String DIRECT_MAILING = "DIRECT_MAILING";
 
     public UUID uuid;
     public String type;

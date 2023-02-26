@@ -219,7 +219,7 @@ public class SecurityFilter extends Filter {
             if(!configuredAppKey.isEmpty() && appKey.equalsIgnoreCase(configuredAppKey)){
                 result.user=new User();
                 result.user.setUid("externalService");
-                result.user.setRole("admin");
+                result.user.setRole("admin,redactor");
                 result.user.setType(User.APPLICATION);
                 return result;
             }

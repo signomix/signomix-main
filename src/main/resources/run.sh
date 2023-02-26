@@ -5,5 +5,5 @@
 #-Xms100m -Xmx1g -cp .:signomix.jar org.cricketmsf.Runner -r -c config/settings.json
 
 java \
--server -Djava.net.preferIPv4Stack=true -Xms100m -Xmx1g -XX:+UseParallelGC -cp .:signomix.jar org.cricketmsf.Runner -r -c config/settings.json
+-server -Djava.net.preferIPv4Stack=true -Xms150m -Xmx1g -XX:+UseParallelGC -cp .:signomix.jar org.cricketmsf.Runner -r -c config/settings.json
 

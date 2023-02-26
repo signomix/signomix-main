@@ -658,9 +658,7 @@
                         "port": "$QUEUE_PORT",
                         "user": "$QUEUE_USER",
                         "password": "$QUEUE_PASSWORD",
-                        "queue-notifications": "$QUEUE_NOTIFICATIONS",
-                        "queue-mailing": "$QUEUE_MAILING",
-                        "queue-admin-email": "$QUEUE_ADMIN_EMAIL"
+                        "queue-notifications": "$QUEUE_NOTIFICATIONS"
                     }
                 }
             ]

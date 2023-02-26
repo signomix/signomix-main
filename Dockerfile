@@ -8,8 +8,8 @@
 # 1.2.4 parameter will be replaced automatically with the actual project version configured in build.xml
 #
 
-FROM azul/zulu-openjdk-alpine:13
-#FROM azul/zulu-openjdk:13
+#FROM azul/zulu-openjdk-alpine:13
+FROM azul/zulu-openjdk:13
 
 WORKDIR /usr/signomix
 

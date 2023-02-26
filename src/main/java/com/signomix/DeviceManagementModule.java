@@ -200,29 +200,34 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                         }
                         Device device;
                         Device actualDevice;
-                        if (secret.isEmpty()) {
-                            actualDevice = getDevice(userID, tmpUserType, pathExt, thingsAdapter);
-                            device = buildDevice(request, userID, organization, actualDevice);
-                        } else {
+                        boolean preconfigured = Boolean.parseBoolean((String) request.parameters.get("preconfigured"));
+                        if(preconfigured && !secret.isEmpty()) {
                             actualDevice = getDevice(pathExt, secret, thingsAdapter);
                             device = buildDevice(request, userID, organization, actualDevice);
                             device.setActive(true);
+                        }else{
+                            actualDevice = getDevice(userID, tmpUserType, pathExt, thingsAdapter);
+                            device = buildDevice(request, userID, organization, actualDevice);
                         }
                         if (null == device) {
                             result.setCode(HttpAdapter.SC_NOT_FOUND);
                         } else {
                             try {
-                                if(null==organizations.getOrganization(device.getOrganizationId())){
+                                if(tmpUserType!=User.APPLICATION && null==organizations.getOrganization(device.getOrganizationId())){
                                     Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), "device organization not found, organizationId="+device.getOrganizationId()));
                                     result.setCode(409);
                                     return result;
                                 }
-                                thingsAdapter.modifyDevice(userID, userType, device, !secret.isEmpty()); //TODO: error when updating device
-                                if (!secret.isEmpty()) {
+                                thingsAdapter.modifyDevice(userID, userType, device, preconfigured); //TODO: error when updating device
+                                if (preconfigured) {
                                     user.setOrganization(device.getOrganizationId());
                                     users.modify(user); //TODO: error when updating device
+                                    Kernel.getInstance().dispatchEvent(
+                                    new Event(Kernel.getInstance().getName(), IotEvent.CATEGORY_IOT,
+                                            IotEvent.DEVICE_REGISTERED, null, device.getEUI()));
                                 }
-                                sendToQueue(EventEnvelope.DEVICE, device.getEUI(), "update");
+                                String payload = buildUpdatePayload(actualDevice, device, (String) request.parameters.getOrDefault("preconfigured", ""));
+                                sendToQueue(EventEnvelope.DEVICE, device.getEUI(), payload);
 
                             } catch (ThingsDataException | UserException  ex) {
                                 ex.printStackTrace();
@@ -268,6 +273,23 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         return result;
     }
 
+    private String buildUpdatePayload(Device actual, Device updated, String preconfiguredStr) {
+        
+        if (null == actual) {
+            return "";
+        }
+        if (null == updated) {
+            return "";
+        }
+        boolean preconfigured=Boolean.parseBoolean(preconfiguredStr);
+        String payload = "update";
+
+        if(preconfigured){
+            payload = payload + ",preconfigured";
+        }
+        return payload;
+    }
+
     /*
      * Sends EventEnvelope to "events" queue.
      */
@@ -276,7 +298,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         eventWrapper.type = type;
         eventWrapper.id = id;
         eventWrapper.payload = payload;
-        ((Service) Kernel.getInstance()).messageBroker.send(eventWrapper);
+        ((Service) Kernel.getInstance()).getMessageBroker().send(eventWrapper);
     }
 
     @Override
@@ -668,9 +690,9 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                 ex.printStackTrace();
             }
         }
-        String newStatus = (String) request.parameters.getOrDefault("status", "");
-        if(newStatus.isEmpty()){
-            newStatus = (String) request.parameters.getOrDefault("state", "");
+        String newStatus = (String) request.parameters.get("status");
+        if(null==newStatus || newStatus.isEmpty()){
+            newStatus = (String) request.parameters.get("state");
         }
         if (newStatus != null && !newStatus.isEmpty()) {
             try {

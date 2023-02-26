@@ -633,9 +633,24 @@ public class PlatformAdministrationModule {
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "device " + deviceId + " not found"));
             return;
         }
-
+        Dashboard dashboard=null;
+        try {
+            dashboard=dashboardAdapter.getDashboard(device.getUserID(), device.getEUI(), true);
+        } catch (DashboardException ex) {
+            Kernel.handle(Event.logInfo(this.getClass().getSimpleName(), ex.getMessage()));
+        }
+        if(null!=dashboard){
+            //the dashboard is already defined so we only need to set user
+            dashboard.setUserID(device.getUserID());
+            try {
+                dashboardAdapter.modifyDashboard(device.getUserID(), dashboard, authAdapter, true);
+            } catch (DashboardException ex) {
+                Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+            }
+            return;
+        }
         String dashboardTemplateId = device.getTemplate();
-        Dashboard dashboard = new Dashboard(device.getEUI());
+        dashboard = new Dashboard(device.getEUI());
         DashboardTemplate dTemplate=null;
         if (null != dashboardTemplateId) {
             try {
@@ -650,19 +665,21 @@ public class PlatformAdministrationModule {
             Channel chnl;
             HashMap channels = device.getChannels();
             Iterator itr = channels.keySet().iterator();
+            int i=0;
             while (itr.hasNext()) {
                 chnl = (Channel) channels.get(itr.next());
                 widget = new Widget();
-                widget.setName(chnl.getName());
+                widget.setName("w"+i);
                 widget.setTitle(chnl.getName());
                 widget.setType("symbol");
                 widget.setDev_id(deviceId);
                 widget.setChannel(chnl.getName());
-                widget.setQuery("");
+                widget.setQuery("last 1");
                 widget.setRange("");
                 widget.setDescription("");
                 widget.setUnitName(guessChannelUnit(chnl.getName()));
                 dashboard.addWidget(widget);
+                i++;
             }
         }
         dashboard.setName(deviceId);

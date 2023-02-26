@@ -52,7 +52,6 @@ import com.signomix.in.http.LoRaApi;
 import com.signomix.in.http.TtnApi;
 import com.signomix.out.auth.AuthLogic;
 import com.signomix.out.db.ActuatorCommandsDBIface;
-import com.signomix.out.db.IotDatabaseIface;
 import com.signomix.out.db.IotDbDataIface;
 import com.signomix.out.db.ShortenerDBIface;
 import com.signomix.out.gui.DashboardAdapterIface;
@@ -302,15 +301,14 @@ public class Service extends Kernel {
         PlatformAdministrationModule.getInstance().initDatabases(database, userDB, authDB,
                 shortenerDB, getIotDatabase());
         // PlatformAdministrationModule.getInstance().readPlatformConfig(database);
-        /* 
         Kernel.getInstance().handleEvent(
                 new Event(
                         this.getClass().getSimpleName(),
                         Event.CATEGORY_GENERIC,
                         "EMAIL_ADMIN_STARTUP",
                         "+30s",
-                        "Signomix service has been started.")); 
-        */
+                        "Signomix service has been started."));
+
         apiGenerator.init(this);
         setInitialized(true);
     }
@@ -336,7 +334,7 @@ public class Service extends Kernel {
 
     @Override
     public void shutdown() {
-        /* String subject = "Signomix - shutdown";
+        String subject = "Signomix - shutdown";
         String text = "Signomix service is going down.";
         if (null != messageBroker) {
             MessageEnvelope message = new MessageEnvelope();
@@ -347,7 +345,7 @@ public class Service extends Kernel {
             user.setEmail((String) getProperties().getOrDefault("admin-notification-email", ""));
             message.user = user;
             messageBroker.send(message);
-        } */
+        }
         super.shutdown();
     }
 
@@ -609,9 +607,14 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "GET")
     public Object deviceServiceGet(Event event) {
+        try{
         StandardResult result = (StandardResult) deviceLogic.processDeviceEvent(event, thingsAdapter,
                 userAdapter, organizationAdapter, PlatformAdministrationModule.getInstance());
         return result;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;    
+        }
     }
 
     @HttpAdapterHook(adapterName = "DeviceService", requestMethod = "POST")
@@ -829,9 +832,14 @@ public class Service extends Kernel {
 
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "POST")
     public Object userAdd(Event event) {
+        try{
         boolean withConfirmation = "true"
                 .equalsIgnoreCase((String) getProperties().getOrDefault("user-confirm", "false"));
         return UserModule.getInstance().handleRegisterRequest(event, userAdapter, withConfirmation, authAdapter);
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -993,7 +1001,7 @@ public class Service extends Kernel {
                         userAdapter.modify(user);
                         result.setCode(200);
                         // TODO: build default html page or redirect
-                        String pageContent = "Registration confirmed.<br>You can go to <a href=/#!login>login page</a> and sign in.";
+                        String pageContent = "Registration confirmed.<br>You can go to <a href=/app/#!login>login page</a> and sign in.";
                         result.setFileExtension("html");
                         result.setHeader("Content-type", "text/html");
                         result.setPayload(pageContent.getBytes());
@@ -1115,7 +1123,7 @@ public class Service extends Kernel {
     public void logEvent(Event event) {
         try {
             logAdapter.log(event);
-            if (event.getType().equals(Event.LOG_SEVERE)) {
+            /* if (event.getType().equals(Event.LOG_SEVERE)) {
                 String subject = "Signomix - error";
                 String text = event.toString();
                 if (null != messageBroker) {
@@ -1128,7 +1136,7 @@ public class Service extends Kernel {
                     message.user = user;
                     messageBroker.send(message);
                 }
-            }
+            } */
         } catch (Exception e) {
             e.printStackTrace();
         }
