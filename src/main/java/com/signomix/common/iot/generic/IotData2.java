@@ -129,7 +129,12 @@ public class IotData2 implements IotDataIface {
             payload_fields.set(i, tempMap);
         }
         // timestamp
+        try{
         timestampUTC=DateTool.parseTimestamp(timestamp, time, true);
+        }catch(Exception e){
+            e.printStackTrace();
+            timestampUTC=new Timestamp(System.currentTimeMillis());
+        }
     }
 
     @Override
