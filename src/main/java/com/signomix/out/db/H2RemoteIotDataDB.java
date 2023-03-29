@@ -176,6 +176,14 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             e.printStackTrace();
             Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "createStructure() " + e.getMessage()));
         }
+        query="CREATE INDEX IF NOT EXISTS idx_devicedata_eui_tstamp on devicedata(eui,tstamp);"
+        + "CREATE INDEX IF NOT EXISTS idx_devicedata_tstamp on devicedata(tstamp)";
+        try (Connection conn = getConnection(); PreparedStatement pst = conn.prepareStatement(query);) {
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Kernel.handle(Event.logSevere(this.getClass().getSimpleName(), "createStructure() " + e.getMessage()));
+        }
     }
 
     @Override
