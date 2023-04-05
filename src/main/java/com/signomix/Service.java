@@ -850,9 +850,11 @@ public class Service extends Kernel {
      */
     @HttpAdapterHook(adapterName = "UserService", requestMethod = "PUT")
     public Object userUpdate(Event event) {
+        System.out.println("userUpdate");
         String resetPassEmail = event.getRequestParameter("resetpass");
         try {
             if (resetPassEmail == null || resetPassEmail.isEmpty()) {
+                System.out.println("userUpdate.handleUpdateRequest");
                 return UserModule.getInstance().handleUpdateRequest(event, userAdapter, authAdapter);
             } else {
                 String userName = event.getRequestParameter("name");

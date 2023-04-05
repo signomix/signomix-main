@@ -23,14 +23,14 @@
                 </div>
                  <div class="form-group" if={ adminMode }>
                     <label for="type" class="active">{ app.texts.user_form.type[app.language] }</label>
-                    <select class="form-control" id="type" disabled={!allowEdit} onchange={changeType}>
-                        <option value="text" selected={user.type==4}>FREE</option>
-                        <option value="text" selected={user.type==0}>USER</option>
-                        <option value="text" selected={user.type==5}>PRIMARY</option>
-                        <option value="text" selected={user.type==6}>READONLY</option>
-                        <option value="text" selected={user.type==7}>EXTENDED</option>
-                        <option value="text" selected={user.type==8}>SUPERUSER</option>
-                        <option value="text" selected={user.type==100}>SUBSCRIBER</option>
+                    <select class="form-control" name="type" id="type" disabled={!allowEdit} onchange={changeType}>
+                        <option value="FREE" selected={user.type==4}>FREE</option>
+                        <option value="USER" selected={user.type==0}>USER</option>
+                        <option value="PRIMARY" selected={user.type==5}>PRIMARY</option>
+                        <option value="READONLY" selected={user.type==6}>READONLY</option>
+                        <option value="EXTENDED" selected={user.type==7}>EXTENDED</option>
+                        <option value="SUPERUSER" selected={user.type==8}>SUPERUSER</option>
+                        <option value="SUBSCRIBER" selected={user.type==100}>SUBSCRIBER</option>
                     </select>
                 </div>
                 

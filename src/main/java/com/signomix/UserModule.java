@@ -371,6 +371,7 @@ public class UserModule extends UserBusinessLogic {
     public Object handleUpdateRequest(Event event, UserAdapterIface userAdapter, AuthAdapterIface authAdapter) {
         // TODO: check requester rights
         // only admin can set: role or type differ than default
+        System.out.println("handleUpdateRequest");
         RequestObject request = event.getRequest();
         boolean admin = isAdmin(request);
         String uid = request.pathExt;
@@ -433,7 +434,10 @@ public class UserModule extends UserBusinessLogic {
                 try {
                     user.setType(Integer.parseInt(type));
                 } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
+            }else{
+                System.out.println("type is null or not admin ");
             }
             if (services != null && isAdmin(request)) {
                 try {
@@ -509,6 +513,7 @@ public class UserModule extends UserBusinessLogic {
                     user.setConfirmString(link);
                 }
             }
+            System.out.println("user type: " + user.getType());
             userAdapter.modify(user);
             // fire event
             Kernel.getInstance().dispatchEvent(new UserEvent(UserEvent.USER_UPDATED, user.getUid()));
