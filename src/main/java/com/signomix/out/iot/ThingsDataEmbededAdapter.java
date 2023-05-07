@@ -120,7 +120,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public void modifyDevice(String userID, long userType, Device device, boolean force) throws ThingsDataException {
         Device previous=null;
         if (!force) {
-            previous = getDevice(userID, userType, device.getEUI(), true);
+            previous = getDevice(false, userID, userType, device.getEUI(), true);
             if (previous == null) {
                 throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
             }
@@ -144,7 +144,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     @Override
     public void updateHealthStatus(String EUI, long lastSeen, long frameCounter, String downlink, String deviceID)
             throws ThingsDataException {
-        Device dev = getDevice(EUI);
+        Device dev = getDevice(false, EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         } else if (null != monitoringDeviceEui) {
@@ -166,7 +166,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void updateAlertStatus(String EUI, int newAlertStatus) throws ThingsDataException {
-        Device dev = getDevice(EUI);
+        Device dev = getDevice(false, EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         }
@@ -178,7 +178,7 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
 
     @Override
     public void updateDeviceState(String EUI, Double newState) throws ThingsDataException {
-        Device dev = getDevice(EUI);
+        Device dev = getDevice(false, EUI);
         if (dev == null) {
             throw new ThingsDataException(ThingsDataException.NOT_FOUND, "device not found");
         }
@@ -189,9 +189,9 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public Device getDevice(String userId, long userType, String deviceEUI, boolean withShared)
+    public Device getDevice(boolean fullData, String userId, long userType, String deviceEUI, boolean withShared)
             throws ThingsDataException {
-        return getIotDB().getDevice(userId, userType, deviceEUI, withShared);
+        return getIotDB().getDevice(fullData, userId, userType, deviceEUI, withShared);
     }
 
     @Override
@@ -201,24 +201,24 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     }
 
     @Override
-    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
-        return getIotDB().getDevice(deviceEUI, secretKey);
+    public Device getDevice(boolean fullData, String deviceEUI, String secretKey) throws ThingsDataException {
+        return getIotDB().getDevice(fullData, deviceEUI, secretKey);
     }
 
     @Override
-    public Device getDevice(String deviceEUI) throws ThingsDataException {
-        return getIotDB().getDevice(deviceEUI);
+    public Device getDevice(boolean fullData, String deviceEUI) throws ThingsDataException {
+        return getIotDB().getDevice(fullData, deviceEUI);
     }
 
     @Override
-    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared)
+    public List<Device> getUserDevices(boolean fullData, String userID, long organizationID, boolean withShared)
             throws ThingsDataException {
-        return getIotDB().getUserDevices(userID, organizationID, withShared);
+        return getIotDB().getUserDevices(fullData, userID, organizationID, withShared);
     }
 
     @Override
-    public List<Device> getGroupDevices(String userID, long organizationID, String group) throws ThingsDataException {
-        return getIotDB().getGroupDevices(userID, organizationID, group);
+    public List<Device> getGroupDevices(boolean fullData, String userID, long organizationID, String group) throws ThingsDataException {
+        return getIotDB().getGroupDevices(fullData, userID, organizationID, group);
     }
 
     @Override

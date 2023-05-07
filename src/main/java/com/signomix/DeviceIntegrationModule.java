@@ -107,7 +107,7 @@ public class DeviceIntegrationModule {
             try {
                 // device = thingsAdapter.getDeviceChecked(data.getUserId(),
                 // data.getDeviceId());
-                device = thingsAdapter.getDevice(data.getDevEUI());
+                device = thingsAdapter.getDevice(false, data.getDevEUI());
                 isRegistered = (null != device);
                 if (!isRegistered) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),
@@ -465,7 +465,7 @@ public class DeviceIntegrationModule {
 
         Device device;
         try {
-            device = thingsAdapter.getDevice(data.getDeviceEUI());
+            device = thingsAdapter.getDevice(false, data.getDeviceEUI());
             if (null == device) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),
                         "Device " + data.getDeviceEUI() + " is not registered"));
@@ -577,7 +577,7 @@ public class DeviceIntegrationModule {
         data.normalize();
         Device device;
         try {
-            device = thingsAdapter.getDevice(data.getDeviceEUI());
+            device = thingsAdapter.getDevice(false, data.getDeviceEUI());
             if (null == device) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),
                         "Device " + data.getDeviceEUI() + " is not registered"));
@@ -670,8 +670,8 @@ public class DeviceIntegrationModule {
         Device device;
         Device gateway;
         try {
-            device = thingsAdapter.getDevice(data.getDeviceEUI());
-            gateway = thingsAdapter.getDevice(data.getGatewayEUI());
+            device = thingsAdapter.getDevice(false, data.getDeviceEUI());
+            gateway = thingsAdapter.getDevice(false, data.getGatewayEUI());
             if (null == device) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),
                         "Device " + data.getDeviceEUI() + " is not registered"));
@@ -935,7 +935,7 @@ public class DeviceIntegrationModule {
             try {
                 // device = thingsAdapter.getDeviceChecked(data.getUserId(),
                 // data.getDeviceId());
-                device = thingsAdapter.getDevice(data.getDeviceEUI());
+                device = thingsAdapter.getDevice(false,data.getDeviceEUI());
                 isRegistered = (null != device);
                 if (!isRegistered) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),
@@ -1041,7 +1041,7 @@ public class DeviceIntegrationModule {
             try {
                 // device = thingsAdapter.getDeviceChecked(data.getUserId(),
                 // data.getDeviceId());
-                device = thingsAdapter.getDevice(deviceEUI);
+                device = thingsAdapter.getDevice(false, deviceEUI);
                 isRegistered = (null != device);
                 if (!isRegistered) {
                     Kernel.getInstance().dispatchEvent(Event.logWarning(this.getClass().getSimpleName(),

@@ -246,44 +246,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
     }
 
+    
     @Override
-    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared)
-            throws ThingsDataException {
-        String query = buildDeviceQuery();
-        if (withShared && organizationID == 0) {
-            query = query + " AND (d.userid = ? or d.team like ? or d.administrators like ?)";
-        } else if (withShared && organizationID > 0) {
-            query = query + " AND d.organization=?";
-        } else {
-            query = buildDeviceQuery() + " AND d.userid = ?";
-        }
-        System.out.println(query);
-        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-
-            if (withShared && organizationID == 0) {
-                pstmt.setString(1, userID);
-                pstmt.setString(2, "%," + userID + ",%");
-                pstmt.setString(3, "%," + userID + ",%");
-            } else if (withShared && organizationID > 0) {
-                pstmt.setLong(1, organizationID);
-            } else {
-                pstmt.setString(1, userID);
-            }
-            ResultSet rs = pstmt.executeQuery();
-            ArrayList<Device> list = new ArrayList<>();
-
-            while (rs.next()) {
-                System.out.println("rs.next");
-                list.add(buildDevice(rs));
-            }
-            return list;
-        } catch (SQLException e) {
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
-        }
-    }
-
-    @Override
-    public List<Device> getGroupDevices(String userID, long organizationID, String groupID) throws ThingsDataException {
+    public List<Device> getGroupDevices(boolean withStatus, String userID, long organizationID, String groupID) throws ThingsDataException {
         List<Device> devices;
         DeviceGroup group = getGroup(userID, groupID);
         if (null == group
@@ -291,34 +256,43 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             return new ArrayList();
         }
         String query;
-        query = buildDeviceQuery() + " AND d.groups like ?";
+        query = buildDeviceQuery(withStatus) + " AND d.groups like ?";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, "%," + groupID + ",%");
             ResultSet rs = pstmt.executeQuery();
             devices = new ArrayList<>();
             while (rs.next()) {
-                devices.add(buildDevice(rs));
+                Device device=buildDevice(rs);
+                if(withStatus){
+                    device=getDeviceStatusData(device);
+                }
+                devices.add(device);
             }
             return devices;
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
+    @Override
+    public List<Device> getGroupDevices(String userID, long organizationID, String groupID)
+            throws ThingsDataException {
+        return getGroupDevices(false, userID, organizationID, groupID);
+    }
 
     @Override
-    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared)
+    public Device getDevice(boolean withStatus, String userID, long userType, String deviceEUI, boolean withShared)
             throws ThingsDataException {
 
         String query;
         if (User.APPLICATION == userType) {
-            query = buildDeviceQuery()
+            query = buildDeviceQuery(withStatus)
                     + " AND (upper(d.eui)=upper(?))";
         } else if (withShared) {
-            query = buildDeviceQuery()
+            query = buildDeviceQuery(withStatus)
                     + " AND ( upper(d.eui)=upper(?) and (d.userid = ? or d.team like ? or d.administrators like ?))";
         } else {
-            query = buildDeviceQuery() + " AND (upper(d.eui)=upper(?) and d.userid = ?)";
+            query = buildDeviceQuery(withStatus) + " AND (upper(d.eui)=upper(?) and d.userid = ?)";
         }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             if (User.APPLICATION == userType) {
@@ -335,6 +309,9 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Device device = buildDevice(rs);
+                if (withStatus) {
+                    device=getDeviceStatusData(device);
+                }
                 return device;
             } else {
                 return null;
@@ -342,6 +319,83 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         } catch (SQLException e) {
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
+    }
+    @Override
+    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared)
+            throws ThingsDataException {
+        return getDevice(false, userID, userType, deviceEUI, withShared);
+    }
+
+    @Override
+    public Device getDevice(String deviceEUI) throws ThingsDataException {
+        return getDevice(false, deviceEUI);
+    }
+
+    @Override
+    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
+        return getDevice(false, deviceEUI, secretKey);
+    }
+    @Override
+    public Device getDevice(boolean withStatus, String deviceEUI) throws ThingsDataException {
+        String query = buildDeviceQuery(withStatus) + " AND upper(d.eui) = upper(?)";
+        if (deviceEUI == null || deviceEUI.isEmpty()) {
+            return null;
+        }
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, deviceEUI);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Device device = buildDevice(rs);
+                if(withStatus){
+                    device=getDeviceStatusData(device);
+                }
+                return device;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
+    public Device getDevice(boolean withStatus, String deviceEUI, String secretKey) throws ThingsDataException {
+        String query = buildDeviceQuery(withStatus) + " AND upper(d.eui) = upper(?) AND devicekey=? AND userid=''";
+        System.out.println(query);
+        if (deviceEUI == null || deviceEUI.isEmpty()) {
+            return null;
+        }
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, deviceEUI);
+            pstmt.setString(2, secretKey);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Device device = buildDevice(rs);
+                if(withStatus){
+                    device=getDeviceStatusData(device);
+                }
+                return device;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+    private Device getDeviceStatusData(Device device) throws ThingsDataException {
+        String query = "SELECT ts,status,alert FROM devicestatus WHERE eui=?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, device.getEUI());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                device.setLastSeen(rs.getTimestamp("ts").getTime());
+                device.setState(rs.getDouble("status"));
+                device.setAlertStatus(rs.getInt("alert"));
+            }
+            return device;
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }   
     }
 
     @Override
@@ -382,47 +436,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
     }
 
-    @Override
-    public Device getDevice(String deviceEUI) throws ThingsDataException {
-        String query = buildDeviceQuery() + " AND upper(d.eui) = upper(?)";
-        if (deviceEUI == null || deviceEUI.isEmpty()) {
-            return null;
-        }
-        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, deviceEUI);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                Device device = buildDevice(rs);
-                return device;
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
-        }
-    }
-
-    @Override
-    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException {
-        String query = buildDeviceQuery() + " AND upper(d.eui) = upper(?) AND devicekey=? AND userid=''";
-        System.out.println(query);
-        if (deviceEUI == null || deviceEUI.isEmpty()) {
-            return null;
-        }
-        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
-            pstmt.setString(1, deviceEUI);
-            pstmt.setString(2, secretKey);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                Device device = buildDevice(rs);
-                return device;
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
-        }
-    }
+    
 
     @Override
     public void putDevice(Device device) throws ThingsDataException {
@@ -562,7 +576,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     @Override
     public boolean isAuthorized(String userID, long organizationID, String deviceEUI) throws ThingsDataException {
         // TODO: Should be access to virtual devices authorized for the Service?
-        String query = buildDeviceQuery();
+        String query = buildDeviceQuery(false);
         String query1 = query
                 + " AND ( upper(d.eui) = upper(?) and (d.userid=? or d.team like ? or d.administrators like ?))";
         String query2 = query + " AND ( upper(d.eui) = upper(?) and type = 'VIRTUAL')";
@@ -1111,7 +1125,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public int getUserDevicesCount(String userID) throws ThingsDataException {
+    public int getUserDevicesCount(boolean fullData, String userID) throws ThingsDataException {
         String query = "select count(eui) from devices where userid = ?";
         int counter = 0;
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
@@ -1126,10 +1140,61 @@ public class H2RemoteIotDataDB extends H2RemoteDB
             throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
         }
     }
+    @Override
+    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared)
+            throws ThingsDataException {
+        return getUserDevices(false, userID, organizationID, withShared);
+    }
+    @Override
+    public List<Device> getUserDevices(boolean fullData, String userID, long organizationID, boolean withShared)
+            throws ThingsDataException {
+        String query = buildDeviceQuery(true);
+        if (withShared && organizationID == 0) {
+            query = query + " AND (d.userid = ? or d.team like ? or d.administrators like ?)";
+        } else if (withShared && organizationID > 0) {
+            query = query + " AND d.organization=?";
+        } else {
+            query = buildDeviceQuery(true) + " AND d.userid = ?";
+        }
+        System.out.println(query);
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+
+            if (withShared && organizationID == 0) {
+                pstmt.setString(1, userID);
+                pstmt.setString(2, "%," + userID + ",%");
+                pstmt.setString(3, "%," + userID + ",%");
+            } else if (withShared && organizationID > 0) {
+                pstmt.setLong(1, organizationID);
+            } else {
+                pstmt.setString(1, userID);
+            }
+            ResultSet rs = pstmt.executeQuery();
+            ArrayList<Device> list = new ArrayList<>();
+
+            while (rs.next()) {
+                System.out.println("rs.next");
+                Device device=buildDevice(rs);
+                if(fullData){
+                    device=getDeviceStatusData(device);
+                }
+                list.add(device);
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+
+    @Override
+    public int getUserDevicesCount(String userID) throws ThingsDataException {
+        return getUserDevicesCount(false, userID);
+    }
+
 
     @Override
     public List<Device> getInactiveDevices() throws ThingsDataException {
-        String query = buildDeviceQuery()
+        String query = buildDeviceQuery(false)
                 + " AND ( d.tinterval > 0 and d.alert < 2 and (datediff(S,dateadd(S, d.lastseen/1000, DATE '1970-01-01'),now())-"
                 + timeOffset + ") > tinterval/1000);";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
@@ -2749,7 +2814,8 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         return result;
     }
 
-    private String buildDeviceQuery() {
+    private String buildDeviceQuery(boolean withStatus) {
+        //TODO: withStatus is not used
         String query = "SELECT"
                 + " d.eui, d.name, d.userid, d.type, d.team, d.channels, d.code, d.decoder, d.devicekey, d.description, d.lastseen, d.tinterval,"
                 + " d.lastframe, d.template, d.pattern, d.downlink, d.commandscript, d.appid, d.groups, d.alert,"
@@ -2804,4 +2870,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
         }
     }
 
+    
+
+    
 }

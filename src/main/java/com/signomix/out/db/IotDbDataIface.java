@@ -28,7 +28,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException;
 
-    public int getUserDevicesCount(String userID) throws ThingsDataException;
+    public int getUserDevicesCount(boolean fullData, String userID) throws ThingsDataException;
 
     public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
 

@@ -125,7 +125,7 @@ public class IotEventHandler {
                     params = payload.split("@");
                     // create user alert with information about channel removal
                     try {
-                        Device device = thingsAdapter.getDevice(params[1]);
+                        Device device = thingsAdapter.getDevice(false,params[1]);
                         IotEvent info = new IotEvent(IotEvent.INFO, params[1] + "\t" + device.getUserID(),
                                 "Data channel \"" + params[0]
                                         + "\" has been removed from the device definition. You should check dependent dashboards.");
@@ -179,9 +179,9 @@ public class IotEventHandler {
                     Device device = null;
                     Device sourceDevice = null;
                     try {
-                        sourceDevice = thingsAdapter.getDevice(sourceDeviceEui);
+                        sourceDevice = thingsAdapter.getDevice(false,sourceDeviceEui);
                         if (null != sourceDevice) {
-                            device = thingsAdapter.getDevice(sourceDevice.getUserID(), -1, deviceEUI, false);
+                            device = thingsAdapter.getDevice(false,sourceDevice.getUserID(), -1, deviceEUI, false);
                         }
                     } catch (ThingsDataException ex) {
                         Kernel.getInstance().dispatchEvent(
@@ -244,7 +244,7 @@ public class IotEventHandler {
                     if (!eui.isEmpty()) {
                         Device d = null;
                         try {
-                            d = thingsAdapter.getDevice(eui);
+                            d = thingsAdapter.getDevice(false,eui);
                         } catch (ThingsDataException ex) {
                         }
                         if (null != d) {

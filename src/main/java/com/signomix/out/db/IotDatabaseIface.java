@@ -23,15 +23,15 @@ public interface IotDatabaseIface extends KeyValueDBIface {
     
     public void createStructure();
 
-    public List<Device> getUserDevices(String userID, long organizationID, boolean withShared) throws ThingsDataException;
+    public List<Device> getUserDevices(boolean fullData, String userID, long organizationID, boolean withShared) throws ThingsDataException;
 
     public int getUserDevicesCount(String userID) throws ThingsDataException;
 
-    public Device getDevice(String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
+    public Device getDevice(boolean fullData, String userID, long userType, String deviceEUI, boolean withShared) throws ThingsDataException;
     public boolean checkAccess(String userID, long userType, String deviceEUI, long organizationID, boolean withShared) throws ThingsDataException;
 
-    public Device getDevice(String deviceEUI) throws ThingsDataException;
-    public Device getDevice(String deviceEUI, String secretKey) throws ThingsDataException;
+    public Device getDevice(boolean fullData, String deviceEUI) throws ThingsDataException;
+    public Device getDevice(boolean fullData, String deviceEUI, String secretKey) throws ThingsDataException;
 
     public DeviceTemplate getDeviceTemplte(String templateEUI) throws ThingsDataException;
 
@@ -85,7 +85,7 @@ public interface IotDatabaseIface extends KeyValueDBIface {
 
     public List<Device> getInactiveDevices() throws ThingsDataException;
 
-    public List<Device> getGroupDevices(String userID, long organizationID, String groupID) throws ThingsDataException;
+    public List<Device> getGroupDevices(boolean fullData, String userID, long organizationID, String groupID) throws ThingsDataException;
     
     public DeviceGroup getGroup(String groupEUI) throws ThingsDataException;
 

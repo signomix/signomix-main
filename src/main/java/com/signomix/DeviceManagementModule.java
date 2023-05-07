@@ -76,7 +76,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
             if (pathExt.isEmpty()) { // user id is from request header
                 switch (request.method) {
                     case "GET": // get list of user devices
-                        result.setData(getUserDevices(userID, organizationID, thingsAdapter));
+                        result.setData(getUserDevices(true, userID, organizationID, thingsAdapter));
                         break;
                     case "POST": // add new device
                         User user = users.get(userID);
@@ -120,6 +120,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                 switch (request.method) {
                     case "GET": // get device definition or channel data - depending on pathExt
                         String query = (String) request.parameters.getOrDefault("query", null);
+                        boolean fullData= null!=request.parameters.get("full");
                         String params[] = pathExt.split("/"); // pathExt has form: deviceID/channel (so deviceID must be
                                                               // unique)
                         String tmpUserID = userID;
@@ -167,9 +168,9 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                                     Device device;
                                     System.out.println("KEY:" + secret);
                                     if (secret.isEmpty()) {
-                                        device = getDevice(userID, userType, pathExt, thingsAdapter);
+                                        device = getDevice(fullData, userID, userType, pathExt, thingsAdapter);
                                     } else {
-                                        device = getDevice(pathExt, secret, thingsAdapter);
+                                        device = getDevice(fullData, pathExt, secret, thingsAdapter);
                                     }
                                     // Device device = getDevice(userID, userType, deviceEUI, thingsAdapter);
                                     if (device != null) {
@@ -202,11 +203,11 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                         Device actualDevice;
                         boolean preconfigured = Boolean.parseBoolean((String) request.parameters.get("preconfigured"));
                         if(preconfigured && !secret.isEmpty()) {
-                            actualDevice = getDevice(pathExt, secret, thingsAdapter);
+                            actualDevice = getDevice(true, pathExt, secret, thingsAdapter);
                             device = buildDevice(request, userID, organization, actualDevice);
                             device.setActive(true);
                         }else{
-                            actualDevice = getDevice(userID, tmpUserType, pathExt, thingsAdapter);
+                            actualDevice = getDevice(true, userID, tmpUserType, pathExt, thingsAdapter);
                             device = buildDevice(request, userID, organization, actualDevice);
                         }
                         if (null == device) {
@@ -253,7 +254,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                         if (null != eui) {
                             eui = eui.toUpperCase();
                         }
-                        Device dev = getDevice(userID, -1, eui, thingsAdapter);
+                        Device dev = getDevice(false, userID, -1, eui, thingsAdapter);
                         if (dev.getUserID().equals(userID)) {
                             removeDevice(pathExt, thingsAdapter);
                             Kernel.getInstance().dispatchEvent(
@@ -360,7 +361,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
                             result.setData(getUserGroups(userID, thingsAdapter));
                         } else {
                             result.setData(
-                                    getGroupDevices(tmpUserID, organizationID, (String) request.parameters.get("group"),
+                                    getGroupDevices(false, tmpUserID, organizationID, (String) request.parameters.get("group"),
                                             thingsAdapter));
                         }
                         break;
@@ -831,18 +832,18 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         return group;
     }
 
-    private Device getDevice(String userID, long userType, String deviceEUI, ThingsDataIface thingsAdapter) {
+    private Device getDevice(boolean fullData, String userID, long userType, String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.getDevice(userID, userType, deviceEUI, true);
+            return thingsAdapter.getDevice(fullData, userID, userType, deviceEUI, true);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
         return null;
     }
 
-    private Device getDevice(String deviceEUI, String secretKey, ThingsDataIface thingsAdapter) {
+    private Device getDevice(boolean fullData, String deviceEUI, String secretKey, ThingsDataIface thingsAdapter) {
         try {
-            return thingsAdapter.getDevice(deviceEUI, secretKey);
+            return thingsAdapter.getDevice(fullData, deviceEUI, secretKey);
         } catch (ThingsDataException ex) {
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
         }
@@ -870,7 +871,7 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
 
     private void removeDevice(String deviceEUI, ThingsDataIface thingsAdapter) {
         try {
-            String userID = thingsAdapter.getDevice(deviceEUI).getUserID();
+            String userID = thingsAdapter.getDevice(false, deviceEUI).getUserID();
             thingsAdapter.removeDevice(deviceEUI);
             Kernel.handle(new IotEvent(IotEvent.DEVICE_REMOVED, deviceEUI + "\t" + userID));
         } catch (ThingsDataException ex) {
@@ -947,9 +948,9 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
         }
     }
 
-    private List getUserDevices(String userID, long organizationID, ThingsDataIface thingsAdapter) {
+    private List getUserDevices(boolean fullData, String userID, long organizationID, ThingsDataIface thingsAdapter) {
         try {
-            return (ArrayList) thingsAdapter.getUserDevices(userID, organizationID, true);
+            return (ArrayList) thingsAdapter.getUserDevices(fullData, userID, organizationID, true);
         } catch (Exception ex) {
             ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));
@@ -958,9 +959,9 @@ public class DeviceManagementModule extends OutboundAdapter implements DeviceMan
 
     }
 
-    private List getGroupDevices(String userID, long organizationID, String group, ThingsDataIface thingsAdapter) {
+    private List getGroupDevices(boolean fullData, String userID, long organizationID, String group, ThingsDataIface thingsAdapter) {
         try {
-            return (ArrayList) thingsAdapter.getGroupDevices(userID, organizationID, group);
+            return (ArrayList) thingsAdapter.getGroupDevices(fullData, userID, organizationID, group);
         } catch (Exception ex) {
             ex.printStackTrace();
             Kernel.handle(Event.logWarning(this.getClass().getSimpleName(), ex.getMessage()));

@@ -86,7 +86,7 @@ public class ActuatorModule {
                 userType=Long.parseLong(request.headers.getFirst("X-user-type"));
             }catch(Exception e){
             }
-            device = thingsAdapter.getDevice(userID, userType, eui, false);
+            device = thingsAdapter.getDevice(false, userID, userType, eui, false);
         } catch (ThingsDataException ex) {
             result.setCode(HttpAdapter.SC_BAD_REQUEST);
             result.setMessage(ex.getMessage());
@@ -178,9 +178,9 @@ public class ActuatorModule {
         Device device = null;
         try {
             if (!sourceEUI.isEmpty()) {
-                sourceDevice = thingsAdapter.getDevice(sourceEUI);
+                sourceDevice = thingsAdapter.getDevice(false, sourceEUI);
             }
-            device = thingsAdapter.getDevice(deviceEUI);
+            device = thingsAdapter.getDevice(false, deviceEUI);
             if (device == null) {
                 Kernel.getInstance().dispatchEvent(Event.logWarning(this, "device " + deviceEUI + " not found"));
                 return;
