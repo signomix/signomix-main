@@ -435,7 +435,7 @@
                     "properties": {
                         "helper-name": "authDB",
                         "helper-name-2": "userAdapter",
-                        "token-timeout": "1800"
+                        "token-timeout": "10000"
                     }
                 },
                 {

@@ -192,7 +192,7 @@ public class SecurityFilter extends Filter {
             String[] cookie;
             for (int i = 0; i < cookies.length; i++) {
                 cookie = cookies[i].split("=");
-                if (SIGNOMIX_TOKEN_NAME.equals(cookie[0])) {
+                if (SIGNOMIX_TOKEN_NAME.equals(cookie[0].trim())) {
                     cookieValue = cookie[1];
                     logger.debug("signomixToken={}", cookieValue);
                 }

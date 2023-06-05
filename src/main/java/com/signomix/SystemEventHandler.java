@@ -59,7 +59,7 @@ public class SystemEventHandler {
             case "SHUTDOWN":
                 kernel.shutdown();
                 break;
-            case "EMAIL_ADMIN_STARTUP":
+/*             case "EMAIL_ADMIN_STARTUP":
                 // ExternalNotificatorIface externalNotificator = ((Service)
                 // kernel).externalNotificator;
                 String subject = "Signomix - started";
@@ -74,7 +74,7 @@ public class SystemEventHandler {
                     message.user = user;
                     externalNotificator.send(message);
                 }
-                break;
+                break; */
             case "CLEAR_DATA":
                 try {
                     String payload = (String) event.getPayload();
@@ -116,26 +116,19 @@ public class SystemEventHandler {
                             "Problem while clearing web cache - " + ex.getMessage()));
                 }
                 break;
-            // case "MAILING_SEND":
-            // MailingModule.getInstance().sendMailing((Long)event.getPayload());
-            // break;
-            case "STATUS":
+/*            case "STATUS":
                 System.out.println(kernel.printStatus());
                 break;
-            // case "COMMAND":
-            // ActuatorModule.getInstance().processCommand(event, actuatorCommandsDB,
-            // virtualStackAdapter, thingsAdapter, scriptingAdapter);
-            // break;
-            case "BACKUP":
+             case "BACKUP":
                 PlatformAdministrationModule
                         .getInstance()
-                        .backupDatabases(database, userDB, authDB, cmsDatabase,
-                                /* thingsDB, iotDataDB, actuatorCommandsDB, */ iotDB);
+                        .backupDatabases(database, userDB, authDB, cmsDatabase,iotDB);
                 break;
             case "CHECK_DEVICES":
                 ((Service)Kernel.getInstance()).deviceLogic.checkStatus(thingsAdapter);
                 //DeviceManagementModule.getInstance().checkStatus(thingsAdapter);
-                break;
+                break; 
+                */
             default:
                 kernel.handleEvent(Event.logWarning("Don't know how to handle type " + event.getType(),
                         event.getPayload().toString()));
