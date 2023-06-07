@@ -917,7 +917,7 @@ public class Service extends Kernel {
         return OrganizationModule.getInstance().handleDeleteRequest(event, organizationAdapter);
     }
 
-    @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "OPTIONS")
+/*     @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "OPTIONS")
     public Object applicationCors(Event requestEvent) {
         StandardResult result = new StandardResult();
         result.setCode(ResponseCode.OK);
@@ -952,7 +952,7 @@ public class Service extends Kernel {
     @HttpAdapterHook(adapterName = "ApplicationService", requestMethod = "DELETE")
     public Object applicationDelete(Event event) {
         return ApplicationModule.getInstance().handleDeleteRequest(event, applicationAdapter);
-    }
+    } */
 
     @HttpAdapterHook(adapterName = "AuthService", requestMethod = "OPTIONS")
     public Object authCors(Event requestEvent) {
