@@ -206,7 +206,12 @@ public class Dashboard {
     }
 
     public void setWidgetsFromJson(String jsonString) {
-        widgets = (ArrayList) JsonReader.jsonToJava(jsonString);
+        try{
+            widgets = (ArrayList) JsonReader.jsonToJava(jsonString);
+        }catch(Exception e){
+            e.printStackTrace();
+            widgets = new ArrayList();
+        }
     }
 
     public Dashboard normalize() {
