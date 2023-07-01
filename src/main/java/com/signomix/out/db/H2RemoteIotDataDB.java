@@ -134,6 +134,7 @@ public class H2RemoteIotDataDB extends H2RemoteDB
                 .append("userid varchar,").append("payload varchar,").append("timepoint varchar,")
                 .append("serviceid varchar,").append("uuid varchar,").append("calculatedtimepoint bigint,")
                 .append("createdat bigint,").append("rooteventid bigint,").append("cyclic boolean);");
+        sb.append("CREATE INDEX IF NOT EXISTS idx_alerts_userid_id on alerts(userid, id);");
         sb.append("CREATE TABLE IF NOT EXISTS devicechannels (").append("eui varchar primary key,")
                 .append("channels varchar);");
         sb.append("CREATE TABLE IF NOT EXISTS devicedata (").append("eui varchar not null,").append("userid varchar,")
