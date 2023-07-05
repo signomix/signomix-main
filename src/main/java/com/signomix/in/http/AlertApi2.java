@@ -75,7 +75,9 @@ public class AlertApi2 extends HttpPortedAdapter implements HttpAdapterIface, Ad
             err.put("message", "user ID must be defined");
             return ProcedureCall.respond(400, err);
         }
-        return ProcedureCall.forward(new AlertApiEvent("", userId), "get");
+        String limit = (String)request.parameters.get("limit");
+        String offset = (String)request.parameters.get("offset");
+        return ProcedureCall.forward(new AlertApiEvent("", userId, limit, offset), "get");
     }
 
     private ProcedureCall preprocessDelete(RequestObject request) {
@@ -93,7 +95,7 @@ public class AlertApi2 extends HttpPortedAdapter implements HttpAdapterIface, Ad
             err.put("message", "user ID must be defined");
             return ProcedureCall.respond(400, err);
         }
-        return ProcedureCall.forward(new AlertApiEvent(alertId, userId), "delete");
+        return ProcedureCall.forward(new AlertApiEvent(alertId, userId, null, null), "delete");
     }
 
     /**

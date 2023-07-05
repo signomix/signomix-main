@@ -535,7 +535,7 @@ public class Service extends Kernel {
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "get")
     public Object handleAlertGet(AlertApiEvent event) {
-        return AlertModule.getInstance().getAlerts(event.userId, thingsAdapter);
+        return AlertModule.getInstance().getAlerts(event.userId, event.limit, event.offset, thingsAdapter);
     }
 
     @PortEventClassHook(className = "AlertApiEvent", procedureName = "delete")

@@ -27,12 +27,23 @@ public class AlertModule {
         }
         return service;
     }
-    
-    public Object getAlerts(String userId, ThingsDataIface thingsAdapter) {
+
+    public Object getAlerts(String userId, String limit, String offset, ThingsDataIface thingsAdapter) {
         StandardResult result = new StandardResult();
+        Integer reqLimit = null;
+        Integer reqOffset = null;
+        try{
+            if (limit != null) {
+                reqLimit = Integer.parseInt(limit);
+            }
+            if (offset != null) {
+                reqOffset = Integer.parseInt(offset);
+            }
+        }catch(Exception e){
+        }
         if (userId != null) {
             try {
-                List l = thingsAdapter.getAlerts(userId);
+                List l = thingsAdapter.getAlerts(userId, reqLimit, reqOffset);
                 result.setData(l);
             } catch (ThingsDataException ex) {
                 Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
@@ -53,7 +64,7 @@ public class AlertModule {
         StandardResult result = new StandardResult();
         if (userID != null) {
             try {
-                List l = thingsAdapter.getAlerts(userID);
+                List l = thingsAdapter.getAlerts(userID, null, null);
                 result.setData(l);
             } catch (ThingsDataException ex) {
                 Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
@@ -63,15 +74,15 @@ public class AlertModule {
         }
         return result;
     }
-    
+
     public Object removeAlert(Event event, ThingsDataIface thingsAdapter) {
-        //TODO: access rights
+        // TODO: access rights
         RequestObject request = event.getRequest();
         String userID = request.headers.getFirst("X-user-id");
         String alertId = request.pathExt;
         StandardResult result = new StandardResult();
         try {
-            //TODO: authorization
+            // TODO: authorization
             thingsAdapter.removeAlert(Long.parseLong(alertId));
             result.setData("OK");
         } catch (NumberFormatException | ThingsDataException ex) {
@@ -83,10 +94,10 @@ public class AlertModule {
     }
 
     public Object removeAlert(String userId, String alertId, ThingsDataIface thingsAdapter) {
-        //TODO: access rights
+        // TODO: access rights
         StandardResult result = new StandardResult();
         try {
-            //TODO: authorization
+            // TODO: authorization
             thingsAdapter.removeAlert(Long.parseLong(alertId));
             result.setData("OK");
         } catch (NumberFormatException | ThingsDataException ex) {
@@ -117,5 +128,5 @@ public class AlertModule {
             Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
         }
     }
-    
+
 }

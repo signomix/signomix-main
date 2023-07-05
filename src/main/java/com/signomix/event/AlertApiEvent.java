@@ -11,10 +11,14 @@ public class AlertApiEvent extends EventDecorator implements EventIface {
 
     public String alertId;
     public String userId;
-    public AlertApiEvent(String alertId, String userId) {
+    public String limit;
+    public String offset;
+    public AlertApiEvent(String alertId, String userId, String limit, String offset) {
         super();
         this.alertId=alertId;
         this.userId=userId;
+        this.limit=limit;
+        this.offset=offset;
     }
     
 }

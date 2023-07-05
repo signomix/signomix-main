@@ -684,15 +684,18 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
-    public List getAlerts(String userID, boolean descending) throws ThingsDataException {
-        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? order by id ";
-        if (descending) {
-            query = query.concat(" desc");
+    public List getAlerts(String userID, Integer limit, Integer offset, boolean descending) throws ThingsDataException {
+        String limitAndOffset = "";
+        if(null!=limit && null!=offset){
+            limitAndOffset = " limit " + limit + " offset " + offset;
         }
-        query = query.concat(" limit ?");
+        String query = "select id,name,category,type,deviceeui,userid,payload,timepoint,serviceid,uuid,calculatedtimepoint,createdat,rooteventid,cyclic from alerts where userid = ? "
+        +" order by id desc "+limitAndOffset;
+        // if (descending) {
+        //     query = query.concat(" desc");
+        // }
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
             pstmt.setString(1, userID);
-            pstmt.setLong(2, requestLimit);
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Alert> list = new ArrayList<>();
             while (rs.next()) {

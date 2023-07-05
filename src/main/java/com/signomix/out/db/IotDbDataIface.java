@@ -49,7 +49,7 @@ public interface IotDbDataIface extends KeyValueDBIface {
 
     public void addAlert(Event alert) throws ThingsDataException;
 
-    public List getAlerts(String userID, boolean descending) throws ThingsDataException;
+    public List getAlerts(String userID, Integer limit, Integer offset, boolean descending) throws ThingsDataException;
 
     public void removeAlert(long alertID) throws ThingsDataException;
 
