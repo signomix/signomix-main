@@ -286,6 +286,10 @@ public class ThingsDataEmbededAdapter extends OutboundAdapter implements Adapter
     public List getAlerts(String userId, Integer limit, Integer offset) throws ThingsDataException {
         return getIotDB().getAlerts(userId, limit, offset, true);
     }
+    @Override
+    public int getAlertsCount(String userId) throws ThingsDataException {
+        return getIotDB().getAlertsCount(userId);
+    }
 
     @Override
     public void removeAlert(long alertId) throws ThingsDataException {

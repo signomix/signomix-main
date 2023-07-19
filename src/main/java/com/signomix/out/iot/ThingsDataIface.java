@@ -54,6 +54,7 @@ public interface ThingsDataIface {
     public void saveAlert(Event event) throws ThingsDataException;
     public void removeAlert(long alertId) throws ThingsDataException;
     public List getAlerts(String userId, Integer limit, Integer offset) throws ThingsDataException;
+    public int getAlertsCount(String userId) throws ThingsDataException;
     public void removeUserAlerts(String userId) throws ThingsDataException;
     public void removeUserAlerts(String userId, long checkPoint) throws ThingsDataException;
     public void removeOutdatedAlerts(long checkPoint) throws ThingsDataException;

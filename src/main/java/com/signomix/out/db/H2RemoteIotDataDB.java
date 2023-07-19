@@ -684,6 +684,22 @@ public class H2RemoteIotDataDB extends H2RemoteDB
     }
 
     @Override
+    public int getAlertsCount(String userID) throws ThingsDataException {
+        String query = "select count(*) from alerts where userid = ? ";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query);) {
+            pstmt.setString(1, userID);
+            ResultSet rs = pstmt.executeQuery();
+            ArrayList<Alert> list = new ArrayList<>();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new ThingsDataException(ThingsDataException.HELPER_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
     public List getAlerts(String userID, Integer limit, Integer offset, boolean descending) throws ThingsDataException {
         String limitAndOffset = "";
         if(null!=limit && null!=offset){

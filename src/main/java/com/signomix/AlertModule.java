@@ -28,18 +28,33 @@ public class AlertModule {
         return service;
     }
 
+    public Object getAlertsCount(String userId, ThingsDataIface thingsAdapter) {
+        StandardResult result = new StandardResult();
+        if (userId != null) {
+            try {
+                Integer count = thingsAdapter.getAlertsCount(userId);
+                result.setData(count);
+            } catch (ThingsDataException ex) {
+                Kernel.getInstance().dispatchEvent(Event.logSevere(this.getClass().getSimpleName(), ex.getMessage()));
+                result.setCode(HttpAdapter.SC_BAD_REQUEST);
+                result.setMessage(ex.getMessage());
+            }
+        }
+        return result;
+    }
+
     public Object getAlerts(String userId, String limit, String offset, ThingsDataIface thingsAdapter) {
         StandardResult result = new StandardResult();
         Integer reqLimit = null;
         Integer reqOffset = null;
-        try{
+        try {
             if (limit != null) {
                 reqLimit = Integer.parseInt(limit);
             }
             if (offset != null) {
                 reqOffset = Integer.parseInt(offset);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
         }
         if (userId != null) {
             try {
