@@ -18,14 +18,14 @@ public class Device {
 
     public static String GENERIC = "GENERIC";
     public static String TTN = "TTN";
-    //public static String TTNCLIENT = "TTNCLIENT";
+    // public static String TTNCLIENT = "TTNCLIENT";
     public static String GATEWAY = "GATEWAY";
-    //public static String ACTUATOR = "ACTUATOR";
+    // public static String ACTUATOR = "ACTUATOR";
     public static String VIRTUAL = "VIRTUAL";
     public static String LORA = "LORA";
     public static String KPN = "KPN";
     public static String EXTERNAL = "EXTERNAL";
-    
+
     public static int UNKNOWN = 0;
     public static int OK = 1;
     public static int FAILURE = 2;
@@ -35,12 +35,12 @@ public class Device {
     /**
      * EUI
      */
-    private String EUI;  // TTN: devEUI
-    private String name; // 
-    private String applicationEUI; //TTN: appEUI
-    private String applicationID;  //TTn: appID
-    private String key;  // TTN: HTTP Integration Authorization request header
-    private String userID; //device owner
+    private String EUI; // TTN: devEUI
+    private String name; //
+    private String applicationEUI; // TTN: appEUI
+    private String applicationID; // TTn: appID
+    private String key; // TTN: HTTP Integration Authorization request header
+    private String userID; // device owner
     private String type;
     private String team;
     private LinkedHashMap channels;
@@ -51,7 +51,7 @@ public class Device {
     private long transmissionInterval;
     private long lastFrame;
     private boolean checkFrames;
-    private String pattern; //not used
+    private String pattern; // not used
     private String downlink;
     private String commandScript;
     private String groups;
@@ -70,14 +70,13 @@ public class Device {
     private String applicationConfig;
     private Long organizationId;
 
-
-    //TODO: change uid to uidHex and add validation (is it hex value)
+    // TODO: change uid to uidHex and add validation (is it hex value)
     /**
      * IoT device
      */
     public Device() {
         EUI = "###"; // unique idenitifier
-        //uid = ""; // device internal ID ( == not unique device_address in TTN!)
+        // uid = ""; // device internal ID ( == not unique device_address in TTN!)
         userID = "";
         type = "GENERIC";
         team = "";
@@ -87,7 +86,7 @@ public class Device {
         key = null;
         description = "";
         lastSeen = -1;
-        transmissionInterval = 0; //10 minutes
+        transmissionInterval = 0; // 10 minutes
         lastFrame = -1;
         checkFrames = true;
         alertStatus = UNKNOWN;
@@ -98,13 +97,12 @@ public class Device {
         longitude = 0d;
         altitude = 0d;
         state = 0d;
-        administrators="";
-        configuration=null;
-        orgApplicationId=0L;
-        applicationConfig=null;
-        organizationId=0L;
+        administrators = "";
+        configuration = null;
+        orgApplicationId = 0L;
+        applicationConfig = null;
+        organizationId = 0L;
     }
-
 
     public void print() {
         System.out.println("DEVICE: " + getEUI());
@@ -117,11 +115,10 @@ public class Device {
         return organizationId;
     }
 
-
     public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
     }
-    
+
     public Long getOrgApplicationId() {
         return orgApplicationId;
     }
@@ -137,8 +134,6 @@ public class Device {
     public void setApplicationConfig(String applicationConfig) {
         this.applicationConfig = applicationConfig;
     }
-
-
 
     public boolean isVirtual() {
         return VIRTUAL.equals(getType());
@@ -226,7 +221,7 @@ public class Device {
         }
     }
 
-        /**
+    /**
      * @return the team
      */
     public String getAdministrators() {
@@ -237,7 +232,7 @@ public class Device {
      * @param team the team to set
      */
     public void setAdministrators(String team) {
-        this.administrators = team!=null?team:"";
+        this.administrators = team != null ? team : "";
         if (!this.administrators.startsWith(",")) {
             this.administrators = "," + this.administrators;
         }
@@ -259,6 +254,8 @@ public class Device {
             sb.append(key).append(",");
         });
         String result = sb.toString();
+        // just in case replace all whitespaces
+        result = result.replaceAll("\\s+", "");
         if (!result.isEmpty()) {
             result = result.substring(0, result.length() - 1);
         }
