@@ -1,3 +1,7 @@
+On November 22, 2023, I changed the name of the GitHub repository "signomix" to "signomix-main". This change was intended to organize the naming in a way that better reflects the purpose of each repository in the Signomix platform. 
+
+You can find more information about the platform and the changes in the project in the "signomix-ta" repository.
+
 # SIGNOMIX
 
 **IoT & data management platform**
